@@ -1,0 +1,278 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>{#advanced_dlg.link_title}</title>
+	<script type="text/javascript" src="../../tiny_mce_popup.js"></script>
+	<script type="text/javascript" src="../../utils/mctabs.js"></script>
+	<script type="text/javascript" src="../../utils/form_utils.js"></script>
+	<script type="text/javascript" src="../../utils/validate.js"></script>
+	<script type="text/javascript" src="js/link.js"></script>
+	<script type="text/javascript">
+        // var docma_href_old = '';
+        var docma_last_len = 0;
+        var docma_link_arr = null;
+        var docma_fill_started = false;
+        var docma_fill_finished = false;
+        function docmaInit() {
+          var he = document.getElementById('href');
+          // if (he.value == '') he.value="#";
+          he.onkeyup=hrefKeyTyping;
+          fillDataList();
+          // Uncomment to enable automatic setting of "Use Target Title" checkbox: 
+          // docma_href_old = he.value; window.setInterval('checkHrefChange()', 400);
+        }
+        function fillDataList() {
+          var dnode = document.getElementById('docma_alias_list');
+          var dopts = dnode.getElementsByTagName('option');
+          var snode = document.getElementById('link_list');
+          var sopts = snode.getElementsByTagName('option');
+          if (dopts.length == 0) {
+            if (docma_fill_started) return;  // avoid parallel filling
+            docma_fill_started = true;
+            docma_link_arr = new Array();
+            var dtemp = dnode.cloneNode(true);
+            for (var i = 0; i < sopts.length; i++) {
+              var opt = document.createElement('option');
+              var txt = document.createTextNode(sopts[i].text);
+              opt.appendChild(txt);
+              var hrefurl = sopts[i].value;
+              opt.value = hrefurl;
+              dtemp.appendChild(opt);
+              docma_link_arr.push(hrefurl);
+            }
+            if (dtemp.getAttribute('id') != 'docma_alias_list') dtemp.setAttribute('id', 'docma_alias_list');
+            dnode.parentNode.replaceChild(dtemp, dnode);
+            document.getElementById('href').setAttribute('list', 'docma_alias_list');
+            docma_link_arr.sort();
+            docma_fill_finished = true;
+          }
+        }
+        function hrefKeyTyping(evt) {
+          if (!evt) evt = window.event;
+          if (evt.shiftKey || evt.altKey || (evt.keyCode == 16) || (evt.keyCode == 18)) return;
+          var inp = document.getElementById('href');
+          var href_val = inp.value;
+          if ((docma_last_len == 0) && (href_val == 'image')) {
+            inp.value="";
+          }
+          // docma_src_old = href_val;
+          var added_char = (href_val.length > docma_last_len);
+          docma_last_len = href_val.length;
+          if (!added_char) return;
+          if (! docma_fill_finished) return;
+          if (inp.setSelectionRange) {
+            var pos = binLinkSearch(0, docma_link_arr.length - 1, href_val);
+            if (pos < 0) {
+              pos = -(pos + 1);
+              var hrefurl = docma_link_arr[pos];
+              if (startsWith(hrefurl, href_val) &&
+                  ((pos == 0) || !startsWith(docma_link_arr[pos-1], href_val)) &&
+                  ((pos >= (docma_link_arr.length-1)) || !startsWith(docma_link_arr[pos+1], href_val))) {
+                  inp.value = hrefurl;
+                  inp.setSelectionRange(href_val.length, hrefurl.length);
+              }
+            }
+          }
+        }
+        function startsWith(str, prefix) {
+          return (prefix.length <= str.length) && (prefix == str.substr(0,prefix.length));
+        }
+        function checkHrefChange() {
+          if (! docma_fill_finished) return;
+          var hval = document.getElementById('href').value;
+          if (hval != docma_href_old) {
+            document.forms[0].use_target_ref.checked = linkExists(hval);
+            updateLinkTitleValue();
+            docma_href_old = hval;
+          }
+        }
+        function hrefChanged() {
+          updateLinkTitleValue();
+          var sel = document.forms[0].link_list;
+          if (sel.selectedIndex > 0) {
+            var href_val = document.forms[0].href.value;
+            var opt_val = sel.options[sel.selectedIndex].value;
+            if (href_val != opt_val) sel.selectedIndex = -1;
+          }
+        }
+		function updateLinkTitleValue() {
+			var linktitle_box = document.forms[0].linktitle;
+			var use_target_box = document.forms[0].use_target_ref;
+			var use_label_selbox = document.forms[0].use_target_label;
+			var use_title_selbox = document.forms[0].use_target_title;
+			var use_page_selbox = document.forms[0].use_target_page;
+			var printonly_box = document.forms[0].use_target_printonly;
+			var use_label = use_label_selbox.options[use_label_selbox.selectedIndex].value;
+			var use_title = use_title_selbox.options[use_title_selbox.selectedIndex].value;
+			var use_page = use_page_selbox.options[use_page_selbox.selectedIndex].value;
+			// var href_val = document.forms[0].href.value;
+			// var is_local_ref = (href_val.length > 0) && (href_val.charAt(0) == "#");
+			// use_target_box.disabled = is_local_ref ? null : "disabled"; // commented out because of Mozilla problem; solved with onclick handler;
+			var title_val = linktitle_box.value;
+			if ((!use_target_box.checked) && (!printonly_box.checked)) {
+                if (title_val.indexOf('%page') >= 0) linktitle_box.value = '%page';
+                else if (title_val.indexOf('%nopage') >= 0) linktitle_box.value = '%nopage';
+                else linktitle_box.value = "";
+			}
+			if (use_target_box.checked) {
+				var opt = "";
+				if (use_label != 'default') opt = " " + use_label;
+				if (use_title != 'default') opt += " " + use_title;
+				if (use_page == 'yes') {
+					if (opt.length == 0) opt = " Page";  // page number without parentheses
+					else opt += " page";  // page number in parentheses
+				} else 
+				if (use_page == 'no') {
+					opt += " nopage";
+				}
+				var val_str = (printonly_box.checked ? "%target_print%" : "%target%") + opt;
+				linktitle_box.value = val_str;
+			} else {
+				if ((title_val.length > 0) && (title_val.indexOf('%target') == 0)) {
+					linktitle_box.value = "";  // use_target_box was unchecked
+                    title_val = "";
+				}
+                if ((use_page == 'yes') && (title_val.indexOf('%page') < 0)) {
+                    title_val = removeFromEnd(title_val, '%nopage');
+                    linktitle_box.value = addToEnd(title_val, "%page");
+                } else
+                if ((use_page == 'no') && (title_val.indexOf('%nopage') < 0)) {
+                    title_val = removeFromEnd(title_val, '%page');
+                    linktitle_box.value = addToEnd(title_val, "%nopage");
+                } else
+                if (use_page == 'default') {
+                    title_val = removeFromEnd(title_val, '%nopage');
+                    title_val = removeFromEnd(title_val, '%page');
+                    linktitle_box.value = title_val;
+                }
+			}
+			var is_use_target = use_target_box.checked;
+			linktitle_box.disabled = (is_use_target || !printonly_box.checked);
+			use_label_selbox.disabled = !is_use_target;
+			use_title_selbox.disabled = !is_use_target;
+		}
+        
+        function removeFromEnd(str, pattern) {
+            var p = str.lastIndexOf(pattern);
+            while ((p > 0) && (str.charAt(p - 1) == ' ')) p--;
+            if (p >= 0) return str.substring(0, p);
+            else return str;
+        }
+        
+        function addToEnd(str, pattern) {
+            if ((str.length  > 0) && (str.charAt(str.length - 1) != ' ')) return str + " " + pattern;
+            else return str + pattern;
+        }
+
+        function linkExists(hrefurl) {
+          return (binLinkSearch(0, docma_link_arr.length - 1, hrefurl) >= 0);
+        }
+        function binLinkSearch(i,j,val) {
+           if (j < i) { return -(i+1); }
+          else {
+            var m = Math.floor((i+j)/2);
+            if (val < docma_link_arr[m]) {
+              return binLinkSearch(i,m-1,val);
+            } else
+            if (val > docma_link_arr[m]) {
+              return binLinkSearch(m+1,j,val);
+            } else {
+              return m;
+            }
+          }
+        }
+	</script>
+</head>
+<body id="link" style="display: none" onload="docmaInit();">
+<form onsubmit="LinkDialog.update();return false;" action="#">
+	<div class="tabs">
+		<ul>
+			<li id="general_tab" class="current"><span><a href="javascript:mcTabs.displayTab('general_tab','general_panel');" onmousedown="return false;">{#advanced_dlg.link_title}</a></span></li>
+		</ul>
+	</div>
+
+	<div class="panel_wrapper"  style="height:224px;">
+		<div id="general_panel" class="panel current"  style="height:224px;">
+			<table border="0" cellpadding="4" cellspacing="0">
+				<tr>
+					<td class="nowrap"><label for="href">{#advanced_dlg.link_url}</label></td>
+					<td><table border="0" cellspacing="0" cellpadding="0"> 
+						<tr> 
+							<td><input id="href" name="href" type="text" class="mceFocus" value="" style="width:272px" onchange="LinkDialog.checkPrefix(this);hrefChanged();" onkeypress="hrefChanged();"  list="docma_alias_list" onfocus="fillDataList();"/>
+                                <datalist id="docma_alias_list">
+                                </datalist>
+                            </td> 
+							<td id="hrefbrowsercontainer">&nbsp;</td>
+						</tr> 
+					</table></td>
+				</tr>
+				<tr>
+					<td><label for="link_list">{#advanced_dlg.link_list}</label></td>
+					<td><select id="link_list" name="link_list" style="width:272px" onchange="document.getElementById('href').value=this.options[this.selectedIndex].value;"></select></td>
+				</tr>
+          <tr>
+            <td class="nowrap"><label for="linktitle">{#advanced_dlg.link_titlefield}</label></td>
+            <td>
+              <input id="linktitle" name="linktitle" type="text" value="" style="width:272px" disabled="true"/>
+            </td>
+          </tr>
+          <tr>
+            <td></td>
+            <td>
+			  <input id="use_target_ref" name="use_target_ref" type="checkbox" value="" style="border-width:0;"
+  			         onchange="updateLinkTitleValue()" onclick="updateLinkTitleValue()" /> {#advanced_dlg.link_use_target_title}
+			  <input id="use_target_printonly" name="use_target_printonly" type="checkbox" value="" style="border-width:0;" 
+			         onchange="updateLinkTitleValue()" onclick="updateLinkTitleValue()" /> {#advanced_dlg.link_use_target_printonly}
+			</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td>
+			  {#advanced_dlg.link_titletext}:
+			  <div style="margin: 2px 0 0 0;">
+			  <select id="use_target_label" name="use_target_label" onchange="updateLinkTitleValue()" disabled="true">
+			    <option value="default"></option>
+			    <option value="label">{#advanced_dlg.link_label}</option>
+			    <option value="labelname">{#advanced_dlg.link_labelname}</option>
+			    <option value="labelnumber">{#advanced_dlg.link_labelnumber}</option>
+			  </select>&nbsp;
+			  <select id="use_target_title" name="use_target_title" onchange="updateLinkTitleValue()" disabled="true">
+			    <option value="default"></option>
+			    <option value="title">{#advanced_dlg.link_title}</option>
+			    <option value="quotedtitle">{#advanced_dlg.link_quotedtitle}</option>
+			  </select>
+			  </div>
+            </td>
+          </tr>
+          <tr>
+            <td></td>
+            <td>
+			  {#advanced_dlg.link_page}:
+			  <div style="margin: 2px 0 0 0;">
+			  <select id="use_target_page" name="use_target_page" onchange="updateLinkTitleValue()">
+			    <option value="default">{#advanced_dlg.link_default_config}</option>
+			    <option value="yes">{#advanced_dlg.link_page_yes}</option>
+			    <option value="no">{#advanced_dlg.link_page_no}</option>
+			  </select>
+			  </div>
+            </td>
+          </tr>
+				<tr>
+					<td><label id="targetlistlabel" for="targetlist">{#advanced_dlg.link_target}</label></td>
+					<td><select id="target_list" name="target_list"></select></td>
+				</tr>
+				<tr>
+					<td><label for="class_list">{#class_name}</label></td>
+					<td><select id="class_list" name="class_list"></select></td>
+				</tr>
+			</table>
+		</div>
+	</div>
+
+	<div class="mceActionPanel">
+		<input type="submit" id="insert" name="insert" value="{#insert}" />
+		<input type="button" id="cancel" name="cancel" value="{#cancel}" onclick="tinyMCEPopup.close();" />
+	</div>
+</form>
+</body>
+</html>

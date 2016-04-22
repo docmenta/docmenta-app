@@ -1,0 +1,56 @@
+<?component name="textbutton" extends="toolbarbutton" style="font-size:11px;color:blue;" ?>
+
+<window id="SearchReplaceDialog" title="${c:l('label.search.dialog.title')}"
+        mode="overlapped" border="normal" width="320px" visible="false"
+        closable="true" onClose="self.visible = false; event.stopPropagation();"
+        use="org.docma.webapp.SearchReplaceDialog">
+<caption>
+    <toolbarbutton label="Help" onClick='mainWin.onHelp("help/search_replace.html")'/>
+</caption>
+<hbox width="100%" widths="3px,,2px,100px,3px">
+  <space spacing="2px" />
+  <vbox spacing="1px" width="100%">
+    <hbox width="100%" align="center" pack="stretch">
+      <label>${c:l('label.search.searchterm')}:</label>
+      <cell align="right">
+        <hbox>
+          <textbutton label="${c:l('label.search.charentity.encode.btn')}" forward="SearchReplaceDialog.onEncodeSearchTerm"/>
+          <label>/</label>
+          <textbutton label="${c:l('label.search.charentity.decode.btn')}" forward="SearchReplaceDialog.onDecodeSearchTerm"/>
+        </hbox>
+      </cell>
+    </hbox>
+    <textbox id="SearchTermTextbox" width="180px" forward="onChanging=SearchReplaceDialog.onSearchChange" />
+    <separator spacing="2px" />
+    <hbox width="100%" align="center" pack="stretch">
+      <label>${c:l('label.search.replaceterm')}:</label>
+      <cell align="right">
+        <hbox>
+          <textbutton label="${c:l('label.search.charentity.encode.btn')}" forward="SearchReplaceDialog.onEncodeReplaceTerm"/>
+          <label>/</label>
+          <textbutton label="${c:l('label.search.charentity.decode.btn')}" forward="SearchReplaceDialog.onDecodeReplaceTerm"/>
+        </hbox>
+      </cell>
+    </hbox>
+    <textbox id="ReplaceTermTextbox" width="180px"/>
+    <separator spacing="2px" />
+    <checkbox id="SearchMatchCaseCheckbox" label="${c:l('label.search.matchcase')}" 
+              forward="onCheck=SearchReplaceDialog.onOptionChanged" />
+    <checkbox id="SearchIncludeStructCheckbox" label="${c:l('label.search.includestruct')}"
+              forward="onCheck=SearchReplaceDialog.onOptionChanged" />
+    <checkbox id="SearchIncludeInlineCheckbox" label="${c:l('label.search.includeinline')}"
+              forward="onCheck=SearchReplaceDialog.onOptionChanged" />
+    <!-- <checkbox id="" label="regular expression" /> -->
+  </vbox>
+  <space spacing="1px" />
+  <vbox spacing="2px">
+    <button id="SearchFindNextButton" label="${c:l('label.search.find.btn')}" width="96px" onClick="SearchReplaceDialog.onFindNextClick()"/>
+    <button id="SearchFindPrevButton" label="${c:l('label.search.findprev.btn')}" width="96px" onClick="SearchReplaceDialog.onFindPreviousClick()"/>
+    <button id="SearchReplaceButton" label="${c:l('label.search.replace.btn')}" width="96px" onClick="SearchReplaceDialog.onReplaceClick()"/>
+    <!-- <button label="Replace next" width="96px" onClick="SearchReplaceDialog.onReplaceNextClick()"/> -->
+    <button id="SearchReplaceAllButton" label="${c:l('label.search.replaceall.btn')}" width="96px" onClick="SearchReplaceDialog.onReplaceAllClick()"/>
+    <button id="SearchCloseButton" label="${c:l('label.search.close.btn')}" width="96px" onClick="SearchReplaceDialog.onCloseClick()"/>
+  </vbox>
+  <space spacing="2px" />
+</hbox>
+</window>

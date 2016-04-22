@@ -1,0 +1,31 @@
+<window id="NewApplicDialog" title="${c:l('label.applicability.dialog.new.title')}"
+        border="normal" width="300px" visible="false"
+        closable="true" onClose="self.visible = false; event.stopPropagation();"
+        use="org.docma.webapp.NewApplicDialog">
+    <caption>
+        <toolbarbutton label="Help" onClick='mainWin.onHelp("help/applic_configuration.html")'/>
+    </caption>
+    <hbox width="100%" pack="stretch">
+        <space spacing="3px" />
+        <vbox spacing="3px" width="100%" align="stretch">
+            <separator spacing="0px"/>
+            <vbox width="100%" align="stretch">
+                <label>${c:l('label.applicability.name')}:</label>
+                <textbox id="NewApplicNameTextbox" width="98%" forward="onOK=NewApplicDialog.onOkayClick"/>
+            </vbox>
+            <separator spacing="2px"/>
+            <hbox pack="stretch">
+              <cell width="50%">
+                <button label="${c:l('label.okay.btn')}" width="100%"
+                        onClick="NewApplicDialog.onOkayClick()"/>
+              </cell>
+              <cell width="50%">
+                <button label="${c:l('label.cancel.btn')}" width="100%"
+                        onClick="NewApplicDialog.onCancelClick()"/>
+              </cell>
+            </hbox>
+            <separator spacing="2px"/>
+        </vbox>
+        <space spacing="3px" />
+    </hbox>
+</window>

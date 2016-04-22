@@ -1,0 +1,27 @@
+<window id="LicenseDialog" title="${c:l('label.license.dialog.title')}" contentStyle="background-color:#ECECEC;"
+        border="normal" width="540px" height="440px" sizable="true" visible="false"
+        closable="true" onClose="self.visible = false; event.stopPropagation();"
+        use="org.docma.webapp.LicenseDialog">
+    <hbox width="100%" pack="stretch" align="stretch" vflex="1" hflex="1">
+        <space spacing="3px" />
+        <vbox spacing="3px" width="100%" pack="stretch" align="stretch" vflex="1" hflex="1">
+            <separator spacing="0px"/>
+            <label id="LicenseDialogMessageLabel">${c:l('label.license.accept.message')}:</label>
+            <div id="LicenseDialogDiv" width="100%" vflex="1" hflex="1" style="overflow:scroll; background-color:#FFFFFF;" >
+              <html id="LicenseDialogContentHtml" style="font-family:monospace; font-size:0.9em; color:#000000;"></html>
+            </div>
+            <separator spacing="2px"/>
+            <hbox pack="right" width="100%" hflex="1" >
+                <button id="LicenseDialogDeclineBtn" label="${c:l('label.license.decline.btn')}" width="120px"
+                        forward="LicenseDialog.onDeclineClick"/>
+                <space spacing="6px" />
+                <button id="LicenseDialogAcceptBtn" label="${c:l('label.license.accept.btn')}" width="120px"
+                        forward="LicenseDialog.onAcceptClick"/>
+                <button id="LicenseDialogCloseBtn" label="${c:l('label.close.btn')}" width="120px" visible="false"
+                        forward="LicenseDialog.onCloseClick"/>
+            </hbox>
+            <separator spacing="2px"/>
+        </vbox>
+        <space spacing="3px" />
+    </hbox>
+</window>

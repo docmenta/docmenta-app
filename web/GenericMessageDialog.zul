@@ -1,0 +1,44 @@
+<window id="GenericMessageDialog" title=""
+        border="normal" width="400px" visible="false" sizable="true" 
+        closable="true" onClose="self.visible = false; event.stopPropagation();"
+        use="org.docma.webapp.GenericMessageDialog">
+    <hbox width="100%" pack="stretch">
+        <space spacing="3px" />
+        <vbox spacing="3px" width="100%" align="stretch" pack="center">
+            <separator spacing="0px"/>
+            <label id="GenericMessageLabel" width="100%" multiline="true" style="font-weight:bold;" />
+            <separator spacing="1px"/>
+            <vlayout id="GenericMessageDetailArea" visible="false">
+                <hlayout id="GenericMessageDetail1Area" valign="top">
+                    <label value="-" />
+                    <label value=" " id="GenericMessageDetail1Label" multiline="true" />
+                </hlayout>
+                <hlayout id="GenericMessageDetail2Area" valign="top">
+                    <label value="-" />
+                    <label value=" " id="GenericMessageDetail2Label" multiline="true" />
+                </hlayout>
+                <hlayout id="GenericMessageDetail3Area" valign="top">
+                    <label value="-" />
+                    <label value=" " id="GenericMessageDetail3Label" multiline="true" />
+                </hlayout>
+                <hlayout id="GenericMessageDetail4Area" valign="top">
+                    <label value="-" />
+                    <label value=" " id="GenericMessageDetail4Label" multiline="true" />
+                </hlayout>
+            </vlayout>
+            <separator spacing="2px"/>
+            <hbox width="100%" pack="stretch" id="GenericMessageBtnArea" >
+                <button id="GenericMessageBtn1" label="Option 1" hflex="1"
+                        onClick="GenericMessageDialog.onBtnClick(0)"/>
+                <button id="GenericMessageBtn2" label="Option 2" hflex="1"
+                        onClick="GenericMessageDialog.onBtnClick(1)"/>
+                <button id="GenericMessageBtn3" label="Option 3" hflex="1"
+                        onClick="GenericMessageDialog.onBtnClick(2)"/>
+                <button id="GenericMessageBtn4" label="Option 4" hflex="1"
+                        onClick="GenericMessageDialog.onBtnClick(3)"/>
+            </hbox>
+            <separator spacing="2px"/>
+        </vbox>
+        <space spacing="3px" />
+    </hbox>
+</window>

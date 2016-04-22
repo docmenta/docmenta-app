@@ -1,0 +1,128 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"  style="margin:0;padding:0;height:100%;overflow:hidden;">
+<head>
+<title>Full featured example</title>
+<link rel="stylesheet" type="text/css" href="css/content.css">
+
+<!-- TinyMCE -->
+<script type="text/javascript" src="jscripts/tiny_mce/tiny_mce.js"></script>
+<script type="text/javascript">
+	tinyMCE.init({
+		// General options
+		mode : "exact",
+        elements : "elm1",
+		theme : "advanced",
+        save_enablewhendirty : false,   // plugin: save
+        dialog_type : "modal",          // plugin: inlinepopups
+		plugins : "pagebreak,style,table,save,advimage,advlink,iespell,inlinepopups,preview,media,searchreplace,print,contextmenu,paste,directionality,fullscreen,noneditable,visualchars,nonbreaking,xhtmlxtras,template,wordcount",
+
+		// Theme options
+		theme_advanced_buttons1 : "save,bold,italic,underline,strikethrough,|,sub,sup,|,justifyleft,justifycenter,justifyright,justifyfull,|,bullist,numlist,|,outdent,indent,blockquote,|,styleselect,formatselect,|,forecolor,backcolor",
+		theme_advanced_buttons2 : "cite,abbr,acronym,|,cut,copy,paste,pastetext,pasteword,|,search,replace,|,undo,redo,|,removeformat,attribs,|,link,unlink,anchor,image,media,charmap,hr,nonbreaking,pagebreak,template",
+		theme_advanced_buttons3 : "tablecontrols,|,visualaid,|,del,ins,|,iespell,|,print,|,ltr,rtl",
+		theme_advanced_buttons4 : "",
+		theme_advanced_toolbar_location : "top",
+		theme_advanced_toolbar_align : "left",
+		theme_advanced_statusbar_location : "bottom",
+		theme_advanced_resizing : true,
+
+		// Example content CSS (should be your site CSS)
+		content_css : "css/content.css",
+
+		// Drop lists for link/image/media/template dialogs
+		template_external_list_url : "lists/template_list.js",
+		external_link_list_url : "lists/link_list.js",
+		external_image_list_url : "lists/image_list.js",
+		media_external_list_url : "lists/media_list.js",
+
+		// Style formats
+		style_formats : [
+			{title : 'Bold text', inline : 'b'},
+			{title : 'Red text', inline : 'span', styles : {color : '#ff0000'}},
+			{title : 'Red header', block : 'h1', styles : {color : '#ff0000'}},
+			{title : 'Example 1', inline : 'span', classes : 'example1'},
+			{title : 'Example 2', inline : 'span', classes : 'example2'},
+			{title : 'Table styles'},
+			{title : 'Table row 1', selector : 'tr', classes : 'tablerow1'}
+		],
+
+		// Replace values for the template plugin
+		template_replace_values : {
+			username : "Some User",
+			staffid : "991234"
+		}
+	});
+
+    function editContent() {
+        // if (!tinyMCE.get('elm1')) {
+        //    window.focus();
+        //    tinyMCE.execCommand('mceAddControl', false, 'elm1');
+        //    tinyMCE.get('elm1').focus(true);
+        // }
+        // tinyMCE.get('elm1').show();
+        if (!tinyMCE.get('elm1')) {
+          window.setTimeout('editContent()', 100);
+          return;
+        }
+        tinyMCE.get('elm1').execCommand('mceFullScreen');
+    }
+    
+    function viewContent() {
+        tinyMCE.activeEditor.execCommand('mceFullScreen');
+        tinyMCE.get('elm1').hide();
+        tinyMCE.get('elm1').save();
+        // if (tinyMCE.get('elm1')) {
+        //    window.focus();
+        //    tinyMCE.execCommand('mceRemoveControl', false, 'elm1');
+        // }
+    }
+    
+    function postContent() {
+        tinyMCE.get('elm1').execCommand('mceSave');
+    }
+    
+    function resetContent() {
+        tinyMCE.get('elm1').execCommand('mceCancel');
+    }
+	
+	function checkDirty() {
+	    return tinyMCE.activeEditor.isDirty();
+	}
+
+	window.onbeforeunload = function() {
+	   var msg = checkDirty() ? "Änderungen wurden nicht gespeichert" : "";
+	   return "Wirklich verlassen? " + msg;
+	}
+	
+    </script>
+<!-- /TinyMCE -->
+
+</head>
+<body style="margin:0;padding:0;height:100%;overflow:hidden;" onload="editContent();">
+
+<form method="post" action="saveContent.jsp" style="width:100%;height:100%;">
+<!--    <div id="elm1" style="height:80%; background-color:#FFFF00"> -->
+    <textarea id="elm1" name="docmacontent" cols="60" rows="20" style="width:100%;height:100%;">
+				<p>
+					This is some example text that you can edit inside the &lt;strong&gt;TinyMCE editor&lt;/strong&gt;.
+				</p>
+				<p>
+				Nam nisi elit, cursus in rhoncus sit amet, pulvinar laoreet leo. Nam sed lectus quam, ut sagittis tellus. Quisque dignissim mauris a augue rutrum tempor. Donec vitae purus nec massa vestibulum ornare sit amet id tellus. Nunc quam mauris, fermentum nec lacinia eget, sollicitudin nec ante. Aliquam molestie volutpat dapibus. Nunc interdum viverra sodales. Morbi laoreet pulvinar gravida. Quisque ut turpis sagittis nunc accumsan vehicula. Duis elementum congue ultrices. Cras faucibus feugiat arcu quis lacinia. In hac habitasse platea dictumst. Pellentesque fermentum magna sit amet tellus varius ullamcorper. Vestibulum at urna augue, eget varius neque. Fusce facilisis venenatis dapibus. Integer non sem at arcu euismod tempor nec sed nisl. Morbi ultricies, mauris ut ultricies adipiscing, felis odio condimentum massa, et luctus est nunc nec eros.
+				</p>
+    </textarea>
+<!--    </div> -->
+</form>
+
+<!--
+		<a href="javascript:editContent()"
+           >[MyShow]</a>
+		<a href="javascript:viewContent()" 
+           >[MyHide]</a>
+		<a href="javascript:checkDirty()" 
+           >[CheckDirty]</a>
+		<a href="javascript:" 
+           onClick="tinyMCE.execCommand('mceColorPicker',true,{func: function(e) {alert(e);}});" 
+           >[MyColorPicker]</a>
+-->
+</body>
+</html>

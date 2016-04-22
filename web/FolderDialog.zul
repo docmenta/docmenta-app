@@ -1,0 +1,36 @@
+<window id="FolderDialog" title="${c:l('label.folder.dialog.new.title')}"
+        border="normal" width="320px" visible="false" contentStyle="padding:7px;"
+        closable="true" onClose="self.visible = false; event.stopPropagation();"
+        use="org.docma.webapp.FolderDialog">
+  <vbox spacing="3px" width="100%" hflex="1" align="stretch">
+    <hbox width="100%" pack="stretch">
+      <cell width="50%">
+        <vbox spacing="3px" width="100%" hflex="1">
+          <label>${c:l('label.folder.name')}:</label>
+          <textbox id="FolderNameTextbox" width="96%" hflex="1"/>
+        </vbox>
+      </cell>
+      <space spacing="2px" />
+      <cell width="50%">
+        <vbox spacing="3px" width="100%" hflex="1" align="stretch">
+          <label>${c:l('label.folder.type')}:</label>
+          <listbox id="FolderTypeListbox" mold="select" rows="1" hflex="1">
+            <listitem label="${c:l('label.nodetype.filefolder')}" value="filefolder" />
+            <listitem label="${c:l('label.nodetype.imagefolder')}" value="imagefolder" />
+          </listbox>
+        </vbox>
+      </cell>
+    </hbox>
+    <separator spacing="2px"/>
+    <hbox width="100%" spacing="4px">
+      <cell width="50%">
+        <button label="${c:l('label.okay.btn')}" hflex="1"
+                onClick="FolderDialog.onOkayClick()"/>
+      </cell>
+      <cell width="50%">
+        <button label="${c:l('label.cancel.btn')}" hflex="1"
+                onClick="FolderDialog.onCancelClick()"/>
+      </cell>
+    </hbox>
+  </vbox>
+</window>

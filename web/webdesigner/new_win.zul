@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+    <window id="whdNewWin" title="New" 
+            border="normal" width="280px" visible="false" contentStyle="padding:6px;"
+            closable="true" onClose="self.visible = false; event.stopPropagation();"
+            position="center" >
+
+        <vbox spacing="3px" hflex="1" align="stretch">
+            <hbox align="center" width="100%" spacing="4px">
+              <label value="Name:" hflex="min" />
+              <textbox id="whdNewNameBox" hflex="1"/>
+            </hbox>
+            <hbox align="center" width="100%" spacing="4px">
+              <label value="Layout:" hflex="min" />
+              <listbox id="whdNewLayoutIdBox" mold="select" rows="1" onSelect=""></listbox>
+              <space spacing="3px"/>
+              <label value="Version:" hflex="min" />
+              <listbox id="whdNewLayoutVersionBox" mold="select" rows="1" onSelect=""></listbox>
+            </hbox>
+            <separator spacing="2px"/>
+            <hbox width="100%" spacing="4px">
+              <cell width="50%">
+                <button label="${c:l('label.okay.btn')}" id="whdNewOkayBtn" hflex="1" />
+              </cell>
+              <cell width="50%">
+                <button label="${c:l('label.cancel.btn')}" id="whdNewCancelBtn" hflex="1" />
+              </cell>
+            </hbox>
+        </vbox>
+    </window>

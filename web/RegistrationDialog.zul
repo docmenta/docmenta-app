@@ -1,0 +1,34 @@
+<window id="RegistrationDialog" title="${c:l('label.registration.dialog.title')}"
+        border="normal" width="300px" visible="false"
+        closable="true" onClose="self.visible = false; event.stopPropagation();"
+        use="org.docma.webapp.RegistrationDialog">
+    <hbox width="100%">
+        <space spacing="3px" />
+        <vbox spacing="3px" width="100%">
+            <separator spacing="0px"/>
+            <label>${c:l('label.registration.enterkey')}:</label>
+            <hbox pack="center">
+              <textbox id="RegKeyTextbox1" cols="5" maxlength="5" />
+              <label value="-" />
+              <textbox id="RegKeyTextbox2" cols="5" maxlength="5" />
+              <label value="-" />
+              <textbox id="RegKeyTextbox3" cols="5" maxlength="5" />
+              <label value="-" />
+              <textbox id="RegKeyTextbox4" cols="5" maxlength="5" />
+            </hbox>
+            <separator spacing="2px"/>
+            <hbox width="100%">
+              <cell width="50%">
+                <button label="${c:l('label.register.btn')}" width="135px"
+                        onClick="RegistrationDialog.onRegisterClick()"/>
+              </cell>
+              <cell width="50%">
+                <button label="${c:l('label.cancel.btn')}" width="135px"
+                        onClick="RegistrationDialog.onCancelClick()"/>
+              </cell>
+            </hbox>
+            <separator spacing="2px"/>
+        </vbox>
+        <space spacing="3px" />
+    </hbox>
+</window>

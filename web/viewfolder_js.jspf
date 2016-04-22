@@ -1,0 +1,339 @@
+<script type="text/javascript">
+  function doDownload() {
+      var sel_ids = updateSelectedRows();
+      if (sel_ids.length == 0) {
+          selectFolderNode();
+          if (! confirmDownloadAll()) return;
+      }
+      parent.downloadFiles();
+  }
+
+  function confirmDownloadAll() {
+      return window.confirm("Download all files in folder?");
+  }
+
+  function doUpload() {
+      clearClientSelection();
+      selectFolderNode();
+      parent.uploadFiles();
+  }
+
+  function doDelete() {
+      var sel_ids = updateSelectedRows();
+      if (sel_ids.length == 0) {
+          window.alert("Please select one or more files to be deleted!");
+          return;
+      }
+      sendMainEvent("onDeleteFileNodes");
+      // savePreviewScrollPos();
+      // parent.setDocmaClientProp("clearSelectionOnReload", "true");
+      // parent.deleteFiles();
+  }
+
+  function dblClickRow(node_id) {
+      editProps(node_id)
+  }
+
+  function clickRow(node_id, evt) {
+      // if (!evt) evt = window.event;
+      // if (evt.shiftKey) alert("Shift gedrueckt");
+      // parent.setSelectedNodes(node_id);
+  }
+
+  function savePreviewScrollPos() {
+      var prevScrollPos = 0;
+      if (window.pageYOffset) {
+          prevScrollPos = window.pageYOffset;
+      } else
+      if (window.document.body.scrollTop) {
+          prevScrollPos = window.document.body.scrollTop;
+      } else
+      if (window.document.documentElement.scrollTop) {
+          prevScrollPos = window.document.documentElement.scrollTop;
+      }
+      parent.setDocmaClientProp("previewScrollPos", prevScrollPos);
+  }
+
+  function editProps(node_id) {
+      // window.location.hash = "#pos_" + node_id;  // keep scroll position after reload
+      savePreviewScrollPos();
+      parent.editNodePropsById(node_id);
+  }
+
+  function previewNode(node_id) {
+      parent.previewNodeById(node_id);
+  }
+
+  function enterRow(elem) {
+      if (elem.className == 'row_normal') elem.className = 'row_mover';
+  }
+
+  function leaveRow(elem, isOdd) {
+      if (elem.className == 'row_mover') elem.className = 'row_normal';
+  }
+
+  function changeSelection(node_id, evt) {
+      if (evt && evt.shiftKey) {
+          selectRange(node_id);
+      }
+      updateServerSelection();
+      return true;
+  }
+
+  function selectClick(node_id, evt) {
+      if (evt && evt.shiftKey) {
+          selectRange(node_id);
+      } else {
+        if (evt && !evt.ctrlKey) {
+          clearClientSelectBoxes();
+        }
+        checkClientSelectBox(node_id);
+      }
+      updateServerSelection();
+  }
+
+  function updateServerSelection() {
+      var sel_ids = updateSelectedRows();
+      if (sel_ids.length == 0) {
+          selectFolderNode();
+      } else {
+          parent.setSelectedNodes(sel_ids);
+      }
+  }
+
+  function updateSelectedRows() {
+      var elems = document.filelistform.elements;
+      var ids = "";
+      var cnt = 0;
+      for (var i=0; i < elems.length; i++) {
+          if (elems[i].name != "selbox") continue;
+          var selbox = elems[i];
+          var node_id = selbox.value;
+          var nd = document.getElementById("node_" + node_id);
+          // alert(node_id + ": " + selbox.checked);
+          if (selbox.checked) {
+              if (cnt == 0) ids = node_id;
+              else ids += "," + node_id;
+              ++cnt;
+              if (nd.className == 'pic') {  // gallery mode
+                  nd.style.backgroundColor = '#DEF0FB';
+              } else  // list mode
+              if (nd.className != 'row_selected') nd.className = 'row_selected';
+          } else {
+              if (nd.className == 'pic') {  // gallery mode
+                  nd.style.backgroundColor = '#FFFFFF';
+              } else  // list mode
+              if (nd.className == 'row_selected') nd.className = 'row_normal';
+          }
+      }
+      return ids;
+  }
+
+  function clearClientSelectBoxes() {
+      var elems = document.filelistform.elements;
+      for (var i=0; i < elems.length; i++) {
+          if (elems[i].name != "selbox") continue;
+          elems[i].checked = false;
+      }
+  }
+
+  function clearClientSelection() {
+      clearClientSelectBoxes();
+      updateSelectedRows();
+  }
+  
+  function checkClientSelectBox(nodeId) {
+      var elems = document.filelistform.elements;
+      for (var i=0; i < elems.length; i++) {
+          var selbox = elems[i];
+          if (selbox.name != "selbox") continue;
+          var selNodeId = selbox.value;
+          if ((selNodeId == nodeId) && !selbox.checked) { 
+              selbox.checked = true;
+              return true;
+          }
+      }
+      return false;
+  }
+  
+  function renderClientSelectionAsCut()
+  {
+      var elems = document.filelistform.elements;
+      for (var i=0; i < elems.length; i++) {
+          var selbox = elems[i];
+          if (selbox.name != "selbox") continue;
+          if (selbox.checked) { 
+            var node_id = selbox.value;
+            var nd = document.getElementById("node_" + node_id);
+            nd.style.color = '#A0A0A0';
+            nd.style.textDecoration = 'line-through';
+          }
+      }
+  }
+
+  function selectRange(node_id) {
+      var elems = document.filelistform.elements;
+      var node_idx = -1;
+      var upper_idx = -1;
+      var lower_idx = -1;
+      var find_lower = false;
+      for (var i=0; i < elems.length; i++) {
+          var box = elems[i];
+          if (box.name != "selbox") continue;
+          if (box.value == node_id) {
+              node_idx = i;
+              if (upper_idx >= 0) break;
+              else find_lower = true;
+          } else {
+              if (box.checked) {
+                  if (find_lower) {
+                      lower_idx = i;
+                      break;
+                  } else {
+                      upper_idx = i;
+                  }
+              }
+          }
+      }
+      var start_idx = (upper_idx >= 0) ? upper_idx : node_idx;
+      var end_idx = (lower_idx >= 0) ? lower_idx : node_idx;
+      for (var i=start_idx; i <= end_idx; i++) {
+          if (elems[i].name != "selbox") continue;
+          elems[i].checked = true;
+      }
+  }
+
+  function initList() {
+      if (parent.getDocmaClientProp("clearSelectionOnReload") == "true") {
+          // Firefox remembers selection of checkboxes even after reload.
+          // This code assures that after deleting nodes, selection is cleared.
+          parent.setDocmaClientProp("clearSelectionOnReload", "");
+          clearClientSelectBoxes();
+      }
+
+      // synchronize selection with server
+      var sel_ids = updateSelectedRows();
+      if (sel_ids.length > 0) parent.setSelectedNodes(sel_ids);
+      else selectFolderNode();
+
+      // window.location.hash = window.location.hash;  // fix IE bug: scroll to anchor
+      var scrollpos = parent.getDocmaClientProp("previewScrollPos");
+      if (scrollpos > 0) {
+          window.scrollTo(0, scrollpos);  // scroll to saved scroll position
+          parent.setDocmaClientProp("previewScrollPos", 0);  // deactivate scrolling on reload
+      }
+
+      fixImageSize();  // fix Firefox display problem 
+  }
+
+  function fixImageSize() {
+    for (var i=0; i < document.images.length; i++) {
+      var img = document.images[i];
+      if (img.src.indexOf("thumb.jsp") >= 0) {
+        if (img.width <= 0) {  // fix Firefox problem (sometimes image is not displayed)
+          var s = img.src; img.src = ""; img.src = s;
+        }
+      }
+    }
+  }
+
+  function selectFolderNode() {
+      parent.setSelectedNodes('<%= nodeid %>');
+  }
+  
+  function showTopContext(evt) {
+      return showDocmaNodeContext(null, evt, true);
+  }
+  
+  function showDocmaContext(evt) {
+      return showDocmaNodeContext(null, evt, false);
+  }
+  
+  function showDocmaNodeContext(nodeId, evt, isTopMenu) {
+    if (nodeId != null) {
+        if (! (evt.shiftKey || evt.ctrlKey)) { 
+            clearClientSelectBoxes();
+        }
+        if (checkClientSelectBox(nodeId)) {  // node was added to selection
+            updateServerSelection();
+        }
+    } else {  // if no child node selected, show context menu for parent folder
+      var sel_ids = updateSelectedRows();
+      if (sel_ids.length == 0) {
+        selectFolderNode(); // at least one node has to be selected to allow opening of context menu
+      }
+    }
+    var px = 0;
+    var py = 0;
+    var off_x = 0;
+    var off_y = 0;
+    if (evt.pageY) {
+      px = evt.pageX;
+      py = evt.pageY;
+    } else
+    if (evt.clientY) { // IE
+      if (document.documentElement) {
+          off_x = document.documentElement.scrollLeft;
+          off_y = document.documentElement.scrollTop;
+      } else
+      if (document.body) {
+          off_x = document.body.scrollLeft;
+          off_y = document.body.scrollTop;
+      }
+      px = off_x + evt.clientX;
+      py = off_y + evt.clientY;
+    }
+    var win_h = 0;
+    if (window.innerHeight) win_h = window.innerHeight;
+    else if (document.documentElement) win_h = document.documentElement.clientHeight;
+    else if (document.body) win_h = document.body.clientHeight;
+    if (win_h > 0) {  // assure that context menu is completely visible
+        var c_h = <%= contextItemCount %> * 20;  // estimated height of context menu
+        var diff = win_h - (evt.clientY + c_h);
+        if (diff < 0) py += diff;
+        if (py < 0) py = 0;
+    }
+    if (isTopMenu) {
+        if (off_y == 0) {
+          if (window.pageYOffset) off_y = window.pageYOffset;
+        }
+        px -= 70;
+        py = off_y + 35;
+    }
+    var cmenu = zk.Widget.$('$<%= contextMenuId %>');
+    cmenu.setLeft(String(px) + "px");
+    cmenu.setTop(String(py) + "px");
+    
+    zAu.send(new zk.Event(zk.Widget.$('$<%= contextMenuId %>'), 'onShowContextMenu', ""));
+    // cmenu.open();
+    // alert("PosX: " + px + " PosY: " + py + " OffY: " + off_y);
+    return false; // avoid event bubbling (disable default context menu)
+  }
+
+  function openCtx() {
+    var cmenu = zk.Widget.$('$<%= contextMenuId %>');
+    cmenu.open();
+  }
+
+  function sendMainEvent(eventname) {
+      if (eventname.indexOf("onPasteFiles") == 0) { // onPasteFilesHere or onPasteFilesSub
+        savePreviewScrollPos();
+        parent.setDocmaClientProp("clearSelectionOnReload", "true");          
+      }
+      if (eventname == "onDeleteFileNodes") {
+        savePreviewScrollPos();
+        parent.setDocmaClientProp("clearSelectionOnReload", "true");          
+      }
+      if (eventname == "onDownloadFile") {
+        var sel_ids = updateSelectedRows();
+        if (sel_ids.length == 0) {
+          if (! confirmDownloadAll()) return;
+        }
+      }
+      parent.sendMainWindowEvent(eventname, null);
+      if (eventname == "onCutNode") {
+          renderClientSelectionAsCut();
+      }
+  }
+  
+</script>

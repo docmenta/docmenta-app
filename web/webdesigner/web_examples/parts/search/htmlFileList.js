@@ -1,0 +1,19 @@
+//List of files which are indexed.
+fl = new Array();
+fl["0"]= "pt01.html";
+fl["1"]= "pt01ch01.html";
+fl["2"]= "pt01ch01s01.html";
+fl["3"]= "pt01ch01s02.html";
+fl["4"]= "pt01ch01s03.html";
+fl["5"]= "pt01ch02.html";
+fl["6"]= "pt01ch02s01.html";
+fl["7"]= "pt01ch02s02.html";
+fl["8"]= "pt01ch03.html";
+fl["9"]= "pt02.html";
+fl["10"]= "pt02ch01.html";
+fl["11"]= "pt02ch02.html";
+fl["12"]= "pt02ch03.html";
+fl["13"]= "pt02ch04.html";
+fl["14"]= "pt03.html";
+fl["15"]= "pt03ch01.html";
+fl["16"]= "pt03ch02.html";

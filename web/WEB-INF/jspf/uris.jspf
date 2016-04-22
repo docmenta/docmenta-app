@@ -1,0 +1,11 @@
+<%-- the static segment can be included to JSP using the <%@include ...%> directive, e.g:
+    <%@include file="/WEB-INF/jspf/header.jspf" %>
+--%>
+
+<script type="text/javascript">
+    var URI_DOCMASERVICE = "<%= response.encodeURL("DocmaServlet") %>";
+    var URI_LOGOUT = "<%= response.encodeURL("logout.jsp") %>";
+    var URI_MAIN = "<%= response.encodeURL("main.jsp") %>";
+    var URI_NEWSEC = "<%= response.encodeURL("secname.jsp?mode=new") %>";
+    <%-- var URI_LOADTREE = "<%= response.encodeURL("treedata.jsp?action=load") %>";  --%>
+</script>

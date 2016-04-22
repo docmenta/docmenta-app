@@ -1,0 +1,33 @@
+<window id="CreateStyleVariantDialog" title="${c:l('label.stylevariant.dialog.title')}" 
+        border="normal" width="380px" visible="false" 
+        closable="true" onClose="CreateStyleVariantDialog.setVisible(false)"
+        use="org.docma.webapp.CreateStyleVariantDialog">
+    <caption>
+        <toolbarbutton label="Help" onClick='mainWin.onHelp("help/style_variants.html")'/>
+    </caption>
+    <hbox width="100%">
+        <space spacing="3px" />
+        <vbox spacing="3px" width="100%">
+            <separator spacing="0px"/>
+            <hbox width="100%" widths="50%,50%" spacing="3px">
+                <vbox width="100%">
+                    <label>${c:l('label.style.name')}:</label>
+                    <textbox id="StyleVariantBaseTextbox" width="160px" readonly="true"/>
+                </vbox>
+                <vbox width="100%">
+                    <label>${c:l('label.stylevariant.entername')}:</label>
+                    <combobox id="StyleVariantNameTextbox" width="140px" />
+                </vbox>
+            </hbox>
+            <separator spacing="2px"/>
+            <hbox widths="50%,50%">
+                <button label="${c:l('label.okay.btn')}" width="170px"
+                        onClick="CreateStyleVariantDialog.onOkayClick()"/>
+                <button label="${c:l('label.cancel.btn')}" width="170px"
+                        onClick="CreateStyleVariantDialog.onCancelClick()"/>
+            </hbox>
+            <separator spacing="2px"/>
+        </vbox>
+        <space spacing="3px" />
+    </hbox>
+</window>

@@ -1,0 +1,89 @@
+<window id="ProductDialog" title="Product Dialog" border="normal" width="420px" visible="false"
+        closable="true" onClose="self.visible = false; event.stopPropagation();"
+        use="org.docma.webapp.ProductDialog">
+    <caption>
+        <toolbarbutton label="${c:l('label.help.btn')}" onClick='mainWin.onHelp("help/create_product.html")'/>
+    </caption>
+    <hbox width="100%" pack="stretch">
+        <space spacing="3px" />
+        <vbox spacing="3px" width="100%" align="stretch">
+            <separator spacing="0px"/>
+            <hbox width="100%" spacing="0" pack="stretch">
+              <cell width="30%">
+                <vbox width="100%" align="stretch">
+                    <label>${c:l('label.product.id')}:</label>
+                    <textbox id="ProductIdTextbox" maxlength="20" width="95%" />
+                </vbox>
+              </cell>
+              <space spacing="4px" />
+              <cell width="70%">
+                <vbox width="100%" align="stretch">
+                    <label>${c:l('label.product.name')}:</label>
+                    <textbox id="ProductNameTextbox" maxlength="30" width="98%" />
+                </vbox>
+              </cell>
+            </hbox>
+            <separator spacing="1px"/>
+            <hbox width="100%" spacing="0" pack="stretch" align="center">
+              <label hflex="min" style="white-space:nowrap;">${c:l('label.product.storage_type')}:</label>
+              <space spacing="4px" />
+              <listbox id="ProductStorageTypeList" mold="select" rows="1" hflex="1" 
+                         forward="onSelect=ProductDialog.onSelectStorageType">
+                <listitem label="${c:l('label.product.storage_type_fs')}" value="fs_store"/>
+                <listitem label="${c:l('label.product.storage_type_db_embedded')}" value="db_embedded_store"/>
+                <listitem label="${c:l('label.product.storage_type_db_external')}" value="db_external_store"/>
+              </listbox>
+            </hbox>
+            <hbox id="ProductExportsInDbArea" width="100%" align="center">
+              <checkbox id="ProductExportsInDbCheckbox"/>
+              <label value="${c:l('label.product.store_exports_in_db')}" />
+            </hbox>
+            <separator spacing="1px"/>
+            <groupbox id="ProductPathArea">
+              <caption label="${c:l('label.product.path')}" />
+              <radiogroup id="ProductPathRadiogroup" forward="onCheck=ProductDialog.onChangePathType">
+                <hbox spacing="3px" pack="start" align="center">
+                  <radio id="DefaultProductPathRadio" value="DefaultPath" 
+                         label="${c:l('label.product.path.default')}" hflex="min"/>
+                  <space spacing="8px" />
+                  <radio id="CustomProductPathRadio" value="CustomPath" 
+                         label="${c:l('label.product.path.user_defined')}" hflex="min"/>
+                </hbox>
+              </radiogroup>
+              <separator spacing="2px"/>
+              <textbox id="ProductPathTextbox" maxlength="250" width="98%" />
+              <!-- <button label="${c:l('label.browsefile.btn')}" width="100%"/> -->
+            </groupbox>
+            <?component name="JDBCProperties" inline="true" macroURI="jdbc_properties.zul"?>
+            <JDBCProperties />
+            <separator spacing="1px"/>
+            <label>${c:l('label.product.languages')}:</label>
+            <hbox width="100%" spacing="4px" pack="stretch">
+                <cell hflex="1"><listbox id="ProductLanguagesListbox" rows="5" width="100%"></listbox></cell>
+                <vbox hflex="min" spacing="2px" align="center" pack="stretch">
+                    <button id="ProductAddLanguageButton" label="${c:l('label.add.btn')}" hflex="1"
+                            onClick="ProductDialog.onAddLanguage()"/>
+                    <button id="ProductDeleteLanguageButton" label="${c:l('label.delete.btn')}" hflex="1"
+                            onClick="ProductDialog.onDeleteLanguage()"/>
+                    <button id="ProductSetOrigLanguageButton" label="${c:l('label.setoriginal.btn')}" hflex="1"
+                            onClick="ProductDialog.onSetOriginalLanguage()"/>
+                </vbox>
+            </hbox>
+            <separator spacing="1px"/>
+            <label id="ProductDialogHintLabel" visible="false" value="" />
+            <separator spacing="1px"/>
+            <hbox pack="stretch" width="100%">
+              <cell width="50%">
+                <button label="${c:l('label.okay.btn')}" width="100%"
+                        onClick="ProductDialog.onOkayClick()"/>
+              </cell>
+              <cell width="50%">
+                <button label="${c:l('label.cancel.btn')}" width="100%"
+                        onClick="ProductDialog.onCancelClick()"/>
+              </cell>
+            </hbox>
+            <separator spacing="2px"/>
+        </vbox>
+        <space spacing="3px" />
+    </hbox>
+</window>

@@ -1,0 +1,1102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?page title="Web-Designer" ?>
+<?taglib uri="http://www.zkoss.org/dsp/web/core" prefix="c"?>
+
+<?component name="textbutton" extends="toolbarbutton" style="font-size:11px; color:blue;" ?>
+<?component name="headtextbutton" extends="toolbarbutton" sclass="headBtnCls" ?>
+<?component name="head1label" extends="label" style="color:#F0F0F0; font-weight:bold; white-space:nowrap;" ?>
+<?component name="head2label" extends="label" style="color:#F0F0F0; font-weight:normal; white-space:nowrap;" ?>
+<?component name="whlabel1" extends="label" style="font-size:12px; color:#000000; font-weight:bold; white-space:nowrap;" ?>
+<?component name="whlabel2" extends="label" style="font-size:12px; color:#000000; font-weight:normal;" ?>
+
+<zk>
+
+<style>
+.headBtnCls .z-toolbarbutton-cnt { color:#DFEEFF; font-weight:normal; font-size:11px; text-shadow:1px 1px 1px #202020; }
+.z-toolbarbutton-over .z-toolbarbutton-cnt { color:#202020; text-shadow:0 0 0; }
+
+.control_panel { background-color:#F0F0F0; padding:8px; }    
+.box_preview { width:80px; height:auto; overflow:hidden; }
+.box_preview_small { width:55px; height:auto; overflow:hidden; }
+.box_prev_inner { width:50px; height:20px; float:right; }
+.font_preview { width:55px; height:20px; overflow:hidden; }
+.font_prev_inner { width:50px; padding:4px 0 4px 0; float:right; text-align:center; }
+.img_selected { border:dashed 1px #D0D0D0; }
+</style>
+
+  <window id="whdMainWin"  height="100%" width="100%" border="none" mode="embedded"
+          contentStyle="background-color:#303030;"
+          apply="org.docma.webdesigner.WebDesignerComposer" >
+
+    <borderlayout id="whdMainLayout" hflex="1" height="100%" style="background-color:#070604;">
+      <!-- <north height="60px" margins="0,0,0,0" style="background-color:#070604;" border="none">
+      </north> -->
+      <west style="background-color:#181410; background-image:url(img/whd_back.jpg); background-repeat:no-repeat; background-size:auto 64px;" 
+            border="none" margins="0,0,0,0" width="292px" splittable="true">
+        <vbox hflex="1" align="stretch" style="padding:12px 8px 0 8px">
+            <hbox pack="start" style="padding:0 0 0 0;">
+                <image src="img/whd_logo.png" width="274px" />
+            </hbox>
+            <separator spacing="3px" />
+            <hbox align="center" pack="stretch" width="100%" spacing="3px">
+              <head1label value="Saved Designs:" hflex="1"/>
+              <headtextbutton label="New" id="whdNewBtn" hflex="min" />
+              <headtextbutton label="Import" id="whdImportBtn" hflex="min" />
+              <headtextbutton label="Export" id="whdExportBtn" hflex="min" />
+            </hbox>
+            <hbox align="center" width="100%" spacing="3px">
+              <listbox id="whdSelectList" mold="select" rows="1" hflex="1"></listbox>
+            </hbox>
+            <separator spacing="5px" />
+            
+            <tabbox id="whdControlsTabBox" width="98%" mold="accordion" panelSpacing="2px">
+              <tabs>
+                <tab label="General" />
+                <tab label="Heading" />
+                <tab label="Logo Images" />
+                <tab label="Tree Navigation" />
+                <tab label="Tree Style" />
+                <tab label="Tab Navigation" />
+                <tab label="Breadcrumbs Navigation" />
+                <tab label="Previous/Next Navigation" />
+                <tab label="Search" />
+                <tab label="Search Result" />
+                <tab label="Content/Search Tab" id="whdSearchTabArea" />
+              </tabs>
+              <tabpanels>
+                <!-- General Panel -->
+                <tabpanel sclass="control_panel">
+                  <vbox align="stretch" width="100%" spacing="3px">
+                    <hbox id="whdLayoutVersionArea" align="center" width="100%" spacing="4px">
+                      <whlabel1 value="Layout:" hflex="1" />
+                      <listbox id="whdLayoutIdBox" mold="select" rows="1"></listbox>
+                      <whlabel2 value="Version" hflex="min" />
+                      <listbox id="whdLayoutVersionBox" mold="select" rows="1"></listbox>
+                    </hbox>
+                    <hbox align="center" width="100%" spacing="3px">
+                      <whlabel1 value="Favorite Icon:" hflex="1" />
+                      <textbutton id="whdFaviconDownloadBtn" label="Download" />
+                      <textbutton id="whdFaviconReplaceBtn" label="Replace" upload="true" />
+                      <image id="whdFaviconImage" style="max-height:32px;max-width:32px;" />
+                    </hbox>
+                    <hbox align="center" width="100%" spacing="3px">
+                      <whlabel1 value="Background Color:" hflex="1" />
+                      <colorbox id="whdGeneralBgColorBox" />
+                    </hbox>
+                    <hbox align="center" width="100%" spacing="3px">
+                      <whlabel1 value="Content Top Offset:" hflex="1" />
+                      <spinner id="whdContentTopBox" constraint="no negative" value="0" cols="4" hflex="min" />
+                      <label value="px" hflex="min" />
+                    </hbox>
+                    <whlabel1 value="Content Padding:" />
+                    <hbox align="center" width="100%" spacing="4px">
+                      <cell hflex="1" align="right">
+                        <whlabel2 value="Left&#160;[px]:" />
+                        <spinner id="whdContentPaddingLeftBox" constraint="no negative" width="60px" />
+                      </cell>
+                      <cell width="50%" align="right">
+                        <whlabel2 value="Right&#160;[px]:" />
+                        <spinner id="whdContentPaddingRightBox" constraint="no negative" width="60px" />
+                      </cell>
+                    </hbox>
+                    <whlabel1 value="Content Width:" />
+                    <hbox align="center" width="100%" spacing="4px">
+                      <cell hflex="1" align="right">
+                        <whlabel2 value="Min&#160;[px]:" />
+                        <spinner id="whdContentWidthMinBox" constraint="no negative" width="60px" />
+                      </cell>
+                      <cell width="50%" align="right">
+                        <whlabel2 value="Max&#160;[px]:" />
+                        <spinner id="whdContentWidthMaxBox" constraint="no negative" width="60px" />
+                      </cell>
+                    </hbox>
+                    <whlabel1 value="Watermark Position:" />
+                    <hbox align="center" width="100%" spacing="4px">
+                      <cell hflex="1" align="right">
+                        <whlabel2 value="X-Pos&#160;[px]:" />
+                        <spinner id="whdWatermarkXPosBox" constraint="no negative" width="60px" />
+                      </cell>
+                      <cell width="50%" align="right">
+                        <whlabel2 value="Y-Pos&#160;[px]:" />
+                        <spinner id="whdWatermarkYPosBox" constraint="no negative" width="60px" />
+                      </cell>
+                    </hbox>
+                  </vbox>
+                </tabpanel>
+                <!-- Heading Panel -->
+                <tabpanel sclass="control_panel">
+                  <vbox align="stretch" width="100%" spacing="2px">
+                    <hbox align="center" width="100%" spacing="3px">
+                      <whlabel1 value="Header Height:" hflex="1" />
+                      <spinner id="whdHeaderHeightBox" constraint="no negative" value="80" cols="4" hflex="min" />
+                      <label value="px" hflex="min" />
+                    </hbox>
+                    <hbox align="center" width="100%" spacing="3px">
+                      <whlabel1 value="Background/Border:" hflex="1" />
+                      <div sclass="box_preview"><div id="whdHeaderBgPrev" sclass="box_prev_inner"></div></div>
+                      <button id="whdHeaderBgBtn" label="..." />
+                    </hbox>
+                    <whlabel1 value="Padding:" />
+                    <hbox pack="stretch" align="center" width="100%" spacing="0px">
+                      <cell hflex="1" align="right">
+                        <whlabel2 value="Top [px]:" />
+                        <spinner id="whdHeaderPaddingTopBox" constraint="no negative" width="60px" />
+                      </cell>
+                      <cell width="50%" align="right">
+                        <whlabel2 value="Bottom [px]:" />
+                        <spinner id="whdHeaderPaddingBottomBox" constraint="no negative" width="60px" />
+                      </cell>
+                    </hbox>
+                    <hbox pack="stretch" align="center" width="100%" spacing="0px">
+                      <cell hflex="1" align="right">
+                        <whlabel2 value="Left [px]:" />
+                        <spinner id="whdHeaderPaddingLeftBox" constraint="no negative" width="60px" />
+                      </cell>
+                      <cell width="50%" align="right">
+                        <whlabel2 value="Right [px]:" />
+                        <spinner id="whdHeaderPaddingRightBox" constraint="no negative" width="60px" />
+                      </cell>
+                    </hbox>
+                    <hbox align="center" width="100%" spacing="3px">
+                      <checkbox id="whdHeaderTitle1Checkbox" />
+                      <whlabel1 value="Title 1:" hflex="1" />
+                      <cell valign="middle" sclass="font_preview"><label id="whdHeaderTitle1FontPrev" sclass="font_prev_inner" value="Abc" /></cell>
+                      <button id="whdHeaderTitle1FontBtn" label="..." />
+                    </hbox>
+                    <hbox align="center" width="100%" spacing="3px">
+                      <checkbox id="whdHeaderTitle2Checkbox" />
+                      <whlabel1 value="Title 2:" hflex="1" />
+                      <cell valign="middle" sclass="font_preview"><label id="whdHeaderTitle2FontPrev" sclass="font_prev_inner" value="Abc" /></cell>
+                      <button id="whdHeaderTitle2FontBtn" label="..." />
+                    </hbox>
+                    <hbox align="center" width="100%" spacing="3px">
+                      <whlabel1 value="Title Alignment:" hflex="1" />
+                      <listbox id="whdHeaderTitleAlignBox" mold="select" rows="1" >
+                        <listitem label="center" value="center"/>
+                        <listitem label="left" value="left"/>
+                        <listitem label="right" value="right"/>
+                      </listbox>
+                    </hbox>
+                    <whlabel1 value="Title Margins:" />
+                    <hbox pack="stretch" align="center" width="100%" spacing="0px">
+                      <cell hflex="1" align="right">
+                        <whlabel2 value="Top [px]:" />
+                        <spinner id="whdHeaderTitleMarginTopBox" constraint="no negative" width="60px" />
+                      </cell>
+                      <cell width="50%" align="right">
+                        <whlabel2 value="Bottom [px]:" />
+                        <spinner id="whdHeaderTitleMarginBottomBox" constraint="no negative" width="60px" />
+                      </cell>
+                    </hbox>
+                    <hbox pack="stretch" align="center" width="100%" spacing="0px">
+                      <cell hflex="1" align="right">
+                        <whlabel2 value="Left [px]:" />
+                        <spinner id="whdHeaderTitleMarginLeftBox" constraint="no negative" width="60px" />
+                      </cell>
+                      <cell width="50%" align="right">
+                        <whlabel2 value="Right [px]:" />
+                        <spinner id="whdHeaderTitleMarginRightBox" constraint="no negative" width="60px" />
+                      </cell>
+                    </hbox>
+                  </vbox>
+                </tabpanel>
+                <!-- Logo Images -->
+                <tabpanel sclass="control_panel">
+                  <hbox align="center" width="100%" spacing="3px">
+                    <checkbox id="whdLogo1Checkbox" />
+                    <whlabel1 value="Logo 1:" />
+                    <textbutton id="whdLogo1ReplaceBtn" label="Upload" upload="true" />
+                    <textbutton id="whdLogo1DownloadBtn" label="Download" />
+                    <textbutton id="whdLogo1DeleteBtn" label="Delete" />
+                  </hbox>
+                  <div id="whdLogo1Area" width="100%">
+                      <hbox align="center" width="100%" spacing="3px">
+                        <space spacing="16px" />
+                        <image id="whdLogo1Image" style="max-height:80px; max-width:200px;" />
+                      </hbox>
+                      <separator spacing="3px" />
+                      <hbox align="center" width="100%" spacing="3px">
+                        <space spacing="16px" />
+                        <whlabel2 value="Position:" hflex="min" />
+                        <listbox id="whdLogo1PositionBox" mold="select" rows="1" >
+                          <listitem label="Top-left" value="left"/>
+                          <listitem label="Top-left (absolute)" value="absolute-top-left"/>
+                          <listitem label="Top-left (fixed)" value="fixed-top-left"/>
+                          <listitem label="Top-right (absolute)" value="absolute-top-right"/>
+                          <listitem label="Top-right (fixed)" value="fixed-top-right"/>
+                          <listitem label="Bottom-left (absolute)" value="absolute-bottom-left"/>
+                          <listitem label="Bottom-left (fixed)" value="fixed-bottom-left"/>
+                          <listitem label="Bottom-right (absolute)" value="absolute-bottom-right"/>
+                          <listitem label="Bottom-right (fixed)" value="fixed-bottom-right"/>
+                        </listbox>
+                      </hbox>
+                      <separator spacing="3px" />
+                      <hbox align="center" pack="stretch" width="100%" spacing="4px">
+                        <space spacing="16px" />
+                        <cell hflex="1">
+                          <hbox align="center" pack="stretch">
+                            <whlabel2 value="Width&#160;[px]:" />
+                            <spinner id="whdLogo1WidthBox" constraint="no negative" value="1" cols="4" hflex="1" />
+                          </hbox>
+                        </cell>
+                        <cell hflex="1">
+                          <hbox align="center" pack="stretch">
+                            <whlabel2 value="Height&#160;[px]:" />
+                            <spinner id="whdLogo1HeightBox" constraint="no negative" value="1" cols="4" hflex="1" />
+                          </hbox>
+                        </cell>
+                      </hbox>
+                      <separator spacing="3px" />
+                      <hbox align="center" pack="stretch" width="100%" spacing="4px">
+                        <space spacing="16px" />
+                        <cell hflex="1">
+                          <hbox align="center" pack="stretch">
+                            <whlabel2 value="X-Pos&#160;[px]:" style="white-space:nowrap;" />
+                            <spinner id="whdLogo1XPosBox" constraint="" value="1" cols="4" hflex="1" />
+                          </hbox>
+                        </cell>
+                        <cell hflex="1">
+                          <hbox align="center" pack="stretch">
+                            <whlabel2 value="Y-Pos&#160;[px]:" style="white-space:nowrap;" />
+                            <spinner id="whdLogo1YPosBox" constraint="" value="1" cols="4" hflex="1" />
+                          </hbox>
+                        </cell>
+                      </hbox>
+                  </div>
+                  <separator spacing="3px" />
+                  <hbox align="center" width="100%" spacing="3px">
+                    <checkbox id="whdLogo2Checkbox" />
+                    <whlabel1 value="Logo 2:" />
+                    <textbutton id="whdLogo2ReplaceBtn" label="Upload" upload="true" />
+                    <textbutton id="whdLogo2DownloadBtn" label="Download" />
+                    <textbutton id="whdLogo2DeleteBtn" label="Delete" />
+                  </hbox>
+                  <div id="whdLogo2Area" width="100%">
+                      <hbox align="center" width="100%" spacing="3px">
+                        <space spacing="16px" />
+                        <image id="whdLogo2Image" style="max-height:80px; max-width:200px;" />
+                      </hbox>
+                      <separator spacing="3px" />
+                      <hbox align="center" width="100%" spacing="3px">
+                        <space spacing="16px" />
+                        <whlabel2 value="Position:" hflex="min" />
+                        <listbox id="whdLogo2PositionBox" mold="select" rows="1" >
+                          <listitem label="Top-right" value="right"/>
+                          <listitem label="Top-left (absolute)" value="absolute-top-left"/>
+                          <listitem label="Top-left (fixed)" value="fixed-top-left"/>
+                          <listitem label="Top-right (absolute)" value="absolute-top-right"/>
+                          <listitem label="Top-right (fixed)" value="fixed-top-right"/>
+                          <listitem label="Bottom-left (absolute)" value="absolute-bottom-left"/>
+                          <listitem label="Bottom-left (fixed)" value="fixed-bottom-left"/>
+                          <listitem label="Bottom-right (absolute)" value="absolute-bottom-right"/>
+                          <listitem label="Bottom-right (fixed)" value="fixed-bottom-right"/>
+                        </listbox>
+                      </hbox>
+                      <separator spacing="3px" />
+                      <hbox align="center" pack="stretch" width="100%" spacing="4px">
+                        <space spacing="16px" />
+                        <cell hflex="1">
+                          <hbox align="center" pack="stretch">
+                            <whlabel2 value="Width&#160;[px]:" />
+                            <spinner id="whdLogo2WidthBox" constraint="no negative" value="1" cols="4" hflex="1" />
+                          </hbox>
+                        </cell>
+                        <cell hflex="1">
+                          <hbox align="center" pack="stretch">
+                            <whlabel2 value="Height&#160;[px]:" />
+                            <spinner id="whdLogo2HeightBox" constraint="no negative" value="1" cols="4" hflex="1" />
+                          </hbox>
+                        </cell>
+                      </hbox>
+                      <separator spacing="3px" />
+                      <hbox align="center" pack="stretch" width="100%" spacing="4px">
+                        <space spacing="16px" />
+                        <cell hflex="1">
+                          <hbox align="center" pack="stretch">
+                            <whlabel2 value="X-Pos&#160;[px]:" style="white-space:nowrap;" />
+                            <spinner id="whdLogo2XPosBox" constraint="" value="1" cols="4" hflex="1" />
+                          </hbox>
+                        </cell>
+                        <cell hflex="1">
+                          <hbox align="center" pack="stretch">
+                            <whlabel2 value="Y-Pos&#160;[px]:" style="white-space:nowrap;" />
+                            <spinner id="whdLogo2YPosBox" constraint="" value="1" cols="4" hflex="1" />
+                          </hbox>
+                        </cell>
+                      </hbox>
+                  </div>
+                </tabpanel>
+                <!-- Tree Navigation Panel -->
+                <tabpanel sclass="control_panel">
+                  <vbox align="stretch" width="100%" spacing="2px">
+                    <hbox align="center" width="100%" spacing="3px">
+                      <whlabel1 value="Panel Width:" hflex="1" />
+                      <spinner id="whdNavigationWidthBox" constraint="no negative" cols="4" hflex="min" />
+                      <label value="px" hflex="min" />
+                    </hbox>
+                    <whlabel1 value="Margin:" />
+                    <hbox pack="stretch" align="center" width="100%" spacing="0px">
+                      <cell hflex="1" align="right">
+                        <whlabel2 value="Top&#160;[px]:" />
+                        <spinner id="whdNavigationMarginTopBox" constraint="no negative" width="60px" />
+                      </cell>
+                      <cell width="50%" align="right">
+                        <whlabel2 value="Bottom&#160;[px]:" />
+                        <spinner id="whdNavigationMarginBottomBox" constraint="no negative" width="60px" />
+                      </cell>
+                    </hbox>
+                    <whlabel1 value="Padding:" />
+                    <hbox pack="stretch" align="center" width="100%" spacing="0px">
+                      <cell hflex="1" align="right">
+                        <whlabel2 value="Top&#160;[px]:" />
+                        <spinner id="whdNavigationPaddingTopBox" constraint="no negative" width="60px" />
+                      </cell>
+                      <cell width="50%" align="right">
+                        <whlabel2 value="Bottom&#160;[px]:" />
+                        <spinner id="whdNavigationPaddingBottomBox" constraint="no negative" width="60px" />
+                      </cell>
+                    </hbox>
+                    <hbox pack="stretch" align="center" width="100%" spacing="0px">
+                      <cell hflex="1" align="right">
+                        <whlabel2 value="Left&#160;[px]:" />
+                        <spinner id="whdNavigationPaddingLeftBox" constraint="no negative" width="60px" />
+                      </cell>
+                      <cell width="50%" align="right">
+                        <whlabel2 value="Right&#160;[px]:" />
+                        <spinner id="whdNavigationPaddingRightBox" constraint="no negative" width="60px" />
+                      </cell>
+                    </hbox>
+                    <hbox align="center" width="100%" spacing="3px">
+                      <whlabel1 value="Panel Background:" hflex="1" />
+                      <div sclass="box_preview"><div id="whdNavigationBgPrev" sclass="box_prev_inner"></div></div>
+                      <button id="whdNavigationBgBtn" label="..." />
+                    </hbox>
+                    <hbox align="center" width="100%" spacing="3px">
+                      <whlabel1 value="Tree Background:" hflex="1" />
+                      <div sclass="box_preview"><div id="whdNavigationTreeBgPrev" sclass="box_prev_inner"></div></div>
+                      <button id="whdNavigationTreeBgBtn" label="..." />
+                    </hbox>
+                    <separator spacing="2px" />
+                    <hbox align="center" pack="stretch" width="100%" spacing="0px">
+                      <vbox hflex="1" spacing="0px">
+                        <hbox align="center" pack="stretch" width="100%" spacing="2px">
+                          <whlabel1 value="Toggle Button:" hflex="1" />
+                          <textbutton id="whdNavigationToggleReplaceBtn" label="Upload" upload="true" />
+                          <textbutton id="whdNavigationToggleDownloadBtn" label="Download" />
+                          <textbutton id="whdNavigationToggleDeleteBtn" label="Delete" />
+                        </hbox>
+                        <hbox align="center" pack="stretch" hflex="1" >
+                            <space hflex="1" />
+                            <whlabel2 value="Width&#160;[px]:" />
+                            <spinner id="whdNavigationToggleWidthBox" constraint="no negative" width="60px" />
+                            <space spacing="2px" />
+                        </hbox>
+                      </vbox>
+                      <cell width="34px" align="right">
+                        <image id="whdNavigationToggleImage" style="max-height:40px; max-width:30px; border:dashed 1px #D0D0D0;" />
+                      </cell>
+                    </hbox>
+                    <separator spacing="2px" />
+                    <hbox align="center" width="100%" spacing="3px">
+                      <checkbox id="whdNavResizeCheckbox" />
+                      <whlabel1 value="Resizable"  />
+                    </hbox>
+                    <separator spacing="2px" />
+                    <hbox align="center" width="100%" spacing="3px">
+                      <checkbox id="whdNavAccordionCheckbox" />
+                      <whlabel1 value="Accordion Tabs"  hflex="1"/>
+                      <whlabel2 value="&#160;Height&#160;[px]:"/>
+                      <spinner id="whdNavAccordionHeightBox" constraint="no negative" width="46px" />
+                    </hbox>
+                    <hbox align="center" width="100%" spacing="3px">
+                      <space spacing="16px" />
+                      <button id="whdNavAccordionBgBtn" label="Background..." style="white-space:nowrap;" />
+                      <button id="whdNavAccordionFontBtn" label="Font..." style="white-space:nowrap;" />
+                      <space hflex="1" />
+                      <div id="whdNavAccordionBgPrev" width="50px" style="background-color:#FFFFFF;"><label id="whdNavAccordionFontPrev" value="Abc" /></div>
+                    </hbox>
+                    <hbox align="center" pack="end" width="100%" spacing="3px">
+                      <whlabel2 value="Indent&#160;[px]:" />
+                      <spinner id="whdNavAccordionPaddingXBox" constraint="no negative" width="46px" />
+                      <whlabel2 value="&#160;Spacing&#160;[px]:"/>
+                      <spinner id="whdNavAccordionSpacingBox" constraint="no negative" width="46px" />
+                    </hbox>
+                  </vbox>
+                </tabpanel>
+                <!-- Tree Style Panel -->
+                <tabpanel sclass="control_panel">
+                  <vbox align="stretch" width="100%" spacing="2px">
+                    <!--
+                    <hbox align="center" width="100%" spacing="3px">
+                      <whlabel1 value="Tree-Style:" hflex="1" />
+                      <listbox id="whdNavTreeStyleBox" mold="select" rows="1" >
+                        <listitem label="dotted" value="dotted"/>
+                        <listitem label="triangle" value="triangle"/>
+                      </listbox>
+                    </hbox>
+                    -->
+                    <hbox align="center" width="100%" spacing="3px">
+                      <whlabel1 value="Tree-Animation:" hflex="1" />
+                      <listbox id="whdNavTreeAnimationBox" mold="select" rows="1" >
+                        <listitem label="off" value="off"/>
+                        <listitem label="slow" value="slow"/>
+                        <listitem label="medium" value="medium"/>
+                        <listitem label="fast" value="fast"/>
+                      </listbox>
+                    </hbox>
+                    <hbox align="center" width="100%" spacing="0px">
+                      <checkbox id="whdNavTreeCollapsedBox" />
+                      <whlabel1 value="Collapsed" />
+                      <space spacing="4px" />
+                      <checkbox id="whdNavTreeAutoCloseBox" />
+                      <whlabel1 value="Auto-Close" />
+                    </hbox>
+                    <hbox align="center" width="100%" spacing="0px">
+                      <checkbox id="whdNavTreeShowTitleBox" />
+                      <whlabel1 value="Show Tree Title" hflex="1" />
+                      <cell valign="middle" sclass="font_preview"><label id="whdNavigationFontTitlePrev" sclass="font_prev_inner" value="Abc" /></cell>
+                      <space spacing="3px" />
+                      <button id="whdNavigationFontTitleBtn" label="..." />
+                    </hbox>
+                    <hbox align="center" width="100%" spacing="3px">
+                      <whlabel1 value="Font (default):" hflex="1" />
+                      <cell valign="middle" sclass="font_preview"><label id="whdNavigationFontPrev" sclass="font_prev_inner" value="Abc" /></cell>
+                      <button id="whdNavigationFontBtn" label="..." />
+                    </hbox>
+                    <hbox align="center" width="100%" spacing="3px">
+                      <whlabel1 value="Font (active):" hflex="1" />
+                      <cell valign="middle" sclass="font_preview"><label id="whdNavigationFontCurrentPrev" sclass="font_prev_inner" value="Abc" /></cell>
+                      <button id="whdNavigationFontCurrentBtn" label="..." />
+                    </hbox>
+                    <hbox align="center" width="100%" spacing="3px">
+                      <whlabel1 value="Font (mouse-over):" hflex="1" />
+                      <cell valign="middle" sclass="font_preview"><label id="whdNavigationFontHoverPrev" sclass="font_prev_inner" value="Abc" /></cell>
+                      <button id="whdNavigationFontHoverBtn" label="..." />
+                    </hbox>
+                    <separator spacing="2px" />
+                    <hbox align="center" pack="stretch" width="100%" spacing="0px">
+                      <vbox hflex="1">
+                        <hbox align="center" width="100%" spacing="3px">
+                          <whlabel1 value="Content Icon:" hflex="1" />
+                          <textbutton id="whdNavTreeContentImgReplaceBtn" label="Upload" upload="true" />
+                          <textbutton id="whdNavTreeContentImgDownloadBtn" label="Download" />
+                          <textbutton id="whdNavTreeContentImgDeleteBtn" label="Delete" />
+                        </hbox>
+                        <hbox align="center" pack="stretch" hflex="1">
+                            <space hflex="1" />
+                            <whlabel2 value="Width&#160;[px]:" />
+                            <spinner id="whdNavTreeContentImgWidthBox" constraint="no negative" width="60px" />
+                            <space spacing="2px" />
+                        </hbox>
+                      </vbox>
+                      <cell width="40px" align="right">
+                        <image id="whdNavTreeContentImage" style="max-height:32px;max-width:32px; border:dashed 1px #D0D0D0;" />
+                      </cell>
+                    </hbox>
+                    <hbox pack="stretch" align="center" width="100%" spacing="8px">
+                      <cell width="50%">
+                        <vbox pack="start" width="100%">
+                          <whlabel1 value="Open/Close Icons:" />
+                          <div width="100px" height="80px" style="overflow:hidden; border:dashed 1px #D0D0D0;">
+                            <image id="whdNavTreeOpenCloseImage" width="100px" />
+                          </div>
+                          <hlayout spacing="3px">
+                            <textbutton id="whdNavTreeOpenCloseImgReplaceBtn" label="Upload" upload="true" />
+                            <textbutton id="whdNavTreeOpenCloseImgDownloadBtn" label="Download" />
+                          </hlayout>
+                        </vbox>
+                      </cell>
+                      <cell width="50%">
+                        <vbox pack="start" width="100%">
+                          <whlabel1 value="Tree line:" />
+                          <div width="100px" height="80px" style="overflow:hidden; border:dashed 1px #D0D0D0;">
+                            <image id="whdNavTreeLineImage" />
+                          </div>
+                          <hlayout spacing="3px">
+                            <textbutton id="whdNavTreeLineImgReplaceBtn" label="Upload" upload="true" />
+                            <textbutton id="whdNavTreeLineImgDownloadBtn" label="Download" />
+                          </hlayout>
+                        </vbox>
+                      </cell>
+                    </hbox>
+                  </vbox>
+                </tabpanel>
+                <!-- Book Part Navigation Panel -->
+                <tabpanel sclass="control_panel">
+                  <vbox align="stretch" width="100%" spacing="2px">
+                    <whlabel1 value="Margin:" />
+                    <hbox align="center" width="100%" spacing="4px">
+                      <cell hflex="1" align="right">
+                        <whlabel2 value="Top&#160;[px]:" />
+                        <spinner id="whdPartTabsMarginTopBox" constraint="no negative" width="60px" />
+                      </cell>
+                      <cell width="50%" align="right">
+                        <whlabel2 value="Left&#160;[px]:" />
+                        <spinner id="whdPartTabsMarginLeftBox" constraint="no negative" width="60px" />
+                      </cell>
+                    </hbox>
+                    <hbox align="center" width="100%" spacing="3px">
+                      <whlabel1 value="Tab Height:" hflex="1" />
+                      <spinner id="whdPartTabHeightBox" constraint="no negative" cols="4" hflex="min" />
+                      <label value="px" hflex="min" />
+                    </hbox>
+                    <hbox align="center" width="100%" spacing="3px">
+                      <whlabel1 value="Tab Spacing:" hflex="1" />
+                      <spinner id="whdPartTabSpacingBox" constraint="no negative" cols="4" hflex="min" />
+                      <label value="px" hflex="min" />
+                    </hbox>
+                    <hbox align="center" width="100%" spacing="3px">
+                      <whlabel1 value="Tab Background:" hflex="1" />
+                      <div sclass="box_preview"><div id="whdPartTabBgPrev" sclass="box_prev_inner"></div></div>
+                      <button id="whdPartTabBgBtn" label="..." />
+                    </hbox>
+                    <hbox align="center" width="100%" spacing="3px">
+                      <checkbox id="whdPartTabCurrentBox" />
+                      <whlabel2 value="Active Tab:" hflex="1" />
+                      <div sclass="box_preview"><div id="whdPartTabBgCurrentPrev" sclass="box_prev_inner"></div></div>
+                      <button id="whdPartTabBgCurrentBtn" label="..." />
+                    </hbox>
+                    <hbox align="center" width="100%" spacing="3px">
+                      <checkbox id="whdPartTabHoverBox" />
+                      <whlabel2 value="Mouse-over Tab:" hflex="1" />
+                      <div sclass="box_preview"><div id="whdPartTabBgHoverPrev" sclass="box_prev_inner"></div></div>
+                      <button id="whdPartTabBgHoverBtn" label="..." />
+                    </hbox>
+                    <hbox align="center" width="100%" spacing="3px">
+                      <whlabel1 value="Font (default):" hflex="1" />
+                      <cell valign="middle" sclass="font_preview"><label id="whdPartTabFontPrev" sclass="font_prev_inner" value="Abc" /></cell>
+                      <button id="whdPartTabFontBtn" label="..." />
+                    </hbox>
+                    <hbox align="center" width="100%" spacing="3px">
+                      <whlabel1 value="Font (active):" hflex="1" />
+                      <cell valign="middle" sclass="font_preview"><label id="whdPartTabFontCurrentPrev" sclass="font_prev_inner" value="Abc" /></cell>
+                      <button id="whdPartTabFontCurrentBtn" label="..." />
+                    </hbox>
+                    <hbox align="center" width="100%" spacing="3px">
+                      <whlabel1 value="Font (mouse-over):" hflex="1" />
+                      <cell valign="middle" sclass="font_preview"><label id="whdPartTabFontHoverPrev" sclass="font_prev_inner" value="Abc" /></cell>
+                      <button id="whdPartTabFontHoverBtn" label="..." />
+                    </hbox>
+                  </vbox>
+                </tabpanel>
+                <!-- Breadcrumbs Panel -->
+                <tabpanel sclass="control_panel">
+                  <vbox align="stretch" width="100%" spacing="2px">
+                    <hbox align="center" width="100%" spacing="3px">
+                      <whlabel1 value="Background:" hflex="1" />
+                      <div sclass="box_preview"><div id="whdBreadcrumbsBgPrev" sclass="box_prev_inner"></div></div>
+                      <button id="whdBreadcrumbsBgBtn" label="..." />
+                    </hbox>
+                    <whlabel1 value="Margin:" />
+                    <hbox pack="stretch" align="center" width="100%" spacing="0px">
+                      <cell hflex="1" align="right">
+                        <whlabel2 value="Top [px]:" />
+                        <spinner id="whdBreadcrumbsMarginTopBox" constraint="no negative" width="60px" />
+                      </cell>
+                      <cell width="50%" align="right">
+                        <whlabel2 value="Bottom [px]:" />
+                        <spinner id="whdBreadcrumbsMarginBottomBox" constraint="no negative" width="60px" />
+                      </cell>
+                    </hbox>
+                    <hbox pack="stretch" align="center" width="100%" spacing="0px">
+                      <cell hflex="1" align="right">
+                        <whlabel2 value="Left [px]:" />
+                        <spinner id="whdBreadcrumbsMarginLeftBox" constraint="no negative" width="60px" />
+                      </cell>
+                      <cell width="50%" align="right">
+                        <whlabel2 value="Right [px]:" />
+                        <spinner id="whdBreadcrumbsMarginRightBox" constraint="no negative" width="60px" />
+                      </cell>
+                    </hbox>
+                    <whlabel1 value="Padding:" />
+                    <hbox pack="stretch" align="center" width="100%" spacing="0px">
+                      <cell hflex="1" align="right">
+                        <whlabel2 value="Top [px]:" />
+                        <spinner id="whdBreadcrumbsPaddingTopBox" constraint="no negative" width="60px" />
+                      </cell>
+                      <cell width="50%" align="right">
+                        <whlabel2 value="Bottom [px]:" />
+                        <spinner id="whdBreadcrumbsPaddingBottomBox" constraint="no negative" width="60px" />
+                      </cell>
+                    </hbox>
+                    <hbox pack="stretch" align="center" width="100%" spacing="0px">
+                      <cell hflex="1" align="right">
+                        <whlabel2 value="Left [px]:" />
+                        <spinner id="whdBreadcrumbsPaddingLeftBox" constraint="no negative" width="60px" />
+                      </cell>
+                      <cell width="50%" align="right">
+                        <whlabel2 value="Right [px]:" />
+                        <spinner id="whdBreadcrumbsPaddingRightBox" constraint="no negative" width="60px" />
+                      </cell>
+                    </hbox>
+                    <whlabel1 value="Text Style:" />
+                    <hbox align="center" width="100%" spacing="3px">
+                      <space spacing="16px" />
+                      <whlabel2 value="Link Font:" hflex="1" />
+                      <cell valign="middle" sclass="font_preview"><label id="whdBreadcrumbsFontPrev" sclass="font_prev_inner" value="Abc" /></cell>
+                      <button id="whdBreadcrumbsFontBtn" label="..." />
+                    </hbox>
+                    <hbox align="center" width="100%" spacing="3px">
+                      <space spacing="16px" />
+                      <whlabel2 value="Selected Node Font:" hflex="1" />
+                      <cell valign="middle" sclass="font_preview"><label id="whdBreadcrumbsFontLastPrev" sclass="font_prev_inner" value="Abc" /></cell>
+                      <button id="whdBreadcrumbsFontLastBtn" label="..." />
+                    </hbox>
+                    <hbox align="center" width="100%" spacing="3px">
+                      <space spacing="16px" />
+                      <whlabel2 value="Mouse-over Font:" hflex="1" />
+                      <cell valign="middle" sclass="font_preview"><label id="whdBreadcrumbsFontHoverPrev" sclass="font_prev_inner" value="Abc" /></cell>
+                      <button id="whdBreadcrumbsFontHoverBtn" label="..." />
+                    </hbox>
+                    <hbox align="center" width="100%" spacing="3px">
+                      <space spacing="16px" />
+                      <whlabel2 value="Separator Font:" hflex="1" />
+                      <cell valign="middle" sclass="font_preview"><label id="whdBreadcrumbsFontSepPrev" sclass="font_prev_inner" value="Abc" /></cell>
+                      <button id="whdBreadcrumbsFontSepBtn" label="..." />
+                    </hbox>
+                    <hbox align="center" width="100%" spacing="3px">
+                      <whlabel1 value="Separator Image:" hflex="min" />
+                      <textbutton id="whdBreadcrumbsSepImageReplaceBtn" label="Upload" upload="true" />
+                      <textbutton id="whdBreadcrumbsSepImageDownloadBtn" label="Download" />
+                      <textbutton id="whdBreadcrumbsSepImageDeleteBtn" label="Delete" />
+                    </hbox>
+                    <hbox align="center" pack="stretch" spacing="3px">
+                      <space spacing="16px" />
+                      <whlabel2 value="Width&#160;[px]:" />
+                      <spinner id="whdBreadcrumbsSepImageWidthBox" constraint="no negative" width="60px" />
+                      <space hflex="1" />
+                      <cell width="34px" align="right">
+                          <image id="whdBreadcrumbsSeparatorImage" style="max-height:25px;max-width:30px; border:dashed 1px #D0D0D0;" />
+                      </cell>
+                    </hbox>
+                  </vbox>
+                </tabpanel>
+                <!-- Previous/Next Panel -->
+                <tabpanel sclass="control_panel">
+                  <vbox align="stretch" width="100%" spacing="2px">
+                    <hbox align="center" width="100%" spacing="3px">
+                      <whlabel1 value="Background:" hflex="1" />
+                      <div sclass="box_preview"><div id="whdNavLocalBgPrev" sclass="box_prev_inner"></div></div>
+                      <button id="whdNavLocalBgBtn" label="..." />
+                    </hbox>
+                    <hbox align="center" pack="stretch">
+                      <whlabel1 value="Height:" hflex="1" />
+                      <spinner id="whdNavLocalHeightBox" constraint="no negative" cols="4" hflex="min" />
+                      <label value="px" hflex="min" />
+                    </hbox>
+                    <hbox align="center" pack="stretch">
+                      <whlabel1 value="Top Offset:" hflex="1" />
+                      <spinner id="whdNavLocalMarginTopBox" constraint="no negative" cols="4" hflex="min" />
+                      <label value="px" hflex="min" />
+                    </hbox>
+                    <whlabel1 value="Padding" />
+                    <hbox pack="stretch" align="center" width="100%" spacing="0px">
+                      <cell hflex="1" align="right">
+                        <whlabel2 value="Top [px]:" />
+                        <spinner id="whdNavLocalPaddingTopBox" constraint="no negative" width="60px" />
+                      </cell>
+                      <cell width="50%" align="right">
+                        <whlabel2 value="Bottom [px]:" />
+                        <spinner id="whdNavLocalPaddingBottomBox" constraint="no negative" width="60px" />
+                      </cell>
+                    </hbox>
+                    <hbox pack="stretch" align="center" width="100%" spacing="0px">
+                      <cell hflex="1" align="right">
+                        <whlabel2 value="Left [px]:" />
+                        <spinner id="whdNavLocalPaddingLeftBox" constraint="no negative" width="60px" />
+                      </cell>
+                      <cell width="50%" align="right">
+                        <whlabel2 value="Right [px]:" />
+                        <spinner id="whdNavLocalPaddingRightBox" constraint="no negative" width="60px" />
+                      </cell>
+                    </hbox>
+                    <hbox align="center" width="100%" spacing="3px">
+                      <checkbox id="whdNavLocalShowTextBox" />
+                      <whlabel1 value="Navigation Text" hflex="1" />
+                      <cell valign="middle" sclass="font_preview"><label id="whdNavLocalFontPrev" sclass="font_prev_inner" value="Abc" /></cell>
+                      <button id="whdNavLocalFontBtn" label="..." />
+                    </hbox>
+                    <hbox align="center" pack="stretch" width="100%" spacing="3px">
+                      <checkbox id="whdNavLocalShowIconsBox" />
+                      <whlabel1 value="Navigation Icons" />
+                      <space hflex="1" />
+                      <textbutton id="whdNavLocalIconReplaceBtn" label="Replace" upload="true,multiple=true" />
+                      <textbutton id="whdNavLocalIconDownloadBtn" label="Download" />
+                    </hbox>
+                    <hbox align="center" width="100%" spacing="0px">
+                      <space spacing="16px" />
+                      <hbox align="center" hflex="1" spacing="5px">
+                        <image id="whdNavLocalPrevImage" style="max-height:20px;max-width:20px;" />
+                        <image id="whdNavLocalUpImage"   style="max-height:20px;max-width:20px;" />
+                        <image id="whdNavLocalNextImage" style="max-height:20px;max-width:20px;" />
+                        <image id="whdNavLocalHomeImage" style="max-height:20px;max-width:20px;" />
+                        <image id="whdNavLocalTocImage"  style="max-height:20px;max-width:20px;" />
+                      </hbox>
+                      <listbox id="whdNavLocalIconSelectBox" mold="select" rows="1" >
+                        <listitem label="prev" value="prev"/>
+                        <listitem label="up" value="up"/>
+                        <listitem label="next" value="next"/>
+                        <listitem label="home" value="home"/>
+                        <listitem label="toc" value="toc"/>
+                      </listbox>
+                    </hbox>
+                    <hbox align="center" width="100%" spacing="3px">
+                      <space spacing="16px" />
+                      <whlabel2 value="Height&#160;[px]:"/>
+                      <spinner id="whdNavLocalIconsHeightBox" constraint="no negative" cols="3" />
+                    </hbox>
+                    <separator spacing="2px" />
+                    <hbox align="center" width="100%" spacing="3px">
+                      <whlabel1 value="Mouse-over Style:" hflex="1" />
+                      <cell valign="middle" sclass="font_preview"><label id="whdNavLocalFontHoverPrev" sclass="font_prev_inner" value="Abc" /></cell>
+                      <button id="whdNavLocalFontHoverBtn" label="..." />
+                    </hbox>
+                    <hbox align="center" width="100%" spacing="3px">
+                      <checkbox id="whdNavSeparatorEnabledBox" />
+                      <whlabel1 value="Separator Style:" hflex="1" />
+                      <cell valign="middle" sclass="font_preview"><label id="whdNavSeparatorFontPrev" sclass="font_prev_inner" value="|" /></cell>
+                      <button id="whdNavSeparatorFontBtn" label="..." />
+                    </hbox>
+                  </vbox>
+                </tabpanel>
+                <!-- Search Panel -->
+                <tabpanel sclass="control_panel">
+                  <vbox align="stretch" width="100%" spacing="2px">
+                    <hbox align="center" width="100%" spacing="3px" pack="start">
+                      <whlabel1 value="Display:" hflex="min" />
+                      <listbox id="whdSearchUIModeBox" mold="select" rows="1" >
+                        <listitem label="hidden" value="hidden"/>
+                        <listitem label="tab" value="tab"/>
+                        <listitem label="fixed" value="fixed"/>
+                      </listbox>
+                      <space spacing="4px" />
+                    <!-- </hbox>
+                    <hbox align="center" width="100%" spacing="3px"> 
+                      <whlabel1 value="Position:" hflex="min" /> -->
+                      <listbox id="whdSearchPositionBox" mold="select" rows="1" >
+                          <listitem label="Top-left" value="fixed-top-left"/>
+                          <listitem label="Top-right" value="fixed-top-right"/>
+                          <listitem label="Bottom-left" value="fixed-bottom-left"/>
+                      </listbox>
+                    </hbox>
+                    <whlabel1 value="Search Box:" />
+                    <hbox align="center" pack="stretch" width="100%" spacing="3px">
+                        <space spacing="16px" />
+                        <cell hflex="1">
+                          <hbox align="center" pack="stretch">
+                            <whlabel2 value="Width&#160;[px]:" style="white-space:nowrap;" />
+                            <spinner id="whdSearchWidthBox" constraint="no negative" value="1" width="60px" />
+                          </hbox>
+                        </cell>
+                        <cell hflex="1">
+                          <hbox align="center" pack="stretch">
+                            <whlabel2 value="Height&#160;[px]:" style="white-space:nowrap;" />
+                            <spinner id="whdSearchHeightBox" constraint="no negative" value="1" width="60px" />
+                          </hbox>
+                        </cell>
+                    </hbox>
+                    <hbox id="whdSearchXYPosArea" align="center" pack="stretch" width="100%" spacing="3px">
+                        <space spacing="16px" />
+                        <cell hflex="1">
+                          <hbox align="center" pack="stretch">
+                            <whlabel2 value="X-Pos&#160;[px]:" style="white-space:nowrap;" />
+                            <spinner id="whdSearchXPosBox" constraint="" value="1" width="60px" />
+                          </hbox>
+                        </cell>
+                        <cell hflex="1">
+                          <hbox align="center" pack="stretch">
+                            <whlabel2 value="Y-Pos&#160;[px]:" style="white-space:nowrap;" />
+                            <spinner id="whdSearchYPosBox" constraint="" value="1" width="60px" />
+                          </hbox>
+                        </cell>
+                    </hbox>
+                    <hbox align="center" width="100%" spacing="3px">
+                      <space spacing="16px" />
+                      <!-- <whlabel2 value="Background:" hflex="1" /> -->
+                      <button id="whdSearchBgBtn" label="Background..." style="white-space:nowrap;" />
+                      <space hflex="1" />
+                      <div sclass="box_preview"><div id="whdSearchBgPrev" sclass="box_prev_inner"></div></div>
+                    </hbox>
+                    <whlabel1 value="Padding:" />
+                    <hbox pack="stretch" align="center" width="100%" spacing="0px">
+                      <cell hflex="1" align="right">
+                        <whlabel2 value="Left&#160;[px]:" />
+                        <spinner id="whdSearchInnerLeftOffsetBox" constraint="no negative" width="60px" />
+                      </cell>
+                      <cell width="50%" align="right">
+                        <whlabel2 value="Right&#160;[px]:" />
+                        <spinner id="whdSearchInnerRightOffsetBox" constraint="no negative" width="60px" />
+                      </cell>
+                    </hbox>
+                    <hbox align="center" width="100%" spacing="3px">
+                      <whlabel1 value="Legend Box:" hflex="1" />
+                      <whlabel2 value="Top Offset [px]:" style="text-align:right; white-space:nowrap;" />
+                      <spinner id="whdSearchInnerTopOffsetBox" constraint="no negative" cols="4" hflex="min" />
+                    </hbox>
+                    <hbox align="center" width="100%" spacing="3px">
+                      <space spacing="16px" />
+                      <button id="whdSearchInnerBgBtn" label="Background..." style="white-space:nowrap;" />
+                      <button id="whdSearchLegendFontBtn" label="Font..." style="white-space:nowrap;" />
+                      <space hflex="1" />
+                      <div sclass="box_preview_small">
+                          <div id="whdSearchInnerBgPrev" sclass="box_prev_inner">
+                              <label id="whdSearchLegendFontPrev" sclass="font_prev_inner" value="Abc" />
+                          </div>
+                      </div>
+                    </hbox>
+                    <hbox align="center" width="100%" spacing="3px">
+                      <whlabel1 value="Input Field:" hflex="1" />
+                    </hbox>
+                    <hbox align="center" width="100%" spacing="3px">
+                      <space spacing="16px" />
+                      <button id="whdSearchInputBgBtn" label="Background..." style="white-space:nowrap;" />
+                      <button id="whdSearchInputFontBtn" label="Font..." style="white-space:nowrap;" />
+                      <space hflex="1" />
+                      <div id="whdSearchInputBgPrev" width="50px" style="background-color:#FFFFFF;"><label id="whdSearchInputFontPrev" value="Abc" /></div>
+                    </hbox>
+                    <hbox align="center" pack="left">
+                      <whlabel1 value="Search Button:" />
+                      <checkbox id="whdSearchBtnShowTextBox" />
+                      <whlabel2 value="Show Text" />
+                    </hbox>
+                    <hbox align="center" width="100%" spacing="3px">
+                      <space spacing="16px" />
+                      <button id="whdSearchBtnBgBtn" label="Background..." style="white-space:nowrap;" />
+                      <button id="whdSearchBtnFontBtn" label="Font..." style="white-space:nowrap;" />
+                      <space hflex="1" />
+                      <div id="whdSearchBtnBgPrev"><label id="whdSearchBtnFontPrev" value="Abc" /></div>
+                    </hbox>
+                    <hbox align="center" pack="stretch" width="100%" spacing="4px">
+                        <space spacing="16px" />
+                        <cell hflex="1">
+                          <hbox align="center" pack="stretch">
+                            <whlabel2 value="Width&#160;[px]:" />
+                            <spinner id="whdSearchBtnWidthBox" constraint="no negative" value="1" width="60px" />
+                          </hbox>
+                        </cell>
+                        <cell hflex="1">
+                          <hbox align="center" pack="stretch">
+                            <whlabel2 value="Height&#160;[px]:" />
+                            <spinner id="whdSearchBtnHeightBox" constraint="no negative" value="1" width="60px" />
+                          </hbox>
+                        </cell>
+                    </hbox>
+                  </vbox>
+                </tabpanel>
+                <!-- Search Result Panel -->
+                <tabpanel sclass="control_panel">
+                  <vbox align="stretch" width="100%" spacing="2px">
+                    <whlabel1 value="Text Styles" />
+                    <hbox align="center" width="100%" spacing="3px">
+                      <space spacing="16px" />
+                      <whlabel2 value="Result Title:" hflex="1" />
+                      <cell valign="middle" sclass="font_preview"><label id="whdSearchTitleFontPrev" sclass="font_prev_inner" value="Abc" /></cell>
+                      <button id="whdSearchTitleFontBtn" label="..." />
+                    </hbox>
+                    <hbox align="center" width="100%" spacing="3px">
+                      <space spacing="16px" />
+                      <whlabel2 value="Search Expression:" hflex="1" />
+                      <cell valign="middle" sclass="font_preview"><label id="whdSearchExpressionFontPrev" sclass="font_prev_inner" value="Abc" /></cell>
+                      <button id="whdSearchExpressionFontBtn" label="..." />
+                    </hbox>
+                    <hbox align="center" width="100%" spacing="3px">
+                      <space spacing="16px" />
+                      <whlabel2 value="Result Item:" hflex="1" />
+                      <cell valign="middle" sclass="font_preview"><label id="whdSearchResultFontPrev" sclass="font_prev_inner" value="Abc" /></cell>
+                      <button id="whdSearchResultFontBtn" label="..." />
+                    </hbox>
+                    <hbox align="center" width="100%" spacing="3px">
+                      <space spacing="16px" />
+                      <whlabel2 value="Search Hit:" hflex="1" />
+                      <cell valign="middle" sclass="font_preview"><label id="whdSearchHitFontPrev" sclass="font_prev_inner" value="Abc" /></cell>
+                      <button id="whdSearchHitFontBtn" label="..." />
+                    </hbox>
+                    <hbox align="center" width="100%" spacing="3px">
+                      <space spacing="16px" />
+                      <whlabel2 value="Close Search:" hflex="1" />
+                      <cell valign="middle" sclass="font_preview"><label id="whdSearchCloseFontPrev" sclass="font_prev_inner" value="Abc" /></cell>
+                      <button id="whdSearchCloseFontBtn" label="..." />
+                    </hbox>
+                    <hbox pack="stretch" align="center" width="100%" spacing="0px">
+                      <vbox hflex="1">
+                        <hbox align="center" pack="stretch" width="100%" spacing="3px">
+                          <whlabel1 value="Highlight&#160;Button:" hflex="1" />
+                          <textbutton id="whdSearchToggleReplaceBtn" label="Replace" upload="true" />
+                          <textbutton id="whdSearchToggleDownloadBtn" label="Download" />
+                        </hbox>
+                        <hbox align="center" width="100%" pack="stretch">
+                            <space hflex="1" />
+                            <whlabel2 value="Width&#160;[px]:" />
+                            <spinner id="whdSearchToggleWidthBox" constraint="no negative" cols="4" />
+                        </hbox>
+                      </vbox>
+                      <cell width="45px" align="right">
+                        <image id="whdSearchToggleImage" style="max-height:40px;max-width:40px; border:dashed 1px #D0D0D0;" />
+                      </cell>
+                    </hbox>
+                    <hbox align="center" width="100%" spacing="3px">
+                      <whlabel1 value="Back Icon:" hflex="1" />
+                      <textbutton id="whdSearchCloseImageReplaceBtn" label="Replace" upload="true" />
+                      <textbutton id="whdSearchCloseImageDownloadBtn" label="Download" />
+                      <image id="whdSearchCloseImage" width="16px" />
+                    </hbox>
+                  </vbox>
+                </tabpanel>
+                <!-- Content/Search Tab Panel -->
+                <tabpanel sclass="control_panel">
+                  <vbox align="stretch" width="100%" spacing="2px">
+                    <!-- <div id="whdSearchTabArea" width="100%"> -->
+                    <hbox align="center" width="100%" spacing="3px">
+                      <whlabel1 value="Tab Height:" hflex="1" />
+                      <spinner id="whdSearchTabHeightBox" constraint="no negative" cols="4" hflex="min" />
+                      <label value="px" hflex="min" />
+                    </hbox>
+                    <hbox align="center" width="100%" spacing="3px">
+                      <whlabel1 value="Active Tab:" hflex="1" />
+                      <div sclass="box_preview">
+                          <div id="whdSearchTabBgActivePrev" sclass="box_prev_inner"></div>
+                      </div>
+                      <button id="whdSearchTabBgActiveBtn" label="..." />
+                    </hbox>
+                    <hbox align="center" width="100%" spacing="3px">
+                      <whlabel1 value="Inactive Tab:" hflex="1" />
+                      <div sclass="box_preview">
+                          <div id="whdSearchTabBgPrev" sclass="box_prev_inner"></div>
+                      </div>
+                      <button id="whdSearchTabBgBtn" label="..." />
+                    </hbox>
+                    <hbox align="center" width="100%" spacing="3px">
+                      <checkbox id="whdSearchTabHoverBox" />
+                      <whlabel1 value="Mouse-over Tab:" hflex="1" />
+                      <div sclass="box_preview">
+                          <div id="whdSearchTabBgHoverPrev" sclass="box_prev_inner"></div>
+                      </div>
+                      <button id="whdSearchTabBgHoverBtn" label="..." />
+                    </hbox>
+                    <hbox align="center" width="100%" spacing="3px">
+                      <whlabel1 value="Font (active):" hflex="1" />
+                      <cell valign="middle" sclass="font_preview"><label id="whdSearchTabFontActivePrev" sclass="font_prev_inner" value="Abc" /></cell>
+                      <button id="whdSearchTabFontActiveBtn" label="..." />
+                    </hbox>
+                    <hbox align="center" width="100%" spacing="3px">
+                      <whlabel1 value="Font (inactive):" hflex="1" />
+                      <cell valign="middle" sclass="font_preview"><label id="whdSearchTabFontPrev" sclass="font_prev_inner" value="Abc" /></cell>
+                      <button id="whdSearchTabFontBtn" label="..." />
+                    </hbox>
+                    <hbox align="center" width="100%" spacing="3px">
+                      <whlabel1 value="Font (mouse-over):" hflex="1" />
+                      <cell valign="middle" sclass="font_preview"><label id="whdSearchTabFontHoverPrev" sclass="font_prev_inner" value="Abc" /></cell>
+                      <button id="whdSearchTabFontHoverBtn" label="..." />
+                    </hbox>
+                    <whlabel1 value="Panel Padding:" />
+                    <hbox pack="stretch" align="center" width="100%" spacing="0px">
+                      <cell width="50%" align="right">
+                        <whlabel2 value="Top&#160;[px]:" />
+                        <spinner id="whdSearchPanelPaddingTopBox" constraint="no negative" cols="4" hflex="min" />
+                      </cell>
+                      <cell width="50%" align="right">
+                        <whlabel2 value="Bottom&#160;[px]:" />
+                        <spinner id="whdSearchPanelPaddingBottomBox" constraint="no negative" cols="4" hflex="min" />
+                      </cell>
+                    </hbox>
+                    <hbox pack="stretch" align="center" width="100%" spacing="0px">
+                      <cell width="50%" align="right">
+                        <whlabel2 value="Left&#160;[px]:" />
+                        <spinner id="whdSearchPanelPaddingLeftBox" constraint="no negative" cols="4" hflex="min" />
+                      </cell>
+                      <cell width="50%" align="right">
+                        <whlabel2 value="Right&#160;[px]:" />
+                        <spinner id="whdSearchPanelPaddingRightBox" constraint="no negative" cols="4" hflex="min" />
+                      </cell>
+                    </hbox>
+                    <hbox align="center" width="100%" spacing="3px">
+                      <whlabel1 value="Panel Background:" hflex="1" />
+                      <div sclass="box_preview"><div id="whdSearchPanelBgPrev" sclass="box_prev_inner"></div></div>
+                      <button id="whdSearchPanelBgBtn" label="..." />
+                    </hbox>
+                    <!-- </div> -->
+                  </vbox>
+                </tabpanel>
+              </tabpanels>
+            </tabbox>
+        </vbox>
+      </west>
+      <center border="normal">
+        <!-- <splitter collapse="before" /> -->
+        <borderlayout hflex="1" height="100%" style="background-color:#070604;">
+          <north id="whdPreviewControls" height="50px" margins="0,10,10,0" style="background-color:#070604;" border="none">
+            <hbox pack="stretch" align="center" hflex="1" height="50px" >
+              <!-- <hbox id="whdButtonsArea" align="center" width="100%" spacing="3px"> -->
+              <button label="Refresh Preview" id="whdPreviewRefreshBtn" image="img/refresh_icon.gif" orient="horizontal"
+                      style="min-width:180px; min-height:26px;" />
+              <space spacing="12px" />
+              <button label="Save" id="whdSaveBtn" image="img/save.gif" orient="horizontal"
+                      style="white-space:nowrap; min-width:90px; min-height:26px;" />
+              <button label="Save as..." id="whdSaveAsBtn" image="img/save_as.gif" orient="horizontal"
+                      style="white-space:nowrap; min-width:90px; min-height:26px;" />
+              <button label="Delete" id="whdDeleteBtn" image="img/delete.gif" orient="horizontal"
+                      style="white-space:nowrap; min-width:90px; min-height:26px;" />
+              <!-- </hbox> -->
+              <space spacing="16px" />
+              <head1label value="Design:" />
+              <head2label id="whdDesignNameLabel" value="" />
+              <space spacing="16px" />
+              <head1label value="Preview:" />
+              <space spacing="4px" />
+              <checkbox id="whdPreviewPartsCheckbox" />
+              <head2label value="Tabs" />
+              <space spacing="4px" />
+              <checkbox id="whdPreviewCrumbsCheckbox" />
+              <head2label value="Breadcrumbs" />
+              <timer id="whdPreviewTimer" repeats="false" delay="500" running="false" />
+              <space hflex="1" />
+              <headtextbutton label="Logout" id="whdExitBtn" image="img/on_off.gif" 
+                              style="font-weight:bold; white-space:nowrap;"/>
+              <space spacing="10px" />
+            </hbox>
+          </north>
+          <center border="normal">
+            <iframe id="whdPreviewFrame" name="whdPreviewFrame" src="preview_empty.html" width="100%" height="100%"/>
+          </center>
+        </borderlayout>
+      </center>
+    </borderlayout>
+
+    <window id="whdLoginWin" title="WebHelp Designer ${c:l('label.login.windowtitle')}" border="normal"
+            mode="overlapped" position="center" >
+        <caption>
+            <!-- <hbox spacing="8px"> -->
+                <toolbarbutton label="${c:l('label.help')}" id="whdLoginHelpBtn" />
+            <!-- </hbox> -->
+        </caption>
+
+        <hbox spacing="4px">
+            <image src="img/login_pic.jpg" height="118px" />
+            <space spacing="3px" />
+            <vbox spacing="3px" >
+                <separator spacing="0px"/>
+                <label>${c:l('label.login.username')}:</label>
+                <textbox id="username" width="160px" forward="onOK=loginBtn.onClick"/>
+                <separator spacing="1px"/>
+                <label>${c:l('label.login.password')}:</label>
+                <textbox id="userpwd" type="password"  width="160px"  forward="onOK=loginBtn.onClick"/>
+                <separator spacing="2px"/>
+                <button id="loginBtn" label="${c:l('label.login.btn')}" width="160px" />
+                <!-- forward="onClick=whdLoginWin.onLoginClick" -->
+            </vbox>
+            <space spacing="3px" />
+        </hbox>
+    </window>
+
+    <?component name="NewDesignDialog" inline="true" macroURI="new_win.zul"?>
+    <NewDesignDialog />
+    <?component name="SaveAsDialog" inline="true" macroURI="saveas_win.zul"?>
+    <SaveAsDialog />
+    <?component name="EditBorderDialog" inline="true" macroURI="edit_border.zul"?>
+    <EditBorderDialog />
+    <?component name="EditFontDialog" inline="true" macroURI="edit_font.zul"?>
+    <EditFontDialog />
+
+  </window>
+
+</zk>

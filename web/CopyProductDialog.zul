@@ -1,0 +1,74 @@
+<window id="CopyProductDialog" title="${c:l('label.copyproduct.dialog.title')}" 
+        border="normal" width="400px" visible="false"
+        closable="true" onClose="self.visible = false; event.stopPropagation();"
+        use="org.docma.webapp.CopyProductDialog">
+    <caption>
+        <toolbarbutton label="${c:l('label.help.btn')}" onClick='mainWin.onHelp("help/copy_product.html")'/>
+    </caption>
+    <hbox width="100%" pack="stretch">
+        <space spacing="3px" />
+        <vbox spacing="3px" width="100%" align="stretch">
+            <separator spacing="1px"/>
+            <hbox width="100%" spacing="0" pack="stretch">
+              <cell width="50%">
+                <vbox spacing="3px" width="100%" align="stretch">
+                  <label>${c:l('label.copyproduct.source')}:</label>
+                  <listbox id="CopyProductSourceListbox" mold="select" rows="1" width="100%"
+                           forward="onSelect=CopyProductDialog.onSelectSourceProduct"></listbox>
+                </vbox>
+              </cell>
+              <space spacing="2px"/>
+              <cell width="50%">
+                <vbox spacing="3px" width="100%" align="stretch">
+                  <label>${c:l('label.copyproduct.target')}:</label>
+                  <listbox id="CopyProductTargetListbox" mold="select" rows="1" width="100%"
+                           forward="onSelect=CopyProductDialog.onSelectTargetProduct"></listbox>
+                </vbox>
+              </cell>
+            </hbox>
+            <separator spacing="2px"/>
+            
+            <label>${c:l('label.copyproduct.versions')}:</label>
+            <listbox id="CopyProductVersionsListbox" rows="5" multiple="true" checkmark="true" >
+                <listhead><listheader label="${c:l('label.copyproduct.versions.listhead')}" /></listhead>
+            </listbox>
+            <separator spacing="2px"/>
+            
+            <label>${c:l('label.copyproduct.languages')}:</label>
+            <listbox id="CopyProductLanguagesListbox" rows="5" multiple="true" 
+                     checkmark="true" forward="onSelect=CopyProductDialog.onSelectLanguages">
+                <listhead><listheader label="${c:l('label.copyproduct.languages.listhead')}" /></listhead>
+            </listbox>
+            <separator spacing="2px"/>
+            
+            <hbox width="100%" align="center">
+              <checkbox id="CopyProductPubExportsCheckbox" hflex="min"/>
+              <label value="${c:l('label.copyproduct.pubexports')}" />
+            </hbox>
+            <separator spacing="0px"/>
+            <hbox width="100%" align="center">
+              <checkbox id="CopyProductRevisionsCheckbox" hflex="min" />
+              <label value="${c:l('label.copyproduct.revisions')}" />
+            </hbox>
+            <separator spacing="0px"/>
+            <hbox width="100%" align="center">
+              <checkbox id="CopyProductVerifyCheckbox" hflex="min" />
+              <label value="${c:l('label.copyproduct.verify')}" />
+            </hbox>
+            <separator spacing="2px"/>
+            
+            <hbox pack="stretch" width="100%">
+              <cell width="50%">
+                <button label="${c:l('label.copyproduct.start.btn')}" width="100%"
+                        forward="onClick=CopyProductDialog.onStartClick" />
+              </cell>
+              <cell width="50%">
+                <button label="${c:l('label.cancel.btn')}" width="100%"
+                        forward="onClick=CopyProductDialog.onCancelClick"/>
+              </cell>
+            </hbox>
+            <separator spacing="2px"/>
+        </vbox>
+        <space spacing="3px" />
+    </hbox>
+</window>

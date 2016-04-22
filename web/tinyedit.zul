@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?taglib uri="http://www.zkoss.org/dsp/web/core" prefix="c"?>
+
+<?component name="headlabel" extends="label" style="color:#DFEEFF; white-space:nowrap; text-shadow:1px 1px 1px #202020;" ?>
+<?component name="headlabelbold" extends="label" style="color:#DFEEFF; font-weight:bold; text-shadow:1px 1px 1px #000000;" ?>
+
+<?page title="Edit content" ?>
+<window id="editWin"
+        height="100%" width="100%" border="none" mode="embedded"
+        contentStyle="background-color:#262626; padding:0px; margin:0px" style="padding:0px; margin:0px"
+        apply="org.docma.plugin.implementation.EditComposer" use="org.docma.plugin.implementation.EditWindow">
+
+    <div style="padding-top:0px;padding-right:5px;padding-left:5px;padding-bottom:0px;height:100%;">
+    <borderlayout style="background-color:transparent;">
+    <north height="25px" margins="0,0,0,0" style="background-color:transparent;" border="none">
+      <borderlayout style="background-color:transparent;">
+        <north height="15%" style="background-color:transparent;" border="none"></north>
+        <west style="background-color:transparent;" border="none">
+          <hbox align="center">
+          <headlabelbold>${c:l('label.node.title')}: </headlabelbold>
+          <headlabel id="contentTitle"></headlabel>
+          <space spacing="4px" />
+          </hbox>
+        </west>
+        <east id="headEast" style="background-color:transparent;" border="none">
+          <hbox align="center">
+          <!--
+          <headlabel id="counterLabel">.</headlabel>
+          <button id="incBtn" label="Increase" width="100px" forward="editWin.onIncrease" />
+          <zscript>nodeid = execution.getParameter("nodeid");</zscript>
+          <headlabelbold>Node: </headlabelbold>
+          <headlabel>${nodeid}</headlabel>
+          -->
+          <headlabelbold>${c:l('label.product')}: </headlabelbold>
+          <headlabel id="productId"></headlabel>
+          <space spacing="4px" />
+          <headlabelbold>${c:l('label.productversion')}: </headlabelbold>
+          <headlabel id="productVersion"></headlabel>
+          <space spacing="4px" />
+          <headlabelbold>${c:l('label.language')}: </headlabelbold>
+          <headlabel id="productLanguage"></headlabel>
+          </hbox>
+        </east>
+        <south height="15%" style="background-color:transparent;" border="none"></south>
+      </borderlayout>
+    </north>
+    <center>
+      <iframe id="contentfrm" name="contentfrm" src="" width="100%" height="100%"/>
+    </center>
+    <south margins="0,0,0,0" style="background-color:transparent;" border="none">
+      <vbox width="100%" align="stretch" xmlns:w="http://www.zkoss.org/2005/zk/client">
+        <separator spacing="1px"/>
+        <hbox width="100%" align="center" pack="stretch">
+          <button id="saveBtn" label="Save" image="img/save.gif" width="100%" height="28px" forward="onClick=editWin.onSave" />
+          <button id="saveAndCloseBtn" label="Save&#160;&amp;&#160;Close" image="img/save_and_close.gif" width="100%" height="28px" forward="onClick=editWin.onSaveAndClose" />
+          <button id="cancelBtn" label="Close" image="img/close.gif" width="100%" height="28px" w:onClick="onCancelClick();" />
+          <space spacing="10px"/>
+          <cell width="100px">
+            <headlabel id="statusLabel"></headlabel>
+          </cell>
+          <iframe id="docmaresultfrm" name="docmaresultfrm" src="tinymce_editor/blank_page.html"
+                  width="10px" height="15px" scrolling="no" style="background-color:#262626;"/>
+          <hbox width="100%" align="center" pack="end" spacing="4px">
+              <headlabelbold>Progress:</headlabelbold>
+              <slider id="editProgressSlider" width="75px" curpos="0" maxpos="100" onScroll=""/>
+          </hbox>
+          <timer id="EditWinKeepAliveTimer"
+                 delay="240000" repeats="true" running="true"
+                 forward="onTimer=editWin.onKeepAlive" />
+        </hbox>
+        <separator spacing="1px"/> 
+      </vbox>
+    </south>
+    </borderlayout>
+    </div>
+    <script type="text/javascript"><![CDATA[
+        var close_after_save = false;
+        var docma_unload_msg = null;
+        var win_x_fix = 0, win_y_fix = 0;
+        var win_width_fix = 0, win_height_fix = 0;
+
+        function onSaveClick() {
+            zAu.send(new zk.Event(zk.Widget.$('$editWin'), 'onSave'));
+        }
+
+        function onCancelClick() {
+            window.frames['contentfrm'].postCancel();
+        }
+
+        function doSaveContent(close_win, progress_val) {
+            // zk.Widget.$('$statusLabel').setValue("Saving...");
+            close_after_save = close_win;
+            var w_x = get_Win_XPos();
+            var w_y = get_Win_YPos();
+            var w_width = get_Win_Width();
+            var w_height = get_Win_Height();
+            w_x = (w_x == null) ? "" : w_x - win_x_fix;
+            w_y = (w_y == null) ? "" : w_y - win_y_fix;
+            w_width = (w_width == null) ? "" : w_width + win_width_fix;
+            w_height = (w_height == null) ? "" : w_height + win_height_fix;
+            window.frames['contentfrm'].postContent(progress_val, close_win, w_x, w_y, w_width, w_height);
+        }
+
+        function doSaveFinished(error_code, error_msg) {
+            zAu.send(new zk.Event(zk.Widget.$('$editWin'), 'onSaveFinished', error_code));
+            if ((error_code <= 0) && (opener != null)) {
+                opener.previewContentRefresh();
+            }
+            if (opener != null) {
+                opener.processDeferredDocmaEvents();  // process event to update the tree node
+            }
+            if ((error_code > 0) && (error_msg != null) && (error_msg.length > 0)) {
+                window.alert(error_msg);
+            }
+            if (close_after_save && (error_code <= 0)) {
+              docma_unload_msg = null;
+              window.close();
+            } else {  
+              window.setTimeout('clearStatusLabel()', 30000);
+              // If window is not closed, fix progress bar bug of IE8.
+              // IE bug: When form is posted into a different iframe, then progress bar does not
+              // disappear in IE8. Fix: After loading frame set frame to blank page:
+              window.frames['docmaresultfrm'].location.href = 'blank_page.html';
+              // window.status = 'OK';
+            }
+        }
+
+        function doCancel() {
+            if (opener != null) {
+                opener.processDeferredDocmaEvents();  // process event to update the tree node
+            }
+            docma_unload_msg = null;
+            window.close();
+        }
+
+        function confirmCancel() {
+            if (window.confirm('Content has been modified! Discard changes?')) {
+              zAu.send(new zk.Event(zk.Widget.$('$editWin'), 'onCancel'));
+            }
+        }
+
+        function clearStatusLabel() {
+            zk.Widget.$('$statusLabel').setValue("");
+        }
+
+        function fixWinPos(real_x, real_y) {
+            var w_x = get_Win_XPos();
+            var w_y = get_Win_YPos();
+            if ((w_x != null) && (w_y != null)) {
+              win_x_fix = w_x - real_x;
+              win_y_fix = w_y - real_y;
+            }
+        }
+
+        function fixWinSize(real_width, real_height) {
+            var w_x = get_Win_Width();
+            var w_y = get_Win_Height();
+            if ((w_x != null) && (w_y != null)) {
+              win_width_fix = real_width - w_x;
+              win_height_fix = real_height - w_y;
+            }
+        }
+
+        function get_Win_Width() {
+            var w_width = null;
+            if (window.outerWidth) w_width = window.outerWidth;
+            else if (document.body.clientWidth) w_width = document.body.clientWidth;
+            else if (document.documentElement.clientWidth) w_width = document.documentElement.clientWidth;
+            return w_width;
+        }
+
+        function get_Win_Height() {
+            var w_height = null;
+            if (window.outerHeight) w_height = window.outerHeight;
+            else if (document.body.clientHeight) w_height = document.body.clientHeight;
+            else if (document.documentElement.clientHeight) w_height = document.documentElement.clientHeight;
+            return w_height;
+        }
+
+        function get_Win_XPos() {
+            if (window.screenX != null) return window.screenX;
+            else if (window.screenLeft != null) return window.screenLeft;
+            else return null;
+        }
+
+        function get_Win_YPos() {
+            if (window.screenY != null) return window.screenY;
+            else if (window.screenTop != null) return window.screenTop;
+            else return null;
+        }
+
+        function setUnloadMsg(msg) {
+            docma_unload_msg = msg;
+        }
+
+        window.onbeforeunload = function() {
+           // var msg = window.frames['contentfrm'].checkDirty() ? "Discard unsaved changes?" : "";
+           return docma_unload_msg;
+        }
+
+    ]]></script>
+</window>

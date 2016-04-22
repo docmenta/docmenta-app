@@ -1,0 +1,25 @@
+<window id="VersionNameDialog" title="${c:l('label.productversion.name.dialog.title')}"
+        border="normal" width="300px" visible="false"
+        closable="true" onClose="self.visible = false; event.stopPropagation();"
+        use="org.docma.webapp.VersionNameDialog">
+    <caption>
+        <toolbarbutton label="Help" onClick='mainWin.onHelp("help/rename_product_version.html")'/>
+    </caption>
+    <hbox width="100%">
+        <space spacing="3px" />
+        <vbox spacing="3px" width="100%">
+            <separator spacing="0px"/>
+            <label>${c:l('label.productversion.id')}:</label>
+            <combobox id="ChangeVersionIdCombobox" maxlength="40" width="96%" />
+            <separator spacing="2px"/>
+            <hbox widths="50%,50%">
+                <button label="${c:l('label.okay.btn')}" width="135px"
+                        onClick="VersionNameDialog.onOkayClick()"/>
+                <button label="${c:l('label.cancel.btn')}" width="135px"
+                        onClick="VersionNameDialog.onCancelClick()"/>
+            </hbox>
+            <separator spacing="2px"/>
+        </vbox>
+        <space spacing="3px" />
+    </hbox>
+</window>

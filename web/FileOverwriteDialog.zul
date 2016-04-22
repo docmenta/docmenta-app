@@ -1,0 +1,45 @@
+<window id="FileOverwriteDialog" title="${c:l('label.fileoverwrite.dialog.title')}"
+        border="normal" width="400px" visible="false" sizable="true" 
+        closable="true" onClose="self.visible = false; event.stopPropagation();"
+        use="org.docma.webapp.FileOverwriteDialog">
+    <hbox width="100%" pack="stretch">
+        <space spacing="3px" />
+        <vbox spacing="3px" width="100%" align="stretch" pack="center">
+            <separator spacing="0px"/>
+            <label id="FileOverwriteMessageLabel" width="100%" multiline="true" style="font-weight:bold;" />
+            <separator spacing="1px"/>
+            <vlayout id="FileOverwriteFolderConflictNote" visible="false">
+                <hlayout valign="top">
+                    <label value="-" />
+                    <label value="Click 'Replace' to replace the existing folder with the uploaded folder." />
+                </hlayout>
+                <hlayout valign="top">
+                    <label value="-" />
+                    <label value="Click 'Overwrite' to keep the existing folder and overwrite files with same pathname." />
+                </hlayout>
+                <hlayout valign="top">
+                    <label value="-" />
+                    <label value="Click 'Auto-Rename' to keep the existing folder and rename the uploaded folder." />
+                </hlayout>
+            </vlayout>
+            <separator spacing="1px"/>
+            <hbox align="center">
+              <checkbox id="FileOverwriteAllCheckbox"/>
+              <label value="${c:l('label.fileoverwrite.all')}" />
+            </hbox>
+            <separator spacing="2px"/>
+            <hbox width="100%" pack="stretch">
+                <button id="FileOverwriteSkipBtn" label="${c:l('label.fileoverwrite.skip.btn')}" hflex="1"
+                        forward="FileOverwriteDialog.onSkipClick"/>
+                <button id="FileOverwriteReplaceBtn" label="${c:l('label.fileoverwrite.replace.btn')}" hflex="1"
+                        forward="FileOverwriteDialog.onReplaceClick" visible="false"/>
+                <button id="FileOverwriteOverwriteBtn" label="${c:l('label.fileoverwrite.overwrite.btn')}" hflex="1"
+                        forward="FileOverwriteDialog.onOverwriteClick"/>
+                <button id="FileOverwriteRenameBtn" label="${c:l('label.fileoverwrite.rename.btn')}" hflex="1"
+                        forward="FileOverwriteDialog.onRenameClick"/>
+            </hbox>
+            <separator spacing="2px"/>
+        </vbox>
+        <space spacing="3px" />
+    </hbox>
+</window>

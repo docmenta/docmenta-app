@@ -1,0 +1,46 @@
+<window id="ReferenceDialog" title="Reference Dialog" border="normal" width="400px" visible="false"
+        closable="true" onClose="self.visible = false; event.stopPropagation();"
+        use="org.docma.webapp.ReferenceDialog">
+    <caption>
+        <toolbarbutton label="Help" onClick='mainWin.onHelp("help/structural_inclusions.html")'/>
+    </caption>
+    <hbox width="100%" pack="stretch">
+        <space spacing="3px" />
+        <vbox spacing="3px" width="100%" align="stretch">
+            <separator spacing="0px"/>
+            <vbox width="100%" align="stretch">
+                <label>${c:l('label.ref.title')}:</label>
+                <textbox id="RefTitleTextbox" maxlength="100" width="96%" />
+            </vbox>
+            <hbox width="100%" spacing="0" pack="stretch">
+              <cell width="50%">
+                <vbox width="100%" align="stretch">
+                    <label id="RefAliasLabel">${c:l('label.contentref.target')}:</label>
+                    <combobox id="RefAliasCombobox" width="98%" autodrop="true" maxlength="80"
+                              forward="onChanging=ReferenceDialog.onChangeRefAlias" />
+                </vbox>
+              </cell>
+              <space spacing="4px" />
+              <cell width="49%">
+                <vbox width="100%" align="stretch">
+                    <label>${c:l('label.ref.applic')}:</label>
+                    <textbox id="RefApplicTextbox" maxlength="30" width="98%" />
+                </vbox>
+              </cell>
+            </hbox>
+            <separator spacing="2px"/>
+            <hbox spacing="3px">
+              <cell width="50%">
+                <button label="${c:l('label.okay.btn')}" width="100%"
+                        onClick="ReferenceDialog.onOkayClick()"/>
+              </cell>
+              <cell width="50%">
+                <button label="${c:l('label.cancel.btn')}" width="100%"
+                        onClick="ReferenceDialog.onCancelClick()"/>
+              </cell>
+            </hbox>
+            <separator spacing="2px"/>
+        </vbox>
+        <space spacing="3px" />
+    </hbox>
+</window>

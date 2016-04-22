@@ -1,0 +1,164 @@
+<window id="PublicationConfigDialog" title="Publication Configuration"
+        border="normal" width="580px" visible="false"
+        closable="true" onClose="self.visible = false; event.stopPropagation();"
+        use="org.docma.webapp.PublicationConfigDialog">
+  <caption>
+      <toolbarbutton label="Help" onClick='mainWin.onHelp("help/create_publication_config.html")'/>
+  </caption>
+  <hbox width="100%" pack="stretch">
+    <space spacing="3px" />
+    <vbox spacing="3px" width="100%" align="stretch">
+      <separator spacing="0px"/>
+      <hbox width="100%" pack="stretch">
+        <cell width="44%">
+          <vbox spacing="2px" width="100%" align="stretch">
+            <label style="font-weight:bold;">Publication ID:</label>
+            <textbox id="PubConfigIDTextbox" maxlength="30" width="240px" />
+            <separator spacing="2px"/>
+            <label style="font-weight:bold;">Filter Setting:</label>
+            <hbox spacing="0px" align="center" pack="stretch">
+              <textbox id="PubConfigFilterSettingTextbox" hflex="1" />
+              <button label="Edit" hflex="min"
+                    onClick="PublicationConfigDialog.onEditFilterSetting()"/>
+            </hbox>
+            <separator spacing="2px"/>
+            <label style="font-weight:bold;">Referenced Publications:</label>
+            <hbox spacing="0px" align="center" pack="stretch">
+              <textbox id="PubConfigRefPubsTextbox" hflex="1" />
+              <button label="Edit" hflex="min"
+                    onClick="PublicationConfigDialog.onEditReferencedPublications()"/>
+            </hbox>
+          </vbox>
+        </cell>
+        <space spacing="4px" />
+        <cell width="54%">
+         <groupbox>
+          <caption label="Publication Content: " style="font-weight:bold;"/>
+          <vbox spacing="2px" width="100%" align="stretch">
+            <hlayout>
+              <label hflex="1">Content Root:</label>
+              <combobox id="PubConfigContentRootCombobox" width="180px" readonly="true" autodrop="true"></combobox>
+            </hlayout>
+            <separator spacing="2px"/>
+            <hlayout>
+              <label hflex="1">Preface Root:</label>
+              <combobox id="PubConfigPrefaceRootCombobox" width="180px" readonly="true" autodrop="true"></combobox>
+            </hlayout>
+            <separator spacing="2px"/>
+            <hlayout>
+              <label hflex="1">Appendix Root:</label>
+              <combobox id="PubConfigAppendixRootCombobox" width="180px" readonly="true" autodrop="true"></combobox>
+            </hlayout>
+            <separator spacing="3px"/>
+            <hlayout>
+              <label>Book Cover (Image alias):</label>
+              <textbox id="PubConfigCoverImageTextbox" hflex="1" maxlength="80" />
+            </hlayout>
+          </vbox>
+         </groupbox>
+        </cell>
+      </hbox>
+      <separator spacing="2px"/>
+      <groupbox>
+        <caption label="Title page settings: " style="font-weight:bold;"/>
+        <hbox width="100%" pack="stretch">
+          <cell width="49%">
+            <vbox spacing="2px" width="100%" align="stretch">
+              <checkbox id="PubConfigCustTitlePage1Checkbox" label="Custom title page 1 (Front):"
+                        onCheck="PubConfigCustTitlePage1Combobox.disabled = !self.checked" />
+              <hbox spacing="0px" align="center" pack="stretch">
+                <combobox id="PubConfigCustTitlePage1Combobox" maxlength="80" hflex="1"
+                          autodrop="true" forward="onChanging=PublicationConfigDialog.onChangeTitlePage1"/>
+                <button label="Edit" hflex="min" forward="onClick=PublicationConfigDialog.onEditTitlePage1Node" />
+              </hbox>
+              <separator spacing="1px"/>
+
+              <label>Publication Title:</label>
+              <textbox id="PubConfigTitleTextbox" maxlength="100" width="99%" />
+              <separator spacing="1px"/>
+
+              <label>Sub-Title:</label>
+              <textbox id="PubConfigSubTitleTextbox" maxlength="120" width="99%" />
+              <separator spacing="1px"/>
+
+              <label>Release Info:</label>
+              <textbox id="PubConfigReleaseInfoTextbox" maxlength="80" width="99%" />
+              <separator spacing="1px"/>
+
+              <label>Corporate:</label>
+              <textbox id="PubConfigCorporateTextbox" maxlength="80" width="99%" />
+              <separator spacing="1px"/>
+
+              <label>Authors (one author per line):</label>
+              <textbox id="PubConfigAuthorsTextbox" multiline="true" rows="3" width="99%" />
+              <separator spacing="1px"/>
+
+              <label>Publisher:</label>
+              <textbox id="PubConfigPublisherTextbox" maxlength="80" width="99%" />
+            </vbox>
+          </cell>
+          <cell width="50%">
+            <vbox spacing="2px" width="100%" align="stretch">
+              <checkbox id="PubConfigCustTitlePage2Checkbox" label="Custom title page 2 (Back):"
+                        forward="onCheck=PublicationConfigDialog.onCheckCustTitlePage2" />
+              <hbox spacing="0px" align="center" pack="stretch">
+                <combobox id="PubConfigCustTitlePage2Combobox" maxlength="80" hflex="1"
+                          autodrop="true" forward="onChanging=PublicationConfigDialog.onChangeTitlePage2"/>
+                <button label="Edit" hflex="min" forward="onClick=PublicationConfigDialog.onEditTitlePage2Node" />
+              </hbox>
+              <separator spacing="1px"/>
+
+              <label>Publication Date:</label>
+              <textbox id="PubConfigPublicationDateTextbox" maxlength="80" width="99%" />
+              <separator spacing="1px"/>
+
+              <hbox width="100%" pack="stretch" spacing="0px">
+                <cell width="40%">
+                  <label>Copyright Year:</label>
+                  <textbox id="PubConfigCopyrightYearTextbox" maxlength="40" width="96%" />
+                </cell>
+                <cell width="60%">
+                  <label>Copyright Holder:</label>
+                  <textbox id="PubConfigCopyrightHolderTextbox" maxlength="80" width="96%" />
+                </cell>
+              </hbox>
+              <separator spacing="1px"/>
+
+              <label>Abstract (Content alias):</label>
+              <hbox spacing="0px" align="center" pack="stretch">
+                <combobox id="PubConfigAbstractCombobox" maxlength="80" hflex="1"
+                          autodrop="true" forward="onChanging=PublicationConfigDialog.onChangeAbstract"/>
+                <button label="Edit" hflex="min" forward="onClick=PublicationConfigDialog.onEditAbstractNode" />
+              </hbox>
+              <separator spacing="1px"/>
+
+              <label>Legal Notice (Content alias):</label>
+              <hbox spacing="0px" align="center" pack="stretch">
+                <combobox id="PubConfigLegalNoticeCombobox" maxlength="80" hflex="1"
+                          autodrop="true" forward="onChanging=PublicationConfigDialog.onChangeLegalNotice"/>
+                <button label="Edit" hflex="min" forward="onClick=PublicationConfigDialog.onEditLegalNoticeNode" />
+              </hbox>
+              <separator spacing="1px"/>
+
+              <label>Credit:</label>
+              <textbox id="PubConfigCreditTextbox" multiline="true" rows="3" width="99%" />
+              <separator spacing="1px"/>
+
+              <label>Bibliographic ID (e.g. ISBN):</label>
+              <textbox id="PubConfigBiblioIDTextbox" maxlength="80" width="99%" />
+            </vbox>
+          </cell>
+        </hbox>
+      </groupbox>
+      <separator spacing="2px"/>
+      <hbox spacing="2px">
+        <button label="${c:l('label.okay.btn')}" width="270px"
+                onClick="PublicationConfigDialog.onOkayClick()"/>
+        <button label="${c:l('label.cancel.btn')}" width="270px"
+                onClick="PublicationConfigDialog.onCancelClick()"/>
+      </hbox>
+      <separator spacing="2px"/>
+    </vbox>
+    <space spacing="3px" />
+  </hbox>
+</window>

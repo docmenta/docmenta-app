@@ -1,0 +1,334 @@
+body { 
+    padding:0;
+    margin:0;
+    background-color: ###body_bgcolor###;
+    background-position:###watermark_xpos### ###watermark_ypos### !important; /* position of watermark image */
+}
+
+/* Header style */
+#header {
+    position: fixed;
+    width: 100%;
+    height: ###header_height###;
+    top: 0;
+    bottom: auto;
+    left: 0;
+    right: 0;
+    margin: 0;
+    padding-top: ###header_padding_top###;
+    padding-bottom: ###header_padding_bottom###;
+    padding-left: ###header_padding_left###;
+    padding-right: ###header_padding_right###;
+    z-index: 2000;
+    background-color:###header_bgcolor###;
+    ###header_bgimage###
+    ###header_border###
+}
+
+#webhelplogo1 { display:###logo1_display###; width:###logo1_width###; height:###logo1_height###; ###logo1_position### }
+#webhelplogo2 { display:###logo2_display###; width:###logo2_width###; height:###logo2_height###; ###logo2_position### }
+
+/* Left navigation (TOC tree) */
+#leftnavigation {
+    font-family: Verdana, Geneva, sans-serif;
+    overflow: auto;
+    position: fixed;
+    height: auto;
+    top: ###navigation_top_offset###;
+    bottom: ###navigation_bottom_offset###;
+    left: 0px;
+    width: ###navigation_width###;
+    padding-top: ###navigation_padding_top###;
+    padding-bottom: ###navigation_padding_bottom###;
+    padding-left: ###navigation_padding_left###;
+    padding-right: ###navigation_padding_right###;
+    z-index: 2500;
+    background-color:###navigation_bgcolor###;
+    ###navigation_bgimage###
+    ###navigation_border###
+}
+#leftnavigation.leftnav-resizable {
+    overflow-x:hidden;
+    overflow-y:auto;
+}
+
+/* Parts navigation tabs */
+#bookpartsnavigation {
+    font-family: Verdana, Arial, sans-serif;
+    position: fixed;
+    top: ###part_tabs_margin_top###;
+    left: ###part_tabs_margin_left###;
+    z-index: 3000;   
+}
+#bookpartsnavigation ul { margin: 0; padding: 0; }
+#bookpartsnavigation li { 
+  list-style: none; 
+  float: left; 
+  margin: 0 0 0 ###part_tab_space###; 
+  padding: 0;
+  font-size: 10px; 
+  line-height: ###part_tab_height###; 
+  min-height: ###part_tab_height###;
+  white-space: nowrap;
+  ###part_tab_bg###
+}
+#bookpartsnavigation li.book-currentpart { ###part_tab_bg_current### }
+#bookpartsnavigation li.book-currentpart:hover { ###part_tab_bg_hover### }
+#bookpartsnavigation li:hover { ###part_tab_bg_hover### }
+
+#bookpartsnavigation a { display: block; padding: 1px 9px 0 9px; white-space:nowrap; min-height: ###part_tab_height###; ###part_tab_font### }
+#bookpartsnavigation li.book-currentpart a { ###part_tab_font_current### }
+#bookpartsnavigation li.book-currentpart:hover a { ###part_tab_font_hover### }
+#bookpartsnavigation li:hover a { ###part_tab_font_hover### }
+
+/* Breadcrumbs navigation */
+#breadcrumbsnavigation {
+    display: ###breadcrumbs_display###;
+    position: fixed;
+    top: ###header_height###;
+    left: ###navigation_width###;
+    right: 0px;
+    margin-top: ###breadcrumbs_margin_top###;
+    margin-left: ###breadcrumbs_margin_left###;
+    margin-right: ###breadcrumbs_margin_right###;
+    padding-top: ###breadcrumbs_padding_top###;
+    padding-bottom: ###breadcrumbs_padding_bottom###;
+    padding-left: ###breadcrumbs_padding_left###;
+    padding-right: ###breadcrumbs_padding_right###;
+    ###breadcrumbs_bg###
+}
+#breadcrumbsnavigation a { ###breadcrumbs_link_font### }
+#breadcrumbsnavigation a:hover { ###breadcrumbs_hover_font### }
+#breadcrumbsnavigation .breadcrumb_lastnode { ###breadcrumbs_last_font### }
+#breadcrumbsnavigation .breadcrumb_separator { ###breadcrumbs_sep_font### }
+#breadcrumbsnavigation .breadcrumb_sep_image { width: ###breadcrumbs_sep_image_width###; vertical-align:middle; }
+
+/* If bookpartsnavigation exists, move breadcrumbsnavigation below bookpartsnavigation */
+/* #bookpartsnavigation + #breadcrumbsnavigation { } */
+
+/* Content area */
+#content {
+    position: static;
+    margin: ###content_top### 0px 0px ###navigation_width###;
+    padding-top: 1px;
+    padding-left: ###content_padding_left###;
+    padding-right: ###content_padding_right###; 
+    width: auto;
+    height: inherit;
+    z-index: 1000;
+    max-width: ###content_width_max###;
+    min-width: ###content_width_min###;
+}
+
+/* If bookpartsnavigation or breadcrumbsnavigation exists, add padding-top to content */
+/* #bookpartsnavigation + #content { padding-top: ###part_tab_height###; } */
+#breadcrumbsnavigation + #content { padding-top: ###breadcrumbs_height###; } 
+/* #bookpartsnavigation + #breadcrumbsnavigation + #content { padding-top: ###part_tab_breadcrumbs_height###; } */
+
+/* Navigational links (prev, up, next) and search-highlighting button in header */
+#navheader {
+    position: fixed;
+    top: ###header_height###;
+    right: 0px;
+    margin: ###local_navigation_margin_top### 0 0 0;
+    padding-top: ###local_navigation_padding_top###;
+    padding-bottom: ###local_navigation_padding_bottom###;
+    padding-left: ###local_navigation_padding_left###;
+    padding-right: ###local_navigation_padding_right###;
+    z-index: 3500;
+    height: ###local_navigation_height###;
+    overflow: hidden;
+    ###local_navigation_bg###
+}
+#navheader td { vertical-align:middle; margin:0; }
+#navheader a { ###local_navigation_link_font### }
+#navheader a:hover { ###local_navigation_link_hover_font### }
+#navheader .navlink-text { display:###local_navigation_text_display###; } 
+#navheader .navlink-image { 
+    display:###local_navigation_icons_display###; 
+    height:###local_navigation_icons_height###; 
+    vertical-align:middle;
+    border-width:0;
+}
+#navheader .navhead-separator { visibility:###local_navigation_sep_visibility###; ###local_navigation_sep_font### }
+.navfooter .navlink-text { display:###local_navigation_text_display###; } 
+.navfooter .navlink-image { 
+    display:###local_navigation_icons_display###; 
+    height:###local_navigation_icons_height###; 
+    vertical-align:middle;
+    border-width:0; 
+}
+
+/* Button to turn on/off search-hits highlighting (initially hidden) */
+#showHideHighlight { 
+    display:none; 
+    height:auto !important; 
+    width:###search_toggle_button_width###;
+    cursor:pointer;
+}
+
+#tabs { background:none; border:none; }
+#tocsearchnavigation {  background:none; border:none;  }
+#tocsearchnavigation .ui-state-active { height:###search_tab_height###; ###search_tab_bg_active### }
+#tocsearchnavigation .ui-state-hover { height:###search_tab_height###; ###search_tab_bg_hover### }
+#tocsearchnavigation li { height:###search_tab_height###; ###search_tab_bg### }
+#tocsearchnavigation li a { line-height:###search_tab_height###; padding-top:0; padding-bottom:0; }
+#tabs.ui-tabs { padding:0; }
+#tabs .ui-tabs-panel { 
+  padding-top:###search_panel_padding_top###; 
+  padding-bottom:###search_panel_padding_bottom###; 
+  padding-left:###search_panel_padding_left###; 
+  padding-right:###search_panel_padding_right###;
+  background-color:###search_panel_bgcolor###; 
+  ###search_panel_border### 
+  ###search_panel_bgimage### 
+}
+
+/* Font style of treeview in left navigation */
+#leftnavigation p, #leftnavigation ul, #leftnavigation ol, #leftnavigation li { 
+    font: 10pt Verdana, Geneva, sans-serif;
+}
+
+/* Font style of tabs in left navigation */
+#tabs em { ###search_tab_font### }
+#tabs .ui-state-active em { ###search_tab_font_active### }   /* font style of selected tab */
+#tabs .ui-state-hover em { ###search_tab_font_hover### } 
+
+/* Treeview title in left navigation */
+#treenavigationtitle { ###navigation_tree_font_title### ###navigation_tree_title### }
+
+/* Treeview spacing */
+/* #treeDiv { background-color:transparent; } */
+#tree { padding:0; margin:0; background-color:###navigation_tree_bgcolor###; ###navigation_tree_border### ###navigation_tree_bgimage### }
+#tree ul { background-color:transparent; padding-top:0px; padding-bottom:2px; margin-top:0px; margin-bottom:0px; } 
+#tree li { padding-top:2px; padding-bottom:0px; }
+
+/* Added to remove space reserved for file icon in treeview */
+.filetree span.folder, .filetree span.file { ###navigation_content_icon_space### }
+
+/*  Style of treeview links and currently selected treeview link */
+.filetree a { ###navigation_tree_font_default### }
+.filetree a:hover { ###navigation_tree_font_hover### }
+.filetree .webtree_current_block { padding-bottom:0px; }
+.filetree a.webtree_current_text { ###navigation_tree_font_current### }
+
+/*  Style of accordion tabs */
+.nav_accordion_li { list-style:none; padding:0; border-width:0; margin-left:0; margin-right:0; margin-top:0; margin-bottom:###accordion_spacing###; }
+.nav_accordion_tab { ###accordion_bg### ###accordion_padding### }
+.nav_accordion_tab a, .nav_accordion_tab a.webtree_current_text { display:block; ###accordion_font### }
+.nav_accordion_li ul.filetree { margin-left:8px; }
+
+/*  Fix for IE: Adjust height of selected tree node */
+#webhelp-currentid span.file { padding-bottom:0px; min-height:17px; }
+
+/*  Adapt style of elements (header titles, header navigation, footer navigation, highlighted text, ...) */
+.webhelptitle {
+    display:###header_title_display###;
+    margin-top: ###header_title_margin_top###;
+    margin-bottom: ###header_title_margin_bottom###;
+    margin-left: ###header_title_margin_left###;
+    margin-right: ###header_title_margin_right###;
+    padding:0; 
+    text-align: ###header_title_align###; 
+}
+.webhelptitle1 { display:###header_title1_display###; ###header_title1_font### }
+.webhelptitle2 { display:###header_title2_display###; ###header_title2_font### }
+#header table { margin:0; padding:0; border-spacing:0; border-width:0; border-style:none; }
+.navfooter table { margin:0; padding:0; border-spacing:0; border-width:0; border-style:none; }
+#header td { 
+    margin:0; padding:0 3px; border-spacing:0; border-width:0; border-style:none; 
+    background-color:transparent; font-family: Verdana, Arial, sans-serif; font-size: 1em; font-style:normal;
+}
+.navfooter td { 
+    margin:0; padding:3px; border-spacing:0; border-width:0; border-style:none; 
+    background-color:transparent; font-family: Verdana, Arial, sans-serif; font-size: 1em; font-style:normal;
+}
+.highlight { ###search_highlight_font### }
+.highlightButton{ font-size: 0; }
+
+/*  Show Hide TOC tree */
+#showHideButton { 
+    position:fixed;
+    top:48%;
+    left:0;
+    margin:0;
+    z-index:3600;
+    color:transparent !important; 
+}
+#showHideButton.pointLeft {
+    height:80px;
+    width:###navigation_toggle_button_width###;
+    display:block;
+    font-size:0;
+    cursor:pointer;
+    ###navigation_toggle_bgimage_left###
+}
+#showHideButton.pointRight {
+    height:80px;
+    width:###navigation_toggle_button_width###;
+    display:block;
+    font-size:0;
+    cursor:pointer;
+    ###navigation_toggle_bgimage_right###
+}
+
+/* Search field styles */
+#search { 
+    padding-top: ###search_inner_top_offset###;
+    padding-bottom: 0;
+    padding-left: ###search_inner_left_offset###;
+    padding-right: ###search_inner_right_offset###;
+    z-index: 2600;
+    height: ###search_box_height###;
+    width: ###search_box_width###;
+    background-color: ###search_box_bgcolor###; 
+    ###search_box_position###
+    ###search_box_border###
+    ###search_box_bgimage###
+}
+#search fieldset { font-size: 9px; padding:3px 6px 3px 6px; margin:0; ###search_inner_bg### } 
+#search fieldset div { padding:5px 0 5px 0; }
+#search legend { padding:0 2px 0 2px; ###search_legend_font### }
+#search form { padding:0; margin:0; }
+#textToSearch {
+    margin:0;
+    width: 75%; 
+    ###search_input_font### 
+    ###search_input_bg###
+}
+#doSearch {
+    margin-left: 0px;
+    overflow: hidden;
+    cursor: pointer;
+    width: ###search_button_width###;
+    height: ###search_button_height###;
+    ###search_button_font###
+    ###search_button_bg###
+}
+
+/* Search results Styling */
+#searchResults p { ###search_title_font### }
+.searchExpression { ###search_expression_font### }
+.searchresult li a { ###search_result_font### }
+.searchresult li { ###search_result_font### }
+.shortdesclink {
+    color: gray;
+    font-size: 9pt;
+}
+
+/* Close search results link */
+#closeSearchResults a {
+    display: block;
+    padding:0 0 4px 20px;
+    background-image: url("###search_close_image_url###"); 
+    background-position: 0 1px; 
+    background-size: 16px;
+    background-repeat: no-repeat;
+    ###search_close_font###
+}
+
+/* Adapt content styles */
+/* .chapter { margin-top: 15px; padding-top:0; } */
+div.toc>p {
+    font-weight: bold;
+}

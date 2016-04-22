@@ -1,0 +1,26 @@
+<!ELEMENT group (alias*,att*,(content|group|reference)*)>
+<!ELEMENT content (alias*,att*)>
+<!ELEMENT reference (alias*,att*)>
+<!ELEMENT alias EMPTY>
+<!ELEMENT att (#PCDATA)>
+
+<!ATTLIST group
+    id    ID    #REQUIRED
+    trans CDATA #IMPLIED>
+
+<!ATTLIST content
+    id           ID    #REQUIRED
+    trans        CDATA #IMPLIED
+    contentclass CDATA #IMPLIED>
+
+<!ATTLIST reference
+    id           ID    #REQUIRED
+    trans        CDATA #IMPLIED
+    target       CDATA #IMPLIED>
+
+<!ATTLIST alias
+    id  ID #REQUIRED>
+
+<!ATTLIST att
+    nm   CDATA #REQUIRED
+    lang CDATA #IMPLIED>

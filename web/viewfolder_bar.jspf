@@ -1,0 +1,64 @@
+<%@ page pageEncoding="UTF-8" %>
+<%
+        String icon_url;
+        if (isImgFolder) {
+            icon_url = "img/img_folder_icon.gif";
+        } else {
+            icon_url = node.isSystemRoot() ? "img/sys_folder_icon.gif" :
+                                             "img/file_folder_icon.gif";
+        }
+        // Calculate path
+        StringBuilder path = new StringBuilder();
+        DocmaNode n = node;
+        while (! n.isRoot()) {
+            if (path.length() > 0) path.insert(0, " &rarr; ");
+            path.insert(0, "<a href=\"javascript:previewNode('" + n.getId() +
+                           "');\" class=\"fpath\">" + n.getTitle() + "</a>");
+            n = n.getParent();
+        }
+%>
+      <table border="0" cellspacing="0" cellpadding="0" width="100%" class="toolbar">
+       <tr oncontextmenu="return showDocmaContext(event);">
+        <td width="22" valign="middle"><img src="<%= icon_url %>" title="" alt="" /></td>
+        <td width="*"><div class="folderpath" style="width:100%;"><%= path.toString() %></div></td>
+<% 
+      if (isImgFolder) {
+%>
+        <td width="80" align="right" style="white-space:nowrap;" nowrap>
+          <form name="formpreviewmode" action="">
+            <select name="previewmodebox" id="previewmodebox" onchange="changeViewMode();">
+              <option value="<%= GUIConstants.IMAGE_PREVIEW_MODE_GALLERY %>"
+                <%= isGalleryNormal ? "selected" : "" %> >Gallery</option>
+              <option value="<%= GUIConstants.IMAGE_PREVIEW_MODE_GALLERY_BIG %>"
+                <%= isGalleryBig ? "selected" : "" %> >Gallery Big</option>
+              <option value="<%= GUIConstants.IMAGE_PREVIEW_MODE_LIST %>"
+                <%= isListNormal ? "selected" : "" %> >List</option>
+              <option value="<%= GUIConstants.IMAGE_PREVIEW_MODE_LIST_BIG %>"
+                <%= isListBig ? "selected" : "" %> >List Big</option>
+            </select>&nbsp;
+          </form>
+        </td>
+<% 
+      }
+%>
+        <td width="140" valign="middle" align="right" style="white-space:nowrap;" nowrap="nowrap">
+            <button type="button" name="ctxMenuBtn" onclick="showTopContext(event);"
+                    style="width:34px; height:28px; margin:0; padding:0px 6px 2px 6px;"><img
+                    src="img/menu_arrow_down.gif" title="Context Menu" alt="Context Menu"
+                    style="vertical-align:middle; margin:2px 0 1px 0;" height="14" /></button>
+            <button type="button" name="deleteBtn" 
+                    onclick="doDelete();" <%= (isTransMode) ? "disabled":"" %>
+                    style="width:34px; height:28px; margin:0; padding:0px 6px 2px 6px;"><img
+                    src="img/delete_20.gif" title="Delete" alt="Delete"
+                    style="vertical-align:middle; margin:2px 0 1px 0;" height="15" /></button>
+            <button type="button" name="downloadBtn" onclick="doDownload();"
+                    style="width:34px; height:28px; margin:0; padding:0px 6px 2px 6px;"><img
+                    src="img/folderdownload.gif" title="Download" alt="Download"
+                    style="vertical-align:middle; margin:2px 0 1px 0;" height="17" /></button>
+            <button type="button" name="uploadBtn" onclick="doUpload();"
+                    style="width:34px; height:28px; margin:0; padding:0px 6px 2px 6px;"><img
+                    src="img/folderupload.gif" title="Upload" alt="Upload"
+                    style="vertical-align:middle; margin:1px 0 2px 0;" height="17" /></button>
+        </td>
+       </tr>
+      </table>

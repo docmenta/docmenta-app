@@ -1,0 +1,23 @@
+<window id="DropUploadDialog" title="${c:l('label.upload.dialog.title')}" 
+        border="normal" width="100%" height="95%" visible="false" sizable="true"
+        closable="true" onClose="DropUploadDialog.closeDialog(); event.stopPropagation();"
+        use="org.docma.webapp.DropUploadDialog"
+        xmlns:w="http://www.zkoss.org/2005/zk/client">
+
+<vbox width="100%" height="100%" spacing="0px" align="stretch" pack="stretch">
+  <hbox align="center" width="100%" hflex="1">
+    <label value="${c:l('label.upload.selectfile')}: " hflex="min" style="font-weight:bold;white-space:nowrap;"/>
+    <fileupload label="${c:l('label.upload.browsefiles.btn')}" 
+                upload="true,maxsize=5242880,multiple=true,native" 
+                onUpload="DropUploadDialog.onUploadFile(event)" />
+    <label hflex="1"> </label>
+    <!-- <label hflex="1"> or drag and drop files in the area below</label> -->
+    <toolbarbutton label="${c:l('label.close.btn')}" hflex="min" style="color:#0000BB;" 
+                   onClick="DropUploadDialog.closeDialog();" />
+  </hbox>
+  <dropupload id="dropUploadBox" maxsize="5242880" detection="none" native="true" 
+              onUpload="DropUploadDialog.onUploadFile(event)"
+              style="width:100%;height:100%;border:1px solid #606060;padding:8px;font-family:Arial,Verdana,sans-serif;overflow:auto;background-color:#EAEAEA;background-image:url(img/drop_bg_arrow.png);background-repeat:no-repeat;background-position:center;" 
+              vflex="1" hflex="1" />
+</vbox>
+</window>

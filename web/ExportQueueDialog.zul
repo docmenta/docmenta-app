@@ -1,0 +1,31 @@
+<window id="exportQueueDialog" title="${c:l('label.exportqueue.dialog.title')}"
+        border="normal" width="640px" visible="false" sizable="true"
+        closable="true" onClose="ExportQueueDialog.onCloseClick(); event.stopPropagation();"
+        apply="org.docma.webapp.ExportQueueComposer">
+    <caption>
+        <toolbarbutton id="exportQueueHelpBtn" label="Help" />
+    </caption>
+    <hbox width="100%" hflex="1">
+        <space spacing="3px" />
+        <vbox spacing="3px" hflex="1">
+            <separator spacing="0px"/>
+            <listbox id="exportQueueListbox" rows="12" multiple="true">
+                <listhead sizable="true">
+                    <listheader label="User" sort="auto"/>
+                    <listheader label="Store ID" sort="auto"/>
+                    <listheader label="Version ID" sort="auto"/>
+                    <listheader label="Export ID" sort="auto"/>
+                    <listheader label="Creation Time" sort="auto"/>
+                    <listheader label="State" sort="auto"/>
+                </listhead>
+            </listbox>
+            <separator spacing="2px"/>
+        </vbox>
+        <vbox spacing="3px" width="100px">
+            <button id="exportQueueCloseBtn" label="${c:l('label.close.btn')}" width="100px" />
+            <button id="exportQueueCancelBtn" label="${c:l('label.exportqueue.cancelexport.btn')}" width="100px" />
+        </vbox>
+        <space spacing="3px" />
+    </hbox>
+    <timer id="exportQueueRefreshTimer" delay="5000" repeats="true" running="false" />
+</window>

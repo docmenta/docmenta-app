@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?component name="textbutton" extends="toolbarbutton" style="font-size:11px; color:blue;" ?>
+<?component name="fontsizebox" extends="doublespinner" step="0.5" value="1" locale="en" constraint="min 0" width="60px" ?>
+
+    <window id="whdFontWin" title="Edit Font" 
+            border="normal" width="420px" visible="false" contentStyle="padding:6px 10px 6px 10px;"
+            closable="true" onClose="self.visible = false; event.stopPropagation();"
+            position="center" sizable="true" 
+            apply="org.docma.webdesigner.FontWindowComposer" >
+        <vbox width="100%" spacing="3px" align="stretch">
+          <hbox pack="stretch" align="center" spacing="8px">
+            <label value="Font-Family:" style="font-weight:bold;" hflex="min"/>
+            <combobox id="whdEditFontFamilyBox" hflex="1">
+                <comboitem label="Arial, Helvetica, sans-serif" />
+                <comboitem label="Times New Roman, Times, serif" />
+                <comboitem label="Courier New, Courier, mono" />
+                <comboitem label="Georgia, Times New Roman, Times, serif" />
+                <comboitem label="Verdana, Arial, Helvetica, sans-serif" />
+                <comboitem label="Geneva, Arial, Helvetica, sans-serif" />
+            </combobox>
+          </hbox>
+          <hbox pack="stretch" align="center" spacing="10px">
+            <cell width="30%">
+              <vbox width="100%" spacing="3px" align="stretch">
+                <label value="Font-Size:" style="font-weight:bold;" />
+                <hbox align="center" spacing="2px">
+                    <fontsizebox id="whdEditFontSizeBox" />
+                    <listbox id="whdEditFontSizeUnit" rows="1" mold="select" >
+                        <listitem label="cm" value="cm"/>
+                        <listitem label="mm" value="mm"/>
+                        <listitem label="in" value="in"/>
+                        <listitem label="pt" value="pt"/>
+                        <listitem label="pc" value="pc"/>
+                        <listitem label="px" value="px"/>
+                        <listitem label="em" value="em"/>
+                        <listitem label="%" value="%"/>
+                    </listbox>
+                </hbox>
+              </vbox>
+            </cell>
+            <cell width="30%">
+              <vbox width="100%" spacing="3px" align="stretch">
+                <label value="Weight:" style="font-weight:bold;" hflex="1"/>
+                <listbox id="whdEditFontWeightBox" rows="1" mold="select" >
+                  <listitem label="normal" value="normal"/>
+                  <listitem label="bold" value="bold"/>
+                  <listitem label="bolder" value="bolder"/>
+                  <listitem label="lighter" value="lighter"/>
+                  <listitem label="inherit" value="inherit"/>
+                  <listitem label="100" value="100"/>
+                  <listitem label="200" value="200"/>
+                  <listitem label="300" value="300"/>
+                  <listitem label="400" value="400"/>
+                  <listitem label="500" value="500"/>
+                  <listitem label="600" value="600"/>
+                  <listitem label="700" value="700"/>
+                  <listitem label="800" value="800"/>
+                  <listitem label="900" value="900"/>
+                  <listitem label="" value=""/>
+                </listbox>
+              </vbox>
+            </cell>
+            <cell>
+              <vbox width="100%" spacing="3px" align="stretch">
+                <label value="Font-Color:" style="font-weight:bold;" />
+                <hbox align="center" spacing="2px">
+                    <textbox id="whdEditFontColorTextbox" cols="7" />
+                    <colorbox id="whdEditFontColorBox" />
+                </hbox>
+              </vbox>
+            </cell>
+          </hbox>
+          <separator spacing="4px"/>
+          <hbox pack="stretch" align="center" spacing="10px">
+            <cell width="30%">
+              <vbox width="100%" spacing="3px" align="stretch">
+                <label value="Decoration:" style="font-weight:bold;" />
+                <combobox id="whdEditFontDecorationBox" cols="12" >
+                  <comboitem label="underline" />
+                  <comboitem label="overline" />
+                  <comboitem label="none" />
+                  <comboitem label="" />
+                </combobox>
+              </vbox>
+            </cell>
+            <cell width="30%">
+              <vbox width="100%" spacing="3px" align="stretch">
+                <label value="Style:" style="font-weight:bold; text-align:right;" />
+                <listbox id="whdEditFontStyleBox" rows="1" mold="select" >
+                  <listitem label="normal" value="normal"/>
+                  <listitem label="italic" value="italic"/>
+                  <listitem label="oblique" value="oblique"/>
+                  <listitem label="inherit" value="inherit"/>
+                  <listitem label="" value=""/>
+                </listbox>
+              </vbox>
+            </cell>
+            <cell>
+              <vbox width="100%" spacing="3px" align="stretch">
+                <label value="Background-Color:" style="font-weight:bold;" />
+                <hbox align="center" spacing="2px">
+                    <textbox id="whdEditFontBgColorTextbox" cols="7" />
+                    <colorbox id="whdEditFontBgColorBox" />
+                </hbox>
+              </vbox>
+            </cell>
+          </hbox>
+
+          <separator spacing="6px"/>
+          <hbox hflex="1" spacing="4px">
+            <button label="${c:l('label.okay.btn')}" id="whdEditFontOkayBtn" hflex="1" />
+            <button label="${c:l('label.cancel.btn')}" id="whdEditFontCancelBtn" hflex="1" />
+          </hbox>
+        </vbox>
+    </window>

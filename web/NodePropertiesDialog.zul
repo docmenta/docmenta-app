@@ -1,0 +1,74 @@
+<window id="NodePropertiesDialog" title="Properties Dialog" border="normal" width="400px" visible="false"
+        contentStyle="padding:6px 12px 8px 12px;"
+        closable="true" onClose="self.visible = false; event.stopPropagation();"
+        use="org.docma.webapp.NodePropertiesDialog">
+    <caption>
+        <toolbarbutton label="Help" onClick='mainWin.onHelp("help/node_types.html")'/>
+    </caption>
+    <vbox spacing="3px" hflex="1" align="stretch">
+            <vbox hflex="1" align="stretch">
+                <label style="font-weight:bold;">${c:l('label.node.title')}:</label>
+                <textbox id="NodeTitleTextbox" maxlength="100" width="98%"
+                         forward="onOK=NodePropDialogOkayBtn.onClick" />
+            </vbox>
+            <separator spacing="1px"/>
+            <hbox hflex="1" pack="stretch" spacing="0">
+                <cell width="49%">
+                    <vbox width="100%" align="stretch">
+                        <label style="font-weight:bold;">${c:l('label.node.alias')}:</label>
+                        <textbox id="NodeAliasTextbox" maxlength="40" width="98%"
+                                 forward="onOK=NodePropDialogOkayBtn.onClick" />
+                    </vbox>
+                </cell>
+                <space spacing="4px" />
+                <cell width="49%">
+                    <vbox width="100%" align="stretch">
+                        <label style="font-weight:bold;">${c:l('label.node.applic')}:</label>
+                        <textbox id="NodeApplicTextbox" maxlength="80" width="98%"
+                                 forward="onOK=NodePropDialogOkayBtn.onClick" />
+                    </vbox>
+                </cell>
+            </hbox>
+            <separator spacing="1px"/>
+            <hbox hflex="1" pack="stretch" spacing="0">
+                <cell width="49%">
+                    <vbox hflex="1" align="stretch">
+                        <label style="font-weight:bold;">${c:l('label.node.status')}:</label>
+                        <listbox id="NodeStatusListbox" mold="select" rows="1" hflex="1"></listbox>
+                    </vbox>
+                </cell>
+                <space spacing="4px" />
+                <cell width="49%">
+                    <vbox hflex="1" align="stretch">
+                        <label id="NodeProgressLabel" style="font-weight:bold;">${c:l('label.node.progress')}:</label>
+                        <slider id="NodeProgressSlider" curpos="0" maxpos="100" onScroll="" style="max-width:172px;"/>
+                    </vbox>
+                </cell>
+            </hbox>
+            <separator spacing="1px"/>
+            <vbox spacing="3px" hflex="1">
+                <label style="font-weight:bold;">${c:l('label.node.comment')}:</label>
+                <textbox id="NodeCommentTextbox" multiline="true" maxlength="2000"
+                         rows="5" hflex="1" style="max-width:368px;"/>
+                <hbox pack="start" align="center">
+                    <label>${c:l('label.node.priority')}:</label>
+                    <listbox id="NodePriorityListbox" mold="select" rows="1">
+                        <listitem label="${c:l('label.node.priority.low')}" value="0"/>
+                        <listitem label="${c:l('label.node.priority.normal')}" value="1" selected="true" />
+                        <listitem label="${c:l('label.node.priority.high')}" value="2"/>
+                    </listbox>
+                </hbox>
+            </vbox>
+            <separator spacing="2px"/>
+            <hbox pack="stretch" hflex="1">
+                <cell width="50%">
+                    <button id="NodePropDialogOkayBtn" label="${c:l('label.okay.btn')}" width="100%"
+                            onClick="NodePropertiesDialog.onOkayClick()"/>
+                </cell>
+                <cell width="50%">
+                    <button label="${c:l('label.cancel.btn')}" width="100%"
+                            onClick="NodePropertiesDialog.onCancelClick()"/>
+                </cell>
+            </hbox>
+    </vbox>
+</window>

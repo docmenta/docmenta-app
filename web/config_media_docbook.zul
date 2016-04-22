@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?taglib uri="http://www.zkoss.org/dsp/web/core" prefix="c"?>
+
+<vbox spacing="3px">
+<radiogroup>
+  <vbox spacing="1px">
+    <radio label="Single File"/>
+    <radio label="Multiple Files"/>
+  </vbox>
+</radiogroup>
+</vbox>

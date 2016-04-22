@@ -1,0 +1,33 @@
+<?component name="textbutton" extends="toolbarbutton" style="font-size:11px;color:blue;" ?>
+
+<window id="AboutDialog" title="${c:l('label.about.dialog.title')}"
+        border="normal" width="360px" visible="false"
+        closable="true" onClose="self.visible = false; event.stopPropagation();"
+        use="org.docma.webapp.AboutDialog">
+
+<vbox align="center" width="100%" spacing="0px">
+  <hbox spacing="4px">
+    <image src="img/login_pic.jpg" height="118px" />
+    <space spacing="3px" />
+    <vbox spacing="3px" >
+        <separator spacing="0px"/>
+        <label id="AboutAppEditionLabel" style="font-weight: bold;">Docmenta Publishing System</label>
+        <separator spacing="1px"/>
+        <label id="AboutCopyrightLabel">&#169; 2011</label>
+        <separator spacing="1px"/>
+        <hbox>
+          <label>Web:&#160;</label>
+          <label id="AboutHomepageLabel">http://www.docmenta.org</label>
+        </hbox>
+        <hbox>
+          <label>eMail:&#160;</label>
+          <label id="AboutEMailLabel">info@docmenta.org</label>
+        </hbox>
+        <textbutton label="${c:l('label.view.license.agreement')}" forward="AboutDialog.onViewLicense"/>
+    </vbox>
+    <space spacing="3px" />
+  </hbox>
+  <button label="${c:l('label.close.btn')}" width="100%"
+          onClick="AboutDialog.onCloseClick()"/>
+</vbox>
+</window>

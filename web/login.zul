@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?taglib uri="http://www.zkoss.org/dsp/web/core" prefix="c"?>
+
+<!-- <window id="main"  height="100%" width="100%" contentStyle="background-color:#404040;"> -->
+<div style="width:100%;height:100%;background-color:#91B9D8;">
+    <window id="login" title="${c:l('label.login.windowtitle')}" border="normal"
+        mode="overlapped" position="center"
+        apply="org.docma.webapp.Login" use="org.docma.webapp.LoginWindow">
+        <caption>
+            <space hflex="1" />
+            <toolbarbutton label="&#160;${c:l('label.help')}&#160;" onClick='login.onShowHelp("help/index.html")' />
+        </caption>
+
+        <hbox spacing="4px">
+            <image src="img/login_pic.jpg" height="118px" />
+            <space spacing="3px" />
+            <vbox spacing="3px" >
+                <separator spacing="0px"/>
+                <label>${c:l('label.login.username')}:</label>
+                <textbox id="username" width="160px" forward="onOK=loginbtn.onClick"/>
+                <separator spacing="1px"/>
+                <label>${c:l('label.login.password')}:</label>
+                <textbox id="userpwd" type="password"  width="160px"  forward="onOK=loginbtn.onClick"/>
+                <separator spacing="2px"/>
+                <button id="loginbtn" label="${c:l('label.login.btn')}" width="160px" />
+            </vbox>
+            <space spacing="3px" />
+        </hbox>
+    </window>
+</div>
+<!-- </window> -->

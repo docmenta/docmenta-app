@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?taglib uri="http://www.zkoss.org/dsp/web/core" prefix="c"?>
+
+<?component name="headlabel" extends="label" style="color:#DFEEFF; text-shadow:1px 1px 1px #202020;" ?>
+<?component name="headlabelbold" extends="label" style="color:#DFEEFF; font-weight:bold; text-shadow:1px 1px 1px #000000;" ?>
+
+<?page title="Preview PDF" ?>
+<window id="PreviewPDFWindow" height="100%" width="100%" border="none" mode="embedded"
+        contentStyle="background-color:#262626; padding:0px; margin:0px" style="padding:0px; margin:0px"
+        apply="org.docma.webapp.PreviewPDF" use="org.docma.webapp.PreviewPDFWindow">
+
+<div style="padding-top:0px;padding-right:5px;padding-left:5px;padding-bottom:0px;height:100%;">
+  <borderlayout style="background-color:transparent;">
+    <north height="32px" margins="0,0,0,0" style="background-color:transparent;" border="none">
+      <borderlayout style="background-color:transparent;">
+        <north height="2px" style="background-color:transparent;" border="none"></north>
+        <west style="background-color:transparent;" border="none">
+          <hbox align="center" width="100%" height="100%" pack="stretch">
+            <!-- <headlabelbold>${c:l('label.previewpdf.setting')}:&#160;</headlabelbold> -->
+            <listbox id="PreviewPDFPubConfList" mold="select" rows="1" width="100%"
+                     onSelect="PreviewPDFWindow.onChangeConfiguration()" ></listbox>
+            <listbox id="PreviewPDFOutputConfList" mold="select" rows="1" width="100%"
+                     onSelect="PreviewPDFWindow.onChangeConfiguration()" ></listbox>
+            <space spacing="2px" />
+            <button label="${c:l('label.reload.btn')}&#160;" image="img/reload.gif" height="25px" hflex="1"
+                    onClick="PreviewPDFWindow.onReloadClick()" style="white-space:nowrap; padding:0 6px 0 6px;"/>
+            <button label="${c:l('label.close.btn')}&#160;" image="img/close.gif" height="25px" hflex="1"
+                    onClick="PreviewPDFWindow.onCloseClick()" style="white-space:nowrap; padding:0 6px 0 6px;"/>
+          </hbox>
+        </west>
+        <center style="background-color:transparent;" border="none">
+          <hbox align="stretch" pack="end" width="100%" height="100%">
+            <space spacing="2px" />
+            <cell height="100%" style="padding:6px 0 0 0;">
+              <headlabelbold>${c:l('label.previewpdf.nodetitle')}:&#160;</headlabelbold>
+            </cell>
+            <cell height="100%" valign="middle" style="margin:6px 0 0 0;"><headlabel id="PreviewPDFNodeTitleLabel" /></cell>
+            <space spacing="4px" />
+            <cell height="100%" style="padding:6px 0 0 0;">
+              <headlabelbold>${c:l('label.product')}: </headlabelbold>
+            </cell>
+            <cell height="100%" style="padding:6px 0 0 0;"><headlabel id="PreviewPDFProductId" /></cell>
+            <space spacing="4px" />
+            <cell height="100%" style="padding:6px 0 0 0;">
+              <headlabelbold>${c:l('label.productversion')}: </headlabelbold>
+            </cell>
+            <cell height="100%" style="padding:6px 0 0 0;"><headlabel id="PreviewPDFProductVersion" /></cell>
+            <space spacing="4px" />
+            <cell height="100%" style="padding:6px 0 0 0;">
+              <headlabelbold>${c:l('label.language')}: </headlabelbold>
+            </cell>
+            <cell height="100%" style="padding:6px 0 0 0;"><headlabel id="PreviewPDFProductLanguage" /></cell>
+          </hbox>
+        </center>
+        <south height="2px" style="background-color:transparent;" border="none"></south>
+      </borderlayout>
+    </north>
+    <center>
+      <iframe id="previewpdffrm" name="previewpdffrm" src="" width="100%" height="100%"/>
+    </center>
+    <south height="4px" margins="0,0,0,0" style="background-color:transparent;" border="none"></south>
+  </borderlayout>
+</div>
+</window>

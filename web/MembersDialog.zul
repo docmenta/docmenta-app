@@ -1,0 +1,34 @@
+<window id="MembersDialog" title="${c:l('label.members.dialog.add.title')}"
+        border="normal" width="480px" visible="false"
+        closable="true" onClose="self.visible = false; event.stopPropagation();"
+        use="org.docma.webapp.MembersDialog">
+    <caption>
+        <toolbarbutton label="Help" onClick='mainWin.onHelp("help/members.html")'/>
+    </caption>
+    <hbox width="100%">
+        <space spacing="3px" />
+        <vbox spacing="3px" width="100%">
+            <separator spacing="0px"/>
+            <listbox id="AddMembersListbox" rows="15" multiple="true" checkmark="true">
+                <listhead sizable="true">
+                    <listheader label="User-ID" sort="auto" width="30%"/>
+                    <listheader label="Last name" sort="auto" width="30%" />
+                    <listheader label="First name" sort="auto" />
+                </listhead>
+            </listbox>
+            <separator spacing="2px"/>
+            <hbox width="100%">
+              <cell width="50%">
+                <button label="${c:l('label.add.btn')}" width="100%"
+                        forward="MembersDialog.onAddClick"/>
+              </cell>
+              <cell width="50%">
+                <button label="${c:l('label.cancel.btn')}" width="100%"
+                        forward="MembersDialog.onCancelClick"/>
+              </cell>
+            </hbox>
+            <separator spacing="2px"/>
+        </vbox>
+        <space spacing="3px" />
+    </hbox>
+</window>

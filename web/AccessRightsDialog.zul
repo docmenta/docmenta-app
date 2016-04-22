@@ -1,0 +1,58 @@
+<?component name="textbutton" extends="toolbarbutton" style="font-size:11px;color:blue;" ?>
+
+<window id="AccessRightsDialog" title="${c:l('label.accessrights.dialog.edit.title')}"
+        border="normal" width="350px" visible="false"
+        closable="true" onClose="self.visible = false; event.stopPropagation();"
+        use="org.docma.webapp.AccessRightsDialog">
+    <caption>
+        <toolbarbutton label="Help" onClick='mainWin.onHelp("help/access_rights.html")'/>
+    </caption>
+    <hbox width="100%" pack="stretch">
+      <space spacing="3px" />
+      <vbox width="100%" align="stretch">
+        <separator spacing="0px"/>
+        <hbox width="100%" pack="stretch">
+          <cell width="40%">
+            <vbox width="100%" align="stretch">
+                <label>${c:l('label.accessright.product')}:</label>
+                <listbox id="AccessRightProductListbox" rows="10" width="100%"
+                         forward="onSelect=AccessRightsDialog.onSelectProduct"></listbox>
+            </vbox>
+          </cell>
+          <cell width="60%">
+            <vbox width="100%" align="stretch">
+              <hbox width="100%" align="center">
+                <label>${c:l('label.accessright.roles')}: </label>
+                <textbutton label="${c:l('label.selectall.btn')}" forward="AccessRightsDialog.onSelectAll"/>
+                <label> / </label>
+                <textbutton label="${c:l('label.unselectall.btn')}" forward="AccessRightsDialog.onUnselectAll"/>
+              </hbox>
+              <vbox spacing="2px" width="100%">
+                <checkbox id="AccessRightViewContentCheckbox" label="${c:l('label.accessright.role.view_content')}"/>
+                <checkbox id="AccessRightEditContentCheckbox" label="${c:l('label.accessright.role.edit_content')}"/>
+                <checkbox id="AccessRightApproveContentCheckbox" label="${c:l('label.accessright.role.approve_content')}"/>
+                <checkbox id="AccessRightTranslateContentCheckbox" label="${c:l('label.accessright.role.translate_content')}"/>
+                <checkbox id="AccessRightEditStylesCheckbox" label="${c:l('label.accessright.role.edit_styles')}"/>
+                <checkbox id="AccessRightManageVersionsCheckbox" label="${c:l('label.accessright.role.manage_versions')}"/>
+                <checkbox id="AccessRightManagePublicationsCheckbox" label="${c:l('label.accessright.role.manage_publications')}"/>
+                <checkbox id="AccessRightAdministrationCheckbox" label="${c:l('label.accessright.role.administration')}"/>
+              </vbox>
+            </vbox>
+          </cell>
+        </hbox>
+        <separator spacing="2px"/>
+        <hbox width="100%">
+          <cell width="50%">
+                <button label="${c:l('label.okay.btn')}" width="100%"
+                        forward="AccessRightsDialog.onOkayClick"/>
+          </cell>
+          <cell width="50%">
+                <button label="${c:l('label.cancel.btn')}" width="100%"
+                        forward="AccessRightsDialog.onCancelClick"/>
+          </cell>
+        </hbox>
+        <separator spacing="0px"/>
+      </vbox>
+      <space spacing="1px" />
+    </hbox>
+</window>

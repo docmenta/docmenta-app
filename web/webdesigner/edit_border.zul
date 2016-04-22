@@ -1,0 +1,288 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?component name="textbutton" extends="toolbarbutton" style="font-size:11px; color:blue;" ?>
+<?component name="borderwidthbox" extends="doublespinner" step="0.5" value="1" locale="en" constraint="no empty, min 0" width="70px" ?>
+<?component name="borderradiusbox" extends="doublespinner" step="0.5" value="1" locale="en" constraint="min 0" width="70px" ?>
+
+    <window id="whdBorderWin" title="Edit Border and Background" 
+            border="normal" width="580px" visible="false" contentStyle="padding:6px 10px 6px 10px;"
+            closable="true" onClose="self.visible = false; event.stopPropagation();"
+            position="center" sizable="true" 
+            apply="org.docma.webdesigner.BackgroundWindowComposer" >
+        <vbox spacing="1px" hflex="1" align="stretch">
+          <hbox align="center">
+            <checkbox id="whdEditBorderSameBox" />
+            <label value="Same for all borders" style="font-weight:normal;"/>
+            <space spacing="6px" />
+            <checkbox id="whdEditBorderEnableRadiusBox" />
+            <label value="Set radius" style="font-weight:normal;" />
+          </hbox>
+          <separator spacing="6px"/>
+          <vbox width="100%" align="stretch" spacing="5px">
+            <hbox width="100%" pack="stretch" align="center">
+              <cell id="whdEditBorderTopLeftArea" width="25%" valign="top" align="right">
+                <vbox id="whdEditBorderTopLeftRadiusArea" align="right" spacing="2px" style="min-height:80px;">  
+                    <cell width="100%" align="left">
+                        <label value="Radius:" style="font-weight:bold;" />
+                    </cell>
+                    <hbox hflex="1" pack="end" align="start">
+                        <vlayout spacing="1px">
+                            <borderradiusbox id="whdEditBorderTopLeftRad1Box" />
+                            <borderradiusbox id="whdEditBorderTopLeftRad2Box" />
+                        </vlayout>
+                        <listbox id="whdEditBorderTopLeftRadUnit" rows="1" mold="select" >
+                          <listitem label="cm" value="cm"/>
+                          <listitem label="mm" value="mm"/>
+                          <listitem label="in" value="in"/>
+                          <listitem label="pt" value="pt"/>
+                          <listitem label="pc" value="pc"/>
+                          <listitem label="px" value="px"/>
+                          <listitem label="em" value="em"/>
+                        </listbox>
+                    </hbox>
+                </vbox>
+              </cell>
+              <cell hflex="1" valign="top" align="center">
+                <vbox pack="start" align="center" spacing="2px">
+                    <cell id="whdEditBorderTopCell" width="100%" align="center">
+                        <label id="whdEditBorderTopLabel" value="Border-Top:" style="font-weight:bold;" />
+                    </cell>
+                    <listbox id="whdEditBorderTopStyleBox" rows="1" mold="select" width="100%">
+                      <listitem label="none" value="none" />
+                      <listitem label="solid" value="solid" />
+                      <listitem label="dashed" value="dashed" />
+                      <listitem label="dotted" value="dotted" />
+                      <listitem label="double" value="double" />
+                      <listitem label="groove" value="groove" />
+                      <listitem label="ridge" value="ridge" />
+                      <listitem label="inset" value="inset" />
+                      <listitem label="outset" value="outset" />
+                    </listbox>
+                    <hbox hflex="1" pack="center" align="center">
+                      <borderwidthbox id="whdEditBorderTopWidthBox" />
+                      <listbox id="whdEditBorderTopWidthUnit" rows="1" mold="select" >
+                          <listitem label="cm" value="cm"/>
+                          <listitem label="mm" value="mm"/>
+                          <listitem label="in" value="in"/>
+                          <listitem label="pt" value="pt"/>
+                          <listitem label="pc" value="pc"/>
+                          <listitem label="px" value="px"/>
+                          <listitem label="em" value="em"/>
+                      </listbox>
+                    </hbox>
+                    <hbox hflex="1" pack="center" align="center">
+                      <textbox id="whdEditBorderTopColorTextbox" cols="7" />
+                      <colorbox id="whdEditBorderTopColorBox" />
+                    </hbox>
+                </vbox>
+              </cell>
+              <cell id="whdEditBorderTopRightArea" width="25%" valign="top" align="left">
+                <vbox id="whdEditBorderTopRightRadiusArea" align="right" spacing="2px" style="min-height:80px;">
+                    <cell width="100%" align="left">
+                        <label value="Radius:" style="font-weight:bold;" />
+                    </cell>
+                    <hbox hflex="1" pack="end" align="start">
+                        <vlayout spacing="1px">
+                            <borderradiusbox id="whdEditBorderTopRightRad1Box" />
+                            <borderradiusbox id="whdEditBorderTopRightRad2Box" />
+                        </vlayout>
+                        <listbox id="whdEditBorderTopRightRadUnit" rows="1" mold="select" >
+                          <listitem label="cm" value="cm"/>
+                          <listitem label="mm" value="mm"/>
+                          <listitem label="in" value="in"/>
+                          <listitem label="pt" value="pt"/>
+                          <listitem label="pc" value="pc"/>
+                          <listitem label="px" value="px"/>
+                          <listitem label="em" value="em"/>
+                        </listbox>
+                    </hbox>
+                </vbox>
+              </cell>
+            </hbox>
+            <hbox width="100%" pack="stretch" align="center">
+              <cell id="whdEditBorderLeftArea" width="25%" valign="middle" align="right">
+                  <vbox align="right" spacing="2px">  
+                    <cell width="100%" align="left">
+                        <label value="Border-Left:" style="font-weight:bold;" />
+                    </cell>
+                    <listbox id="whdEditBorderLeftStyleBox" rows="1" mold="select" width="100%">
+                      <listitem label="none" value="none" />
+                      <listitem label="solid" value="solid" />
+                      <listitem label="dashed" value="dashed" />
+                      <listitem label="dotted" value="dotted" />
+                      <listitem label="double" value="double" />
+                      <listitem label="groove" value="groove" />
+                      <listitem label="ridge" value="ridge" />
+                      <listitem label="inset" value="inset" />
+                      <listitem label="outset" value="outset" />
+                    </listbox>
+                    <hbox hflex="1" pack="end" align="center">
+                      <borderwidthbox id="whdEditBorderLeftWidthBox" />
+                      <listbox id="whdEditBorderLeftWidthUnit" rows="1" mold="select" >
+                          <listitem label="cm" value="cm"/>
+                          <listitem label="mm" value="mm"/>
+                          <listitem label="in" value="in"/>
+                          <listitem label="pt" value="pt"/>
+                          <listitem label="pc" value="pc"/>
+                          <listitem label="px" value="px"/>
+                          <listitem label="em" value="em"/>
+                      </listbox>
+                    </hbox>
+                    <hbox hflex="1" pack="end" align="center">
+                      <textbox id="whdEditBorderLeftColorTextbox" cols="7" />
+                      <colorbox id="whdEditBorderLeftColorBox" />
+                    </hbox>
+                  </vbox>
+              </cell>
+              <cell hflex="1" valign="middle" align="center" style="padding:6px;">
+                <groupbox width="100%" height="100%" contentStyle="padding:10px">
+                  <caption label="Preview:" />
+                  <div id="whdEditBorderPreviewDiv" width="90%" height="100px" style="" >
+                      <vbox pack="center" align="center" height="100%">
+                        <label value="Background-Color:" style="font-weight:bold;" />
+                        <hbox hflex="1" pack="center" align="center">
+                          <textbox id="whdEditBorderBgColorTextbox" cols="7" />
+                          <colorbox id="whdEditBorderBgColorBox" />
+                        </hbox>
+                      </vbox>
+                  </div>
+                  <hbox width="100%" spacing="3px" pack="end" align="center">
+                    <label value="Image:" style="font-weight:bold;" />
+                    <textbutton id="whdEditBorderBgImageUploadBtn" label="Upload" upload="true" />
+                    <textbutton id="whdEditBorderBgImageDownloadBtn" label="Download" />
+                    <textbutton id="whdEditBorderBgImageRemoveBtn" label="Remove" />
+                  </hbox>
+                  <hbox id="whdEditBorderBgRepeatArea" width="100%" spacing="0px" pack="end" align="center">
+                    <label value="Repeat:" style="font-weight:bold;"/>
+                    <space spacing="5px" />
+                    <checkbox id="whdEditBorderBgRepeatXBox"  />
+                    <label value="X" style="font-weight:normal;"/>
+                    <space spacing="3px" />
+                    <checkbox id="whdEditBorderBgRepeatYBox" />
+                    <label value="Y" style="font-weight:normal;"/>
+                  </hbox>
+                </groupbox>
+              </cell>
+              <cell id="whdEditBorderRightArea" width="25%" valign="middle" align="left">
+                  <vbox align="left" spacing="2px">
+                    <cell width="100%" align="left">
+                        <label value="Border-Right:" style="font-weight:bold;" />
+                    </cell>
+                    <listbox id="whdEditBorderRightStyleBox" rows="1" mold="select" width="100%">
+                      <listitem label="none" value="none" />
+                      <listitem label="solid" value="solid" />
+                      <listitem label="dashed" value="dashed" />
+                      <listitem label="dotted" value="dotted" />
+                      <listitem label="double" value="double" />
+                      <listitem label="groove" value="groove" />
+                      <listitem label="ridge" value="ridge" />
+                      <listitem label="inset" value="inset" />
+                      <listitem label="outset" value="outset" />
+                    </listbox>
+                    <hbox hflex="1" pack="start" align="center">
+                      <borderwidthbox id="whdEditBorderRightWidthBox" />
+                      <listbox id="whdEditBorderRightWidthUnit" rows="1" mold="select" >
+                          <listitem label="cm" value="cm"/>
+                          <listitem label="mm" value="mm"/>
+                          <listitem label="in" value="in"/>
+                          <listitem label="pt" value="pt"/>
+                          <listitem label="pc" value="pc"/>
+                          <listitem label="px" value="px"/>
+                          <listitem label="em" value="em"/>
+                      </listbox>
+                    </hbox>
+                    <hbox hflex="1" pack="start" align="center">
+                      <textbox id="whdEditBorderRightColorTextbox" cols="7" />
+                      <colorbox id="whdEditBorderRightColorBox" />
+                    </hbox>
+                  </vbox>  
+              </cell>
+            </hbox>
+            <hbox id="whdEditBorderBottomArea" width="100%" pack="stretch" align="center">
+              <cell width="25%" valign="top" align="right">
+                <vbox id="whdEditBorderBottomLeftRadiusArea" align="right" spacing="2px">  
+                    <cell width="100%" align="left">
+                        <label value="Radius:" style="font-weight:bold;" />
+                    </cell>
+                    <hbox hflex="1" pack="end" align="start">
+                        <vlayout spacing="1px">
+                            <borderradiusbox id="whdEditBorderBottomLeftRad1Box" />
+                            <borderradiusbox id="whdEditBorderBottomLeftRad2Box" />
+                        </vlayout>
+                        <listbox id="whdEditBorderBottomLeftRadUnit" rows="1" mold="select" >
+                          <listitem label="cm" value="cm"/>
+                          <listitem label="mm" value="mm"/>
+                          <listitem label="in" value="in"/>
+                          <listitem label="pt" value="pt"/>
+                          <listitem label="pc" value="pc"/>
+                          <listitem label="px" value="px"/>
+                          <listitem label="em" value="em"/>
+                        </listbox>
+                    </hbox>
+                </vbox>
+              </cell>
+              <cell hflex="1" valign="top" align="center">
+                <vbox pack="start" align="center" spacing="2px">
+                    <cell align="center">
+                        <label value="Border-Bottom:" style="font-weight:bold;" />
+                    </cell>
+                    <listbox id="whdEditBorderBottomStyleBox" rows="1" mold="select" width="100%">
+                      <listitem label="none" value="none" />
+                      <listitem label="solid" value="solid" />
+                      <listitem label="dashed" value="dashed" />
+                      <listitem label="dotted" value="dotted" />
+                      <listitem label="double" value="double" />
+                      <listitem label="groove" value="groove" />
+                      <listitem label="ridge" value="ridge" />
+                      <listitem label="inset" value="inset" />
+                      <listitem label="outset" value="outset" />
+                    </listbox>
+                    <hbox pack="center" align="center">
+                      <borderwidthbox id="whdEditBorderBottomWidthBox" />
+                      <listbox id="whdEditBorderBottomWidthUnit" rows="1" mold="select" >
+                          <listitem label="cm" value="cm"/>
+                          <listitem label="mm" value="mm"/>
+                          <listitem label="in" value="in"/>
+                          <listitem label="pt" value="pt"/>
+                          <listitem label="pc" value="pc"/>
+                          <listitem label="px" value="px"/>
+                          <listitem label="em" value="em"/>
+                      </listbox>
+                    </hbox>
+                    <hbox pack="center" align="center">
+                      <textbox id="whdEditBorderBottomColorTextbox" cols="7" />
+                      <colorbox id="whdEditBorderBottomColorBox" />
+                    </hbox>  
+                </vbox>
+              </cell>
+              <cell width="25%" valign="top" align="left">
+                <vbox id="whdEditBorderBottomRightRadiusArea" align="left" spacing="2px">  
+                    <cell width="100%" align="left">
+                        <label value="Radius:" style="font-weight:bold;" />
+                    </cell>
+                    <hbox hflex="1" pack="end" align="start">
+                        <vlayout spacing="1px">
+                            <borderradiusbox id="whdEditBorderBottomRightRad1Box" />
+                            <borderradiusbox id="whdEditBorderBottomRightRad2Box" />
+                        </vlayout>
+                        <listbox id="whdEditBorderBottomRightRadUnit" rows="1" mold="select" >
+                          <listitem label="cm" value="cm"/>
+                          <listitem label="mm" value="mm"/>
+                          <listitem label="in" value="in"/>
+                          <listitem label="pt" value="pt"/>
+                          <listitem label="pc" value="pc"/>
+                          <listitem label="px" value="px"/>
+                          <listitem label="em" value="em"/>
+                        </listbox>
+                    </hbox>
+                </vbox>
+              </cell>
+            </hbox>
+          </vbox>
+          <!-- </groupbox> -->
+          <separator spacing="6px"/>
+          <hbox hflex="1" spacing="4px">
+            <button label="${c:l('label.okay.btn')}" id="whdEditBorderOkayBtn" hflex="1" />
+            <button label="${c:l('label.cancel.btn')}" id="whdEditBorderCancelBtn" hflex="1" />
+          </hbox>
+        </vbox>
+    </window>

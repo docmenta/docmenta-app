@@ -1,0 +1,32 @@
+<window id="UserGroupDialog" title="${c:l('label.usergroup.dialog.edit.title')}"
+        border="normal" width="300px" visible="false"
+        closable="true" onClose="self.visible = false; event.stopPropagation();"
+        use="org.docma.webapp.UserGroupDialog">
+    <caption>
+        <toolbarbutton label="Help" onClick='mainWin.onHelp("help/user_groups.html")'/>
+    </caption>
+    <hbox width="100%" pack="stretch">
+        <space spacing="3px" />
+        <vbox spacing="3px" width="100%" align="stretch">
+            <separator spacing="0px"/>
+            <label>${c:l('label.usergroup.name')}:</label>
+            <textbox id="UserGroupNameTextbox" width="98%" focus="true" />
+            <separator spacing="2px"/>
+            <label>${c:l('label.usergroup.directory.dn')}:</label>
+            <textbox id="UserGroupDNTextbox" width="98%" disabled="true" />
+            <separator spacing="2px"/>
+            <hbox width="100%" pack="start">
+              <cell width="50%">
+                <button label="${c:l('label.okay.btn')}" width="100%"
+                        forward="UserGroupDialog.onOkayClick"/>
+              </cell>
+              <cell width="50%">
+                <button label="${c:l('label.cancel.btn')}" width="100%"
+                        forward="UserGroupDialog.onCancelClick"/>
+              </cell>
+            </hbox>
+            <separator spacing="2px"/>
+        </vbox>
+        <space spacing="3px" />
+    </hbox>
+</window>

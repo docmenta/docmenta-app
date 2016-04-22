@@ -1,0 +1,29 @@
+<window id="ReferencedPubsDialog" title="${c:l('label.referencedpubs.dialog.title')}"
+        border="normal" width="350px" visible="false"
+        closable="true" onClose="self.visible = false; event.stopPropagation();"
+        use="org.docma.webapp.ReferencedPubsDialog">
+    <hbox width="100%">
+        <space spacing="3px" />
+        <vbox spacing="3px" width="100%">
+            <separator spacing="0px"/>
+            <listbox id="EditReferencedPubsListbox" rows="15" multiple="true" checkmark="true">
+                <listhead>
+                    <listheader label="${c:l('label.referencedpubs.dialog.listhead')}" />
+                </listhead>
+            </listbox>
+            <separator spacing="2px"/>
+            <hbox width="100%">
+              <cell width="50%">
+                <button label="${c:l('label.okay.btn')}" width="100%"
+                        onClick="ReferencedPubsDialog.onOkayClick()"/>
+              </cell>
+              <cell width="50%">
+                <button label="${c:l('label.cancel.btn')}" width="100%"
+                        onClick="ReferencedPubsDialog.onCancelClick()"/>
+              </cell>
+            </hbox>
+            <separator spacing="2px"/>
+        </vbox>
+        <space spacing="3px" />
+    </hbox>
+</window>

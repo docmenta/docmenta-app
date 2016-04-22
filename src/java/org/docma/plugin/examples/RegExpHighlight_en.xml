@@ -1,0 +1,615 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+  <entry key="shortInfo">Regular-expression based syntax highlighting.</entry>
+  <entry key="longInfo"><![CDATA[
+  <big><b>Arguments:</b></big>
+  <dl>
+    <dt><b><tt>cfg=<i>FILE_ALIAS</i></tt></b></dt>
+    <dd>The highlight configuration. <tt><i>FILE_ALIAS</i></tt> has to be
+    the alias name of a text-file containing the highlight configuration. The highlight
+    configuration format is described below. This argument is mandatory.</dd>
+
+    <dt><b><tt>decode=[true|false]</tt></b></dt>
+    <dd>Character entity decoding behavior.
+    If the <tt>decode</tt> argument is set to <tt>true</tt>, then
+    character entities are decoded before regular-expression based pattern
+    matching is applied. Otherwise character entities are not decoded.
+    The <tt>decode</tt> argument is optional. 
+    If not specified, the default setting is <tt>true</tt>.</dd>
+
+    <dt><b><tt>skipargs=[true|false]</tt></b></dt>
+    <dd>This argument is used in combination with the Auto-Format class
+    <tt>org.docma.plugin.examples.FormatLines</tt>.
+    If the <tt>skipargs</tt> argument is set to <tt>true</tt>, then
+    the first line is not highlighted, if it starts with the string
+    "<tt>[args:</tt>", i.e. if it's an argument line which needs to be
+    processed by the class <tt>org.docma.plugin.examples.FormatLines</tt>.
+    If not specified, the default setting is <tt>true</tt>.</dd>
+  </dl>
+  <p>
+    <big><b>General</b></big>
+  </p>
+  <p>
+    The highlight configuration has to be provided as text-file.
+    The alias name of the text-file has to be passed in the argument <tt>cfg</tt>.
+    The highlight configuration defines one or more
+    regular-expressions and assigns them to inline-styles. This configuration
+    is used during transformation to highlight parts of the content. 
+    If some part of the input matches one of the regular-expressions,
+    then this part is formatted with the style assigned to the
+    matching regular-expression.
+  </p>
+  <p>
+    Please note, that the transformation does <em>not</em> remove
+    or change styles which already exist in the input. Therefore, if the
+    highlight transformation does not give a 100% correct result,
+    the user can fix this by manually applying the correct formatting to the 
+    incorrectly formatted content.
+  </p>
+  <p>
+    <big><b>Highlight rules</b></big>
+  </p>
+  <p>
+    A highlight rule is a line in the format:
+  </p>
+  <pre>
+    <i>STYLE_ID</i>[, <i>STYLE_ID</i>, ...] : <i>REGULAR_EXPRESSION</i> </pre>
+  <p>
+    i.e. a highlight rule starts with a comma separated list of one or more 
+    style-IDs, followed by a colon, followed by a regular expression.
+    Content that matches the regular-expression is formatted with the first
+    style given in the comma separated list of styles. If the regular-expression
+    contains capturing groups, then the content that matches the first group
+    is formatted with the second style in the comma separated list.
+    Content that matches the second group is formatted with the third style in
+    the list, and so on. Note that the style-IDs may be placed on separate lines,
+    but the regular expression has to be placed on the same line as the colon.
+  </p>
+  <p>
+    The regular-expression implementation of the Standard Java Platform is used
+    for pattern matching.
+    For details on the regular-expression syntax, see the documentation of the
+    class <tt>java.util.regex.Pattern</tt> in the Java Platform API specification.
+    Please note that the regular expressions are compiled with the flags
+    <tt>DOTALL</tt> and <tt>MULTILINE</tt>. Therefore
+    the dot character (.) matches any character, including a line terminator,
+    and the boundary matchers ^ and $ match just after/before
+    a line terminator or the beginning/end of the input sequence.
+  </p>
+  <p>
+    <b>Example 1:</b>
+    <br />If following highlight rule is given,
+  </p>
+  <pre>
+    my_style : ABB?A </pre>
+  <p>
+    then the input sequence <tt>AABABABBA</tt> is formatted as follows:
+  </p>
+  <pre>
+    A&lt;span class="my_style"&gt;ABA&lt;/span&gt;B&lt;span class="my_style"&gt;ABBA&lt;/span&gt; </pre>
+  <p>
+    <b>Example 2:</b>
+    <br />If following highlight rule is given:
+  </p>
+  <pre>
+    my_style, b_style : A(B*)C </pre>
+  <p>
+    then the input sequence <tt>ABBC</tt> is transformed to
+  </p>
+  <pre>
+    &lt;span class="my_style"&gt;A&lt;span class="b_style"&gt;BB&lt;/span&gt;C&lt;/span&gt; </pre>
+  <p>
+    Note that the style with ID <tt>b_style</tt> is only applied if the
+    corresponding group <tt>(B*)</tt> actually matches some part of the
+    input. For example, given the highlight configuration above,
+    the input sequence <tt>AACA</tt> is transformed to
+  </p>
+  <pre>
+    A&lt;span class="my_style"&gt;AC&lt;/span&gt;A </pre>
+  <p>
+    i.e. the style <tt>style_b</tt> is not applied because the group <tt>(B*)</tt>
+    does not match anything.
+  </p>
+  <p><big><b>Multiple highlight rules</b></big></p>
+  <p>
+    A highlight configuration can consist of an arbitrary number of highlight rules.
+    If more than one regular expression matches some part of the content, then
+    the highlight rule which has the nearest match is applied.
+    If multiple highlight rules match parts that start at the same position,
+    then the highlight rule that is defined first is applied.
+    For example, given following highlight rules:
+  </p>
+  <pre>
+    b_style : BC
+    a_style : AB
+    c_style : ..C</pre>
+  <p>
+    If the input sequence <tt>ABC</tt> is transformed with this configuration,
+    the result is:
+  </p>
+  <pre>
+    &lt;span class="a_style"&gt;AB&lt;/span&gt;C  </pre>
+  <p>
+    Though all three regular-expressions match some part of the input, the style
+    <tt>a_style</tt> is actually applied.
+    The style <tt>b_style</tt> is not applied, because the part matched by the
+    regular-expression <tt>BC</tt> is located after the parts matched by
+    the other two regular expressions. The style <tt>c_style</tt> is not
+    applied, because the corresponding highlight definition is defined after the
+    highlight definition of style <tt>a_style</tt>.
+  </p>
+  <p><big><b>Non-highlighted groups</b></big></p>
+  <p>
+    If a capturing group shall not be highlighted, then the style ID can
+    be omitted in the comma separated list. For example, given following
+    configuration:
+  </p>
+  <pre>
+    my_style,,c_style : A(B(C))  </pre>
+  <p>
+    If the input <tt>ABC</tt> is transformed with this configuration,
+    the result is:
+  </p>
+  <pre>
+    &lt;span class="my_style"&gt;AB&lt;span class="c_style"&gt;C&lt;/span&gt;&lt;/span&gt; </pre>
+  <p>
+    Alternatively, the non-capturing group construct <tt>(?:</tt> ... <tt>)</tt> can be used, i.e.
+    the following highlight configuration produces the same result as the previous configuration:
+  </p>
+  <pre>
+    my_style, c_style : A(?:B(C))  </pre>
+
+  <p><big><b>Constant definitions</b></big></p>
+  <p>
+    Regular expressions can become very complex and lengthy.
+    Furthermore, often the same expression has to be repeated several times.
+    To avoid such redundancy and to improve readability,
+    regular-expression constants can be defined. Once a regular expression constant
+    is defined, it can be used in subsequent highlight definitions.
+    A constant definition has the format:
+  </p>
+  <pre>
+    %<i>NAME</i>% : <i>REGULAR_EXPRESSION</i>  </pre>
+  <p>
+    See the complete example below on how to use regular-expression constants.
+  </p>
+  <p><big><b>Comment lines</b></big></p>
+  <p>
+    A line that starts with a # character is interpreted as a comment
+    (i.e. the line is ignored). Comments should be used to document
+    the highlight configuration, e.g. describe what a regular expression is
+    intended for.
+    See the complete example below on how to use comment lines.
+  </p>
+  <p><big><b>States</b></big></p>
+  <p>
+    Since Docmenta version 1.8, the regular expression based syntax highlighting 
+    supports the concept of a state machine: The current state defines which 
+    set of rules is applied to the currently processed part of the input.    
+    During parsing of the input, the state machine can change its state, 
+    depending on the regular expression rule that matches the current part 
+    of the input.
+  </p>
+  <p>
+    A state is declared by a line starting with the :: operator, followed by the
+    name of the state. All highlight rules that follow this line 
+    (up to the end of the file or up to the next line starting with ::) 
+    are rules that belong to this state. Example:
+  </p>
+  <pre>
+    ::A_OR_B
+    a_style : A+
+    b_style : B+
+      
+    ::STATE_C
+    c_style : CD*</pre>
+  <p>
+    In the example above, the states with name <tt>A_OR_B</tt> and <tt>STATE_C</tt>
+    exist. The first two rules (<tt>a_style</tt> and <tt>b_style</tt>)
+    belong to state <tt>A_OR_B</tt> and the third rule belongs to <tt>STATE_C</tt>.
+  </p>
+  <p>
+    Note that state names are case-sensitive.
+    By convention, state names should be written in upper-case letters.
+  </p>
+  <p><big><b>State transitions</b></big></p>
+  <p>
+    Defining multiple states only makes sense, if the state can transition from
+    one state to another. A state transition can be defined for a reguar 
+    expression rule, by adding a line that start with the <tt>-></tt> operator  
+    directly after the regular expression rule. Given the example above, if the 
+    state shall change from <tt>A_OR_B</tt> to <tt>STATE_C</tt>, in case the regular 
+    expression <tt>A+</tt> is matched, then the configuration has to be adapted
+    as follows:
+  </p>
+  <pre>
+    ::A_OR_B
+    a_style : A+
+      -> STATE_C
+    b_style : B+
+      
+    ::STATE_C
+    c_style : CD*</pre>
+  <p>
+    If no state transition is defined, as it is the case for the 
+    rules <tt>b_style:B+</tt> and <tt>c_style:CD*</tt>, then the state machine
+    remains in the current state.
+  </p>
+  <p><big><b>Return states</b></big></p>
+  <p>
+    A state can transition from different source states to the same 
+    target state. In this case it is sometimes required to return to the source 
+    state. This can be achieved by using the notation  
+    "<tt>-> enter(<i>target_state</i>)</tt>" for the transition to the 
+    target-state, and the notation "<tt>-> return()</tt>" for the returning 
+    transition. Example:
+  </p>
+  <pre>
+    ::A_OR_B
+    a_style : A+
+      -> enter(STATE_X)
+    b_style : B+
+      -> STATE_C
+
+    ::STATE_C
+    c_style : C
+      -> enter(STATE_X)
+      
+    ::STATE_X
+    x_style : X+
+      -> return()</pre>
+  <p>
+    In the example above, after <tt>STATE_X</tt> has been entered, the next
+    state may be either <tt>A_OR_B</tt> or <tt>STATE_C</tt>, depending
+    from where <tt>STATE_X</tt> has been entered.
+  </p>
+  <p>
+    Sometimes it may be required to return to a different state, than the
+    source-state. This can be achieved by using the notation
+    "<tt>-> enter(<i>target_state</i>, returnState:<i>return_state</i>)</tt>".
+    Given the example above, if the <tt>STATE_C</tt> rule is changed to
+  </p>
+  <pre>
+    ::STATE_C
+    c_style : C
+      -> enter(STATE_X, returnState: A_OR_B)</pre>
+  <p>
+    then the state to which will be returned is 
+    <tt>A_OR_B</tt> instead of <tt>STATE_C</tt>.
+  </p>
+  <p><big><b>The initial state</b></big></p>
+  <p>
+    For each highlight configuration one state is the so called initial state.
+    This is the state of the state machine, when parsing of the input 
+    starts. 
+    The initial state is always the first state that is declared in the 
+    configuration file. Given the example above, <tt>A_OR_B</tt> is the initial
+    state because its declared before the state <tt>STATE_C</tt>.
+  </p>
+  <p>
+    Be aware that states imported via the <tt>@import</tt> command (see below) 
+    are <em>not</em> considered to be initial states, even if the import command
+    is inserted before the first state declaration.
+    If you want the initial state to be a state declared in an imported 
+    configuration, you need to declare a forwarding state as the first state  
+    in the configuration. A forwarding state just forwards to another  
+    state, e.g. to an imported state or to another state declared in the same file.  
+    For details see the section "Forwarding States" below.
+  </p>
+  <p>
+    Note that for backwards compatibility, a state does not necessarily have to 
+    be declared.
+    If a regular expression rule is defined, but no state has been explicitly 
+    declared (e.g. in case of highlight configuration files created before
+    the state machine concept has been introduced), 
+    then the rules belong to the implicit state named <tt>START</tt>.
+    Nevertheless, since the concept of a state machine has been 
+    introduced, it is recommended to assign all highlight rules to an explicitly 
+    declared state. 
+  </p>
+  <p><big><b>Forwarding States</b></big></p>
+  <p>
+    A forwarding state is a state that has no regular expression rules assigned,
+    but immediately forwards to another state. 
+    A forwarding state is declared as follows:
+  </p>
+  <pre>
+    ::<i>SOURCE</i> -> <i>TARGET</i> </pre>
+  <p>
+    where <tt><i>SOURCE</i></tt> is the name of the forwarding state to be declared,
+    and <tt><i>TARGET</i></tt> is the name of another state to which this state
+    shall be forwarded. Example:  
+  </p>
+  <pre>
+    ::START -> B_OR_C
+
+    ::STATE_A
+    a_style : A+
+      
+    ::B_OR_C
+    b_style : B+
+    c_style : CD*</pre>
+  <p>
+    In the example above, the state <tt>START</tt> is the initial state, because
+    it's the first declared state. However, effectively the rules of state
+    <tt>B_OR_C</tt> are the first rules applied to the input, because <tt>START</tt>
+    just forwards to <tt>B_OR_C</tt>. Forwarding states
+    can improve readability and maintainability of the configuration files.
+  </p>
+  <p><big><b>Import command</b></big></p>
+  <p>
+    Sometimes it may be useful to reuse existing highlight configurations.
+    For example, if you have an existing highlight configuration for HTML code
+    and you have an existing highlight configuration for JAVA code, then you 
+    could reuse these configurations when you create a highlight configuration
+    for Java Server Pages (JSP) code. 
+  </p>
+  <p>
+    You can import an existing highlight configuration by inserting following  
+    line in your configuration:
+  </p>
+  <pre>
+    @import(<i>alias</i>) </pre>
+  <p>
+    where <tt><i>alias</i></tt> is the alias name of the configuration to be
+    imported. Importing a configuration makes all states and constants
+    defined in the imported configuration visible to the file that contains
+    the import command. 
+  </p>
+  <p><big><b>State Priority, Extending state definitions</b></big></p>
+  <p>
+    When states are imported via the import command (see above), it can become
+    necessary to extend or overwrite imported state definitions. 
+    This can be achieved by declaring a state which has the same name than an 
+    imported state.
+    If a state is declared that has the same name than a previously declared
+    state, then following cases need to be considered: the previously declared
+    state has
+  </p>
+  <ol> 
+    <li>the same priority,</li> 
+    <li>higher or lower priority</li> 
+  </ol>
+  <p>
+    than the newly declared state. If equally named state definitions have the 
+    same priority, then all regular expression rules defined for these definitions
+    are merged (i.e. all rules defined for all these state definitions are applied).
+  </p>
+  <p>
+    If a state definition has lower priority than another equally named state 
+    definition, then the rules defined for the state with lower priority are 
+    ignored. Or the other way round: the state with higher priority replaces any 
+    equally named state with lower priority.
+  </p>
+  <p>
+    If no priority is explicitly assigned, then all states have the default priority 1. 
+    To declare a state with a priority other than the default priority, 
+    following declaration has to be used :
+  </p>
+  <pre>
+    ::<i>STATE_NAME</i>(priority:<i>x</i>) </pre>
+  <p>
+    where <tt><i>STATE_NAME</i></tt> is the name of the state to be declared,
+    and <tt><i>x</i></tt> is the priority given as integer number.
+    Note that the higher the number the higher the priority. Example:
+  </p>
+  <pre>
+    ::STATE_A
+    a_style : A+
+      
+    ::B_OR_C
+    b_style : B+
+      
+    ::STATE_A(priority:2)
+    aa_style : AA+
+
+    ::B_OR_C
+    c_style : CD*
+    </pre>
+  <p>
+   In the example above, two states are defined. The state <tt>STATE_A</tt>
+   has effectively one rule assigned, which is <tt>aa_style:AA+</tt>. 
+   Note that the rule <tt>a_style:A+</tt> is ignored because it has the 
+   default priority 1, which is lower than priority 2 of the second 
+   <tt>STATE_A</tt> definition.
+   The state <tt>B_OR_C</tt> has effectively two rules assigned, namely 
+   <tt>b_style:B+</tt> and <tt>c_style:CD*</tt>, because the rules of both
+   state definitions have the same priority (the default priority 1).
+  </p>
+  <p><big><b>Regular expression hints</b></big></p>
+  <p>
+    <b>Greedy vs. reluctant quantifiers</b>
+    <br />If, for example, the quantifiers <tt>?</tt>, <tt>*</tt>, <tt>+</tt> or
+    <tt>{<i>n,m</i>}</tt> are used, then the matching behavior is greedy, i.e. the matching algorithm
+    consumes as much characters as possible. For example, given following highlight
+    configuration:
+  </p>
+  <pre>
+    my_style : A.*C  </pre>
+  <p>
+    If the input sequence <tt>ABCC</tt> is transformed with this configuration,
+    then the result is:
+  </p>
+  <pre>
+    &lt;span class="my_style"&gt;ABCC&lt;/span&gt;  </pre>
+  <p>
+    This behaviour can be changed by using a reluctant quantifier,
+    e.g. <tt>*?</tt> instead of <tt>*</tt>.
+    For example if the regular expression is changed to <tt>A.*?C</tt>, then the
+    result is:
+  </p>
+  <pre>
+    &lt;span class="my_style"&gt;ABC&lt;/span&gt;C  </pre>
+
+  <p>
+    <b>Quantified groups</b>
+    <br />If a capturing group matches several times due to a quantifier applied
+    to the group, then only the last match is formatted with the assigned style.
+    For example, given following highlight configuration:
+  </p>
+  <pre>
+    ,b_style : A(B)+  </pre>
+  <p>
+    If the input sequence <tt>ABB</tt> is transformed with this configuration,
+    then the result is:
+  <pre>
+    AB&lt;span class="b_style"&gt;B&lt;/span&gt;  </pre>
+  <p>
+    Unfortunately this behaviour is due to a limitation of the Java regular
+    expression API. If you want all <tt>B</tt> characters to be
+    formatted with the style <tt>b_style</tt>, then the regular-expression has to
+    be changed to <tt>A(B+)</tt>. However, this solution is not always appropriate.
+    For example, if you have the regular-expression
+    <tt>((A)(B))+</tt> and you want to assign different styles to <tt>A</tt>
+    and <tt>B</tt>, then the configuration
+  </p>
+  <pre>
+      ,,a_style,b_style : ((A)(B))+   </pre>
+  <p>
+    does not work. For example, if you have the input <tt>ABAB</tt>, then
+    only the last <tt>A</tt> and <tt>B</tt> is highlighted.
+    If you know the maximum number of repetitions, then a workaround is
+    to explicitely repeat the group and use the quantifier ? instead of +.
+    For example, if you know that the sequence
+    AB is repeated at most once, then the configuration can be changed to:
+  </p>
+  <pre>
+      ,a_style,b_style,,a_style,b_style : (A)(B)((A)(B))?   </pre>
+  <p>
+    Note: The usage of states can help to avoid quantified groups.
+  </p>
+  <p>
+    <big><b>Complete Example</b></big>
+  </p>
+  <p>
+    <b>Highlighting XML/SGML content</b>
+    <br />Following a simple highlight configuration for highlighting XML/SGML content:
+  </p>
+  <pre>
+    ### Regular expression constants ###
+    %NAME%      : [A-Za-z0-9_:\-\.]+
+    %ATT_VALUE% : %NAME%|("[^"]*")|('[^']*')
+
+    ###
+    ### Highlight configuration ###
+    ###
+
+    ::XML_START
+      
+    # Comments
+    comment_style : &lt;!--.*?--&gt;
+
+    # Start of element tag
+    tag_style : &lt;%NAME%\s*
+      -> XML_ATTRIBUTES
+
+    # Closing element tag
+    tag_style : &lt;/%NAME%&gt;  
+
+    ::XML_ATTRIBUTES
+      
+    # Element attribute
+    attrib_style,, attrib_value_style : %NAME%(\s*=\s*(%ATT_VALUE%))?\s*
+
+    # End of element tag
+    tag_style : /?&gt;
+      -> XML_START  </pre>
+  <p>
+    The highlight configuration starts with the definition of the regular-expression
+    constant <tt>%NAME%</tt>, which holds the pattern of an element/attribute name.
+    Here, an element/attribute name is defined as a sequence of letters, digits,
+    the underscore, the colon, the dash and the dot character. Note that the
+    XML specification allows more characters to be used within element and attribute
+    names, however this configuration should be sufficient in most cases.
+  </p>
+  <p>
+    The second definition is the constant <tt>%ATT_VALUE%</tt> which holds the pattern
+    of an attribute value. Here, an attribute value is defined as either a
+    string that follows the rules of an element/attribute name or
+    as a string enclosed in double or single quotes. As you can see,
+    the regular-expression constant <tt>%ATT_VALUE%</tt> references the previously
+    defined constant <tt>%NAME%</tt>. This way it is possible to avoid repetition
+    of expressions. Be aware that a constant has to be defined <em>before</em>
+    it is referenced.
+  </p>
+  <p>
+    The constant definitions are followed by two state definitions:
+    <tt>XML_START</tt> and <tt>XML_ATTRIBUTES</tt>.
+    The initial state <tt>XML_START</tt> defines three rules.
+    The first assigns the style <tt>comment_style</tt> to a regular-expression that matches
+    XML/SGML comments (note that the reluctant quantifier <tt>*?</tt> is used here).
+    The second assignes the style <tt>tag_style</tt>
+    to a regular-expression that matches the start of an XML element. If the
+    start of an element is matched, then the state changes from 
+    <tt>XML_START</tt> to <tt>XML_ATTRIBUTES</tt>.
+    The third assigns the style <tt>tag_style</tt> to a regular-expression that
+    matches closing tags.
+  </p>
+  <p>
+    The second state <tt>XML_ATTRIBUTES</tt> defines two rules.
+    The first rule matches an attribute. An attribute is a name which is 
+    optionally followed by a <tt>=</tt> character and an attribute value. 
+    An attribute is formatted with style <tt>attrib_style</tt>.
+    The attribute value is formatted with style <tt>attrib_value_style</tt>.
+    Note that the expression <tt>\s*</tt> allows an arbitrary number of 
+    whitespace characters between the name- and value-part of attributes.
+    As long as attributes are matched, the state remains in state 
+    <tt>XML_ATTRIBUTES</tt>.
+  </p>
+  <p>
+    The second rule within <tt>XML_ATTRIBUTES</tt> matches the end of the 
+    element tag. In case of an opening tag, this is a single <tt>&gt;</tt> 
+    character. In case of an element without content, this is a slash followed 
+    by a <tt>&gt;</tt> (i.e. <tt>/&gt;</tt>). If the end of an element tag is 
+    matched then state changes back from <tt>XML_ATTRIBUTES</tt> to 
+    <tt>XML_START</tt>.
+  </p>
+  <p>
+    The highlight configuration above may also work for content
+    that does not completely follow the XML/SGML rules. It is also
+    assumed that the characters < and > are encoded as character
+    entities <tt>&amp;lt;</tt> and <tt>&amp;gt;</tt> if not part of a XML/SGML tag. 
+    Otherwise the automatic highlighting may produce unexpected results.
+  </p>
+  <p>
+    <b>Applying the highlight transformation</b>
+    <br />Given a file with alias name <tt>highlight_xml</tt> which contains the
+    highlight configuration shown above, and a style with ID <tt>listing_xml</tt>
+    which has following Auto-Format call assigned:
+  </p>
+  <pre>
+    org.docma.plugin.examples.RegExpHighlight cfg=highlight_xml </pre>
+  <p>
+    Then following content
+  </p>
+  <pre>
+    &lt;div class="listing_xml"&gt;
+      &amp;lt;!-- An example --&amp;gt;
+      &amp;lt;elem 
+        att="A value"&amp;gt;
+        The content of the element
+      &amp;lt;/elem&amp;gt;
+    &lt;/div&gt; </pre>
+  <p>
+    is rendered as
+  </p>
+  <pre>
+    &lt;div class="listing_xml"&gt;
+      &lt;span class="comment_style"&gt;&amp;lt;!-- An example --&amp;gt;&lt;/span&gt;
+      &lt;span class="tag_style"&gt;&amp;lt;elem 
+          &lt;span class="attrib_style"&gt;att=&lt;span class="attrib_value_style"&gt;"A value"&lt;/span&gt;&lt;/span&gt;&amp;gt;&lt;/span&gt;
+        The content of the element
+      &lt;span class="tag_style"&gt;&amp;lt;/elem&amp;gt;&lt;/span&gt;
+    &lt;/div&gt; </pre>
+  <p>
+    Note that within the content to be highlighted, the characters &lt; and &gt;
+    are encoded as character entities <tt>&amp;lt;</tt> and <tt>&amp;gt;</tt>.
+    However, the regular-expressions match the XML tags correctly,
+    because the <tt>decode</tt> argument has the default value <tt>true</tt>,
+    i.e. character entities are decoded before the pattern matching is applied.
+  </p>
+  <p>&nbsp;</p>
+  ]]>
+  </entry>
+</properties>

@@ -1,0 +1,248 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<!-- Put your custom HTML head tags here and select this file in the HTML output configuration. -->
+<!-- Note: The content of this file has to be XML (XHTML). -->
+<meta http-equiv="X-UA-Compatible" content="IE=8" />
+<meta http-equiv="expires" content="43200" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="generator" content="Docmenta 1.8.0"/>
+<title>1.13.15. Integration with other systems</title>
+<link rel="shortcut icon" href="favicon.ico" type="image/x-icon"/>
+<link rel="home" href="index.html" title="Docmenta Tutorial and Reference"/>
+<link rel="up" href="pt01ch13.html" title="1.13. Advanced Tasks"/>
+<link rel="prev" href="export_import_nodes.html" title="1.13.14. Export, import and migration"/>
+<link rel="prev" href="create_plugin.html" title="1.13.16. Creating a plug-in"/>
+<link rel="stylesheet" type="text/css" href="styles.css"/>
+<link rel="stylesheet" type="text/css" href="common/jquery/theme-redmond/jquery-ui-1.8.2.custom.css"/>
+<link rel="stylesheet" type="text/css" href="common/jquery/treeview/jquery.treeview.css"/>
+<link rel="stylesheet" type="text/css" href="common/css/positioning.css"/>
+<script type="text/javascript">
+  var treeCookieId = "treeview-1442167773679";
+  var language = "en";
+  var w = new Object();
+  txt_filesfound = "Results";
+  txt_enter_at_least_1_char = "You must enter at least one character.";
+  txt_browser_not_supported = "Your browser is not supported. Use of Mozilla Firefox is recommended.";
+  txt_please_wait = "Please wait. Search in progress...";
+  txt_results_for = "Results for: ";
+</script>
+<script type="text/javascript" src="common/jquery/jquery-1.4.2.min.js"></script>
+<script type="text/javascript" src="common/jquery/jquery-ui-1.8.2.custom.min.js"></script>
+<script type="text/javascript" src="common/jquery/jquery.cookie.js"></script>
+<script type="text/javascript" src="common/jquery/treeview/jquery.treeview.min.js"></script>
+<script type="text/javascript" src="search/htmlFileList.js"></script>
+<script type="text/javascript" src="search/htmlFileInfoList.js"></script>
+<script type="text/javascript" src="search/nwSearchFnt.js"></script>
+<script type="text/javascript" src="search/stemmers/en_stemmer.js"></script>
+<script type="text/javascript" src="search/index-1.js"></script>
+<script type="text/javascript" src="search/index-2.js"></script>
+<script type="text/javascript" src="search/index-3.js"></script>
+<script type="text/javascript" src="custom.js"></script>
+<script type="text/javascript" src="common/main.js"></script>
+</head>
+<body>
+<div id="header"><img id="webhelplogo1" align="left" src='common/images/logo1.png' alt="Logo"/><img id="webhelplogo2" align="right" src='common/images/logo2.png' alt="Logo"/><div class="webhelptitle"><div class="webhelptitle1">Chapter 1.13. Advanced Tasks</div><div class="webhelptitle2">1.13.15. Integration with other systems</div></div><div id="navheader" align="right"><table><tr><td><img src="common/images/highlight-blue.gif" alt="H" onclick="toggleHighlight()" id="showHideHighlight" title="Toggle search result highlighting" /></td><td><a id="navhead-prev" accesskey="p" href="export_import_nodes.html"><span class="navlink-text">Prev</span></a><span class="navhead-separator">&nbsp;|&nbsp;</span><a id="navhead-up" accesskey="u" href="pt01ch13.html"><span class="navlink-text">Up</span></a><span class="navhead-separator">&nbsp;|&nbsp;</span><a id="navhead-next" accesskey="n" href="create_plugin.html"><span class="navlink-text">Next</span></a></td></tr></table></div></div>
+<div id="leftnavigation"><div id="tabs"><ul id="tocsearchnavigation" style="display:none"><li id="tocnavigationtab"><a href="#treeDiv"><em>Contents</em></a></li><li id="searchnavigationtab"><a href="#searchDiv"><em>Search</em></a></li></ul><div id="treeDiv"><img src="common/images/loading.gif" alt="loading table of contents..." id="tocLoading" style="display:block;"/><div id="ulTreeDiv" style="display:none;"><div id="treenavigationtitle" style="display:none;">Contents</div><ul id="tree" class="filetree"><li><span class="file"><a href="basic_concepts_terms.html">Installation and basic concepts</a></span><ul><li><span class="file"><a href="intro_product.html">Products</a></span></li><li><span class="file"><a href="intro_version.html">Versions</a></span></li><li><span class="file"><a href="intro_publication.html">Publications</a></span></li><li><span class="file"><a href="intro_output_configuration.html">Output Configurations</a></span></li><li><span class="file"><a href="intro_translation.html">Translation Mode</a></span></li></ul></li><li><span class="file"><a href="tut_create_product.html">Creating a new product</a></span></li><li><span class="file"><a href="tut_content_styles.html">Creating content and styles</a></span><ul><li><span class="file"><a href="tut_sect_para.html">Sections, paragraphs and predefined styles</a></span></li><li><span class="file"><a href="tut_lists.html">Lists</a></span></li><li><span class="file"><a href="tut_tables.html">Tables</a></span></li><li><span class="file"><a href="tut_images.html">Images</a></span></li><li><span class="file"><a href="tut_user_styles.html">User-defined styles</a></span></li></ul></li><li><span class="file"><a href="linking_content.html">Linking content</a></span><ul><li><span class="file"><a href="ref_sections.html">Referencing sections</a></span></li><li><span class="file"><a href="ref_images_tables.html">Referencing images and tables</a></span></li><li><span class="file"><a href="external_links.html">External links</a></span></li><li><span class="file"><a href="ref_files.html">Referencing files</a></span></li></ul></li><li><span class="file"><a href="tracking_progress.html">Tracking the completion status</a></span></li><li><span class="file"><a href="tut_manage_versions.html">Versions and revisions</a></span></li><li><span class="file"><a href="translate_content.html">Translating content</a></span></li><li><span class="file"><a href="tut_export_publication.html">Exporting publications</a></span><ul><li><span class="file"><a href="tut_publication_config.html">Publications</a></span></li><li><span class="file"><a href="tut_output_config.html">Output configurations</a></span></li><li><span class="file"><a href="tut_export_html.html">Export an HTML publication</a></span></li><li><span class="file"><a href="tut_export_pdf.html">Export a PDF publication</a></span></li><li><span class="file"><a href="tut_export_translation.html">Export a translated publication</a></span></li></ul></li><li><span class="file"><a href="tut_templates.html">Templates</a></span><ul><li><span class="file"><a href="tut_static_templates.html">Static Templates</a></span></li><li><span class="file"><a href="tut_dynamic_templates.html">Dynamic Templates</a></span></li></ul></li><li><span class="file"><a href="filtering_content.html">Filtering content</a></span><ul><li><span class="file"><a href="filtering_nodes.html">Node filtering</a></span></li><li><span class="file"><a href="node_variants.html">Node variants</a></span></li></ul></li><li><span class="file"><a href="inclusions.html">Inclusions</a></span><ul><li><span class="file"><a href="structural_inclusions.html">Structural inclusions</a></span></li><li><span class="file"><a href="inline_inclusions.html">Inline inclusions</a></span></li></ul></li><li><span class="file"><a href="tut_manage_users.html">Managing user accounts</a></span></li><li><span class="file"><a href="pt01ch13.html">Advanced Tasks</a></span><ul><li><span class="file"><a href="styling_titlepage.html">Styling the title-page</a></span></li><li><span class="file"><a href="create_coverpage.html">Creating a cover-page</a></span></li><li><span class="file"><a href="adapt_page_design.html">Adapting the PDF page design</a></span><ul><li><span class="file"><a href="tut_set_page_margins.html">Setting the page margins</a></span></li><li><span class="file"><a href="pt01ch13s03s02.html">Styling the chapter header</a></span></li><li><span class="file"><a href="pt01ch13s03s03.html">Defining the header/footer content</a></span></li><li><span class="file"><a href="pt01ch13s03s04.html">Styling the header and footer</a></span></li></ul></li><li><span class="file"><a href="gentext_settings.html">Gentext settings</a></span></li><li><span class="file"><a href="inter_publication_links.html">Inter-publication links</a></span></li><li><span class="file"><a href="create_index_entries.html">Creating index entries</a></span></li><li><span class="file"><a href="create_footnotes.html">Creating footnotes</a></span></li><li><span class="file"><a href="labeled_blocks.html">Labeled blocks</a></span></li><li><span class="file"><a href="line_numbering.html">Formatting of listings</a></span></li><li><span class="file"><a href="syntax_highlighting.html">Syntax highlighting</a></span></li><li><span class="file"><a href="tut_html_preview_images.html">Creating HTML preview images</a></span></li><li><span class="file"><a href="customize_webhelp.html">Customizing the Web-Help design</a></span></li><li><span class="file"><a href="webhelp_create_layout.html">Creating a new Web-Help layout</a></span></li><li><span class="file"><a href="export_import_nodes.html">Export, import and migration</a></span></li><li id="webhelp-currentid"><span class="file"><a href="integrate_other_systems.html">Integration with other systems</a></span></li><li><span class="file"><a href="create_plugin.html">Creating a plug-in</a></span></li></ul></li></ul></div></div><div id="searchDiv"><div id="search"><form onsubmit="startWebHelpSearch(ditaSearch_Form);return false" name="ditaSearch_Form" class="searchForm"><fieldset class="searchFieldSet"><legend>Search</legend><div align="center"><input id="textToSearch" name="textToSearch" type="text" class="searchText"/>&nbsp;<input onclick="startWebHelpSearch(ditaSearch_Form)" type="button" class="searchButton" value="Go" id="doSearch"/></div></fieldset></form></div><div id="closeSearchResults" style="display:none"><a href="javascript:closeSearchShowToc();">Contents</a></div><div id="searchResults"><div align="center"></div></div></div></div></div>
+<div id="bookpartsnavigation"><ul><li class="book-currentpart"><a href="pt01.html">Tutorial</a></li><li><a href="reference_manual.html">Reference Manual</a></li></ul></div>
+<div id="breadcrumbsnavigation" class="breadcrumbs"><span class="breadcrumb-link"><a class="breadcrumb_node" href="pt01.html">Tutorial</a></span> <span class="breadcrumb_separator">&rarr;</span> <span class="breadcrumb-link"><a class="breadcrumb_node" href="pt01ch13.html">Advanced Tasks</a></span> <span class="breadcrumb_separator">&rarr;</span> <span class="breadcrumb_node breadcrumb_lastnode">Integration with other systems</span></div>
+<div id="content"><div id="integrate_other_systems" class="section"><h3>1.13.15. Integration with other systems</h3><div title="Integration with other systems" class="doc-content"><div class="normal-para">Instead of using the web GUI, a publication export may need to be triggered by another system. Docmenta has an internal Java API that allows you to start such actions programmatically.</div>
+<div class="normal-para">Currently, the internal API is not documented and may still be subject of change. However, following JSP example demonstrates, how the internal API can be used to provide a HTTP interface to external systems. The JSP page below can be used to start a publication export:</div>
+<div title="startexport.jsp" class="formal-block"><div class="formal-contents"><div title="startexport.jsp" class="_formal_code_listing"><table style="keep-together:auto;" width="100%" cellpadding="0" border="0" cellspacing="0"><tr><td style="width:22pt;" valign="top"><div class="listing_line">1 
+</div><div class="listing_line">2 
+</div><div class="listing_line">3 
+</div><div class="listing_line">4 
+</div><div class="listing_line">5 
+</div><div class="listing_line">6 
+</div><div class="listing_line">7 
+</div><div class="listing_line">8 
+</div><div class="listing_line">9 
+</div><div class="listing_line">10 
+</div><div class="listing_line">11 
+</div><div class="listing_line">12 
+</div><div class="listing_line">13 
+</div><div class="listing_line">14 
+</div><div class="listing_line">15 
+</div><div class="listing_line">16 
+</div><div class="listing_line">17 
+</div><div class="listing_line">18 
+</div><div class="listing_line">19 
+</div><div class="listing_line">20 
+</div><div class="listing_line">21 
+</div><div class="listing_line">22 
+</div><div class="listing_line">23 
+</div><div class="listing_line">24 
+</div><div class="listing_line">25 
+</div><div class="listing_line">26 
+</div><div class="listing_line">27 
+</div><div class="listing_line">28 
+</div><div class="listing_line">29 
+</div><div class="listing_line">30 
+</div><div class="listing_line">31 
+</div><div class="listing_line">32 
+</div><div class="listing_line">33 
+</div><div class="listing_line">34 
+</div><div class="listing_line">35 
+</div><div class="listing_line">36 
+</div><div class="listing_line">37 
+</div><div class="listing_line">38 
+</div><div class="listing_line">39 
+</div><div class="listing_line">40 
+</div><div class="listing_line">41 
+</div><div class="listing_line">42 
+</div><div class="listing_line">43 
+</div><div class="listing_line">44 
+</div><div class="listing_line">45 
+</div><div class="listing_line">46 
+</div><div class="listing_line">47 
+</div><div class="listing_line">48 
+</div><div class="listing_line">49 
+</div><div class="listing_line">50 
+</div><div class="listing_line">51 
+</div><div class="listing_line">52 
+</div><div class="listing_line">53 
+</div><div class="listing_line">54 
+</div><div class="listing_line">55 
+</div><div class="listing_line">56 
+</div><div class="listing_line">57 
+</div><div class="listing_line">58 
+</div><div class="listing_line">59 
+</div><div class="listing_line">60 
+</div><div class="listing_line">61 
+</div><div class="listing_line">62 
+</div><div class="listing_line">63 
+</div><div class="listing_line">64 
+</div><div class="listing_line">65 
+</div><div class="listing_line">66 
+</div><div class="listing_line">67 
+</div><div class="listing_line">68 
+</div><div class="listing_line">69 
+</div><div class="listing_line">70 
+</div><div class="listing_line">71 
+</div><div class="listing_line">72 
+</div><div class="listing_line">73 
+</div><div class="listing_line">74 
+</div><div class="listing_line">75 
+</div></td><td class="listing_jsp" valign="top"><div class="listing_line"><span class="code_xmlintro">&lt;%@page contentType="text/html" pageEncoding="UTF-8" </span>
+</div><div class="listing_line"><span class="code_xmlintro">    import="org.docma.coreapi.*,org.docma.app.*,org.docma.webapp.*"</span>
+</div><div class="listing_line"><span class="code_xmlintro">%&gt;</span><span class="code_xmlintro">&lt;!DOCTYPE html&gt;</span>
+</div><div class="listing_line"><span class="code_tag">&lt;html&gt;</span>
+</div><div class="listing_line">&lt;%
+</div><div class="listing_line">  <span class="code_comment">// Parameters for starting a publication export</span>
+</div><div class="listing_line">  String productId = request.<span class="code_method">getParameter</span>(<span class="code_char">"product"</span>);
+</div><div class="listing_line">  String version = request.<span class="code_method">getParameter</span>(<span class="code_char">"version"</span>);
+</div><div class="listing_line">  String language_code = request.<span class="code_method">getParameter</span>(<span class="code_char">"translation"</span>);
+</div><div class="listing_line">  String publicationConfigId = request.<span class="code_method">getParameter</span>(<span class="code_char">"pubconf"</span>);
+</div><div class="listing_line">  String outputConfigId = request.<span class="code_method">getParameter</span>(<span class="code_char">"outconf"</span>);
+</div><div class="listing_line">  String filename = request.<span class="code_method">getParameter</span>(<span class="code_char">"filename"</span>);
+</div><div class="listing_line">  <span class="code_keyword">if</span> ((filename != <span class="code_keyword">null</span>) &amp;&amp; filename.<span class="code_method">trim</span>().<span class="code_method">equals</span>(<span class="code_char">""</span>)) {
+</div><div class="listing_line">      filename = <span class="code_keyword">null</span>;   <span class="code_comment">// use default filename</span>
+</div><div class="listing_line">  }
+</div><div class="listing_line">    
+</div><div class="listing_line">  <span class="code_comment">// The parameter pubId contains the id of the exported publication</span>
+</div><div class="listing_line">  String publicationId = request.<span class="code_method">getParameter</span>(<span class="code_char">"pubId"</span>); 
+</div><div class="listing_line">  String exportStatus = <span class="code_char">""</span>;
+</div><div class="listing_line">    
+</div><div class="listing_line">  <span class="code_comment">// Get Docmenta web application instance</span>
+</div><div class="listing_line">  <span class="code_comment">// Note: application is an implicit JSP object (ServletContext)</span>
+</div><div class="listing_line">  DocmaWebApplication webapp = 
+</div><div class="listing_line">      DocmaWebApplication.<span class="code_method">getInstance</span>(application);
+</div><div class="listing_line"> 
+</div><div class="listing_line">  <span class="code_comment">// Login to start export or to retrieve export status</span>
+</div><div class="listing_line">  DocmaSession docmaSess = webapp.<span class="code_method">connect</span>(<span class="code_char">"admin"</span>, <span class="code_char">"password"</span>);
+</div><div class="listing_line">  <span class="code_keyword">try</span> {
+</div><div class="listing_line">      DocVersionId versionId = docmaSess.<span class="code_method">createVersionId</span>(version);
+</div><div class="listing_line">      docmaSess.<span class="code_method">openDocStore</span>(productId, versionId);
+</div><div class="listing_line">      <span class="code_keyword">if</span> ((language_code != <span class="code_keyword">null</span>) &amp;&amp; !language_code.<span class="code_method">equals</span>(<span class="code_char">""</span>)) {
+</div><div class="listing_line">          docmaSess.<span class="code_method">enterTranslationMode</span>(language_code);
+</div><div class="listing_line">      }
+</div><div class="listing_line">      <span class="code_keyword">if</span> (publicationId == <span class="code_keyword">null</span>) {
+</div><div class="listing_line">          <span class="code_comment">// Start Export</span>
+</div><div class="listing_line">          publicationId = docmaSess.<span class="code_method">createPublication</span>(
+</div><div class="listing_line">              publicationConfigId, outputConfigId, filename);
+</div><div class="listing_line">          docmaSess.<span class="code_method">exportPublicationAsync</span>(publicationId);
+</div><div class="listing_line">          <span class="code_comment">// To block until export is finished use synchronous call:</span>
+</div><div class="listing_line">          <span class="code_comment">//   docmaSess.exportPublication(publicationId) </span>
+</div><div class="listing_line">      }
+</div><div class="listing_line"> 
+</div><div class="listing_line">      <span class="code_comment">// Show export status</span>
+</div><div class="listing_line">      DocmaPublication pub = docmaSess.<span class="code_method">getPublication</span>(publicationId);
+</div><div class="listing_line">      <span class="code_keyword">if</span> (pub.<span class="code_method">isExportFinished</span>()) {
+</div><div class="listing_line">          exportStatus = <span class="code_char">"Finished ("</span> + 
+</div><div class="listing_line">                         pub.<span class="code_method">getErrorCount</span>() + <span class="code_char">" Errors, "</span> + 
+</div><div class="listing_line">                         pub.<span class="code_method">getWarningCount</span>() + <span class="code_char">" Warnings)"</span>;
+</div><div class="listing_line">      } <span class="code_keyword">else</span> {
+</div><div class="listing_line">          exportStatus = <span class="code_char">"Running"</span>;
+</div><div class="listing_line">      }
+</div><div class="listing_line">  } <span class="code_keyword">finally</span> {
+</div><div class="listing_line">      docmaSess.<span class="code_method">closeSession</span>();  <span class="code_comment">// Always close the session!</span>
+</div><div class="listing_line">  }
+</div><div class="listing_line">%&gt;
+</div><div class="listing_line">  <span class="code_tag">&lt;head&gt;</span>
+</div><div class="listing_line">    <span class="code_tag">&lt;meta <span class="code_attrib">http-equiv=<span class="code_attval">"Content-Type"</span></span> </span>
+</div><div class="listing_line"><span class="code_tag">          <span class="code_attrib">content=<span class="code_attval">"text/html; charset=UTF-8"</span></span> /&gt;</span>
+</div><div class="listing_line">    <span class="code_tag">&lt;meta <span class="code_attrib">http-equiv=<span class="code_attval">"expires"</span></span> <span class="code_attrib">content=<span class="code_attval">"0"</span></span> /&gt;</span>
+</div><div class="listing_line">    <span class="code_tag">&lt;meta <span class="code_attrib">http-equiv=<span class="code_attval">"cache-control"</span></span> <span class="code_attrib">content=<span class="code_attval">"no-cache"</span></span> /&gt;</span>
+</div><div class="listing_line">    <span class="code_tag">&lt;meta <span class="code_attrib">http-equiv=<span class="code_attval">"pragma"</span></span> <span class="code_attrib">content=<span class="code_attval">"no-cache"</span></span> /&gt;</span>
+</div><div class="listing_line">    <span class="code_tag">&lt;title&gt;</span>Docmenta Publication Export<span class="code_tag">&lt;/title&gt;</span>
+</div><div class="listing_line">  <span class="code_tag">&lt;/head&gt;</span>
+</div><div class="listing_line">  <span class="code_tag">&lt;body&gt;</span>
+</div><div class="listing_line">    Status: &lt;%= exportStatus %&gt;
+</div><div class="listing_line">    <span class="code_tag">&lt;form <span class="code_attrib">method=<span class="code_attval">"get"</span></span>&gt;</span>
+</div><div class="listing_line">      <span class="code_tag">&lt;input <span class="code_attrib">type=<span class="code_attval">"hidden"</span></span> <span class="code_attrib">name=<span class="code_attval">"product"</span></span> <span class="code_attrib">value=<span class="code_attval">"&lt;%= productId %&gt;"</span></span> &gt;</span>
+</div><div class="listing_line">      <span class="code_tag">&lt;input <span class="code_attrib">type=<span class="code_attval">"hidden"</span></span> <span class="code_attrib">name=<span class="code_attval">"version"</span></span> <span class="code_attrib">value=<span class="code_attval">"&lt;%= version %&gt;"</span></span> &gt;</span>
+</div><div class="listing_line">      <span class="code_tag">&lt;input <span class="code_attrib">type=<span class="code_attval">"hidden"</span></span> <span class="code_attrib">name=<span class="code_attval">"translation"</span></span> <span class="code_attrib">value=</span></span>
+</div><div class="listing_line"><span class="code_tag"><span class="code_attrib">             <span class="code_attval">"&lt;%= (language_code == null) ? "" : language_code %&gt;"</span></span> &gt;</span>
+</div><div class="listing_line">      <span class="code_tag">&lt;input <span class="code_attrib">type=<span class="code_attval">"hidden"</span></span> <span class="code_attrib">name=<span class="code_attval">"pubId"</span></span> <span class="code_attrib">value=<span class="code_attval">"&lt;%= publicationId %&gt;"</span></span> &gt;</span>
+</div><div class="listing_line">      <span class="code_tag">&lt;input <span class="code_attrib">type=<span class="code_attval">"submit"</span></span> <span class="code_attrib">value=<span class="code_attval">"Refresh Status"</span></span> &gt;</span>
+</div><div class="listing_line">    <span class="code_tag">&lt;/form&gt;</span>
+</div><div class="listing_line">  <span class="code_tag">&lt;/body&gt;</span>
+</div><div class="listing_line"><span class="code_tag">&lt;/html&gt;</span>
+</div></td></tr></table></div></div><p class="title">Listing 1.13.1. startexport.jsp</p></div>
+<div class="normal-para">For the example to work, you need to place the JSP file in the <span class="code">webapps/<em>docmenta</em></span> directory (where <em><span class="code">docmenta</span></em> is your Docmenta web-application directory). Assuming that the JSP file is named <span class="code">startexport.jsp</span>, and the web-server is running on port 8080 on your local host, you can start the export by entering following URL in your browser:</div>
+<div class="normal-para"><span class="code"> http://localhost:8080/docmenta/startexport.jsp?product=my_product<br    />  &amp;version=Latest&amp;pubconf=my_publication&amp;outconf=html</span></div>
+<div class="normal-para">The meaning of the URL parameters is given in the following table:</div>
+<table style="border-color: #000000; border-width: 2px;" cellpadding="4" border="2" cellspacing="0" rules="rows">
+<tbody>
+<tr><th style="width: 25%;" align="left">Request Parameter</th><th align="left">Description</th></tr>
+<tr>
+<td><span class="code">product</span></td>
+<td>The product ID</td>
+</tr>
+<tr>
+<td><span class="code">version</span></td>
+<td>The version ID, e.g "1.0"</td>
+</tr>
+<tr>
+<td><span class="code">pubconf</span></td>
+<td>The publication configuration ID, e.g. "my_publication"</td>
+</tr>
+<tr>
+<td><span class="code">outconf</span></td>
+<td>The output configuration ID ("html", "pdf", ...)</td>
+</tr>
+<tr>
+<td><span class="code">filename</span></td>
+<td>Optionally, the output filename can be supplied (if missing, a default name is used)</td>
+</tr>
+<tr>
+<td><span class="code">translation</span></td>
+<td>
+<div class="normal-para">The language code of the translation language (only for export of translations)</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="normal-para">After the export has been started, a "Refresh Status" button is shown. By clicking the "Refresh Status" buttton, the export status is updated. When export is finished, the number of errors and warnings is shown. The internal API can also be used to retrieve the exported publication as a binary stream.</div>
+<div class="normal-para">Note that the username and password are hard coded in the JSP script. You need to replace these values by the corresponding values of your installation.</div>
+</div><div title="Content" class="doc-content"><div class="normal-para">Be aware, that when you install a new Docmenta version, all custom files that you have copied to the <span class="code">webapps</span> directory are lost. For example, if you have copied the <span class="code">startexport.jsp</span> file to your Docmenta <span class="code">webapps</span> directory, then after upgrade of Docmenta to a newer version, the <span class="code">startexport.jsp</span> file no longer exists in the Docmenta <span class="code">webapps</span> directory.</div>
+<div class="normal-para">To avoid this, you need to create a custom plug-in and install your JSP files as part of a Docmenta plug-in. See <a title="1.13.16. Creating a plug-in" href="create_plugin.html">Section 1.13.16, “Creating a plug-in”</a> on how to create a plug-in package.</div>
+</div></div><div class="navfooter"><hr/><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="export_import_nodes.html"><span class="navlink-text">Prev</span></a>&#160;</td><td width="20%" align="center"><a accesskey="u" href="pt01ch13.html"><span class="navlink-text">Up</span></a></td><td width="40%" align="right">&#160;<a accesskey="n" href="create_plugin.html"><span class="navlink-text">Next</span></a></td></tr><tr><td width="40%" align="left" valign="top">1.13.14. Export, import and migration&#160;</td><td width="20%" align="center"><a accesskey="h" href="index.html"><span class="navlink-text">Home</span></a></td><td width="40%" align="right" valign="top">&#160;1.13.16. Creating a plug-in</td></tr></table></div>
+<div class="web_footer">
+<p class="align-center">&#169; 2015 - www.docmenta.org</p>
+</div>
+</div>
+<a id="showHideButton" onclick="showHideToc();" class="pointLeft" title="Hide TOC tree">&nbsp;</a></body>
+</html>

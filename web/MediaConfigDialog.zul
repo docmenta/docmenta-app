@@ -1,0 +1,397 @@
+<window id="MediaConfigDialog" title="Media Configuration"
+        border="normal" width="680px" visible="false" sizable="false"
+        contentStyle="padding:6px 12px 8px 12px;"
+        closable="true" onClose="self.visible = false; event.stopPropagation();"
+        use="org.docma.webapp.MediaConfigDialog">
+
+  <caption>
+      <toolbarbutton label="Help" onClick='mainWin.onHelp("help/edit_output_config.html")'/>
+  </caption>
+  <vbox spacing="0px" hflex="1" height="100%" align="stretch" pack="stretch">
+        <!-- <cell width="100%" style="background-color:#FF0000;" > -->
+        <tabbox id="MediaConfigTabbox" hflex="1" height="100%" tabscroll="true">
+          <tabs >
+            <tab id="MediaGeneralOptionsTab" label="General" onSelect='MediaConfigDialog.width="680px"; MediaConfigDialog.invalidate();'/>
+            <tab id="MediaNumberingOptionsTab" label="Numbering" onSelect='MediaConfigDialog.width="640px"; MediaConfigDialog.invalidate();'/>
+            <tab id="HTMLOptionsTab" label="HTML" onSelect='MediaConfigDialog.width="700px"; MediaConfigDialog.invalidate();'/>
+            <tab id="PDFOptionsTab" label="Print/PDF" visible="false" onSelect='MediaConfigDialog.width="520px"; MediaConfigDialog.invalidate();'/>
+            <tab id="HeaderFooterOptionsTab" label="Header/Footer" visible="false" forward="onSelect=MediaConfigDialog.onHeaderFooterTabSelected"/>
+            <tab id="DocBookOptionsTab" label="DocBook" visible="false" onSelect='MediaConfigDialog.width="404px"; MediaConfigDialog.invalidate();'/>
+          </tabs>
+          <tabpanels style="background-color:#FFFFFF;" height="100%">
+            <tabpanel id="MediaGeneralOptionsTabpanel" height="100%">
+              <vbox spacing="3px" hflex="1" height="100%" pack="start" align="stretch">
+                <separator spacing="0px"/>
+                <hbox hflex="1" pack="stretch">
+                  <vbox hflex="1" align="stretch">
+                    <label style="font-weight:bold;">Media Configuration ID:</label>
+                    <textbox id="MediaConfigIDTextbox" width="95%" />
+                  </vbox>
+                  <vbox hflex="min" align="stretch">
+                    <label style="font-weight:bold;">Format:</label>
+                    <listbox id="MediaConfigFormatListbox" mold="select" rows="1" onSelect="MediaConfigDialog.onSelectFormat()">
+                        <listitem label="HTML (static)" value="html" />
+                        <listitem label="WebHelp v1" value="webhelp1" />
+                        <listitem label="WebHelp v2" value="webhelp2" />
+                        <listitem label="PDF" value="pdf" />
+                        <listitem label="eBook (EPUB)" value="epub" />
+                        <listitem label="DocBook" value="docbook" />
+                    </listbox>
+                  </vbox>
+                  <vbox hflex="min" align="stretch">
+                    <label style="font-weight:bold; white-space:nowrap;">Style variant:&#160;</label>
+                    <listbox id="MediaConfigStyleVariantListbox" mold="select" rows="1"></listbox>
+                  </vbox>
+                </hbox>
+                <separator spacing="1px"/>
+                <hbox spacing="3px" pack="stretch" align="center">
+                    <label style="font-weight:bold; white-space:nowrap;" hflex="min">Filter Setting:</label>
+                    <space spacing="3px" />
+                    <textbox id="MediaConfigFilterSettingTextbox" hflex="1" />
+                    <space spacing="1px" />
+                    <button label="Edit" width="80px" onClick="MediaConfigDialog.onEditFilterSetting()"/>
+                </hbox>
+                <separator spacing="1px"/>
+                <hbox hflex="1" pack="stretch">
+                  <cell hflex="min">
+                    <groupbox hflex="1" contentStyle="padding:2px 12px 4px 4px;">
+                      <caption  style="font-weight:bold; color:#000000;" label="Generated Content:" />
+                      <vbox align="stretch" hflex="1">
+                        <hbox hflex="1" spacing="0px" align="center">
+                          <checkbox id="MediaConfigTOCCheckbox" />
+                          <label value="Table of Contents (ToC)" style="white-space:nowrap;"/>
+                        </hbox>
+                        <hbox hflex="1" spacing="0px" align="center">
+                          <space spacing="22px" />
+                          <label value="Maximum depth:" style="white-space:nowrap;"/>
+                          <space spacing="2px" />
+                          <listbox id="MediaConfigMaxTOCDepthListbox" mold="select" rows="1">
+                              <listitem label="1" value="1"/>
+                              <listitem label="2" value="2"/>
+                              <listitem label="3" value="3"/>
+                              <listitem label="4" value="4"/>
+                              <listitem label="5" value="5"/>
+                              <listitem label="6" value="6"/>
+                              <listitem label="7" value="7"/>
+                              <listitem label="8" value="8"/>
+                              <listitem label="9" value="9"/>
+                              <listitem label="10" value="10"/>
+                          </listbox>
+                          <space spacing="8px" />
+                          <label style="white-space:nowrap;">Indent width:</label>
+                          <space spacing="4px" />
+                          <textbox id="MediaConfigTOCIndentTextbox" cols="2" maxlength="5"
+                              constraint="/([0-9]+([.,][0-9]+)?)?/:${c:l('error.input.floatnumber')}" />
+                          <space spacing="2px" />
+                          <label>pt</label>
+                        </hbox>
+                        <hbox hflex="1" spacing="0px" align="center">
+                          <space spacing="22px" />
+                          <label value="Create ToC for" style="white-space:nowrap;"/>
+                          <space spacing="4px" />
+                          <checkbox id="MediaConfigPartTOCCheckbox" forward="onCheck=MediaConfigDialog.onCheckComponentTOC" />
+                          <label value="Parts"/>
+                          <space spacing="4px" />
+                          <checkbox id="MediaConfigChapterTOCCheckbox" forward="onCheck=MediaConfigDialog.onCheckComponentTOC" />
+                          <label value="Chapters"/>
+                          <space spacing="4px" />
+                          <checkbox id="MediaConfigSectionTOCCheckbox" forward="onCheck=MediaConfigDialog.onCheckComponentTOC" />
+                          <label value="Sections"/>
+                        </hbox>
+                        <hbox hflex="1" spacing="0px" align="center">
+                          <space spacing="22px" />
+                          <label value="Section ToC up to level" style="white-space:nowrap;"/>
+                          <space spacing="3px" />
+                          <listbox id="MediaConfigSectionTOCLevelsListbox" mold="select" rows="1">
+                              <listitem label="1" value="1"/>
+                              <listitem label="2" value="2"/>
+                              <listitem label="3" value="3"/>
+                              <listitem label="4" value="4"/>
+                              <listitem label="5" value="5"/>
+                              <listitem label="6" value="6"/>
+                              <listitem label="7" value="7"/>
+                              <listitem label="8" value="8"/>
+                              <listitem label="9" value="9"/>
+                              <listitem label="10" value="10"/>
+                          </listbox>
+                          <space spacing="6px" />
+                          <label value="Section depth:" style="white-space:nowrap;"/>
+                          <space spacing="2px" />
+                          <listbox id="MediaConfigSectionTOCDepthListbox" mold="select" rows="1">
+                              <listitem label="" value="0"/>
+                              <listitem label="1" value="1"/>
+                              <listitem label="2" value="2"/>
+                              <listitem label="3" value="3"/>
+                              <listitem label="4" value="4"/>
+                              <listitem label="5" value="5"/>
+                              <listitem label="6" value="6"/>
+                              <listitem label="7" value="7"/>
+                              <listitem label="8" value="8"/>
+                              <listitem label="9" value="9"/>
+                              <listitem label="10" value="10"/>
+                          </listbox>
+                        </hbox>
+                        <hbox hflex="1" spacing="0px" align="center">
+                          <space spacing="22px" />
+                          <label value="Show named label for" style="white-space:nowrap;"/>
+                          <space spacing="4px" />
+                          <checkbox id="MediaConfigTOCNamedPartCheckbox" />
+                          <label value="Part" style="white-space:nowrap;"/>
+                          <space spacing="4px" />
+                          <checkbox id="MediaConfigTOCNamedChapterCheckbox" />
+                          <label value="Chapter&#160;/&#160;Appendix" style="white-space:nowrap;"/>
+                        </hbox>
+                        <hbox hflex="1" spacing="0px" align="center">
+                          <checkbox id="MediaConfigIndexCheckbox" label="Generate Index" />
+                        </hbox>
+                      </vbox>
+                    </groupbox>
+                  </cell>
+                  <space spacing="6px" />
+                  <groupbox hflex="1" contentStyle="padding:2px 12px 4px 6px;">
+                    <caption  style="font-weight:bold; color:#000000;" label="Output Settings:" />
+                    <vbox align="stretch" hflex="1">
+                      <hbox pack="stretch" align="center" spacing="1px">
+                        <label style="font-weight:normal;" hflex="1">Paragraph spacing:</label>
+                        <!--
+                        <div  style="text-align:right;width:100%">
+                          <label value="Paragraph spacing: "/>
+                        </div>
+                        -->
+                        <textbox id="MediaConfigParaSpaceTextbox" cols="5" maxlength="10"
+                          constraint="/([0-9]+([.,][0-9]+)?)?/:${c:l('error.input.floatnumber')}" />
+                        <listbox id="MediaConfigParaSpaceUnitListbox" mold="select" rows="1">
+                          <listitem label="cm" value="cm"/>
+                          <listitem label="mm" value="mm"/>
+                          <listitem label="in" value="in"/>
+                          <listitem label="pt" value="pt"/>
+                          <listitem label="pc" value="pc"/>
+                          <listitem label="px" value="px"/>
+                          <listitem label="em" value="em"/>
+                        </listbox>
+                      </hbox>
+                      <!-- <separator spacing="1px"/> -->
+                      <hbox pack="stretch" align="center" spacing="1px">
+                        <label hflex="1" style="font-weight:normal;">Indent spacing:</label>
+                        <textbox id="MediaConfigParaIndentTextbox" cols="5" maxlength="10"
+                          constraint="/([0-9]+([.,][0-9]+)?)?/:${c:l('error.input.floatnumber')}" />
+                        <listbox id="MediaConfigParaIndentUnitListbox" mold="select" rows="1">
+                          <listitem label="cm" value="cm"/>
+                          <listitem label="mm" value="mm"/>
+                          <listitem label="in" value="in"/>
+                          <listitem label="pt" value="pt"/>
+                          <listitem label="pc" value="pc"/>
+                          <listitem label="px" value="px"/>
+                          <listitem label="em" value="em"/>
+                        </listbox>
+                      </hbox>
+                      <!-- <separator spacing="1px"/> -->
+                      <hbox pack="stretch" align="center" spacing="1px">
+                        <label hflex="1" style="font-weight:normal;">List item spacing:</label>
+                        <textbox id="MediaConfigItemMarginTextbox" cols="5" maxlength="10"
+                          constraint="/([0-9]+([.,][0-9]+)?)?/:${c:l('error.input.floatnumber')}" />
+                        <listbox id="MediaConfigItemMarginUnitListbox" mold="select" rows="1">
+                          <listitem label="cm" value="cm"/>
+                          <listitem label="mm" value="mm"/>
+                          <listitem label="in" value="in"/>
+                          <listitem label="pt" value="pt"/>
+                          <listitem label="pc" value="pc"/>
+                          <listitem label="px" value="px"/>
+                          <listitem label="em" value="em"/>
+                        </listbox>
+                      </hbox>
+                      <!-- <separator spacing="1px"/> -->
+                      <hbox pack="stretch" align="center" spacing="1px">
+                        <label hflex="1" style="font-weight:normal;">List indent:</label>
+                        <textbox id="MediaConfigListIndentTextbox" cols="5" maxlength="10"
+                          constraint="/([0-9]+([.,][0-9]+)?)?/:${c:l('error.input.floatnumber')}" />
+                        <listbox id="MediaConfigListIndentUnitListbox" mold="select" rows="1">
+                          <listitem label="cm" value="cm"/>
+                          <listitem label="mm" value="mm"/>
+                          <listitem label="in" value="in"/>
+                          <listitem label="pt" value="pt"/>
+                          <listitem label="pc" value="pc"/>
+                          <listitem label="px" value="px"/>
+                          <listitem label="em" value="em"/>
+                        </listbox>
+                      </hbox>
+                      <!-- <separator spacing="1px"/> -->
+                      <hbox pack="stretch" align="center" spacing="1px">
+                        <label hflex="1" style="font-weight:normal;">List label width:</label>
+                        <textbox id="MediaConfigListLabelWidthTextbox" cols="5" maxlength="10"
+                          constraint="/([0-9]+([.,][0-9]+)?)?/:${c:l('error.input.floatnumber')}" />
+                        <listbox id="MediaConfigListLabelWidthUnitListbox" mold="select" rows="1">
+                          <listitem label="cm" value="cm"/>
+                          <listitem label="mm" value="mm"/>
+                          <listitem label="in" value="in"/>
+                          <listitem label="pt" value="pt"/>
+                          <listitem label="pc" value="pc"/>
+                          <listitem label="px" value="px"/>
+                          <listitem label="em" value="em"/>
+                        </listbox>
+                      </hbox>
+                      <!-- <separator spacing="1px"/> -->
+                      <hbox pack="stretch" align="center" spacing="1px">
+                        <label hflex="1" style="font-weight:normal;">Title placement:</label>
+                        <listbox id="MediaConfigTitlePlacementListbox" mold="select" rows="1">
+                          <listitem label="after" value="after"/>
+                          <listitem label="before" value="before"/>
+                        </listbox>
+                      </hbox>
+                    </vbox>
+                  </groupbox>
+                </hbox>
+              </vbox>
+            </tabpanel>
+            <tabpanel id="MediaNumberingOptionsTabpanel" >
+              <hbox hflex="1" pack="stretch">
+                <groupbox hflex="1">
+                  <caption  style="font-weight:bold;" label="Numbering Format:" />
+                  <vbox spacing="3px" hflex="1" align="stretch">
+                <!-- <label style="font-weight:bold;">Section numbering:</label> -->
+                <!-- <vbox spacing="3px" width="100%"> -->
+                    <hbox hflex="1" spacing="0px" align="center">
+                      <checkbox id="MediaConfigPartNumberCheckbox" />
+                      <label value="Book part numbering:" />
+                      <space spacing="4px" />
+                      <listbox id="MediaConfigPartNumberListbox" mold="select" rows="1">
+                          <listitem label="1,2,3,4,..." value="1"/>
+                          <listitem label="A,B,C,D,..." value="A"/>
+                          <listitem label="a,b,c,d,..." value="a"/>
+                          <listitem label="I,II,III,IV,..." value="I"/>
+                          <listitem label="i,ii,iii,iv,..." value="i"/>
+                      </listbox>
+                    </hbox>
+                    <hbox hflex="1" spacing="0px" align="center">
+                      <checkbox id="MediaConfigChapterNumberCheckbox" />
+                      <label value="Book chapter numbering:" />
+                      <space spacing="4px" />
+                      <listbox id="MediaConfigChapterNumberListbox" mold="select" rows="1">
+                          <listitem label="1,2,3,4,..." value="1"/>
+                          <listitem label="A,B,C,D,..." value="A"/>
+                          <listitem label="a,b,c,d,..." value="a"/>
+                          <listitem label="I,II,III,IV,..." value="I"/>
+                          <listitem label="i,ii,iii,iv,..." value="i"/>
+                      </listbox>
+                    </hbox>
+                    <hbox hflex="1" spacing="0px" align="center">
+                      <checkbox id="MediaConfigSectionNumberCheckbox" />
+                      <label value="Section numbering:" />
+                      <space spacing="4px" />
+                      <listbox id="MediaConfigSectionNumberListbox" mold="select" rows="1">
+                          <listitem label="1,2,3,4,..." value="1"/>
+                          <listitem label="A,B,C,D,..." value="A"/>
+                          <listitem label="a,b,c,d,..." value="a"/>
+                          <listitem label="I,II,III,IV,..." value="I"/>
+                          <listitem label="i,ii,iii,iv,..." value="i"/>
+                      </listbox>
+                    </hbox>
+                    <hbox hflex="1" spacing="0px" align="center">
+                      <space spacing="20px" />
+                      <label value="Create section numbers up to"/>
+                      <space spacing="4px" />
+                      <intbox id="MediaConfigNumberingDepthIntbox" maxlength="2" cols="2"
+                              constraint="no negative" value="1"/>
+                      <space spacing="4px" />
+                      <label value=" levels" />
+                    </hbox>
+                    <hbox hflex="1" spacing="0px" align="center">
+                      <checkbox id="MediaConfigAppendixNumberCheckbox" />
+                      <label value="Appendix numbering:" />
+                      <space spacing="4px" />
+                      <listbox id="MediaConfigAppendixNumberListbox" mold="select" rows="1">
+                          <listitem label="1,2,3,4,..." value="1"/>
+                          <listitem label="A,B,C,D,..." value="A"/>
+                          <listitem label="a,b,c,d,..." value="a"/>
+                          <listitem label="I,II,III,IV,..." value="I"/>
+                          <listitem label="i,ii,iii,iv,..." value="i"/>
+                      </listbox>
+                    </hbox>
+                    <hbox hflex="1" spacing="0px" align="center">
+                      <checkbox checked="true" disabled="true" />
+                      <label value="Footnote numbering:" />
+                      <space spacing="4px" />
+                      <listbox id="MediaConfigFootnoteNumberListbox" mold="select" rows="1">
+                          <listitem label="1,2,3,4,..." value="1"/>
+                          <listitem label="A,B,C,D,..." value="A"/>
+                          <listitem label="a,b,c,d,..." value="a"/>
+                          <listitem label="I,II,III,IV,..." value="I"/>
+                          <listitem label="i,ii,iii,iv,..." value="i"/>
+                      </listbox>
+                    </hbox>
+                    <separator spacing="8px"/>
+                  </vbox>
+                </groupbox>
+                <groupbox hflex="1">
+                  <caption  style="font-weight:bold;" label="Numbering Options:" />
+                  <vbox spacing="3px" hflex="1" align="stretch">
+                    <hbox hflex="1" spacing="0px" align="center">
+                      <label value="Render 1st-Level as"/>
+                      <space spacing="4px" />
+                      <listbox id="MediaConfigRender1stLevelListbox" mold="select" rows="1">
+                          <listitem label="book parts" value="part"/>
+                          <listitem label="book chapters" value="chapter"/>
+                      </listbox>
+                    </hbox>
+                    <checkbox label="Omit title of single sub-section" id="MediaConfigOmitSingleSectionTitleCheckbox"/>
+                    <checkbox label="Exclude 1st-Level number from section labels" id="MediaConfigExclude1stLevelNumberCheckbox"/>
+                    <checkbox label="Restart numbering in each book part" id="MediaConfigRestartInPartCheckbox"/>
+                  </vbox>
+                </groupbox>
+              </hbox>
+            </tabpanel>
+              <!-- <div style="height:90%;width:2px;background-color:#000000;" /> -->
+              <!-- <image src="img/greypixel.gif" height="400px" width="1px" /> -->
+              <!-- <space spacing="2px" /> -->
+        <!--
+        </groupbox>
+        <space spacing="2px" />
+        -->
+            <tabpanel id="HTMLOptionsTabpanel" >
+              <?component name="HTMLOutputConfiguration" inline="true" macroURI="config_media_html.zul"?>
+              <HTMLOutputConfiguration />
+            </tabpanel>
+            <tabpanel id="PDFOptionsTabpanel" >
+              <?component name="PDFOutputConfiguration" inline="true" macroURI="config_media_pdf.zul"?>
+              <PDFOutputConfiguration />
+            </tabpanel>
+            <tabpanel id="HeaderFooterOptionsTabpanel" >
+              <?component name="HeaderFooterOutputConfiguration" inline="true" macroURI="config_media_headfoot.zul"?>
+              <HeaderFooterOutputConfiguration />
+            </tabpanel>
+            <tabpanel id="DocBookOptionsTabpanel" >
+              <?component name="DocBookOutputConfiguration" inline="true" macroURI="config_media_docbook.zul"?>
+              <DocBookOutputConfiguration />
+            </tabpanel>
+          </tabpanels>
+        </tabbox>
+        <!-- </cell> -->
+        <!--
+        <groupbox>
+              <vbox spacing="3px" width="100%">
+                <separator spacing="0px"/>
+                <label value="Format:" style="font-weight:bold;color:#000000;"/>
+                <listbox id="MediaConfigFormatListbox" mold="select" rows="1" onSelect="MediaConfigDialog.onSelectFormat()">
+                    <listitem label="HTML" value="html" />
+                    <listitem label="Print / PDF" value="pdf" />
+                    <listitem label="DocBook" value="docbook" />
+                </listbox>
+                <separator spacing="1px"/>
+                <include id="MediaConfigFormat_include" src="config_media_html.zul" />
+              </vbox>
+        </groupbox>
+        -->
+        <separator spacing="4px"/>
+        <hbox hflex="1" pack="center">
+          <hbox spacing="0px" hflex="min">
+            <button label="${c:l('label.okay.btn')}" width="185px"
+                    onClick="MediaConfigDialog.onOkayClick()"/>
+            <space spacing="3px" />
+            <button label="${c:l('label.cancel.btn')}" width="185px"
+                    onClick="MediaConfigDialog.onCancelClick()"/>
+          </hbox>
+        </hbox>
+        <separator spacing="2px"/>
+  </vbox>
+
+</window>

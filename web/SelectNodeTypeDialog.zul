@@ -1,0 +1,35 @@
+<window id="SelectNodeTypeDialog" title="${c:l('label.selectnodetype.dialog.insert.title')}"
+        border="normal" width="280px" visible="false"
+        closable="true" onClose="self.visible = false; event.stopPropagation();"
+        use="org.docma.webapp.SelectNodeTypeDialog">
+
+    <caption>
+        <toolbarbutton label="Help" onClick='mainWin.onHelp("help/node_types.html")'/>
+    </caption>
+    <hbox width="100%" pack="stretch">
+      <space spacing="3px" />
+      <vbox width="100%" align="stretch">
+        <separator spacing="0px"/>
+        <vbox width="100%" align="stretch">
+            <label>${c:l('label.selectnodetype.title')}:</label>
+            <listbox id="SelectNodeTypeListbox" rows="8" width="100%"
+                     onDoubleClick="SelectNodeTypeDialog.onSelectClick()"
+                     onOK="SelectNodeTypeDialog.onSelectClick()"></listbox>
+        </vbox>
+        <separator spacing="2px"/>
+        <hbox width="100%">
+          <cell width="50%">
+                <button label="${c:l('label.okay.btn')}" width="100%"
+                        forward="SelectNodeTypeDialog.onSelectClick"/>
+          </cell>
+          <cell width="50%">
+                <button label="${c:l('label.cancel.btn')}" width="100%"
+                        forward="SelectNodeTypeDialog.onCancelClick"/>
+          </cell>
+        </hbox>
+        <separator spacing="0px"/>
+      </vbox>
+      <space spacing="1px" />
+    </hbox>
+
+</window>

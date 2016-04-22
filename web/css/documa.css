@@ -1,0 +1,62 @@
+html, body { margin: 1px; padding: 5px;
+  color: #000; background: rgb(0%,56%,84%);
+  font-family: Verdana, Arial, sans-serif; }
+form { margin: 0; padding: 0; }
+h1 { color: #FFF; font-weight:bold ; font-family: Arial, Verdana, sans-serif; margin:2px 5px 12px 10px; }
+a { text-decoration: none; }
+a:hover { text-decoration:underline; }
+
+#container { margin:0; padding: 1px 0 0 0; border-width:0 0 1px 1px;  border-style:solid; border-color:#666;}
+#main {font-size: small; color: #000000; background: #FFFFFF;
+  margin: 0; padding:3px 15px 15px 15px; clear: left; }
+#nav { margin: 0 0 0 0px; padding: 0; background-color: rgb(0%,56%,84%); }
+#nav li {list-style: none; float: left; font-size:0.6em; line-height: 210%; white-space: nowrap; }
+#nav a {display: block; float: left; padding: 0 6px 0 6px; text-decoration: none; font-weight: bold;
+  border: 1px solid; border-color: #FFF #333 #333 #FFF; background-color: #CCCCCC; color: #333333; 
+  width: .1em; } /* IE6 hack */
+  
+#current a { border-color: #EEE #333 #FFF #DDD; border-width: 1px 1px 1px 1px; background-color: #FFFFFF; }
+
+#topleiste { float:right; }
+#topleiste b { vertical-align:10%; }
+.appstatus { color:#EEEEEE; font-size: 10px; white-space: nowrap; line-height:150%; }
+.appstatus select { color:#000000; font-size: 10px; font-weight:bold; }
+a.appstatus { text-decoration:none; font-weight:bold; }
+a.appstatus:hover { text-decoration:underline; }
+
+#doctable div { font-weight:bold; margin:0; padding:0; cursor:default; white-space:pre; }
+#doctable div img { margin:0; padding:0; border-width:0; }
+#doctable div b, #doctable div span  { white-space:pre; vertical-align:15%; }
+#doctable div span { font-weight:normal; }
+#doctable div a { white-space:nowrap; vertical-align:10%; }
+a.colink { color:#00CC00; text-decoration:none; }
+a.colink:hover { text-decoration:underline; }
+a.cilink { color:#CC0000; text-decoration:none; }
+a.cilink:hover { text-decoration:underline; }
+
+#popupmenu { background-color:#EEEEEE; position:absolute; border-width:0px 1px 1px 1px; border-style:solid; border-color:#666666;
+  top:100px; left:100px;  }
+.menuentry { display:block; color:#000000; font-size:0.7em; font-weight:bold; text-decoration:none; margin:0; padding:3px; 
+  border-width:1px 0 0 0; border-style:solid; border-color:#666666; cursor:pointer; width:100%; }
+.menuentry:hover { background-color:#999999; color:#FFFFFF; }
+.menusep { height:2px; background-color:#666666; }
+
+.greynote { color:#999999; font-style:italic; }
+#clipboard div.clipheader { font-weight:bold; font-size:0.8em; background-color:#DDDDDD; padding:2px 5px 2px 5px; margin:10px 0 3px 0; 
+  border:1px solid; border-color:#AAAAAA; }
+
+.dataheader { padding:0; margin:5px 0 5px 0; font-size:1.3em; font-weight:bold; }
+.datatable { border-width:1px; border-color:#000000; border-style:solid; border-collapse:collapse; 
+  margin:5px 0 10px 0; }
+.datatable th, .datatable td { border-width:1px; border-color:#000000; border-style:solid; 
+  padding:3px 8px 3px 8px; text-align:left; }
+.datatable th { background-color: rgb(0%,45%,70%); color:#F0F0F0; font-weight:bold; 
+  white-space:nowrap; }
+.datatable .maincol { background-color:#F0F0F0; }
+  
+html>body #nav a {width: auto;}   /* fixes IE6 hack */
+/* Commented Backslash Hack hides rule from IE5-Mac \*/
+#nav a {float: none;}            /* End IE5-Mac hack */
+#nav a:hover {background-color: #333; color: #CCC;
+  border-color: #000 #CCC #CCC #000;}
+

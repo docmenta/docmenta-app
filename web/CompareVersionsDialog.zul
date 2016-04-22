@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?taglib uri="http://www.zkoss.org/dsp/web/core" prefix="c"?>
+
+<?component name="headlabel" extends="label" style="color:#DFEEFF; text-shadow:1px 1px 1px #202020;" ?>
+<?component name="headlabelbold" extends="label" style="color:#DFEEFF; font-weight:bold; text-shadow:1px 1px 1px #000000;" ?>
+
+<?page title="Revision History" ?>
+<window id="CompareVersionsDialog" height="100%" width="100%" border="none" mode="embedded"
+        contentStyle="background-color:#262626; padding:0px; margin:0px" style="padding:0px; margin:0px"
+        apply="org.docma.webapp.CompareVersions" use="org.docma.webapp.CompareVersionsDialog"
+        xmlns:h="http://www.zkoss.org/2005/zk/native" >
+
+<div style="padding-top:0px;padding-right:5px;padding-left:5px;padding-bottom:0px;height:100%;">
+  <borderlayout style="background-color:transparent;" height="100%">
+    <north height="60px" margins="4,0,0,0" style="background-color:transparent;" border="none">
+      <hbox align="center" pack="stretch" width="100%">
+
+        <h:table border="0" cellspacing="2" cellpadding="0">
+        <h:tr>
+          <h:td>
+              <headlabelbold>${c:l('label.compareversions.revision')}:&#160;</headlabelbold>
+          </h:td>
+          <h:td>
+              <listbox id="CompareVersionsNewListbox" mold="select" rows="1" width="100%"
+                       onSelect="CompareVersionsDialog.onSelectRevision()"></listbox>
+          </h:td>
+          <h:td>
+              <button id="CompareVersionsRestoreBtn" label="${c:l('label.restore.btn')}" onClick="CompareVersionsDialog.onRestoreClick()"/>
+          </h:td>
+        </h:tr>
+        <h:tr>
+          <h:td nowrap="nowrap">
+              <headlabelbold>${c:l('label.compareversions.with')}:&#160;</headlabelbold>
+          </h:td>
+          <h:td>
+              <listbox id="CompareVersionsOldListbox" mold="select" rows="1" width="100%"
+                       onSelect="CompareVersionsDialog.onSelectCompare()"></listbox>
+          </h:td>
+          <h:td></h:td>
+        </h:tr>
+        </h:table>
+
+        <cell align="right">
+        <h:table border="0" cellspacing="2" cellpadding="0">
+        <h:tr>
+          <h:td align="right">
+            <hbox align="center" pack="end">
+              <headlabelbold>${c:l('label.product')}: </headlabelbold>
+              <headlabel id="CompareVersionsProductId"></headlabel>
+              <space spacing="8px" />
+              <headlabelbold>${c:l('label.compareversions.nodetitle')}:&#160;</headlabelbold>
+              <headlabel id="CompareVersionsNodeTitleLabel"></headlabel>
+              <space spacing="8px" />
+              <headlabelbold>${c:l('label.language')}:&#160;</headlabelbold>
+              <headlabel id="CompareVersionsProductLanguage"></headlabel>
+            </hbox>
+          </h:td>
+        </h:tr>
+        <h:tr>
+          <h:td align="right">
+            <hbox align="center" pack="end" spacing="0" xmlns:w="http://www.zkoss.org/2005/zk/client">
+              <checkbox id="CompareVersionsShowImagesBox" onCheck="CompareVersionsDialog.onCheckShowImages()" />
+              <headlabel>${c:l('label.compareversions.showimages')}</headlabel>
+              <space spacing="4px" />
+              <button label="${c:l('label.print.btn')}" w:onClick="window.frames['comparefrm'].print();"/>
+              <space spacing="2px" />
+              <button label="${c:l('label.close.btn')}" onClick="CompareVersionsDialog.onCloseClick()"/>
+            </hbox>
+          </h:td>
+        </h:tr>
+        </h:table>
+        </cell>
+      </hbox>
+    </north>
+    <center>
+      <iframe id="comparefrm" name="comparefrm" src="" width="100%" height="100%"/>
+    </center>
+    <south height="4px" margins="0,0,0,0" style="background-color:transparent;" border="none"></south>
+  </borderlayout>
+</div>
+</window>

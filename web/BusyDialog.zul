@@ -1,0 +1,14 @@
+<window id="BusyDialog" title="Please wait ..."
+        border="normal" width="300px" mode="highlighted" visible="false"
+        closable="false"
+        use="org.docma.webapp.BusyDialog">
+    <hbox width="100%" pack="stretch">
+        <space spacing="3px" />
+        <vbox spacing="3px" width="100%" align="stretch">
+            <separator spacing="2px"/>
+            <label id="busyMessageLabel">Please wait...</label>
+            <separator spacing="2px"/>
+        </vbox>
+        <space spacing="3px" />
+    </hbox>
+</window>

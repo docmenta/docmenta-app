@@ -1,0 +1,51 @@
+<window id="PublicationExportDialog" title="${c:l('label.publicationexport.dialog.title')}"
+        border="normal" width="320px" visible="false"
+        closable="true" onClose="self.visible = false; event.stopPropagation();"
+        use="org.docma.webapp.PublicationExportDialog">
+    <caption>
+        <toolbarbutton label="Help" onClick='mainWin.onHelp("help/start_publication_export.html")'/>
+    </caption>
+    <hbox width="100%">
+        <space spacing="3px" />
+        <vbox spacing="3px" width="100%">
+            <separator spacing="0px"/>
+
+            <hbox width="100%" pack="stretch">
+            <cell width="50%">
+              <vbox spacing="3px" width="100%" align="stretch">
+                <label>${c:l('label.publicationexport.pubconfig')}:</label>
+                <listbox id="PubExportPubConfigListbox" mold="select" rows="1" width="98%"
+                         forward="onSelect=PublicationExportDialog.onSelectPublication" />
+              </vbox>
+            </cell>
+            <cell width="50%">
+              <vbox spacing="3px" width="100%" align="stretch">
+                <label>${c:l('label.publicationexport.outconfig')}:</label>
+                <listbox id="PubExportOutConfigListbox" mold="select" rows="1" width="98%"
+                         forward="onSelect=PublicationExportDialog.onSelectOutput" />
+              </vbox>
+            </cell>
+            </hbox>
+            <separator spacing="1px"/>
+
+            <label>${c:l('label.publicationexport.language')}:</label>
+            <listbox id="PubExportLangListbox" mold="select" rows="1"
+                     forward="onSelect=PublicationExportDialog.onSelectLanguage" />
+            <separator spacing="1px"/>
+
+            <label>${c:l('label.publicationexport.filename')}:</label>
+            <textbox id="PubExportFilenameTextbox" maxlength="80" width="96%" />
+
+            <separator spacing="2px"/>
+            <hbox pack="stretch">
+                <button id="PubExportOkayButton"
+                        label="${c:l('label.startexport.btn')}" width="146px"
+                        forward="PublicationExportDialog.onOkayClick"/>
+                <button label="${c:l('label.cancel.btn')}" width="146px"
+                        forward="PublicationExportDialog.onCancelClick()"/>
+            </hbox>
+            <separator spacing="2px"/>
+        </vbox>
+        <space spacing="3px" />
+    </hbox>
+</window>

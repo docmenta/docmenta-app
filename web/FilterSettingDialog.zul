@@ -1,0 +1,36 @@
+<window id="FilterSettingDialog" title="${c:l('label.filtersetting.dialog.edit.title')}"
+        border="normal" width="350px" visible="false"
+        closable="true" onClose="self.visible = false; event.stopPropagation();"
+        use="org.docma.webapp.FilterSettingDialog">
+    <hbox width="100%">
+        <space spacing="3px" />
+        <vbox spacing="3px" width="100%">
+            <separator spacing="0px"/>
+            <!--
+            <vbox width="100%">
+                <label>${c:l('label.filtersetting.name')}:</label>
+                <textbox id="FilterSettingNameTextbox" width="98%" />
+            </vbox>
+            <separator spacing="2px"/>
+            -->
+            <listbox id="EditFilterSettingListbox" rows="15" multiple="true" checkmark="true">
+                <listhead>
+                    <listheader label="Applicability" />
+                </listhead>
+            </listbox>
+            <separator spacing="2px"/>
+            <hbox width="100%">
+              <cell width="50%">
+                <button label="${c:l('label.okay.btn')}" width="100%"
+                        onClick="FilterSettingDialog.onOkayClick()"/>
+              </cell>
+              <cell width="50%">
+                <button label="${c:l('label.cancel.btn')}" width="100%"
+                        onClick="FilterSettingDialog.onCancelClick()"/>
+              </cell>
+            </hbox>
+            <separator spacing="2px"/>
+        </vbox>
+        <space spacing="3px" />
+    </hbox>
+</window>

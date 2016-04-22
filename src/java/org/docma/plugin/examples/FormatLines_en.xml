@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+  <entry key="shortInfo">Apply styles to even and odd lines and optionally add line numbers.</entry>
+  <entry key="longInfo"><![CDATA[
+  <big><b>Arguments:</b></big>
+  <dl>
+    <dt><b><tt>start=[<i>INTEGER</i>|off]</tt></b></dt>
+    <dd>The line-numbering start value. Set to an integer value to enable line numbering.
+    Set to <tt>off</tt>, to disable line numbering. Default is <tt>off</tt>.</dd>
+
+    <dt><b><tt>line=<i>STYLE_ID</i></tt></b></dt>
+    <dd>The default block-style to be assigned to lines.
+    If no default style is specified, and no other style defined by the arguments
+    <tt>odd</tt>, <tt>even</tt> or <tt>mstyle</tt> is appropriate then no style
+    is assigned to the line.</dd>
+
+    <dt><b><tt>odd=<i>STYLE_ID</i></tt></b></dt>
+    <dd>The block-style to be assigned to odd lines.</dd>
+
+    <dt><b><tt>even=<i>STYLE_ID</i></tt></b>:
+    <dd>The block-style to be assigned to even lines.</dd>
+
+    <dt><b><tt>num=<i>STYLE_ID</i></tt></b></dt>
+    <dd>The default block-style to be assigned to line-numbers.
+    If no default style is specified, and no other style defined by the arguments
+    <tt>onum</tt>, <tt>enum</tt> or <tt>mnum</tt> is appropriate, then the same
+    style is assigned to the line-number as to the the line-content.</dd>
+
+    <dt><b><tt>onum=<i>STYLE_ID</i></tt></b></dt>
+    <dd>The block-style to be assigned to odd line-numbers.</dd>
+
+    <dt><b><tt>enum=<i>STYLE_ID</i></tt></b></dt>
+    <dd>The block-style to be assigned to even line-numbers.</dd>
+
+    <dt><b><tt>cbox=<i>STYLE_ID</i></tt></b></dt>
+    <dd>Content-box style. The ID of the block-style to be assigned to the content-block.
+    If <tt>cbox</tt> is not set, then the original style of the input-element is assigned.
+    Note that if line-numbering is enabled, then this box does <em>not</em>
+    include the line-numbers.</dd>
+
+    <dt><b><tt>nbox=<i>STYLE_ID</i></tt></b></dt>
+    <dd>Numbering-box style. If line-numbering is enabled, this block-style is
+    assigned to the box which encloses all line-numbers. If not specified,
+    then no style is assigned.
+    If line-numbering is disabled, then this setting has no effect.</dd>
+
+    <dt><b><tt>box=<i>STYLE_ID</i></tt></b></dt>
+    <dd>Outer-box style. If line-numbering is enabled, this block-style is
+    assigned to the outer-box which encloses the content and the line-numbers.
+    If not specified, then no style is assigned to the outer-box.
+    If line-numbering is disabled, then this setting has no effect.</dd>
+
+    <dt><b><tt>keep=[auto|always]</tt></b></dt>
+    <dd>The page break behaviour. Set to <tt>auto</tt>, to allow page breaks
+    within the result-block. Set to <tt>always</tt>, to prevent page breaks
+    within the result-block. Default is <tt>always</tt>.</dd>
+
+    <dt><b><tt>nw=<i>WIDTH</i></tt></b></dt>
+    <dd>The horizontal space that is reserved for the line-numbers.
+    If not specified, then the default width of <tt>32pt</tt> is used.</dd>
+
+    <dt><b><tt>maxcols=<i>INTEGER</i></tt></b></dt>
+    <dd>The maximum number of characters per line.
+    If the maximum number of characters is reached, then an automatic line-break
+    is inserted. Automatically inserted line-breaks do not increase the line-number.
+    Set to 0, to disable automatic line-breaks. Default is 0 (disabled).</dd>
+
+    <dt><b><tt>lbc=[<i>CHARACTER</i>]</tt></b></dt>
+    <dd>The automatic line-break character. If an automatic line break is inserted
+    due to the <tt>maxcols</tt> argument, then <i>CHARACTER</i> is inserted at
+    the end of the broken line to indicate that the line is continued on the next line.
+    If not specified or set to empty string, then no line-break character is inserted.
+    <i>CHARACTER</i> has to be a single character or a character entity,
+    e.g. "<tt>&amp;#8230;</tt>".</dd>
+
+    <dt><b><tt>pre=[true|false]</tt></b></dt>
+    <dd>Indication whether input is preformatted or not. If set to <tt>true</tt>,
+    line-break characters in the XHTML source
+    cause line breaks in the rendered output. Otherwise only &lt;br /&gt;
+    elements are rendered as line breaks. Default is <tt>false</tt>.</dd>
+
+    <dt><b><tt>tab=<i>INTEGER</i></tt></b></dt>
+    <dd>The tab size. If the specified integer value is positive, then tab
+    characters are transformed to the number of spaces given by this value.
+    If the integer value is 0 or the argument is missing, then tab
+    characters are <em>not</em> transformed.</dd>
+
+    <dt><b><tt>m=<i>PATTERN</i></tt></b></dt>
+    <dd>The marker pattern. If a line contains the character sequence
+    <i>PATTERN</i>, then the line is highlighted with the styles given by the
+    arguments <tt>mstyle</tt> and <tt>mnum</tt>.
+    If not specified, then highlighting is disabled.</dd>
+
+    <dt><b><tt>mstyle=<i>STYLE_ID</i></tt></b></dt>
+    <dd>The ID of the block-style to be assigned to marked lines.
+    If not specified, then no style is assigned to marked lines.</dd>
+
+    <dt><b><tt>mnum=<i>STYLE_ID</i></tt></b></dt>
+    <dd>The ID of the block-style to be assigned to the line numbers of marked lines.
+    If not specified, then no style is assigned to the line-numbers of marked lines.</dd>
+  </dl>
+  <p><big><b>Notes:</b></big></p>
+  <p>
+    If the arguments <tt>onum</tt> and/or <tt>enum</tt> are provided, then
+    the specified styles should have the same margin, padding and font-size values
+    as the styles specified for the arguments <tt>line</tt>, <tt>odd</tt> and <tt>even</tt>.
+    Otherwise the line-numbers may not be in line with the corresponding 
+    lines of the content.
+  </p>
+  <p>
+    Setting the argument <tt>maxcols</tt> to a positive value only makes sense
+    for preformatted text which is rendered with a fixed-width font
+    (i.e. the line style should include the CSS properties
+    <tt>font-family: monospace</tt> and <tt>white-space: pre</tt>).
+  </p>
+  <p><big><b>Inline arguments:</b></big></p>
+  <p>
+    Besides setting the arguments in the Auto-Format style defintion (see examples below),
+    the arguments can also be set as first line of the input-element.
+    For this, the first line must be provided in the format
+    <tt>[args:&nbsp;<i>arg1=value1&nbsp;arg2=value2&nbsp;...</i>&nbsp;]</tt>.
+    If the same argument is set in the Auto-Format style definition and
+    in the first line of the input, then the later takes precedence.
+    For example, following input-element sets the line-numbering start value to 3,
+    overwriting any start value that was set in the Auto-Format configuration of the style
+    <tt>listing</tt>:
+  </p>
+  <pre>
+    &lt;div class="listing"&gt;
+      [args: start=3]&lt;br/&gt;
+      Line 1&lt;br/&gt;
+      Line 2&lt;br/&gt;
+    &lt;/div&gt;  </pre>
+  <p><big><b>Referencing lines:</b></big></p>
+  <p>
+    If a line contains an inline-element, i.e. contains text thas was formatted with an
+    inline-style, and the inline-element has an <tt>id</tt>-attribute assigned,
+    but no <tt>title</tt>-attribute, then the <tt>title</tt>-attribute is set to the
+    line-number. This way it is possible, to create references to
+    inline-elements, where the link text is automatically replaced by the line
+    number of the referenced element (i.e. you can create text like
+    "<tt>see line x</tt>"), where <tt>x</tt> is a link whose link-text is replaced
+    during export by the line-number.
+  </p>
+  <p>
+    An alternative way of referencing lines, is to mark the line and attach an
+    ID to the marker. The marker pattern is defined by the argument
+    <tt>m=<i>PATTERN</i></tt> (see description of the arguments above). To attach
+    an ID to a marker, put the ID in square brackets after the marker.
+    For example, if you have set the argument <tt>m=###</tt>, then you can
+    mark a line and assign the ID <tt>line_a</tt> to it, by placing
+    the substring "<tt>###[line_a]</tt>" somewhere within the line.
+  </p>
+  <p>
+    Be aware that an ID has to start with a letter or underscore and must only
+    contain letters, digits, underscores or dashes.
+  </p>
+  <p><big><b>Examples:</b></big></p>
+  <p>
+    Following Auto-Format style configuration transforms the input into a formatted
+    listing with line-numbers, where the style <tt>line_style</tt> is applied to
+    lines. The line-numbering starts with 1.
+    A horizontal space of 28pt is reserved for the line-numbers.
+    Furthermore the content and the line-numbers are enclosed in a box with 
+    style <tt>listing_frame</tt>.
+  </p>
+  <pre>
+    org.docma.plugin.examples.FormatLines start=1 line=line_style nw=28pt box=listing_frame </pre>
+  <p>
+    Following configuration transforms the input into a formatted listing without
+    line-numbers. The character sequence '###' can be used to
+    mark lines. Marked lines are highlighted with style <tt>red_line</tt>.
+    Page breaks are allowed within the listing.
+  </p>
+  <pre>
+    org.docma.plugin.examples.FormatLines start=off m=### mstyle=red_line keep=auto
+  </pre>
+    ]]>
+  </entry>
+</properties>

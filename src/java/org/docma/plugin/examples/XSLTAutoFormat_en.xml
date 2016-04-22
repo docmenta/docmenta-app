@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+  <entry key="shortInfo">Transforms the input using a XSLT script.</entry>
+  <entry key="longInfo"><![CDATA[
+  <big><b>Arguments:</b></big>
+  <dl>
+    <dt><b><tt>script=<i>ALIAS</i></tt></b></dt>
+    <dd>The alias name of the XSLT script. The prefix <tt>script=</tt> 
+    is optional.</dd>
+
+    <dt><b><tt>factory=<i>JAVA_CLASS_NAME</i></tt></b></dt>
+    <dd>The Java classname of TransformerFactory to be used.
+    The class has to implement the javax.xml.transform.TransformerFactory
+    interface. The argument is optional. If no classname is specified, then 
+    the default TransformerFactory implementation is used.</dd>
+  </dl>
+  <p><big><b>Description:</b></big></p>
+  <p>
+    The XSLT script identified by alias name <tt><i>ALIAS</i></tt>
+    is applied to the input-element. 
+    If the <tt>factory</tt> argument is missing, then default TransformerFactory 
+    implementation is used.
+    Note that the platform's default TransformerFactory implementation can be 
+    changed by setting the system property <tt>javax.xml.transform.TransformerFactory</tt>.
+  </p>
+  <p><big><b>Example:</b></big></p>
+  <p>
+    The Auto-Format configuration
+  </p>
+  <pre>
+    org.docma.plugin.examples.XSLTAutoFormat notebox_xslt </pre>
+  <p>
+    is identical to 
+  </p>
+  <pre>
+    org.docma.plugin.examples.XSLTAutoFormat script=notebox_xslt </pre>
+  <p>
+    If this Auto-Format configuration is assigned to a style with ID <tt>notebox</tt>, and 
+    if the content-node with alias "notebox_xslt" contains following XSLT script:
+  </p>
+  <pre>
+    &lt;?xml version="1.0" encoding="UTF-8"?&gt;
+    &lt;xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0"&gt;
+
+      &lt;xsl:output method="xml"/&gt;
+  
+      &lt;xsl:template match="/*"&gt;
+          &lt;table&gt;
+            &lt;tr&gt;&lt;td&gt;&lt;xsl:value-of select="@title" /&gt;&lt;/td&gt;&lt;/tr&gt;
+            &lt;tr&gt;&lt;td&gt;&lt;xsl:apply-templates/&gt;&lt;/td&gt;&lt;/tr&gt;
+          &lt;/table&gt;
+      &lt;/xsl:template&gt;
+
+      &lt;xsl:template match="@*|node()"&gt;
+        &lt;xsl:copy&gt;
+          &lt;xsl:apply-templates select="@*|node()"/&gt;
+        &lt;/xsl:copy&gt;
+      &lt;/xsl:template&gt;
+
+    &lt;/xsl:stylesheet&gt;	</pre>
+  <p>
+    then the XHTML content
+  </p>
+  <pre>
+    &lt;div class="notebox" title="Some title"&gt;
+      The content of the block.
+    &lt;/div&gt; </pre>
+  <p>
+    is rendered as
+  </p>
+  <pre>
+    &lt;table&gt;
+      &lt;tr&gt;&lt;td&gt;Note: Some title&lt;/td&gt;&lt;/tr&gt;
+      &lt;tr&gt;&lt;td&gt;The content of the block.&lt;/td&gt;&lt;/tr&gt;
+    &lt;/table&gt;
+  </pre>
+  <p>
+    In the following example the implementation of the XSLT processor  
+    is explicitely selected by passing the <tt>factory</tt> argument:
+  </p>
+  <pre>
+    org.docma.plugin.examples.XSLTAutoFormat script=notebox_xslt factory=org.apache.xalan.processor.TransformerFactoryImpl</pre>
+  ]]>
+  </entry>
+</properties>

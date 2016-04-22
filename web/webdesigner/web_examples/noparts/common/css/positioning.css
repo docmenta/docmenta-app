@@ -1,0 +1,194 @@
+body { 
+    background-position:300px 120px !important; /* position of watermark image */
+}
+
+/* Header style */
+#header {
+    color: #000;
+    background: white url(../images/header_uni1sky.gif) repeat-x;
+    position: fixed;
+    width: 100%;
+    height: 95px;
+    top: 0;
+    right: 0;
+    bottom: auto;
+    left: 0;
+    border-bottom: 2px solid #cccccc;
+    z-index: 2000;
+}
+
+/* Parts navigation tabs */
+#bookpartsnavigation {
+    font-family: Verdana, Arial, sans-serif;
+    position: fixed;
+    /* height: 26px; */
+    top: 76px;
+    left: 1px;
+    z-index: 3000;
+}
+#bookpartsnavigation ul { margin: 0; padding: 0; }
+#bookpartsnavigation li { 
+  list-style: none; float: left; 
+  margin: 0 0 0 2px; padding: 0 0 0 16px;
+  font-size: 10px; line-height: 20px; white-space: nowrap;
+  background: #DFEDF9 url(../images/tabs_uni1sky.gif) 0 0 no-repeat;
+}
+#bookpartsnavigation a { 
+  display: block; float: left; padding: 0 16px 0 0;
+  text-decoration: none; font-weight: bold;
+  background: #DFEDF9 url(../images/tabs_uni1sky.gif) 100% 0 no-repeat;
+  color: #333;
+}
+#bookpartsnavigation li.book-currentpart, #bookpartsnavigation li.book-currentpart a {
+  color: #FDB; background-image: url(../images/tabs-ct_uni1sky.gif);
+}
+#bookpartsnavigation li.book-currentpart:hover, #bookpartsnavigation li.book-currentpart:hover a {
+  color: #FDB; background-image: url(../images/tabs-ct_uni1sky.gif);
+}
+#bookpartsnavigation li:hover, #bookpartsnavigation li:hover a {
+  color: #333; background-image: url(../images/tabs-hl_uni1sky.gif);
+}
+
+/* Left navigation (TOC tree) */
+#leftnavigation {
+    background-color:#F0F0F0;
+    font: 12px Verdana, Geneva, sans-serif;
+    overflow: auto;
+    position: fixed;
+    height: auto;
+    top: 93px;
+    bottom: 0;
+    left: -8px;
+    width: 280px;
+    z-index: 1500;
+    border-right:2px solid #CCCCCC;
+}
+
+/* Content area */
+#content {
+    position: static;
+    margin: 104px 0 0 280px;
+    width: auto;
+    height: inherit;
+    padding-left: 16px;
+    padding-right: 30px;
+    color: #000000;
+    z-index: 1000;
+    max-width: 70em;
+    min-width: 500px;
+}
+
+/* Navigational links (prev, up, next) and search-highlighting button in header */
+#navheader {
+    position: fixed;
+    top: 65px;
+    right: 24px;
+    padding: 0;
+}
+#navheader td { }
+#navheader a { /* color:#f8f8f8; font:11px Verdana, Geneva, sans-serif; font-weight:bold; text-decoration:none; */ }
+#showHideHighlight { display:none; } /* Button to turn on/off search-hits highlighting (initially hidden) */
+
+/* Font style of treeview in left navigation */
+#leftnavigation p, #leftnavigation ul, #leftnavigation ol, #leftnavigation li { 
+    font: 10pt Verdana, Geneva, sans-serif;
+}
+
+/* Font style of tabs in left navigation */
+#tabs em { font: 8pt Verdana, Geneva, sans-serif; font-weight: bold; color:#7D91A2; line-height:8pt; } 
+#tabs .ui-state-active em { color:#24527B; }   /* text color of selected tab */
+
+/* Treeview title in left navigation */
+#treenavigationtitle { font-weight:bold; }
+
+/* Treeview spacing */
+#treeDiv { background-color:transparent; }
+#tree, #tree ul { background-color:transparent; padding-top:3px; padding-bottom:1px; margin-top:0px; margin-bottom:0px; } 
+#tree li { padding-top:3px; padding-bottom:3px; margin-bottom:0px; margin-top:0px; }
+
+/* Added to remove space reserved for file icon in treeview */
+/* .filetree span.folder, .filetree span.file { padding-left:1px !important; } */
+
+/*  Style of treeview links and currently selected treeview link */
+.filetree a { color:#000000; font-size:9pt; }
+.filetree a:hover { color:#F80000; font-size:9pt; }
+.filetree .webtree_current_block { padding-bottom:0px; }
+.filetree a.webtree_current_text { color:#000000; font-weight:bold; font-size:9pt; }
+
+/*  Fix for IE: Adjust height of selected tree node */
+#webhelp-currentid span.file { padding-bottom:1px; min-height:16px; }
+
+/*  Adapt style of elements (titles in header, footer navigation, highlighted text, ...) */
+.chapter { margin-top: 15px; padding-top:0; }
+.webhelptitle { margin-top: 16px; padding-top:0; font-size: 20px; font-weight:bold; text-align:center; }
+#header table { margin:0; padding:0; border-spacing:0; border-width:0; border-style:none; }
+#header td { margin:0; padding:3px; border-spacing:0; border-width:0; border-style:none; }
+.navfooter table { margin:0; padding:0; border-spacing:0; border-width:0; border-style:none; }
+.navfooter td { margin:0; padding:3px; border-spacing:0; border-width:0; border-style:none; }
+.highlight { background-color: #c5d3c3; }
+.highlightButton{ font-size: 0; }
+
+/*  Show Hide TOC tree */
+#showHideButton { 
+    position: fixed;
+    top: 68px;
+    right:0px;
+    z-index: 3600;   
+    color:transparent !important; 
+}
+#showHideButton.pointLeft {
+    background: url("../images/showHideIcons_uni1sky.png") 0 0 no-repeat;
+    height: 28px;
+    width: 15px;
+    display: block;
+    font-size: 0;
+    cursor: pointer;
+}
+#showHideButton.pointRight {
+    background: url("../images/showHideIcons_uni1sky.png") -15px 0 no-repeat;
+    height: 28px;
+    width: 15px;
+    display: block;
+    font-size: 0;
+    cursor: pointer;
+}
+
+/* Search field styles */
+.searchText {
+    border: #BFCEE9 solid 1pt;
+    width: 11em
+}
+.searchButton {
+	margin-left: 3px;
+    background: #EBEFF8;
+    color: #0050A0;
+    border: #BFCEE9 solid 1pt;
+    font-weight: bold;
+    font-size: 10pt
+}
+
+/* Search results Styling */
+.searchExpression {
+    color: #0050A0;
+    background-color: #EBEFF8;
+    font-size: 12pt;
+}
+.searchresult li a {
+    text-decoration: none;
+    color: #0050A0;
+}
+.searchresult li {
+    color: #0050A0;
+}
+.shortdesclink {
+    color: gray;
+    font-size: 9pt;
+}
+
+/* Close search results link */
+#closeSearchResults a { }
+
+/* Adapt content styles */
+div.toc>p {
+	font-weight: bold;
+}

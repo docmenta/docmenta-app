@@ -1,0 +1,42 @@
+<window id="FindNodesDialog" title="${c:l('label.findnodes.dialog.title')}"
+        mode="overlapped" border="normal" width="600px" visible="false" sizable="true"
+        closable="true" onClose="self.visible = false; event.stopPropagation();"
+        use="org.docma.webapp.FindNodesDialog">
+<caption>
+    <toolbarbutton label="Help" onClick='mainWin.onHelp("help/find_nodes.html")'/>
+</caption>
+<hbox width="100%" height="100%" pack="stretch" align="stretch">
+  <space spacing="2px" />
+  <vbox spacing="1px" width="100%" height="100%" align="stretch" pack="stretch">
+    <label id="FindNodesSearchTermLabel">${c:l('label.findnodes.searchterm.byalias')}:</label>
+    <hbox>
+      <cell width="90%" valign="middle">
+        <textbox id="FindNodesSearchTermTextbox" width="100%" onOK="FindNodesDialog.onStartSearchClick()"
+          forward="onChanging=FindNodesDialog.onSearchTermChange"/>
+      </cell>
+      <cell width="10%" align="right" valign="middle">
+        <button id="FindNodesStartButton" label="${c:l('label.findnodes.start.btn')}" onClick="FindNodesDialog.onStartSearchClick()"/>
+      </cell>
+    </hbox>
+    <separator spacing="2px" />
+    <hbox spacing="0px">
+      <label id="FindNodesSearchResultLabel">${c:l('label.findnodes.searchresult')}:</label>
+      <label value="&#160;" />
+      <label id="FindNodesSearchSummaryLabel" />
+    </hbox>
+    <listbox id="FindNodesSearchResultList" width="100%" height="150px" vflex="true">
+      <listhead sizable="true">
+        <listheader label="${c:l('label.findnodes.searchresult.title')}" width="160px"/>
+        <listheader label="${c:l('label.findnodes.searchresult.alias')}" width="100px"/>
+        <listheader label="${c:l('label.findnodes.searchresult.path')}" />
+      </listhead>
+    </listbox>
+    <separator spacing="1px" />
+    <cell width="100%" align="center">
+      <button id="FindNodesCloseButton" label="${c:l('label.findnodes.close.btn')}" width="100%" onClick="FindNodesDialog.onCloseClick()"/>
+    </cell>
+    <separator spacing="1px" />
+  </vbox>
+  <space spacing="2px" />
+</hbox>
+</window>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<zk>
+  <listener>
+      <listener-class>org.docma.webapp.GUI_SessionCleanup</listener-class>
+  </listener>
+  <session-config>
+    <timer-keep-alive>true</timer-keep-alive>
+    <max-desktops-per-session>50</max-desktops-per-session>
+  </session-config>
+  <device-config>
+    <device-type>ajax</device-type>
+    <timeout-uri>/login.zul</timeout-uri>
+  </device-config>
+  <system-config>
+    <disable-event-thread>false</disable-event-thread>
+  </system-config>
+  <library-property>
+      <name>org.zkoss.zul.tree.rightSelect</name>
+      <value>true</value>
+  </library-property>
+  <library-property>
+      <name>org.zkoss.theme.preferred</name>
+      <value>sapphire</value>
+  </library-property>
+</zk>

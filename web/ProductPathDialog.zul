@@ -1,0 +1,51 @@
+<window id="ProductPathDialog" title="External Product Path" border="normal" width="450px" visible="false"
+        closable="true" onClose="self.visible = false; event.stopPropagation();"
+        use="org.docma.webapp.ProductPathDialog">
+    <caption>
+        <toolbarbutton label="${c:l('label.help.btn')}" onClick='mainWin.onHelp("help/add_product.html")'/>
+    </caption>
+    <hbox width="100%" pack="stretch">
+        <space spacing="3px" />
+        <vbox spacing="3px" width="100%" align="stretch">
+            <separator spacing="0px"/>
+            <hbox width="100%" spacing="0" pack="stretch">
+              <cell width="30%">
+                <vbox width="100%" align="stretch">
+                  <label>${c:l('label.product.id')}:</label>
+                  <textbox id="ExtProductIdTextbox" maxlength="20" width="95%" />
+                </vbox>
+              </cell>
+              <space spacing="4px" />
+              <cell width="70%">
+                <vbox width="100%" align="stretch">
+                  <label style="white-space:nowrap;">${c:l('label.product.storage_type')}:</label>
+                  <listbox id="ExtProductStorageTypeList" mold="select" rows="1" hflex="1" 
+                           forward="onSelect=ProductPathDialog.onSelectStorageType">
+                      <listitem label="${c:l('label.product.storage_type_fs')} / ${c:l('label.product.storage_type_db_embedded')}" value="fs"/>
+                      <listitem label="${c:l('label.product.storage_type_db_external')}" value="db_external"/>
+                  </listbox>
+                </vbox>
+              </cell>
+            </hbox>
+            <vbox id="ExtProductPathArea" width="100%" align="stretch">
+              <label>${c:l('label.product.path')}:</label>
+              <textbox id="ExtProductPathTextbox" maxlength="250" width="100%" />
+            </vbox>
+            <?component name="JDBCProperties" inline="true" macroURI="jdbc_properties.zul"?>
+            <JDBCProperties />
+            <separator spacing="2px"/>
+            <hbox pack="stretch" width="100%">
+              <cell width="50%">
+                <button label="${c:l('label.okay.btn')}" width="100%"
+                        onClick="ProductPathDialog.onOkayClick()"/>
+              </cell>
+              <cell width="50%">
+                <button label="${c:l('label.cancel.btn')}" width="100%"
+                        onClick="ProductPathDialog.onCancelClick()"/>
+              </cell>
+            </hbox>
+            <separator spacing="2px"/>
+        </vbox>
+        <space spacing="3px" />
+    </hbox>
+</window>

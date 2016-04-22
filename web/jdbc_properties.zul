@@ -1,0 +1,79 @@
+<groupbox id="ProductExternalDbConnectionArea">
+    <caption label="${c:l('label.product.external_db_connection_data')}" />
+    <vbox width="100%" align="stretch">
+        <label>${c:l('label.product.external_db.url')}:</label>
+        <textbox id="ProductExternalDbUrlTextbox" width="95%" />
+    </vbox>
+    <separator spacing="2px"/>
+    <hbox width="100%" spacing="0" pack="stretch">
+      <cell width="40%">
+        <vbox width="100%" align="stretch">
+          <label>${c:l('label.product.external_db.dialect')}:</label>
+          <listbox id="ProductExternalDbDialectList" mold="select" rows="1" hflex="1">
+            <listitem label="Auto-detect" value=""/>
+            <listitem label="DB2" value="org.hibernate.dialect.DB2Dialect"/>
+            <listitem label="DB2 AS/400" value="org.hibernate.dialect.DB2400Dialect"/>
+            <listitem label="DB2 OS390" value="org.hibernate.dialect.DB2390Dialect"/>
+            <listitem label="Derby" value="org.hibernate.dialect.DerbyDialect"/>
+            <listitem label="Firebird" value="org.hibernate.dialect.FirebirdDialect"/>
+            <listitem label="FrontBase" value="org.hibernate.dialect.FrontBaseDialect"/>
+            <listitem label="H2 Database" value="org.hibernate.dialect.H2Dialect"/>
+            <listitem label="HypersonicSQL" value="org.hibernate.dialect.HSQLDialect"/>
+            <listitem label="Informix" value="org.hibernate.dialect.InformixDialect"/>
+            <listitem label="Ingres 9.2" value="org.hibernate.dialect.IngresDialect"/>
+            <listitem label="Ingres 9.3" value="org.hibernate.dialect.Ingres9Dialect"/>
+            <listitem label="Ingres 10" value="org.hibernate.dialect.Ingres10Dialect"/>
+            <listitem label="Interbase" value="org.hibernate.dialect.InterbaseDialect"/>
+            <listitem label="JDataStore" value="org.hibernate.dialect.JDataStoreDialect"/>
+            <listitem label="Mckoi SQL" value="org.hibernate.dialect.MckoiDialect"/>
+            <listitem label="MS SQL Server 2000" value="org.hibernate.dialect.SQLServerDialect"/>
+            <listitem label="MS SQL Server 2005" value="org.hibernate.dialect.SQLServer2005Dialect"/>
+            <listitem label="MS SQL Server 2008" value="org.hibernate.dialect.SQLServer2008Dialect"/>
+            <listitem label="Mimer SQL" value="org.hibernate.dialect.MimerSQLDialect"/>
+            <listitem label="MySQL5" value="org.hibernate.dialect.MySQL5Dialect"/>
+            <listitem label="MySQL5 with InnoDB" value="org.hibernate.dialect.MySQL5InnoDBDialect"/>
+            <listitem label="MySQL with InnoDB" value="org.hibernate.dialect.MySQLInnoDBDialect"/>
+            <listitem label="MySQL with MyISAM" value="org.hibernate.dialect.MySQLMyISAMDialect"/>
+            <listitem label="Oracle (any version)" value="org.hibernate.dialect.OracleDialect"/>
+            <listitem label="Oracle 8i" value="org.hibernate.dialect.Oracle8iDialect"/>
+            <listitem label="Oracle 9i" value="org.hibernate.dialect.Oracle9iDialect"/>
+            <listitem label="Oracle 10g" value="org.hibernate.dialect.Oracle10gDialect"/>
+            <listitem label="Pointbase" value="org.hibernate.dialect.PointbaseDialect"/>
+            <listitem label="Postgres Plus" value="org.hibernate.dialect.PostgresPlusDialect"/>
+            <listitem label="PostgreSQL" value="org.hibernate.dialect.PostgreSQLDialect"/>
+            <listitem label="Progress" value="org.hibernate.dialect.ProgressDialect"/>
+            <listitem label="SAP DB" value="org.hibernate.dialect.SAPDBDialect"/>
+            <listitem label="Sybase 11" value="org.hibernate.dialect.Sybase11Dialect"/>
+            <listitem label="Sybase ASE" value="org.hibernate.dialect.SybaseASE15Dialect"/>
+            <listitem label="Sybase ASE (15.7)" value="org.hibernate.dialect.SybaseASE157Dialect"/>
+            <listitem label="Sybase Anywhere" value="org.hibernate.dialect.SybaseAnywhereDialect"/>
+            <listitem label="Teradata" value="org.hibernate.dialect.TeradataDialect"/>
+            <listitem label="Unisys OS2200" value="org.hibernate.dialect.RDMSOS2200Dialect"/>
+          </listbox>
+        </vbox>
+      </cell>
+      <space spacing="4px" />
+      <cell width="60%">
+        <vbox width="100%" align="stretch">
+          <label>${c:l('label.product.external_db.driver')}:</label>
+          <textbox id="ProductExternalDbDriverTextbox" width="98%" />
+        </vbox>
+      </cell>
+    </hbox>
+    <separator spacing="2px"/>
+    <hbox width="100%" spacing="0" pack="stretch">
+      <cell width="50%">
+        <vbox width="100%" align="stretch">
+          <label>${c:l('label.product.external_db.user')}:</label>
+          <textbox id="ProductExternalDbUserTextbox" width="98%" />
+        </vbox>
+      </cell>
+      <space spacing="4px" />
+      <cell width="50%">
+        <vbox width="100%" align="stretch">
+          <label>${c:l('label.product.external_db.passwd')}:</label>
+          <textbox id="ProductExternalDbPasswdTextbox" width="98%" type="password" />
+        </vbox>
+      </cell>
+    </hbox>
+</groupbox>

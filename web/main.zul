@@ -1,0 +1,1010 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?page title="Docmenta" ?>
+<?taglib uri="http://www.zkoss.org/dsp/web/core" prefix="c"?>
+
+<?component name="headlabel" extends="label" style="color:#DFEEFF; text-shadow:1px 1px 1px #000000;" ?>
+<?component name="headlabelbold" extends="label" style="color:#DFEEFF; font-weight:bold; text-shadow:1px 1px 1px #000000;" ?>
+<?component name="headlabelsmall" extends="label" style="color:#DFEEFF; text-shadow:1px 1px 1px #404040;" ?>
+<?component name="headbutton" extends="toolbarbutton" sclass="headBtnCls" ?>
+<?component name="textbutton" extends="toolbarbutton" style="font-size:11px" ?>
+<?component name="explorerwin" extends="window" mode="overlapped" border="normal" sizable="true" draggable="false"
+            maximizable="true" minimizable="false" minwidth="100" minheight="100" ?> 
+
+<zk>
+<style>
+table { border-collapse:collapse; }
+.headBtnCls .z-toolbarbutton-cnt { color:#DFEEFF;font-weight:bold;font-size:11px;text-shadow:1px 1px 1px #202020; }
+.z-toolbarbutton-over .z-toolbarbutton-cnt { color:#202020;text-shadow:0 0 0; }
+div.z-treecol-cnt { height:16px; max-height:16px; margin:0; padding:0; color:#000000; font-weight:normal; }
+div.z-listheader-cnt { height:16px; max-height:16px; color:#000000; font-weight:normal !important; overflow:hidden; }
+.z-menubar-hor { position : relative; display: block; padding : 2px 0px; border:0px; background-image:url(img/tab_toolbar_bg2.png);background-repeat:repeat-x;background-position:0px -1px; }
+.z-tabs-ver { padding-top:1px; padding-left:1px; background-color:#AFD6E8; background-image:url(img/tab_vertical_bg.png);background-repeat:repeat-y; }
+.z-popup .z-popup-cnt { color:#202020; }
+.z-listbox-autopaging .z-listcell-cnt { height: 22px; overflow: hidden; }
+.doctreecell img { height:16px; }
+.doctoolbtn img { height:17px; }
+.docitemseltype img { height:32px; }
+</style>
+<window id="mainWin"  height="100%" width="100%" border="none" mode="embedded"
+        contentStyle="background-color:#070604"
+        apply="org.docma.webapp.Main" use="org.docma.webapp.MainWindow">
+
+    <div id="MainWinContentArea" style="padding:0 10px 0 10px; height:100%; background-image:url(img/docmenta_back.jpg); background-repeat:no-repeat; background-position:0px 0px;">
+    <!-- <vbox width="100%" height="100%" heights="60px,*"> -->
+    <borderlayout style="background-color:transparent;">
+    <north height="60px" margins="10,10,10,0" style="background-color:transparent;" border="none">
+      <hbox width="100%" widths=",,99%">
+        <image id="MainWinAppLogo" src="img/docmenta_logo.png" height="52px" width="218px" />
+        <space spacing="8px" />
+        <borderlayout height="60px" style="background-color:transparent;">
+        <west style="background-color:transparent;" border="none" margins="0,0,0,0">
+          <vbox>
+            <separator spacing="28px"/>
+            <headlabelsmall id="appversion"></headlabelsmall>
+            <timer id="MainWinProcessEventsTimer"
+                   delay="180000" repeats="true" running="true"
+                   forward="onTimer=mainWin.onProcessDeferredEvents" />
+          </vbox>
+        </west>
+        <east style="background-color:transparent;" border="none" size="80%">
+          <vbox spacing="8px" width="100%" align="end">
+            <hbox align="center">
+              <headbutton label="${c:l('label.about')}" image="img/about_16.png" forward="mainWin.onAbout" />
+              <space spacing="5px" />
+              <headbutton label="${c:l('label.help')}" image="img/help_16.png" onClick='mainWin.onHelp("help/index.html")' />
+              <space spacing="5px" />
+              <headbutton id="EditProfileHeadButton" label="${c:l('label.edituserprofile')}"
+                          image="img/user_16.png" forward="mainWin.onEditUserProfile" />
+              <space spacing="5px" />
+              <headbutton label="${c:l('label.logout.btn')}" image="img/on_off_16.gif" forward="mainWin.onLogout" />
+            </hbox>
+            <hbox align="center">
+    	      <headlabelbold>${c:l('label.product')}:</headlabelbold>
+              <listbox id="storesList" mold="select" rows="1" onSelect="mainWin.onSelectStore()"></listbox>
+              <space spacing="2px" />
+              <headlabelbold>${c:l('label.productversion')}:</headlabelbold>
+              <listbox id="versionsList" mold="select" rows="1" onSelect="mainWin.onSelectVersion()"></listbox>
+              <space spacing="2px" />
+              <headlabelbold>${c:l('label.language')}:</headlabelbold>
+              <listbox id="languageList" mold="select" rows="1" onSelect="mainWin.onSelectContentLanguage()"></listbox>
+            </hbox>
+            <!--
+            <borderlayout height="30px" style="background-color:transparent;">
+            <east style="background-color:transparent;" border="none">
+            </east>
+            </borderlayout>
+            -->
+          </vbox>		  
+        </east>
+        </borderlayout>
+      </hbox>
+    </north>
+    <center style="background-color:transparent;" border="none">
+
+    <tabbox id="mainTabbox" width="100%" height="100%" tabscroll="true">  <!-- tabscroll="false" -->
+        <tabs style="background-color:#E0F3FC;padding-top:2px;padding-left:4px;background-image:url(img/tab_toolbar_bg2.png);background-repeat:repeat-x;" >
+            <tab id="contentTab" label="${c:l('tab.content')}" forward="onSelect=mainWin.onSelectContentTab"/>
+            <tab id="stylesTab" label="${c:l('tab.styles')}" forward="onSelect=mainWin.onSelectStylesTab"/>
+            <tab id="versioningTab" label="${c:l('tab.versioning')}" forward="onSelect=mainWin.onSelectVersioningTab"/>
+            <tab id="publishingTab" label="${c:l('tab.publishing')}" forward="onSelect=mainWin.onSelectPublishingTab"/>
+            <tab id="adminTab" label="${c:l('tab.admin')}" forward="onSelect=mainWin.onSelectAdminTab"/>
+        </tabs>
+        <toolbar id="mainTabToolbar" xmlns:w="http://www.zkoss.org/2005/zk/client" style="padding-top:0;">
+        <hbox id="docTreeToolbarBox" align="center">
+          <toolbarbutton id="previewPDFBtn" image="img/pdf_icon.gif" onClick="mainWin.onPreviewPDF()" sclass="doctoolbtn" />
+          <space spacing="2px" />
+          <toolbarbutton id="previewBackwardBtn" image="img/arrow_left.gif" w:onClick="previewGoBackward();" />
+          <toolbarbutton id="previewForwardBtn" image="img/arrow_right.gif" w:onClick="previewGoForward();" />
+          <space spacing="2px" />
+          <toolbarbutton id="previewRefreshBtn" image="img/refresh_icon.gif" w:onClick="previewRefresh();" />
+          <space spacing="2px" />
+          <label style="font-weight:bold;">${c:l('label.contenttoolbar.preview')}</label>
+          <listbox id="previewFormatList" mold="select" rows="1" onSelect="mainWin.onSelectPreviewFormat()">
+            <listitem label="HTML" value="html"/>
+            <listitem label="PDF" value="pdf"/>
+          </listbox>
+          <listbox id="previewPubConfList" mold="select" rows="1" onSelect="mainWin.onSelectPreviewPub()">
+            <listitem label="unfiltered" value=""/>
+          </listbox>
+          <listbox id="previewOutputConfList" mold="select" rows="1" onSelect="mainWin.onSelectPreviewOutput()">
+            <listitem label="default" value=""/>
+          </listbox>
+          <!--
+          <space spacing="3px" />
+          <button id="switchContentLayoutBtn" image="img/hmode.gif" onClick="mainWin.onSwitchContentLayout()" />
+          -->
+          <space spacing="2px" />
+          <menubar id="docTreeMenubar" style="background-color:transparent;">
+            <menu label="Menu" style="background-color:transparent;">
+              <menupopup>
+                <menuitem id="mainMenuitemShowIndexTerms" label="${c:l('label.menuitem.showindexterms')}" checkmark="true" autocheck="true" forward="mainWin.onTogglePreviewIndexTerms" />
+                <menuitem id="mainMenuitemFindByAlias" label="${c:l('label.menuitem.findbyalias')}" forward="mainWin.onFindByAliasAll" />
+                <menuitem id="mainMenuitemClearCutList" label="${c:l('label.menuitem.clearcutlist')}" forward="mainWin.onClearCutCopyList" />
+                <menuseparator/>
+                <menuitem id="mainMenuitemSwitchLayout" label="${c:l('label.menuitem.switchlayout')}" forward="mainWin.onSwitchContentLayout" />
+                <menuseparator/>
+                <menuitem id="mainMenuitemShowPreviewLog" label="${c:l('label.menuitem.showpreviewlog')}" forward="mainWin.onShowPreviewLog" />
+              </menupopup>
+            </menu>
+          </menubar>
+        </hbox>
+        </toolbar>
+        <tabpanels style="background-color:#FFFFFF;">
+            <tabpanel id="contentTabpanel" style="margin:0px;padding:0px;" >
+<!-- Start: Content Tabpanel. -->
+<menupopup id="treemenu" forward="onOpen=mainWin.onOpenTreeMenu"></menupopup>
+<menupopup id="no_treemenu"></menupopup>
+<!-- <vbox width="100%" height="100%" spacing="0" > -->
+<borderlayout id="contentBorderLayout" width="100%" height="100%">
+<center border="normal">
+<!-- <splitter collapse="before" /> -->
+    <iframe id="viewcontentfrm" name="viewcontentfrm" src="empty_preview.html" width="100%" height="100%"/>
+<!-- </vbox> -->
+</center>
+</borderlayout>
+<!-- End: Content Tabpanel. -->
+            </tabpanel>
+            <tabpanel id="StylesTabpanel" height="100%" style="overflow:scroll;padding-right:0;">
+<!-- Start: Styles Tabpanel. -->
+<vlayout width="100%" >
+  <hbox align="center">
+    <label value="Type:" style="font-weight:bold;"/>
+    <listbox id="StylesTypeFilterList" mold="select" rows="1" forward="onSelect=mainWin.onChangeStylesFilter">
+      <listitem label="${c:l('label.styles.filter.inline')}" value="inline"/>
+      <listitem label="${c:l('label.styles.filter.block')}" value="block"/>
+    </listbox>
+    <space spacing="4px" />
+    <hbox id="StylesVariantFilterArea" align="center" visible="false">
+      <label value="Variant:" style="font-weight:bold;"/>
+      <listbox id="StylesVariantFilterList" mold="select" rows="1" forward="onSelect=mainWin.onChangeStylesFilter"></listbox>
+    </hbox>
+  </hbox>
+  <hbox width="100%" align="start" pack="stretch">
+    <cell hflex="1">
+      <listbox id="StylesListbox" width="100%" sizedByContent="false" multiple="true" context="StylesContextmenu">
+        <listhead sizable="true">
+            <listheader label="${c:l('label.style.id')}" width="20%" />
+            <listheader label="${c:l('label.style.variant')}" width="15%" />
+            <listheader label="${c:l('label.style.name')}" width="30%" />
+            <listheader label="${c:l('label.style.hidden')}" width="5%" />
+            <listheader label="${c:l('label.style.preview')}" width="30%" />
+        </listhead>
+      </listbox>
+    </cell>
+    <space spacing="2px" />
+    <cell hflex="min">
+      <vbox align="stretch" hflex="min" spacing="2px" style="min-width:126px;">
+        <button id="NewStyleBtn" label="${c:l('label.styles.new.btn')}" hflex="1" image="img/add.gif" forward="mainWin.onNewStyle"/>
+        <button id="EditStyleBtn" label="${c:l('label.styles.edit.btn')}" hflex="1" image="img/edit_style.gif" forward="mainWin.onEditStyle" />
+        <button id="DeleteStyleBtn" label="${c:l('label.styles.delete.btn')}" hflex="1" image="img/delete.gif" forward="mainWin.onDeleteStyle" />
+        <button id="VariantStyleBtn" label="${c:l('label.styles.createvariant.btn')}" hflex="1" image="img/create_variant.gif" forward="mainWin.onVariantStyle" />
+        <separator spacing="8px" />
+        <button id="ImportStyleBtn" label="${c:l('label.styles.import.btn')}" hflex="1" forward="mainWin.onImportStyle" />
+        <button id="ExportStyleBtn" label="${c:l('label.styles.export.btn')}" hflex="1" forward="mainWin.onExportStyle" />
+
+        <menupopup id="StylesContextmenu">
+          <menuitem id="NewStyleMenuitem" label="${c:l('label.styles.new.btn')}" image="img/add.gif" forward="mainWin.onNewStyle"/>
+          <menuitem id="EditStyleMenuitem" label="${c:l('label.styles.edit.btn')}" image="img/edit_style.gif" forward="mainWin.onEditStyle"/>
+          <menuitem id="DeleteStyleMenuitem" label="${c:l('label.styles.delete.btn')}" image="img/delete.gif" forward="mainWin.onDeleteStyle"/>
+          <menuitem id="VariantStyleMenuitem" label="${c:l('label.styles.createvariant.btn')}" image="img/create_variant.gif" forward="mainWin.onVariantStyle"/>
+          <menuseparator/>
+          <menuitem id="ImportStyleMenuitem" label="${c:l('label.styles.import.btn')}" forward="mainWin.onImportStyle"/>
+          <menuitem id="ExportStyleMenuitem" label="${c:l('label.styles.export.btn')}" forward="mainWin.onExportStyle"/>
+        </menupopup>
+      </vbox>
+    </cell>
+    <space spacing="2px" />
+  </hbox>
+</vlayout>
+<!-- End: Styles Tabpanel. -->
+            </tabpanel>
+            <tabpanel id="VersioningTabpanel" width="100%" height="100%">
+<!-- Start: Versioning Tabpanel. -->
+             <!-- <hlayout width="98%" height="100%" style="overflow:scroll;"> -->
+             <borderlayout width="100%" height="100%" style="background-color:transparent;">
+               <center border="none" flex="true" margins="0,0,5,8" style="background-color:#FFFFFF;" >
+                  <listbox id="VersionsListbox" width="100%" sizedByContent="false" 
+                           multiple="true" hflex="1" context="VersionsContextmenu" >
+                    <listhead sizable="true">
+                      <listheader label="${c:l('label.productversion.list.id')}" sort="auto(versionId)" width="20%"/>
+                      <listheader label="${c:l('label.productversion.list.language')}" sort="auto(languageCode)" width="5%" />
+                      <listheader label="${c:l('label.productversion.list.state')}" sort="auto(state)" width="10%" />
+                      <listheader label="${c:l('label.productversion.list.createdate')}" sort="auto(creationDate)" width="15%" />
+                      <!-- <listheader label="Last Modified" sort="auto(lastModified)" /> -->
+                      <listheader label="${c:l('label.productversion.list.releasedate')}" sort="auto(releaseDate)" width="15%" />
+                      <listheader label="${c:l('label.productversion.list.derivedfrom')}" sort="auto(derivedFrom)" width="20%" />
+                      <listheader label="${c:l('label.productversion.list.comment')}" sort="auto(comment)" width="15%" />
+                    </listhead>
+                  </listbox>
+                </center>
+                <east border="none" size="164px" margins="0,4,8,0">
+                  <vlayout width="164px" spacing="2px">
+                    <button id="CreateVersionBtn" label="${c:l('label.productversion.create.btn')}" width="160px" image="img/add.gif" forward="mainWin.onCreateVersion" />
+                    <button id="DeleteVersionBtn" label="${c:l('label.productversion.delete.btn')}" width="160px" image="img/delete.gif" forward="mainWin.onDeleteVersion" />
+                    <separator spacing="18px"/>
+                    <button id="ReleaseVersionBtn" label="${c:l('label.productversion.release.btn')}" width="160px" forward="mainWin.onReleaseVersion" />
+                    <button id="UnreleaseVersionBtn" label="${c:l('label.productversion.unrelease.btn')}" width="160px" forward="mainWin.onUnreleaseVersion" />
+                    <button id="RenameVersionBtn" label="${c:l('label.productversion.rename.btn')}" width="160px" forward="mainWin.onRenameVersion" />
+                    <button id="EditVersionCommentBtn" label="${c:l('label.productversion.editcomment.btn')}" width="160px" forward="mainWin.onEditVersionComment" />
+                    <separator spacing="18px"/>
+                    <button id="ClearRevisionsBtn" label="${c:l('label.productversion.clearrevisions.btn')}" width="160px" forward="mainWin.onClearRevisions" />
+                    <separator spacing="18px"/>
+                    <button id="VerShowConnectedBtn" label="${c:l('label.connectedusers.show.btn')}" width="160px" forward="mainWin.onShowConnectedUsers" />
+                    <menupopup id="VersionsContextmenu">
+                      <menuitem id="CreateVersionMenuitem" label="${c:l('label.productversion.create.btn')}" image="img/add.gif" forward="mainWin.onCreateVersion" />
+                      <menuitem id="DeleteVersionMenuitem" label="${c:l('label.productversion.delete.btn')}" image="img/delete.gif" forward="mainWin.onDeleteVersion" />
+                      <menuseparator/>
+                      <menuitem id="ReleaseVersionMenuitem" label="${c:l('label.productversion.release.btn')}" forward="mainWin.onReleaseVersion" />
+                      <menuitem id="UnreleaseVersionMenuitem" label="${c:l('label.productversion.unrelease.btn')}" forward="mainWin.onUnreleaseVersion" />
+                      <menuitem id="RenameVersionMenuitem" label="${c:l('label.productversion.rename.btn')}" forward="mainWin.onRenameVersion" />
+                      <menuitem id="EditVersionCommentMenuitem" label="${c:l('label.productversion.editcomment.btn')}" forward="mainWin.onEditVersionComment" />
+                      <menuseparator/>
+                      <menuitem id="ClearRevisionsMenuitem" label="${c:l('label.productversion.clearrevisions.btn')}" forward="mainWin.onClearRevisions" />
+                    </menupopup>
+                  </vlayout>
+                </east>
+              </borderlayout>
+<!-- End: Versioning Tabpanel. -->
+            </tabpanel>
+            <tabpanel id="PublishingTabpanel" style="padding:0;margin:0;">
+<!-- Start: Publishing Tabpanel. -->
+                <tabbox id="PublishingTabbox" orient="vertical" height="100%" width="100%" tabscroll="true">
+                <tabs width="150px">
+                    <tab label="Configuration"/>
+                    <tab label="Applicabilities"/>
+                    <tab label="Export"/>
+                    <!-- <tab label="Filter settings"/> -->
+                </tabs>
+                <tabpanels style="background-color:#FFFFFF;">
+                    <tabpanel id="PublishingConfigTabpanel" width="100%" height="100%" style="padding-right:0;">
+                        <vlayout width="100%" height="100%" style="overflow:scroll;">
+                            <label value="Publications:" style="font-weight:bold;"/>
+                            <hbox width="100%" align="start" pack="stretch">
+                              <listbox id="PublicationConfigListbox" width="100%" sizedByContent="false" context="PublicationConfigContextmenu">
+                                <listhead sizable="true">
+                                  <listheader label="${c:l('label.pubconfig.list.id')}" sort="auto(id)" width="20%" />
+                                  <listheader label="${c:l('label.pubconfig.list.title')}" sort="auto(title)" width="35%" />
+                                  <listheader label="${c:l('label.pubconfig.list.contentroot')}" width="20%" />
+                                  <listheader label="${c:l('label.pubconfig.list.filter')}" width="25%" />
+                                </listhead>
+                              </listbox>
+                              <space spacing="2px" />
+                              <vbox width="80px" spacing="2px" align="center">
+                                <button id="NewPublicationConfigBtn" label="${c:l('label.new.btn')}" width="80px" forward="mainWin.onNewPublicationConfig"/>
+                                <button id="EditPublicationConfigBtn" label="${c:l('label.edit.btn')}" width="80px" forward="mainWin.onEditPublicationConfig"/>
+                                <button id="DeletePublicationConfigBtn" label="${c:l('label.delete.btn')}" width="80px" forward="mainWin.onDeletePublicationConfig"/>
+                                <button id="CopyPublicationConfigBtn" label="${c:l('label.copy.btn')}" width="80px" forward="mainWin.onCopyPublicationConfig"/>
+                                <menupopup id="PublicationConfigContextmenu">
+                                  <!-- <menuitem id="NewPublicationConfigMenuitem" label="${c:l('label.new.btn')}" forward="mainWin.onNewPublicationConfig"/> -->
+                                  <menuitem id="EditPublicationConfigMenuitem" label="${c:l('label.edit.btn')}" forward="mainWin.onEditPublicationConfig"/>
+                                  <menuitem id="DeletePublicationConfigMenuitem" label="${c:l('label.delete.btn')}" forward="mainWin.onDeletePublicationConfig"/>
+                                  <menuitem id="CopyPublicationConfigMenuitem" label="${c:l('label.copy.btn')}" forward="mainWin.onCopyPublicationConfig"/>
+                                </menupopup>
+                              </vbox>
+                              <space spacing="4px" />
+                            </hbox>
+                            <separator spacing="2px"/>
+                            <label value="Output Configurations:" style="font-weight:bold;"/>
+                            <hbox width="100%" height="100%" align="start" pack="stretch">
+                              <listbox id="MediaConfigListbox" width="100%" sizedByContent="false" context="MediaConfigContextmenu">
+                                <listhead sizable="true">
+                                  <listheader label="${c:l('label.outconfig.list.id')}" sort="auto(id)" width="35%" />
+                                  <listheader label="${c:l('label.outconfig.list.format')}" sort="auto(format)" width="20%" />
+                                  <listheader label="${c:l('label.outconfig.list.variant')}" sort="auto(styleVariant)" width="20%" />
+                                  <listheader label="${c:l('label.outconfig.list.filter')}" width="25%" />
+                                </listhead>
+                              </listbox>
+                              <space spacing="2px" />
+                              <vbox width="80px" spacing="2px" align="center">
+                                <button id="NewMediaConfigBtn" label="${c:l('label.new.btn')}" width="80px" forward="mainWin.onNewMediaConfig"/>
+                                <button id="EditMediaConfigBtn" label="${c:l('label.edit.btn')}" width="80px" forward="mainWin.onEditMediaConfig"/>
+                                <button id="DeleteMediaConfigBtn" label="${c:l('label.delete.btn')}" width="80px" forward="mainWin.onDeleteMediaConfig"/>
+                                <button id="CopyMediaConfigBtn" label="${c:l('label.copy.btn')}" width="80px" forward="mainWin.onCopyMediaConfig"/>
+                                <menupopup id="MediaConfigContextmenu">
+                                  <!-- <menuitem id="NewMediaConfigMenuitem" label="${c:l('label.new.btn')}" forward="mainWin.onNewMediaConfig"/> -->
+                                  <menuitem id="EditMediaConfigMenuitem" label="${c:l('label.edit.btn')}" forward="mainWin.onEditMediaConfig"/>
+                                  <menuitem id="DeleteMediaConfigMenuitem" label="${c:l('label.delete.btn')}" forward="mainWin.onDeleteMediaConfig"/>
+                                  <menuitem id="CopyMediaConfigMenuitem" label="${c:l('label.copy.btn')}" forward="mainWin.onCopyMediaConfig"/>
+                                </menupopup>
+                              </vbox>
+                              <space spacing="4px" />
+                            </hbox>
+                        </vlayout>
+                    </tabpanel>
+                    <tabpanel id="ApplicTabpanel" width="100%" height="100%" style="overflow:scroll;padding-right:0;">
+                      <hbox width="100%" pack="stretch" vflex="1" hflex="1">
+                        <listbox id="DeclaredApplicsListbox" hflex="1" context="DeclaredApplicsContextmenu">
+                            <listhead sizable="false">
+                              <listheader label="${c:l('label.declaredapplics.list.name')}" />
+                            </listhead>
+                        </listbox>
+                        <space spacing="2px" />
+                        <cell hflex="min">
+                          <vbox spacing="2px" align="stretch" hflex="min">
+                            <button id="AddApplicBtn" label="${c:l('label.add.btn')}" hflex="1" forward="mainWin.onAddApplic"/>
+                            <button id="DeleteApplicBtn" label="${c:l('label.delete.btn')}" hflex="1" forward="mainWin.onDeleteApplic" />
+                            <menupopup id="DeclaredApplicsContextmenu">
+                              <menuitem id="AddApplicMenuitem" label="${c:l('label.add.btn')}" forward="mainWin.onAddApplic"/>
+                              <menuitem id="DeleteApplicMenuitem" label="${c:l('label.delete.btn')}" forward="mainWin.onDeleteApplic" />
+                            </menupopup>
+                          </vbox>
+                        </cell>
+                        <space spacing="5px" />
+                      </hbox>
+                    </tabpanel>
+                    <tabpanel id="PublishingExportTabpanel" width="100%" height="100%">
+                      <hbox width="100%" height="100%" vflex="1" hflex="1" align="start" pack="stretch">
+                          <listbox id="PublicationExportListbox" height="100%" multiple="true"
+                                   hflex="1" vflex="1" context="PublicationExportContextmenu">
+                            <listhead sizable="true">
+                              <listheader label="${c:l('label.pubexport.list.pubconf')}" width="12%" />
+                              <listheader label="${c:l('label.pubexport.list.outconf')}"  width="12%"/>
+                              <listheader label="${c:l('label.pubexport.list.state')}" width="10%"/>
+                              <listheader label="${c:l('label.pubexport.list.releasedate')}" width="10%" />
+                              <listheader label="${c:l('label.pubexport.list.exportdate')}" width="10%" />
+                              <listheader label="${c:l('label.pubexport.list.exportedby')}" width="10%" />
+                              <listheader label="${c:l('label.pubexport.list.exportfiles')}" width="26%" />
+                              <listheader label="${c:l('label.pubexport.list.online')}" width="10%"/>
+                            </listhead>
+                          </listbox>
+                        <space spacing="2px" />
+                        <cell hflex="min">
+                          <vbox hflex="min" spacing="2px" align="stretch" style="min-width:100px;" >
+                            <button id="NewExportBtn" label="${c:l('label.pubexport.new.btn')}" hflex="1" forward="mainWin.onExportPublication"/>
+                            <button id="EditExportBtn" label="${c:l('label.pubexport.edit.btn')}" hflex="1" forward="mainWin.onEditPublication"/>
+                            <button id="DeleteExportBtn" label="${c:l('label.pubexport.delete.btn')}" hflex="1" forward="mainWin.onDeletePublication" />
+                            <separator spacing="18px"/>
+                            <button id="PubShowQueueBtn" label="${c:l('label.pubexport.showqueue.btn')}" hflex="1" forward="mainWin.onShowExportQueue" />
+                            <menupopup id="PublicationExportContextmenu">
+                              <menuitem id="NewExportMenuitem" label="${c:l('label.pubexport.new.btn')}" forward="mainWin.onExportPublication"/>
+                              <menuitem id="EditExportMenuitem" label="${c:l('label.pubexport.edit.btn')}" forward="mainWin.onEditPublication"/>
+                              <menuitem id="DeleteExportMenuitem" label="${c:l('label.pubexport.delete.btn')}" forward="mainWin.onDeletePublication" />
+                            </menupopup>
+                            <timer id="PublicationExportRefreshTimer"
+                                   delay="10000" repeats="true" running="false"
+                                   forward="onTimer=mainWin.onRefreshPublicationExportList" />
+                          </vbox>
+                        </cell>
+                        <space spacing="2px" />
+                      </hbox>
+                    </tabpanel>
+                    <!--
+                    <tabpanel id="FilterSettingsTabpanel">
+                        <hbox width="100%">
+                          <listbox id="FilterSettingsListbox" fixedLayout="true">
+                            <listhead sizable="true">
+                              <listheader label="${c:l('label.filter.name')}" width="20%" />
+                              <listheader label="${c:l('label.filter.setting')}" />
+                            </listhead>
+                          </listbox>
+                          <vbox spacing="2px">
+                            <button id="NewFilterBtn" label="New Filter" width="100%" forward="mainWin.onNewFilter"/>
+                            <button id="EditFilterBtn" label="Edit" width="100%" forward="mainWin.onEditFilter" />
+                            <button id="DeleteFilterBtn" label="Delete" width="100%" forward="mainWin.onDeleteFilter" />
+                          </vbox>
+                        </hbox>
+                    </tabpanel>
+                    -->
+                </tabpanels>
+                </tabbox>
+<!-- End: Publishing Tabpanel. -->
+            </tabpanel>
+            <tabpanel id="AdminTabpanel" style="padding:0;margin:0;">
+<!-- Start: Admin Tabpanel. -->
+                <tabbox id="AdminTabbox" orient="vertical" width="100%" height="100%">
+                <tabs width="150px">
+                    <tab label="${c:l('tab.admin.products')}"/>
+                    <!-- <tab label="Languages"/> -->
+                    <tab label="${c:l('tab.admin.entities')}" forward="onSelect=mainWin.onSelectCharEntitiesTab"/>
+                    <tab label="${c:l('tab.admin.usergroups')}" forward="onSelect=mainWin.onSelectUserGroupsTab" />
+                    <tab label="${c:l('tab.admin.users')}"  forward="onSelect=mainWin.onSelectUsersTab" />
+                    <tab label="${c:l('tab.admin.plugins')}"  forward="onSelect=mainWin.onSelectPluginsTab" />
+                    <tab label="${c:l('tab.admin.autoformat')}"  forward="onSelect=mainWin.onSelectAutoFormatTab" />
+                    <tab label="${c:l('tab.admin.editapps')}"  forward="onSelect=mainWin.onSelectEditAppsTab" />
+                    <tab label="${c:l('tab.admin.viewapps')}"  forward="onSelect=mainWin.onSelectViewAppsTab" />
+                    <tab label="${c:l('tab.admin.settings')}"/>
+                </tabs>
+                <tabpanels style="background-color:#FFFFFF;">
+                    <tabpanel id="ProductsTabpanel" width="100%" height="100%">
+                      <borderlayout width="100%" height="100%" style="background-color:transparent;">
+                        <center border="none" flex="true" margins="0,0,5,8" style="background-color:transparent;" >
+                          <listbox id="ProductsListbox" vflex="true" width="100%" height="100%" context="ProductsAdminContextmenu">
+                            <listhead sizable="true">
+                              <listheader label="${c:l('label.products.list.id')}" sort="auto(id)" width="18%"/>
+                              <listheader label="${c:l('label.products.list.name')}" sort="auto(name)" width="27%" />
+                              <listheader label="${c:l('label.products.list.path')}" sort="auto(path)" width="35%" />
+                              <listheader label="${c:l('label.products.list.state')}" sort="auto(disabled)" />
+                            </listhead>
+                          </listbox>
+                        </center>
+                        <east border="none" size="180px">
+                          <vbox width="180px" spacing="2px" align="start">
+                            <button id="NewProductBtn" label="${c:l('label.products.create.btn')}" width="170px" forward="mainWin.onNewProduct"/>
+                            <button id="AddProductBtn" label="${c:l('label.products.addexternal.btn')}" width="170px" forward="mainWin.onAddExternalProduct"/>
+                            <button id="CopyProductBtn" label="${c:l('label.products.copy.btn')}" width="170px" forward="mainWin.onCopyProduct"/>
+                            <button id="DeleteProductBtn" label="${c:l('label.products.delete.btn')}" width="170px" forward="mainWin.onDeleteProduct" />
+                            <separator spacing="18px"/>
+                            <button id="EditProductBtn" label="${c:l('label.products.edit.btn')}" width="170px" forward="mainWin.onEditProduct" />
+                            <button id="ChangeProductPathBtn" label="${c:l('label.products.changepath.btn')}" width="170px" forward="mainWin.onChangeProductPath" />
+                            <button id="EnableProductBtn" label="${c:l('label.products.enable.btn')}" width="170px" forward="mainWin.onEnableProduct" />
+                            <button id="DisableProductBtn" label="${c:l('label.products.disable.btn')}" width="170px" forward="mainWin.onDisableProduct" />
+                            <separator spacing="18px"/>
+                            <button id="ProdShowConnectedBtn" label="${c:l('label.connectedusers.show.btn')}" width="170px" forward="mainWin.onShowConnectedUsers" />
+                            <menupopup id="ProductsAdminContextmenu">
+                              <menuitem id="NewProductMenuitem" label="${c:l('label.products.create.btn')}" forward="mainWin.onNewProduct"/>
+                              <menuitem id="AddProductMenuitem" label="${c:l('label.products.addexternal.btn')}" forward="mainWin.onAddExternalProduct"/>
+                              <menuitem id="CopyProductMenuitem" label="${c:l('label.products.copy.btn')}" forward="mainWin.onCopyProduct"/>
+                              <menuitem id="DeleteProductMenuitem" label="${c:l('label.products.delete.btn')}" forward="mainWin.onDeleteProduct"  image="img/delete.gif"/>
+                              <menuseparator/>
+                              <menuitem id="EditProductMenuitem" label="${c:l('label.products.edit.btn')}" forward="mainWin.onEditProduct" />
+                              <menuitem id="ChangeProductPathMenuitem" label="${c:l('label.products.changepath.btn')}" forward="mainWin.onChangeProductPath" />
+                              <menuitem id="EnableProductMenuitem" label="${c:l('label.products.enable.btn')}" forward="mainWin.onEnableProduct" />
+                              <menuitem id="DisableProductMenuitem" label="${c:l('label.products.disable.btn')}" forward="mainWin.onDisableProduct" />
+                            </menupopup>
+                            <timer id="ProductListRefreshTimer"
+                                   delay="9000" repeats="true" running="false" />
+                          </vbox>
+                        </east>
+                      </borderlayout>
+                    </tabpanel>
+                    <!-- <tabpanel>The languages panel</tabpanel> -->
+                    <tabpanel id="EntitiesTabpanel" width="100%" height="100%">
+                      <hbox width="100%" height="100%" vflex="1" hflex="1" align="start" pack="stretch">
+                        <listbox id="EntitiesListbox" vflex="1" hflex="1" mold="paging" autopaging="true"
+                                   height="100%" multiple="true" context="EntitiesAdminContextmenu">
+                            <listhead sizable="true">
+                              <listheader label="${c:l('label.charentities.list.numeric')}" width="15%"/>
+                              <listheader label="${c:l('label.charentities.list.symbolic')}" width="15%" />
+                              <listheader label="${c:l('label.charentities.list.picklist')}" width="10%" />
+                              <listheader label="${c:l('label.charentities.list.description')}" width="50%"/>
+                              <listheader label="" />
+                            </listhead>
+                        </listbox>
+                        <space spacing="2px" />
+                        <cell hflex="min">
+                          <vbox hflex="min" spacing="2px" align="stretch" style="min-width:110px;" >
+                            <button id="InsertEntityBtn" label="${c:l('label.charentities.insert.btn')}" hflex="1" forward="mainWin.onInsertEntity"/>
+                            <button id="EditEntityBtn" label="${c:l('label.charentities.edit.btn')}" hflex="1" forward="mainWin.onEditEntity" />
+                            <button id="DeleteEntityBtn" label="${c:l('label.charentities.delete.btn')}" hflex="1" forward="mainWin.onDeleteEntity" />
+                            <separator spacing="18px"/>
+                            <button id="CutEntityBtn" label="${c:l('label.charentities.cut.btn')}" hflex="1" forward="mainWin.onCutEntity" />
+                            <button id="PasteEntityBtn" label="${c:l('label.charentities.paste.btn')}" hflex="1" forward="mainWin.onPasteEntity" />
+                            <menupopup id="EntitiesAdminContextmenu">
+                              <menuitem id="InsertEntityMenuitem" label="${c:l('label.charentities.insert.btn')}" forward="mainWin.onInsertEntity"/>
+                              <menuitem id="EditEntityMenuitem" label="${c:l('label.charentities.edit.btn')}" forward="mainWin.onEditEntity" />
+                              <menuitem id="DeleteEntityMenuitem" label="${c:l('label.charentities.delete.btn')}" forward="mainWin.onDeleteEntity" />
+                              <menuseparator/>
+                              <menuitem id="CutEntityMenuitem" label="${c:l('label.charentities.cut.btn')}" forward="mainWin.onCutEntity" />
+                              <menuitem id="PasteEntityMenuitem" label="${c:l('label.charentities.paste.btn')}" forward="mainWin.onPasteEntity" />
+                            </menupopup>
+                          </vbox>
+                        </cell>
+                        <space spacing="2px" />
+                      </hbox>
+                    </tabpanel>
+                    <tabpanel id="UserGroupsTabpanel">
+                        <hbox width="100%" pack="stretch">
+                        <cell width="33%">
+                          <vbox width="100%" align="stretch">
+                            <label>${c:l('label.usergroup.listhead')}:</label>
+                            <hbox width="100%" pack="stretch">
+                              <listbox id="GroupsListbox" multiple="true" width="100%" forward="onSelect=mainWin.onSelectUserGroup"
+                                       context="GroupsAdminContextmenu">
+                                <listhead sizable="true">
+                                  <listheader label="${c:l('label.usergroup.id')}" sort="auto(groupId)" width="35%"/>
+                                  <listheader label="${c:l('label.usergroup.name')}" sort="auto(groupName)" />
+                                </listhead>
+                              </listbox>
+                              <vbox width="88px" spacing="2px" align="center">
+                                <button id="NewGroupBtn" label="${c:l('label.new.btn')}" width="86px" forward="mainWin.onNewUserGroup"/>
+                                <button id="EditGroupBtn" label="${c:l('label.edit.btn')}" width="86px" forward="mainWin.onEditUserGroup"/>
+                                <button id="DeleteGroupBtn" label="${c:l('label.delete.btn')}" width="86px" forward="mainWin.onDeleteUserGroup"/>
+                                <button id="CopyGroupBtn" label="${c:l('label.copy.btn')}" width="86px" forward="mainWin.onCopyUserGroup"/>
+                                <menupopup id="GroupsAdminContextmenu">
+                                  <menuitem id="NewGroupMenuitem" label="${c:l('label.new.btn')}" forward="mainWin.onNewUserGroup"/>
+                                  <menuitem id="EditGroupMenuitem" label="${c:l('label.edit.btn')}" forward="mainWin.onEditUserGroup"/>
+                                  <menuitem id="DeleteGroupMenuitem" label="${c:l('label.delete.btn')}" forward="mainWin.onDeleteUserGroup"/>
+                                  <menuitem id="CopyGroupMenuitem" label="${c:l('label.copy.btn')}" forward="mainWin.onCopyUserGroup"/>
+                                </menupopup>
+                              </vbox>
+                              <space spacing="3px" />
+                            </hbox>
+                          </vbox>
+                        </cell>
+                        <cell width="33%">
+                          <vbox width="100%">
+                            <label>${c:l('label.accessrights.listhead')}:</label>
+                            <hbox width="100%" pack="stretch">
+                              <listbox id="AccessRightsListbox" width="100%" context="AccessRightsContextmenu">
+                                <listhead sizable="true">
+                                  <listheader label="${c:l('label.accessright.product')}" width="30%"/>
+                                  <listheader label="${c:l('label.accessright.roles')}" />
+                                </listhead>
+                              </listbox>
+                              <vbox width="88px" spacing="2px" align="center">
+                                <button label="${c:l('label.edit.btn')}" width="86px" forward="mainWin.onEditRights"/>
+                                <!-- <button label="Remove" width="100%" forward="mainWin.onRemoveRights"/> -->
+                                <menupopup id="AccessRightsContextmenu">
+                                  <menuitem label="${c:l('label.edit.btn')}" forward="mainWin.onEditRights"/>
+                                </menupopup>
+                              </vbox>
+                              <space spacing="3px" />
+                            </hbox>
+                          </vbox>
+                        </cell>
+                        <cell width="34%">
+                          <vbox width="100%">
+                            <label>${c:l('label.members.listhead')}:</label>
+                            <hbox width="100%" pack="stretch">
+                              <listbox id="GroupMembersListbox" width="100%" multiple="true" context="GroupMembersContextmenu">
+                                <listhead sizable="true">
+                                  <listheader label="${c:l('label.user.name')}" sort="auto(loginName)" width="30%"/>
+                                  <listheader label="${c:l('label.user.lastname')}" sort="auto(lastName)" width="30%" />
+                                  <listheader label="${c:l('label.user.firstname')}" sort="auto(firstName)" />
+                                </listhead>
+                              </listbox>
+                              <vbox width="88px" spacing="2px" align="center">
+                                <button id="AddMemberBtn" label="${c:l('label.add.btn')}" width="86px" forward="mainWin.onAddMember"/>
+                                <button id="RemoveMemberBtn" label="${c:l('label.remove.btn')}" width="86px" forward="mainWin.onRemoveMember"/>
+                                <menupopup id="GroupMembersContextmenu">
+                                  <menuitem id="AddMemberMenuitem" label="${c:l('label.add.btn')}" forward="mainWin.onAddMember"/>
+                                  <menuitem id="RemoveMemberMenuitem" label="${c:l('label.remove.btn')}" forward="mainWin.onRemoveMember"/>
+                                </menupopup>
+                              </vbox>
+                            </hbox>
+                          </vbox>
+                        </cell>
+                        </hbox>
+                    </tabpanel>
+                    <tabpanel id="UsersTabpanel" height="100%">
+                      <borderlayout width="100%" height="100%" style="background-color:transparent;">
+                        <center border="none" flex="true" margins="0,0,5,8" style="background-color:transparent;" >
+                          <listbox id="UsersListbox" vflex="true" width="100%" height="100%" context="UsersAdminContextmenu">
+                            <listhead sizable="true">
+                              <listheader label="${c:l('label.user.id')}" sort="auto(userId)" width="10%"/>
+                              <listheader label="${c:l('label.user.loginname')}" sort="auto(loginName)" width="10%" />
+                              <listheader label="${c:l('label.user.lastname')}" sort="auto(lastName)" width="10%" />
+                              <listheader label="${c:l('label.user.firstname')}" sort="auto(firstName)" width="10%" />
+                              <listheader label="${c:l('label.user.email')}" sort="auto(email)" width="15%" />
+                              <listheader label="${c:l('label.user.lastlogin')}" sort="auto(lastLogin)" width="10%" />
+                              <listheader label="${c:l('label.user.memberof')}" sort="auto(groupNamesAsString)" />
+                            </listhead>
+                          </listbox>
+                        </center>
+                        <east border="none" size="154px">
+                          <vbox width="100%" spacing="2px">
+                            <button id="NewUserBtn" label="${c:l('label.users.new.btn')}" width="150px" forward="mainWin.onNewUser" />
+                            <button id="EditUserBtn" label="${c:l('label.edit.btn')}" width="150px" forward="mainWin.onEditUser" />
+                            <button id="DeleteUserBtn" label="${c:l('label.delete.btn')}" width="150px" forward="mainWin.onDeleteUser" />
+                            <menupopup id="UsersAdminContextmenu">
+                              <menuitem id="NewUserMenuitem" label="${c:l('label.users.new.btn')}" forward="mainWin.onNewUser" />
+                              <menuitem id="EditUserMenuitem" label="${c:l('label.edit.btn')}" forward="mainWin.onEditUser" />
+                              <menuitem id="DeleteUserMenuitem" label="${c:l('label.delete.btn')}" forward="mainWin.onDeleteUser" />
+                            </menupopup>
+                          </vbox>
+                        </east>
+                      </borderlayout>
+                    </tabpanel>
+
+                    <tabpanel id="PluginsConfigTabpanel" height="100%" width="100%">
+    <hbox width="100%" align="start" pack="stretch" hflex="1" vflex="1">
+      <listbox id="PluginsConfigListbox" width="100%" hflex="1" vflex="1" sizedByContent="false" multiple="true"
+               context="PluginsAdminContextmenu">
+          <listhead sizable="true">
+              <listheader label="${c:l('label.plugin.id')}" width="20%" />
+              <listheader label="${c:l('label.plugin.version')}" width="10%" />
+              <listheader label="${c:l('label.plugin.title')}" width="27%" />
+              <listheader label="${c:l('label.plugin.state')}" width="15%" />
+              <listheader label="" width="28%" />
+          </listhead>
+      </listbox>
+      <space spacing="2px" />
+      <cell hflex="min">
+        <vbox align="stretch" hflex="min" spacing="2px">
+          <button id="InstallPluginBtn" label="${c:l('label.plugin.install.btn')}" hflex="1" forward="mainWin.onInstallPlugin"/>
+          <button id="UninstallPluginBtn" label="${c:l('label.plugin.uninstall.btn')}" hflex="1" forward="mainWin.onUninstallPlugin" />
+          <separator spacing="18px"/>
+          <button id="EnablePluginBtn" label="${c:l('label.plugin.enable.btn')}" hflex="1" forward="mainWin.onEnablePlugin"/>
+          <button id="DisablePluginBtn" label="${c:l('label.plugin.disable.btn')}" hflex="1" forward="mainWin.onDisablePlugin" />
+          <menupopup id="PluginsAdminContextmenu">
+            <menuitem id="UninstallPluginMenuitem" label="${c:l('label.plugin.uninstall.btn')}" forward="mainWin.onUninstallPlugin" />
+            <menuseparator/>
+            <menuitem id="EnablePluginMenuitem" label="${c:l('label.plugin.enable.btn')}" forward="mainWin.onEnablePlugin"/>
+            <menuitem id="DisablePluginMenuitem" label="${c:l('label.plugin.disable.btn')}" forward="mainWin.onDisablePlugin" />
+          </menupopup>
+        </vbox>
+      </cell>
+      <space spacing="4px" />
+    </hbox>
+                    </tabpanel>
+                        
+                    <tabpanel id="AutoFormatConfigTabpanel" height="100%" width="100%">
+
+  <vbox spacing="2px" width="100%" align="stretch" vflex="1" hflex="1">
+    <hbox width="100%" align="start" pack="stretch" hflex="1" vflex="1">
+      <listbox id="AutoFormatConfigListbox" width="100%" hflex="1" vflex="1" sizedByContent="false" multiple="true"
+               context="AutoFormatConfigContextmenu">
+          <listhead sizable="true">
+              <listheader label="${c:l('label.autoformat.classname')}" width="50%" />
+              <listheader label="${c:l('label.autoformat.shortinfo')}" width="50%" />
+          </listhead>
+      </listbox>
+      <space spacing="2px" />
+      <cell hflex="min">
+        <vbox align="stretch" hflex="min" spacing="2px">
+          <button id="AddAutoFormatClassBtn" label="${c:l('label.add.btn')}" hflex="1" forward="mainWin.onAddAutoFormatClass"/>
+          <button id="RemoveAutoFormatClassBtn" label="${c:l('label.remove.btn')}" hflex="1" forward="mainWin.onRemoveAutoFormatClass" />
+          <menupopup id="AutoFormatConfigContextmenu">
+            <menuitem id="RemoveAutoFormatClassMenuitem" label="${c:l('label.remove.btn')}" forward="mainWin.onRemoveAutoFormatClass" />
+          </menupopup>
+        </vbox>
+      </cell>
+      <space spacing="4px" />
+    </hbox>
+    <separator spacing="3px"/>
+    <label id="AutoFormatConfigInfoLabel" value="${c:l('label.autoformat.longinfo')}:" 
+           visible="false" style="font-size:1.2em; font-weight:bold;" />
+    <cell id="AutoFormatConfigInfoCell" width="100%" hflex="1" vflex="1" >
+      <div width="99%" height="100%" style="overflow:scroll;" >
+      <html id="AutoFormatConfigInfoHtml" style="font-family:Arial,sans-serif; font-size:0.9em;"></html>
+      </div>
+    </cell>
+  </vbox>
+                    </tabpanel>
+
+                    <tabpanel id="EditAppsConfigTabpanel" >
+<vlayout width="100%" >
+  <hbox align="center">
+    <label value="Default Content Editor:" style="font-weight:bold;"/>
+    <listbox id="EditAppsContentEditorsList" mold="select" rows="1" 
+             forward="onSelect=mainWin.onChangeDefaultContentEditor">
+    </listbox>
+  </hbox>
+  <grid id="EditAppsConfigGrid" hflex="1">
+        <columns sizable="true">
+          <column label="${labels.apps.extensions}" width="30%"/>
+          <column label="${labels.apps.mimetype}" width="40%"/>
+          <column label="${labels.apps.default_editor}" width="30%"/>
+        </columns>
+        <rows></rows>
+  </grid>
+</vlayout>
+                        
+                    </tabpanel>
+                    
+                    <tabpanel id="ViewAppsConfigTabpanel" >
+  <grid id="ViewAppsConfigGrid" hflex="1">
+        <columns sizable="true">
+          <column label="${labels.apps.extensions}" width="30%"/>
+          <column label="${labels.apps.mimetype}" width="40%"/>
+          <column label="${labels.apps.default_viewer}" width="30%"/>
+        </columns>
+        <rows></rows>
+  </grid>
+                    </tabpanel>
+
+                    <tabpanel height="100%" style="padding-right:0;">
+                      <vlayout width="100%" height="100%" style="overflow:auto;">
+                        <label style="font-weight:bold;">Application Version: </label>
+                        <hbox pack="start">
+                          <label id="SettingsAppEditionLabel">Docmenta</label>
+                          <button id="SettingsRegisterBtn" label="   Enter License Key to register   "
+                                  forward="mainWin.onRegisterApplication" visible="false" />
+                        </hbox>
+                        <separator spacing="3px"/>
+                        <groupbox mold="3d" width="99%" contentStyle="padding:4px; background-color:#F4F4F4;">
+                          <caption label="Web-Application Directory" />
+                          <label id="SettingsWebAppDirLabel" />
+                        </groupbox>
+                        <separator spacing="4px"/>
+                        <groupbox mold="3d" width="99%" contentStyle="padding:4px; background-color:#F4F4F4;">
+                          <caption label="Temporary Upload Directory" />
+                          <hbox width="100%" pack="stretch">
+                            <label id="SettingsTempDirLabel" hflex="1" />
+                            <toolbarbutton id="SettingsCheckTempDirBtn" label="Check Access" hflex="min" 
+                                    style="color:#000088; white-space:nowrap; min-width:94px; text-align:center;" 
+                                    forward="mainWin.onCheckTempDirAccess" />
+                          </hbox>
+                        </groupbox>
+                        <separator spacing="4px"/>
+                        <hbox width="99%" pack="stretch">
+                          <groupbox mold="3d" hflex="1" contentStyle="padding:4px; background-color:#F4F4F4;">
+                            <caption label="${c:l('label.setup.docstorepath')}" />
+                            <textbox id="SettingsDocStoreDirTextbox" width="98%" 
+                                     onChanging="SettingsResetDocStoreDirBtn.disabled = false" />
+                          </groupbox>
+                          <space spacing="2px" />
+                          <vbox style="min-width:100px;" hflex="min" spacing="2px">
+                            <button id="SettingsSaveDocStoreDirBtn" label="${c:l('label.save.btn')}" 
+                                    image="img/save.gif" hflex="1" forward="mainWin.onSaveBaseDir" />
+                            <button id="SettingsResetDocStoreDirBtn" label="${c:l('label.reset.btn')}" disabled="true"
+                                    hflex="1" forward="mainWin.onResetAppSettingsPanel" />
+                          </vbox>
+                        </hbox>
+                        <separator spacing="4px"/>
+                        <hbox width="99%" pack="stretch">
+                          <groupbox mold="3d" hflex="1" contentStyle="padding:4px; background-color:#F4F4F4;">
+                            <caption label="Online Directory "/>
+                            <label style="font-weight:bold;">Publication-Export Online Directory:</label>
+                            <radiogroup id="SettingsPubOnlineRadioGroup" onCheck="SettingsResetOnlineDirBtn.disabled = false" >
+                              <hbox spacing="0px" align="center">
+                                <radio id="SettingsPubOnlineRelativePathRadio" 
+                                       forward="onCheck=mainWin.onChangePublicationOnlineDir"/>
+                                <label>Relative to Web-Application Directory</label>
+                                <space spacing="12px" />
+                                <radio id="SettingsPubOnlineAbsolutePathRadio" 
+                                       forward="onCheck=mainWin.onChangePublicationOnlineDir"/>
+                                <label>Absolute Directory Path</label>
+                              </hbox>
+                            </radiogroup>
+                            <textbox id="SettingsPubOnlineDirTextbox" width="98%" 
+                                     onChanging="SettingsResetOnlineDirBtn.disabled = false" />
+                            <separator spacing="5px"/>
+                            <label style="font-weight:bold;">Publication-Export Online URL:</label>
+                            <textbox id="SettingsPubOnlineURLTextbox" width="98%" 
+                                     onChanging="SettingsResetOnlineDirBtn.disabled = false" />
+                          </groupbox>
+                          <space spacing="2px" />
+                          <vbox style="min-width:100px;" hflex="min" spacing="2px">
+                            <button id="SettingsSaveOnlineDirBtn" label="${c:l('label.save.btn')}" 
+                                    image="img/save.gif" hflex="1" forward="mainWin.onSaveApplicationSettings" />
+                            <button id="SettingsResetOnlineDirBtn" label="${c:l('label.reset.btn')}" disabled="true"
+                                    hflex="1" forward="mainWin.onResetAppSettingsPanel" />
+                          </vbox>
+                        </hbox>
+                        <separator spacing="4px"/>
+                        <hbox width="99%" pack="stretch">
+                          <groupbox mold="3d" hflex="1" contentStyle="padding:4px; background-color:#F4F4F4;">
+                            <caption label="Miscellaneous "/>
+                            <hbox pack="start" align="center">
+                              <label style="font-weight:bold;">User Interface Theme:</label>
+                              <listbox id="SettingsAppThemesListbox" mold="select" rows="1"
+                                       onSelect="SettingsResetBtn.disabled = false"></listbox>
+                            </hbox>
+                            <separator spacing="5px"/>
+                            <hbox pack="start" align="center">
+                              <label style="font-weight:bold;">Maximum number of Revisions per User:</label>
+                              <intbox id="SettingsMaxRevisionsIntbox" constraint="no negative" maxlength="2" cols="3" 
+                                      onChanging="SettingsResetBtn.disabled = false" />
+                            </hbox>
+                            <separator spacing="5px"/>
+                            <hbox pack="start" align="center">
+                              <label style="font-weight:bold;">Maximum number of Nodes in HTML-Preview:</label>
+                              <intbox id="SettingsPreviewMaxHTMLIntbox" constraint="no negative" maxlength="9" cols="5" 
+                                      onChanging="SettingsResetBtn.disabled = false" />
+                              <label style="font-weight:normal;">(0 = unlimited)</label>
+                            </hbox>
+                            <separator spacing="5px"/>
+                            <hbox pack="start" align="center">
+                              <label style="font-weight:bold;">Maximum number of Nodes in Print-Preview:</label>
+                              <intbox id="SettingsPreviewMaxPrintIntbox" constraint="no negative" maxlength="9" cols="5" 
+                                      onChanging="SettingsResetBtn.disabled = false" />
+                              <label style="font-weight:normal;">(0 = unlimited)</label>
+                            </hbox>
+                            <separator spacing="5px"/>
+                            <label style="font-weight:bold;">Text File Extensions:</label>
+                            <textbox id="SettingsTxtFileExtensionsTextbox" width="98%" 
+                                     onChanging="SettingsResetBtn.disabled = false" />
+                            <separator spacing="5px"/>
+                            <hbox pack="start" align="center" spacing="3px">
+                                <label style="font-weight:bold;">Custom FOP Configuration File</label>
+                                <label>&#160;(see</label>
+                                <toolbarbutton label="Help" style="color:#0000FF" onClick='mainWin.onHelp("help/app_settings.html")'/>
+                                <label>on how to create language dependent configuration):</label>
+                            </hbox>
+                            <textbox id="SettingsFOPConfigPathTextbox" width="98%" 
+                                     onChanging="SettingsResetBtn.disabled = false" />
+                            <separator spacing="3px"/>
+                          </groupbox>
+                          <space spacing="2px" />
+                          <vbox style="min-width:100px;" hflex="min" spacing="2px">
+                            <button id="SettingsSaveBtn" label="${c:l('label.save.btn')}" 
+                                    image="img/save.gif" hflex="1" forward="mainWin.onSaveApplicationSettings" />
+                            <button id="SettingsResetBtn" label="${c:l('label.reset.btn')}" disabled="true"
+                                    hflex="1" forward="mainWin.onResetAppSettingsPanel" />
+                          </vbox>
+                        </hbox>
+                      </vlayout>
+                    </tabpanel>
+                </tabpanels>
+                </tabbox>
+<!-- End: Admin Tabpanel. -->
+            </tabpanel>
+        </tabpanels>
+    </tabbox>
+      
+    </center>
+    <south height="4px" style="background-color:transparent;"  border="none">
+    </south>
+    </borderlayout>
+    <!-- </vbox> -->
+    </div>
+    <script type="text/javascript"><![CDATA[
+        function sendMainWindowEvent(evtname, data) {
+            zAu.send(new zk.Event(zk.Widget.$('$mainWin'), evtname, data));
+        }
+
+        function openEditWin(node_id) {
+            zAu.send(new zk.Event(zk.Widget.$('$mainWin'), 'onEditContentClick', node_id));
+        }
+
+        function previewNodeByAlias(node_alias) {
+            zAu.send(new zk.Event(zk.Widget.$('$mainWin'), 'onPreviewContentByAlias', node_alias));
+        }
+
+        function previewNodeById(node_id) {
+            zAu.send(new zk.Event(zk.Widget.$('$mainWin'), 'onPreviewNodeById', node_id));
+        }
+
+        function processDeferredDocmaEvents() {
+            zAu.send(new zk.Event(zk.Widget.$('$mainWin'), 'onProcessDeferredEvents', null));
+        }
+
+        function editNodePropsById(node_id) {
+            zAu.send(new zk.Event(zk.Widget.$('$mainWin'), 'onEditNodePropsById', node_id));
+        }
+
+        function setSelectedNodes(id_list) {
+            zAu.send(new zk.Event(zk.Widget.$('$mainWin'), 'onSetSelectedNodesByIds', id_list));
+        }
+
+        function addSelectedNodes(id_list) {
+            zAu.send(new zk.Event(zk.Widget.$('$mainWin'), 'onAddSelectedNodesByIds', id_list));
+        }
+
+        function downloadFiles() {
+            zAu.send(new zk.Event(zk.Widget.$('$mainWin'), 'onDownloadFile', null));
+        }
+
+        function uploadFiles() {
+            zAu.send(new zk.Event(zk.Widget.$('$mainWin'), 'onUploadFile', null));
+        }
+
+        function deleteFiles() {
+            zAu.send(new zk.Event(zk.Widget.$('$mainWin'), 'onDeleteFileNodes', null));
+        }
+
+        function previewGoBackward() {
+            var frm_win = window.frames['viewcontentfrm'];
+            var pname = frm_win.location.pathname;
+            if ((frm_win.history.length > 0) && (pname.length > 0) && (pname.indexOf('empty_preview.html') < 0)) {
+                window.frames['viewcontentfrm'].history.back();
+            }
+        }
+
+        function previewGoForward() {
+            window.frames['viewcontentfrm'].history.forward();
+        }
+
+        function previewRefresh() {
+            window.frames['viewcontentfrm'].location.reload();
+        }
+
+        function previewContentRefresh() {
+            var p_url = window.frames['viewcontentfrm'].location.href;
+            if ((p_url.indexOf('viewContent.jsp') >= 0) || (p_url.indexOf('viewPDF.jsp') >= 0)) {
+                window.frames['viewcontentfrm'].location.reload();
+            }
+        }
+
+        var docma_client_props = new Object();
+
+        function getDocmaClientProp(propName) {
+            return docma_client_props[propName];
+        }
+
+        function setDocmaClientProp(propName, propValue) {
+            docma_client_props[propName] = propValue;
+        }
+    ]]></script>
+</window>
+
+<?component name="NodePropertiesDialog" inline="true" macroURI="NodePropertiesDialog.zul"?>
+<NodePropertiesDialog />
+
+<?component name="SelectNodeTypeDialog" inline="true" macroURI="SelectNodeTypeDialog.zul"?>
+<SelectNodeTypeDialog />
+
+<?component name="ReferenceDialog" inline="true" macroURI="ReferenceDialog.zul"?>
+<ReferenceDialog />
+
+<?component name="FolderDialog" inline="true" macroURI="FolderDialog.zul"?>
+<FolderDialog />
+
+<?component name="VersionNameDialog" inline="true" macroURI="VersionNameDialog.zul"?>
+<VersionNameDialog />
+
+<?component name="VersionCommentDialog" inline="true" macroURI="VersionCommentDialog.zul"?>
+<VersionCommentDialog />
+
+<?component name="ProductDialog" inline="true" macroURI="ProductDialog.zul"?>
+<ProductDialog />
+
+<?component name="ProductPathDialog" inline="true" macroURI="ProductPathDialog.zul"?>
+<ProductPathDialog />
+
+<?component name="ProductLangSelectDialog" inline="true" macroURI="ProductLangSelectDialog.zul"?>
+<ProductLangSelectDialog />
+
+<?component name="ProductVersionDialog" inline="true" macroURI="ProductVersionDialog.zul"?>
+<ProductVersionDialog />
+
+<?component name="CopyProductDialog" inline="true" macroURI="CopyProductDialog.zul"?>
+<CopyProductDialog />
+
+<?component name="UserGroupDialog" inline="true" macroURI="UserGroupDialog.zul"?>
+<UserGroupDialog />
+
+<?component name="AccessRightsDialog" inline="true" macroURI="AccessRightsDialog.zul"?>
+<AccessRightsDialog />
+
+<?component name="MembersDialog" inline="true" macroURI="MembersDialog.zul"?>
+<MembersDialog />
+
+<?component name="UserDialog" inline="true" macroURI="UserDialog.zul"?>
+<UserDialog />
+
+<?component name="PublicationExportDialog" inline="true" macroURI="PublicationExportDialog.zul"?>
+<PublicationExportDialog />
+
+<?component name="PublicationConfigDialog" inline="true" macroURI="PublicationConfigDialog.zul"?>
+<PublicationConfigDialog />
+
+<?component name="MediaConfigDialog" inline="true" macroURI="MediaConfigDialog.zul"?>
+<MediaConfigDialog />
+
+<?component name="NewApplicDialog" inline="true" macroURI="NewApplicDialog.zul"?>
+<NewApplicDialog />
+
+<?component name="FilterSettingDialog" inline="true" macroURI="FilterSettingDialog.zul"?>
+<FilterSettingDialog />
+
+<?component name="ReferencedPubsDialog" inline="true" macroURI="ReferencedPubsDialog.zul"?>
+<ReferencedPubsDialog />
+
+<?component name="StyleDialog" inline="true" macroURI="StyleDialog.zul"?>
+<StyleDialog />
+
+<?component name="CreateStyleVariantDialog" inline="true" macroURI="CreateStyleVariantDialog.zul"?>
+<CreateStyleVariantDialog />
+
+<?component name="FileOverwriteDialog" inline="true" macroURI="FileOverwriteDialog.zul"?>
+<FileOverwriteDialog />
+
+<?component name="GenericMessageDialog" inline="true" macroURI="GenericMessageDialog.zul"?>
+<GenericMessageDialog />
+
+<?component name="ConnectedUsersDialog" inline="true" macroURI="ConnectedUsersDialog.zul"?>
+<ConnectedUsersDialog />
+
+<?component name="ExportQueueDialog" inline="true" macroURI="ExportQueueDialog.zul"?>
+<ExportQueueDialog />
+
+<?component name="SearchReplaceDialog" inline="true" macroURI="SearchReplaceDialog.zul"?>
+<SearchReplaceDialog />
+
+<?component name="FindNodesDialog" inline="true" macroURI="FindNodesDialog.zul"?>
+<FindNodesDialog />
+
+<?component name="CharEntityDialog" inline="true" macroURI="CharEntityDialog.zul"?>
+<CharEntityDialog />
+
+<?component name="AutoFormatConfigDialog" inline="true" macroURI="AutoFormatConfigDialog.zul"?>
+<AutoFormatConfigDialog />
+
+<?component name="AutoFormatCallDialog" inline="true" macroURI="AutoFormatCallDialog.zul"?>
+<AutoFormatCallDialog />
+
+<?component name="AboutDialog" inline="true" macroURI="AboutDialog.zul"?>
+<AboutDialog />
+
+<?component name="BusyDialog" inline="true" macroURI="BusyDialog.zul"?>
+<BusyDialog />
+
+<?component name="LicenseDialog" inline="true" macroURI="LicenseDialog.zul"?>
+<LicenseDialog />
+
+<?component name="DropUploadDialog" inline="true" macroURI="DropUploadDialog.zul"?>
+<DropUploadDialog />
+
+</zk>

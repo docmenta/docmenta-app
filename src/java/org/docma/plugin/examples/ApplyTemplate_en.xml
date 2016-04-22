@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+  <entry key="shortInfo">Format input using a template with placeholder strings $content and $title.</entry>
+  <entry key="longInfo"><![CDATA[
+  <big><b>Arguments:</b></big>
+  <dl>
+    <dt><b><tt><i>ALIAS</i></tt></b></dt>
+    <dd>The alias name of the template node.</dd>
+  </dl>
+  <p><big><b>Description:</b></big></p>
+  <p>
+    The content-node given by alias name <tt><i>ALIAS</i></tt>
+    is used as a template. The transformation replaces the input-element by
+    the content of the template, where the substring "$content" within the 
+    template is replaced by the inner content of the input-element and the 
+    substring "$title" is replaced by the value of the input-element's title attribute.
+    If the input-element does not have a title attribute, then the substring
+    "<tt>$title</tt>" is replaced by the empty string.
+  </p>
+  <p>
+    Note: If the template contains inline-inclusions (i.e. <tt>[#<i>alias</i>]</tt> or
+    <tt>[##<i>alias</i>]</tt>), then these are resolved before the substrings
+    "<tt>$content</tt>" and "<tt>$title</tt>" are replaced.
+  </p>
+  <p><big><b>Example:</b></big></p>
+  <p>
+    Given a style with ID <tt>notebox</tt>, that has following Auto-Format configuration:
+  </p>
+  <pre>
+    org.docma.plugin.examples.ApplyTemplate notebox_template </pre>
+  <p>
+    If the content-node with alias name "notebox_template" has following content:
+  </p>
+  <pre>
+    &lt;table&gt;
+      &lt;tr&gt;&lt;td&gt;Note: $title&lt;/td&gt;&lt;/tr&gt;
+      &lt;tr&gt;&lt;td&gt;$content&lt;/td&gt;&lt;/tr&gt;
+    &lt;/table&gt; </pre>
+  <p>
+    then the XHTML content
+  </p>
+  <pre>
+    &lt;div class="notebox" title="Some title"&gt;
+      The content of the block.
+    &lt;/div&gt; </pre>
+  <p>
+    is rendered as
+  </p>
+  <pre>
+    &lt;table&gt;
+      &lt;tr&gt;&lt;td&gt;Note: Some title&lt;/td&gt;&lt;/tr&gt;
+      &lt;tr&gt;&lt;td&gt;The content of the block.&lt;/td&gt;&lt;/tr&gt;
+    &lt;/table&gt;
+  </pre>
+  ]]>
+  </entry>
+</properties>

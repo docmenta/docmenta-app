@@ -1,0 +1,32 @@
+<window id="ConnectedUsersDialog" title="${c:l('label.connectedusers.dialog.title')}"
+        border="normal" width="600px" visible="false" sizable="true"
+        closable="true" onClose="ConnectedUsersDialog.onCloseClick(); event.stopPropagation();"
+        use="org.docma.webapp.ConnectedUsersDialog">
+    <caption>
+        <toolbarbutton label="Help" onClick='mainWin.onHelp("help/show_connected_users.html")'/>
+    </caption>
+    <hbox width="100%" widths="3px,,100px,3px">
+        <space spacing="3px" />
+        <vbox spacing="3px" width="100%">
+            <separator spacing="0px"/>
+            <listbox id="ConnectedUsersListbox" rows="12" multiple="true">
+                <listhead sizable="true">
+                    <listheader label="User name" sort="auto"/>
+                    <listheader label="Last name" sort="auto"/>
+                    <listheader label="First name" sort="auto"/>
+                    <listheader label="Session ID" sort="auto"/>
+                    <listheader label="Store ID" sort="auto"/>
+                    <listheader label="Version ID" sort="auto"/>
+                </listhead>
+            </listbox>
+            <separator spacing="2px"/>
+        </vbox>
+        <vbox spacing="3px" width="100px">
+            <button label="${c:l('label.close.btn')}" width="100px"
+                    onClick="ConnectedUsersDialog.onCloseClick()"/>
+            <button label="${c:l('label.connectedusers.disconnect.btn')}" width="100px"
+                    onClick="ConnectedUsersDialog.onDisconnectClick()"/>
+        </vbox>
+        <space spacing="3px" />
+    </hbox>
+</window>

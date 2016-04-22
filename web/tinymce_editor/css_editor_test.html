@@ -1,0 +1,188 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"  style="margin:0;padding:0;height:100%;overflow:hidden;">
+<head>
+<title>Docma Test</title>
+
+<!-- TinyMCE -->
+<script type="text/javascript" src="jscripts/tiny_mce/tiny_mce.js"></script>
+<script type="text/javascript">
+	tinyMCE.init({
+		// General options
+		mode : "exact",
+        elements : "elm1",
+		theme : "advanced",
+		plugins : "style",  // ,inlinepopups
+        readonly : 1,
+        editor_content_width : "30",
+        width: 20,
+        height: 20,
+        // onchange_callback : "myCustomOnChangeHandler",
+        // handle_event_callback : "myHandleEvent",
+        // handle_node_change_callback : "nodeChangeHandler",
+
+		// Theme options
+		theme_advanced_buttons1 : "",
+		theme_advanced_buttons2 : "",
+		theme_advanced_buttons3 : "",
+		theme_advanced_buttons4 : "",
+		theme_advanced_toolbar_location : "external",
+		theme_advanced_toolbar_align : "left",
+		theme_advanced_statusbar_location : "none",
+		theme_advanced_resizing : false,
+        theme_advanced_resizing_min_width : 20,
+        theme_advanced_resizing_min_height : 20,
+
+
+		// Example content CSS (should be your site CSS)
+		content_css : "css/content.css",
+
+		// Drop lists for link/image/media/template dialogs
+		template_external_list_url : "lists/template_list.js",
+		external_link_list_url : "lists/link_list.js",
+		external_image_list_url : "lists/image_list.js",
+		media_external_list_url : "lists/media_list.js",
+
+		// Style formats
+		style_formats : [
+			{title : 'Bold text', inline : 'b'},
+			{title : 'Red text', inline : 'span', styles : {color : '#ff0000'}},
+			{title : 'Red header', block : 'h1', styles : {color : '#ff0000'}},
+			{title : 'Example 1', inline : 'span', classes : 'example1'},
+			{title : 'Example 2', inline : 'span', classes : 'example2'},
+			{title : 'Table styles'},
+			{title : 'Table row 1', selector : 'tr', classes : 'tablerow1'}
+		],
+
+		// Replace values for the template plugin
+		template_replace_values : {
+			username : "Some User",
+			staffid : "991234"
+		}
+	});
+
+    var initDone = false;
+    
+    function myInit() {
+      if (initDone) return;
+      tinyMCE.activeEditor.windowManager.onClose.add(function() {unselect();});
+      
+      // tinyMCEPopup.oldClose = tinyMCEPopup.close; // preserve old close function
+      // tinyMCEPopup.close = function() {
+      //    unselect();
+      //    tinyMCEPopup.oldClose(); // close popup
+      // }
+      initDone = true;
+    }
+    
+    function myCustomOnChangeHandler(inst) {
+       // unselect();
+       // alert("Some one modified something");
+       // alert("The HTML is now:" + inst.getBody().innerHTML);
+    }
+
+    function myHandleEvent(e) {
+       // unselect();
+	   window.status = "event:" + e.type;
+       return true; // Continue handling
+    }
+
+    function nodeChangeHandler(editor_id, node, undo_index, undo_levels, visual_aid, any_selection) {
+       if (any_selection) window.setTimeout("unselect()", 1000);
+       // Debug to Firebug in FF
+       // console.debug(node.nodeName);
+    }
+
+    function showCSSEditor() {
+        myInit();
+        
+        // tinyMCE.execCommand('mceSelectNode',false,document.getElementById("seltest"));
+        tinyMCE.execCommand('mceSelectNode',false,tinyMCE.activeEditor.getDoc().getElementById("seltest"));
+        // tinyMCE.execCommand('mceSelectNode',false,tinyMCE.activeEditor.getDoc().firstChild);
+        tinyMCE.execCommand('mceStyleProps');
+        // unselect();
+    }
+    
+    function showCSSEditor2() {
+		tinymce.activeEditor.windowManager.open({
+					file : 'jscripts/tiny_mce/plugins/style/props.htm',
+					width : 480,
+					height : 320,
+					inline : 1
+				}, {
+					plugin_url : 'file:///C:/Arbeit/netbeans_projekte/DokuManager/web/tinymce_editor/jscripts/tiny_mce/plugins/style',
+					style_text : 'font-weight:bold'
+				});
+      
+    }
+    
+    function minimizeEditor() {
+        // var container = tinymce.activeEditor.contentAreaContainer;
+        // var w = 50; // width
+        // var h = 50; // height
+        tinymce.activeEditor.theme.resizeTo(40,40);
+
+        // resize container now:
+        // container.style.width = w + "px";
+        // container.style.height = h + "px";
+    }
+    
+    function showNewStyle() {
+        window.alert(tinyMCE.activeEditor.getDoc().getElementById("seltest").style.cssText);
+    }
+    
+    function unselect() {
+      if (tinyMCE.activeEditor) { // if (tinyMCE.get('elm1')) {
+        tinyMCE.execCommand('mceSelectNode',false,tinyMCE.activeEditor.getDoc().getElementById("nosel"));
+      }
+    }
+</script>
+<!-- /TinyMCE -->
+
+</head>
+<body style="margin:0;padding:0;height:100%;overflow:hidden;" >
+
+<!-- <form method="post" action="http://tinymce.moxiecode.com/dump.php?example=true"> -->
+
+    <table width="100%" height="100%" bgcolor="#FF0000" style="overflow:hidden;">
+    <tr>
+      <td bgcolor="#00FFFF" style="overflow:auto;">
+        <div id="elm1" style="width:50px;height:30px;background-color:#00FF00;font-weight:bold;">
+           <span id="seltest" style="background-color:#00FFFF;font-weight:bold;">Abc...</span><span id="nosel"></span>
+        </div>
+        <!-- <textarea id="elm1_" cols="4" rows="2">Abc...</textarea> -->
+          <div id="stylepreview1" style="width:80px;height:50px;padding:4px;background-color:#FF0000;">
+            <!-- <span id="seltest" style="background-color:#FFFF00;vertical-align:middle;"> -->
+            Abc def...
+            <!-- </span><span id="nosel"></span> -->
+          </div>
+      </td>
+    </tr>
+    <tr height="100">
+      <td height="100" bgcolor="#FFFF00" style="overflow:hidden;">
+
+		<!-- Some integration calls -->
+		<a href="javascript:;" onmousedown="tinyMCE.get('elm1').show();">[Show]</a>
+		<a href="javascript:;" onmousedown="tinyMCE.get('elm1').hide();">[Hide]</a>
+		<a href="javascript:;" onmousedown="tinyMCE.get('elm1').execCommand('Bold');">[Bold]</a>
+		<a href="javascript:;" onmousedown="alert(tinyMCE.get('elm1').getContent());">[Get contents]</a>
+		<a href="javascript:;" onmousedown="alert(tinyMCE.get('elm1').selection.getContent());">[Get selected HTML]</a>
+		<a href="javascript:;" onmousedown="alert(tinyMCE.get('elm1').selection.getContent({format : 'text'}));">[Get selected text]</a>
+		<a href="javascript:;" onmousedown="alert(tinyMCE.get('elm1').selection.getNode().nodeName);">[Get selected element]</a>
+		<a href="javascript:;" onmousedown="tinyMCE.execCommand('mceInsertContent',false,'<b>Hello world!!</b>');">[Insert HTML]</a>
+		<a href="javascript:;" onmousedown="tinyMCE.execCommand('mceReplaceContent',false,'<b>{$selection}</b>');">[Replace selection]</a>
+
+		<br />
+		<input type="submit" name="save" value="Submit" />
+		<input type="reset" name="reset" value="Reset" />
+		<a href="javascript:;" onmousedown="showCSSEditor();">[Open CSS Editor]</a>
+		<a href="javascript:;" onmousedown="minimizeEditor();">[Minimize]</a>
+		<a href="javascript:;" onmousedown="showNewStyle();">[ShowStyle]</a>
+		<a href="javascript:;" onmousedown="unselect();">[Unselect]</a>
+      </td>
+    </tr>
+    </table>
+
+<!-- </form> -->
+
+</body>
+</html>

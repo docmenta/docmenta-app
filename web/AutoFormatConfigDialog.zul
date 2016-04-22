@@ -1,0 +1,31 @@
+<window id="AutoFormatConfigDialog" title="${c:l('label.autoformat.config.dialog.title')}"
+        border="normal" width="300px" visible="false"
+        closable="true" onClose="self.visible = false; event.stopPropagation();"
+        use="org.docma.webapp.AutoFormatConfigDialog">
+    <caption>
+        <toolbarbutton label="Help" onClick='mainWin.onHelp("help/autoformat_config.html")'/>
+    </caption>
+    <hbox width="100%" pack="stretch">
+        <space spacing="3px" />
+        <vbox spacing="3px" width="100%" align="stretch">
+            <separator spacing="0px"/>
+            <vbox width="100%" align="stretch">
+                <label>${c:l('label.autoformat.classname')}:</label>
+                <textbox id="AutoFormatClassnameTextbox" width="98%" forward="onOK=AutoFormatConfigDialog.onOkayClick"/>
+            </vbox>
+            <separator spacing="2px"/>
+            <hbox pack="stretch">
+              <cell width="50%">
+                <button label="${c:l('label.okay.btn')}" width="100%"
+                        onClick="AutoFormatConfigDialog.onOkayClick()"/>
+              </cell>
+              <cell width="50%">
+                <button label="${c:l('label.cancel.btn')}" width="100%"
+                        onClick="AutoFormatConfigDialog.onCancelClick()"/>
+              </cell>
+            </hbox>
+            <separator spacing="2px"/>
+        </vbox>
+        <space spacing="3px" />
+    </hbox>
+</window>

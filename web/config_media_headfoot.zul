@@ -1,0 +1,489 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<vbox spacing="3px" width="100%" align="stretch">
+  <separator spacing="1px"/>
+  <hbox spacing="3px" align="center">
+    <label value="Show section title in header/footer up to section level " style="font-weight:bold;" />
+    <listbox id="MediaHeaderFooterSectDepthListbox" mold="select" rows="1" >
+      <listitem label="1" value="1" />
+      <listitem label="2" value="2" />
+      <listitem label="3" value="3" />
+      <listitem label="4" value="4" />
+      <listitem label="5" value="5" />
+      <listitem label="6" value="6" />
+    </listbox>
+  </hbox>
+  <separator spacing="1px"/>
+  <checkbox label="Custom header/footer configuration:" style="font-weight:bold;"
+            id="MediaHeadFootCustomConfigCheckbox" 
+            forward="onCheck=MediaConfigDialog.onCheckCustomHeaderFooter" />
+  
+  <hbox width="100%">
+    <space spacing="20px" />
+    <vbox spacing="3px">
+        <separator spacing="1px"/>
+        <hbox spacing="3px" align="center">
+            <cell valign="middle" width="110px">
+              <label value="Header widths: " style="font-weight:bold;" />
+            </cell>
+            <label id="MediaHeaderWidthLeftLabel" value="Left: " />
+            <intbox id="MediaHeaderWidthLeftBox" cols="3" constraint="no negative"
+                    forward="onChange=MediaConfigDialog.onChangeHeaderFooterWidth" />
+            <label value="%" />
+            <space spacing="4px" />
+            <label value="Center: " />
+            <intbox id="MediaHeaderWidthCenterBox" cols="3" constraint="no negative"
+                    forward="onChange=MediaConfigDialog.onChangeHeaderFooterWidth" />
+            <label value="%" />
+            <space spacing="4px" />
+            <label id="MediaHeaderWidthRightLabel" value="Right: " />
+            <intbox id="MediaHeaderWidthRightBox" cols="3" constraint="no negative"
+                    forward="onChange=MediaConfigDialog.onChangeHeaderFooterWidth" />
+            <label value="%" />
+        </hbox>
+        <!--
+        <hbox width="100%" align="center" spacing="3px">
+          <label value="Header height: " style="font-weight:bold;"/>
+          <textbox id="MediaHeaderHeightTextbox" cols="5" maxlength="10" width="40px"
+                   constraint="/([0-9]+([.,][0-9]+)?)?/:${c:l('error.input.floatnumber')}" />
+          <listbox id="MediaHeaderHeightUnitListbox" mold="select" rows="1">
+            <listitem label="cm" value="cm"/>
+            <listitem label="mm" value="mm"/>
+            <listitem label="in" value="in"/>
+            <listitem label="pt" value="pt"/>
+            <listitem label="pc" value="pc"/>
+            <listitem label="px" value="px"/>
+            <listitem label="em" value="em"/>
+          </listbox>
+        </hbox>
+        -->
+        <separator spacing="1px"/>
+
+        <hbox spacing="3px" align="center">
+            <cell valign="middle" width="110px">
+              <label value="Footer widths: " width="150px" style="font-weight:bold;" />
+            </cell>
+            <label id="MediaFooterWidthLeftLabel"  value="Left: " />
+            <intbox id="MediaFooterWidthLeftBox" cols="3" constraint="no negative"
+                    forward="onChange=MediaConfigDialog.onChangeHeaderFooterWidth" />
+            <label value="%" />
+            <space spacing="4px" />
+            <label value="Center: " />
+            <intbox id="MediaFooterWidthCenterBox" cols="3" constraint="no negative"
+                    forward="onChange=MediaConfigDialog.onChangeHeaderFooterWidth" />
+            <label value="%" />
+            <space spacing="4px" />
+            <label id="MediaFooterWidthRightLabel"  value="Right: " />
+            <intbox id="MediaFooterWidthRightBox" cols="3" constraint="no negative"
+                    forward="onChange=MediaConfigDialog.onChangeHeaderFooterWidth" />
+            <label value="%" />
+        </hbox>
+        <!--
+        <hbox width="100%" align="center" spacing="3px">
+          <label value="Footer height: " style="font-weight:bold;"/>
+          <textbox id="MediaFooterHeightTextbox" cols="5" maxlength="10" width="40px"
+                   constraint="/([0-9]+([.,][0-9]+)?)?/:${c:l('error.input.floatnumber')}" />
+          <listbox id="MediaFooterHeightUnitListbox" mold="select" rows="1">
+            <listitem label="cm" value="cm"/>
+            <listitem label="mm" value="mm"/>
+            <listitem label="in" value="in"/>
+            <listitem label="pt" value="pt"/>
+            <listitem label="pc" value="pc"/>
+            <listitem label="px" value="px"/>
+            <listitem label="em" value="em"/>
+          </listbox>
+        </hbox>
+        -->
+        <separator spacing="1px"/>
+
+        <vbox width="99%" spacing="3px" style="background-color:#E8E8E8;">
+         <hbox spacing="3px" align="center" style="margin:6px 0 3px 10px;">
+          <label value="Page class: " style="font-weight:bold;" />
+          <listbox id="MediaHeaderFooterPageClassListbox" mold="select" rows="1"
+                   forward="onSelect=MediaConfigDialog.onSelectHeaderFooterPageClass" >
+            <listitem label="Title page" value="titlepage" />
+            <listitem label="Table of content pages" value="lot" />
+            <listitem label="Front matter pages" value="front" />
+            <listitem label="Content pages" value="body" />
+            <listitem label="Back matter pages" value="back" />
+            <listitem label="Index pages" value="index" />
+          </listbox>
+          <space spacing="1px" />
+          <checkbox id="MediaHeaderFooterSameAsBodyBox" label="Same as content pages" 
+                    forward="onCheck=MediaConfigDialog.onCheckHeaderFooterSameAsBody" />
+         </hbox>
+        
+         <vbox width="96%" align="stretch"
+               style="background-color:#FFFFFF; border-width:1px 2px 2px 1px; border-style:solid; border-color:#000000; margin:2px 10px 10px 10px" >
+             
+          <!-- Header content -->        
+          <hbox width="100%" pack="stretch">
+            <cell width="33%" style="padding:4px;" align="center">
+              <vbox id="MediaHeaderContentLeftBox" align="center" width="100%" spacing="0px">
+                <label value="Header Left" style="font-weight:bold;" />
+                <separator spacing="3px" />
+                <combobox id="MediaHeaderContentLeft1Combobox" maxlength="2048" hflex="1" value=""
+                          forward="onOpen=MediaConfigDialog.onOpenHeaderFooterContent, onSelect=MediaConfigDialog.onSelectHeaderFooterContent, onChange=MediaConfigDialog.onHeaderFooterContentChanged" >
+                  <comboitem label="" />
+                  <comboitem description="Bibliographic ID" label="%biblio_id" />
+                  <comboitem description="Copyright" label="%copyright" />
+                  <comboitem description="Corporate Name" label="%corporate" />
+                  <comboitem description="Chapter Title" label="%component_title" />
+                  <comboitem description="Chapter Number+Title" label="%component_numtitle" />
+                  <comboitem description="Date timestamp" label="%timestamp" />
+                  <comboitem description="Draft indication" label="%draft" />
+                  <comboitem description="Generated Title (ToC/Index)" label="%generated_title" />
+                  <comboitem description="Image" label="%image{alias; height: }" />
+                  <comboitem description="Page Number" label="%pagenumber" />
+                  <comboitem description="Publication Date" label="%pub_date" />
+                  <comboitem description="Publication Sub-Title" label="%pub_subtitle" />
+                  <comboitem description="Publication Title" label="%pub_title" />
+                  <comboitem description="Publisher" label="%publisher" />
+                  <comboitem description="Release Info" label="%release_info" />
+                  <comboitem description="Section Title" label="%section_title" />
+                  <comboitem description="Insert line break" label="%br" />
+                  <comboitem description="Span columns" label="%cols{number}" />
+                  <comboitem description="Span rows" label="%rows{number}" />
+                  <comboitem description="Custom cell style" label="%style{style_id}" />
+                </combobox>
+                <separator spacing="3px" />
+                <combobox id="MediaHeaderContentLeft2Combobox" maxlength="2048" hflex="1" value=""
+                          forward="onOpen=MediaConfigDialog.onOpenHeaderFooterContent, onSelect=MediaConfigDialog.onSelectHeaderFooterContent, onChange=MediaConfigDialog.onHeaderFooterContentChanged" >
+                  <comboitem label="" />
+                  <comboitem description="Bibliographic ID" label="%biblio_id" />
+                  <comboitem description="Copyright" label="%copyright" />
+                  <comboitem description="Corporate Name" label="%corporate" />
+                  <comboitem description="Chapter Title" label="%component_title" />
+                  <comboitem description="Chapter Number+Title" label="%component_numtitle" />
+                  <comboitem description="Date timestamp" label="%timestamp" />
+                  <comboitem description="Draft indication" label="%draft" />
+                  <comboitem description="Generated Title (ToC/Index)" label="%generated_title" />
+                  <comboitem description="Image" label="%image{alias; height: }" />
+                  <comboitem description="Page Number" label="%pagenumber" />
+                  <comboitem description="Publication Date" label="%pub_date" />
+                  <comboitem description="Publication Sub-Title" label="%pub_subtitle" />
+                  <comboitem description="Publication Title" label="%pub_title" />
+                  <comboitem description="Publisher" label="%publisher" />
+                  <comboitem description="Release Info" label="%release_info" />
+                  <comboitem description="Section Title" label="%section_title" />
+                  <comboitem description="Insert line break" label="%br" />
+                  <comboitem description="Span columns" label="%cols{number}" />
+                  <comboitem description="Span rows" label="%rows{number}" />
+                  <comboitem description="Custom cell style" label="%style{style_id}" />
+                </combobox>
+              </vbox>
+            </cell>
+            <cell width="34%"  align="center" style="padding:4px;">
+              <vbox id="MediaHeaderContentCenterBox" align="center" spacing="0px">
+                <label value="Header Center" style="font-weight:bold;" />
+                <separator spacing="3px" />
+                <combobox id="MediaHeaderContentCenter1Combobox" maxlength="2048" hflex="1" value=""
+                          forward="onOpen=MediaConfigDialog.onOpenHeaderFooterContent, onSelect=MediaConfigDialog.onSelectHeaderFooterContent, onChange=MediaConfigDialog.onHeaderFooterContentChanged" >
+                  <comboitem label="" />
+                  <comboitem description="Bibliographic ID" label="%biblio_id" />
+                  <comboitem description="Copyright" label="%copyright" />
+                  <comboitem description="Corporate Name" label="%corporate" />
+                  <comboitem description="Chapter Title" label="%component_title" />
+                  <comboitem description="Chapter Number+Title" label="%component_numtitle" />
+                  <comboitem description="Date timestamp" label="%timestamp" />
+                  <comboitem description="Draft indication" label="%draft" />
+                  <comboitem description="Generated Title (ToC/Index)" label="%generated_title" />
+                  <comboitem description="Image" label="%image{alias; height: }" />
+                  <comboitem description="Page Number" label="%pagenumber" />
+                  <comboitem description="Publication Date" label="%pub_date" />
+                  <comboitem description="Publication Sub-Title" label="%pub_subtitle" />
+                  <comboitem description="Publication Title" label="%pub_title" />
+                  <comboitem description="Publisher" label="%publisher" />
+                  <comboitem description="Release Info" label="%release_info" />
+                  <comboitem description="Section Title" label="%section_title" />
+                  <comboitem description="Insert line break" label="%br" />
+                  <comboitem description="Span columns" label="%cols{number}" />
+                  <comboitem description="Span rows" label="%rows{number}" />
+                  <comboitem description="Custom cell style" label="%style{style_id}" />
+                </combobox>
+                <separator spacing="3px" />
+                <combobox id="MediaHeaderContentCenter2Combobox" maxlength="2048" hflex="1" value=""
+                          forward="onOpen=MediaConfigDialog.onOpenHeaderFooterContent, onSelect=MediaConfigDialog.onSelectHeaderFooterContent, onChange=MediaConfigDialog.onHeaderFooterContentChanged" >
+                  <comboitem label="" />
+                  <comboitem description="Bibliographic ID" label="%biblio_id" />
+                  <comboitem description="Copyright" label="%copyright" />
+                  <comboitem description="Corporate Name" label="%corporate" />
+                  <comboitem description="Chapter Title" label="%component_title" />
+                  <comboitem description="Chapter Number+Title" label="%component_numtitle" />
+                  <comboitem description="Date timestamp" label="%timestamp" />
+                  <comboitem description="Draft indication" label="%draft" />
+                  <comboitem description="Generated Title (ToC/Index)" label="%generated_title" />
+                  <comboitem description="Image" label="%image{alias; height: }" />
+                  <comboitem description="Page Number" label="%pagenumber" />
+                  <comboitem description="Publication Date" label="%pub_date" />
+                  <comboitem description="Publication Sub-Title" label="%pub_subtitle" />
+                  <comboitem description="Publication Title" label="%pub_title" />
+                  <comboitem description="Publisher" label="%publisher" />
+                  <comboitem description="Release Info" label="%release_info" />
+                  <comboitem description="Section Title" label="%section_title" />
+                  <comboitem description="Insert line break" label="%br" />
+                  <comboitem description="Span columns" label="%cols{number}" />
+                  <comboitem description="Span rows" label="%rows{number}" />
+                  <comboitem description="Custom cell style" label="%style{style_id}" />
+                </combobox>
+              </vbox>
+            </cell>
+            <cell width="33%" style="padding:4px;" align="center">
+              <vbox id="MediaHeaderContentRightBox" align="center" spacing="0px">
+                <label value="Header Right" style="font-weight:bold;" />
+                <separator spacing="3px" />
+                <combobox id="MediaHeaderContentRight1Combobox" maxlength="2048" hflex="1" value=""
+                          forward="onOpen=MediaConfigDialog.onOpenHeaderFooterContent, onSelect=MediaConfigDialog.onSelectHeaderFooterContent, onChange=MediaConfigDialog.onHeaderFooterContentChanged" >
+                  <comboitem label="" />
+                  <comboitem description="Bibliographic ID" label="%biblio_id" />
+                  <comboitem description="Copyright" label="%copyright" />
+                  <comboitem description="Corporate Name" label="%corporate" />
+                  <comboitem description="Chapter Title" label="%component_title" />
+                  <comboitem description="Chapter Number+Title" label="%component_numtitle" />
+                  <comboitem description="Date timestamp" label="%timestamp" />
+                  <comboitem description="Draft indication" label="%draft" />
+                  <comboitem description="Generated Title (ToC/Index)" label="%generated_title" />
+                  <comboitem description="Image" label="%image{alias; height: }" />
+                  <comboitem description="Page Number" label="%pagenumber" />
+                  <comboitem description="Publication Date" label="%pub_date" />
+                  <comboitem description="Publication Sub-Title" label="%pub_subtitle" />
+                  <comboitem description="Publication Title" label="%pub_title" />
+                  <comboitem description="Publisher" label="%publisher" />
+                  <comboitem description="Release Info" label="%release_info" />
+                  <comboitem description="Section Title" label="%section_title" />
+                  <comboitem description="Insert line break" label="%br" />
+                  <comboitem description="Span columns" label="%cols{number}" />
+                  <comboitem description="Span rows" label="%rows{number}" />
+                  <comboitem description="Custom cell style" label="%style{style_id}" />
+                </combobox>
+                <separator spacing="3px" />
+                <combobox id="MediaHeaderContentRight2Combobox" maxlength="2048" hflex="1" value=""
+                          forward="onOpen=MediaConfigDialog.onOpenHeaderFooterContent, onSelect=MediaConfigDialog.onSelectHeaderFooterContent, onChange=MediaConfigDialog.onHeaderFooterContentChanged" >
+                  <comboitem label="" />
+                  <comboitem description="Bibliographic ID" label="%biblio_id" />
+                  <comboitem description="Copyright" label="%copyright" />
+                  <comboitem description="Corporate Name" label="%corporate" />
+                  <comboitem description="Chapter Title" label="%component_title" />
+                  <comboitem description="Chapter Number+Title" label="%component_numtitle" />
+                  <comboitem description="Date timestamp" label="%timestamp" />
+                  <comboitem description="Draft indication" label="%draft" />
+                  <comboitem description="Generated Title (ToC/Index)" label="%generated_title" />
+                  <comboitem description="Image" label="%image{alias; height: }" />
+                  <comboitem description="Page Number" label="%pagenumber" />
+                  <comboitem description="Publication Date" label="%pub_date" />
+                  <comboitem description="Publication Sub-Title" label="%pub_subtitle" />
+                  <comboitem description="Publication Title" label="%pub_title" />
+                  <comboitem description="Publisher" label="%publisher" />
+                  <comboitem description="Release Info" label="%release_info" />
+                  <comboitem description="Section Title" label="%section_title" />
+                  <comboitem description="Insert line break" label="%br" />
+                  <comboitem description="Span columns" label="%cols{number}" />
+                  <comboitem description="Span rows" label="%rows{number}" />
+                  <comboitem description="Custom cell style" label="%style{style_id}" />
+                </combobox>
+              </vbox>
+            </cell>
+          </hbox>
+
+          <!-- Page Sequence Selection -->
+          <cell width="100%" align="left"
+                style="border-width:1px 0 1px 0; border-style:solid; border-color:#000000; padding-left:20px;">
+            <vbox>
+              <separator spacing="15px"/>
+              <hbox align="center">
+                <listbox id="MediaHeaderFooterSequenceListbox" mold="select" rows="1"
+                         forward="onSelect=MediaConfigDialog.onSelectHeaderFooterPageSequence" >
+                    <listitem label="First page" value="first" />
+                    <listitem label="Odd pages" value="odd" />
+                    <listitem label="Even pages" value="even" />
+                    <listitem label="Blank pages" value="blank" />
+                </listbox>
+                <checkbox id="MediaHeaderFooterSameAsOddBox" label="Same as odd pages" 
+                          forward="onCheck=MediaConfigDialog.onCheckHeaderFooterSameAsOdd" />
+              </hbox>
+              <separator spacing="3px"/>
+              <hbox spacing="4px" align="center">
+                <button label="Create PDF Preview" forward="onClick=MediaConfigDialog.onHeaderFooterPreview" />
+                <space spacing="2px" />
+                <label value="Publication:" />
+                <listbox id="MediaHeaderFooterPublicationPreviewListbox" mold="select" rows="1"></listbox>
+              </hbox>
+              <separator spacing="15px"/>
+            </vbox>
+          </cell>
+
+          <!-- Footer content -->        
+          <hbox width="100%" pack="stretch">
+            <cell width="33%" style="padding:4px;" align="center">
+              <vbox id="MediaFooterContentLeftBox" align="center" spacing="0px">
+                <label value="Footer Left" style="font-weight:bold;" />
+                <separator spacing="3px" />
+                <combobox id="MediaFooterContentLeft1Combobox" maxlength="2048" hflex="1" value=""
+                          forward="onOpen=MediaConfigDialog.onOpenHeaderFooterContent, onSelect=MediaConfigDialog.onSelectHeaderFooterContent, onChange=MediaConfigDialog.onHeaderFooterContentChanged" >
+                  <comboitem label="" />
+                  <comboitem description="Bibliographic ID" label="%biblio_id" />
+                  <comboitem description="Copyright" label="%copyright" />
+                  <comboitem description="Corporate Name" label="%corporate" />
+                  <comboitem description="Chapter Title" label="%component_title" />
+                  <comboitem description="Chapter Number+Title" label="%component_numtitle" />
+                  <comboitem description="Date timestamp" label="%timestamp" />
+                  <comboitem description="Draft indication" label="%draft" />
+                  <comboitem description="Generated Title (ToC/Index)" label="%generated_title" />
+                  <comboitem description="Image" label="%image{alias; height: }" />
+                  <comboitem description="Page Number" label="%pagenumber" />
+                  <comboitem description="Publication Date" label="%pub_date" />
+                  <comboitem description="Publication Sub-Title" label="%pub_subtitle" />
+                  <comboitem description="Publication Title" label="%pub_title" />
+                  <comboitem description="Publisher" label="%publisher" />
+                  <comboitem description="Release Info" label="%release_info" />
+                  <comboitem description="Section Title" label="%section_title" />
+                  <comboitem description="Insert line break" label="%br" />
+                  <comboitem description="Span columns" label="%cols{number}" />
+                  <comboitem description="Span rows" label="%rows{number}" />
+                  <comboitem description="Custom cell style" label="%style{style_id}" />
+                </combobox>
+                <separator spacing="3px" />
+                <combobox id="MediaFooterContentLeft2Combobox" maxlength="2048" hflex="1" value=""
+                          forward="onOpen=MediaConfigDialog.onOpenHeaderFooterContent, onSelect=MediaConfigDialog.onSelectHeaderFooterContent, onChange=MediaConfigDialog.onHeaderFooterContentChanged" >
+                  <comboitem label="" />
+                  <comboitem description="Bibliographic ID" label="%biblio_id" />
+                  <comboitem description="Copyright" label="%copyright" />
+                  <comboitem description="Corporate Name" label="%corporate" />
+                  <comboitem description="Chapter Title" label="%component_title" />
+                  <comboitem description="Chapter Number+Title" label="%component_numtitle" />
+                  <comboitem description="Date timestamp" label="%timestamp" />
+                  <comboitem description="Draft indication" label="%draft" />
+                  <comboitem description="Generated Title (ToC/Index)" label="%generated_title" />
+                  <comboitem description="Image" label="%image{alias; height: }" />
+                  <comboitem description="Page Number" label="%pagenumber" />
+                  <comboitem description="Publication Date" label="%pub_date" />
+                  <comboitem description="Publication Sub-Title" label="%pub_subtitle" />
+                  <comboitem description="Publication Title" label="%pub_title" />
+                  <comboitem description="Publisher" label="%publisher" />
+                  <comboitem description="Release Info" label="%release_info" />
+                  <comboitem description="Section Title" label="%section_title" />
+                  <comboitem description="Insert line break" label="%br" />
+                  <comboitem description="Span columns" label="%cols{number}" />
+                  <comboitem description="Span rows" label="%rows{number}" />
+                  <comboitem description="Custom cell style" label="%style{style_id}" />
+                </combobox>
+              </vbox>
+            </cell>
+            <cell width="34%"  align="center" style="padding:4px;">
+              <vbox id="MediaFooterContentCenterBox" align="center" spacing="0px">
+                <label value="Footer Center" style="font-weight:bold;" />
+                <separator spacing="3px" />
+                <combobox id="MediaFooterContentCenter1Combobox" maxlength="2048" hflex="1" value=""
+                          forward="onOpen=MediaConfigDialog.onOpenHeaderFooterContent, onSelect=MediaConfigDialog.onSelectHeaderFooterContent, onChange=MediaConfigDialog.onHeaderFooterContentChanged" >
+                  <comboitem label="" />
+                  <comboitem description="Bibliographic ID" label="%biblio_id" />
+                  <comboitem description="Copyright" label="%copyright" />
+                  <comboitem description="Corporate Name" label="%corporate" />
+                  <comboitem description="Chapter Title" label="%component_title" />
+                  <comboitem description="Chapter Number+Title" label="%component_numtitle" />
+                  <comboitem description="Date timestamp" label="%timestamp" />
+                  <comboitem description="Draft indication" label="%draft" />
+                  <comboitem description="Generated Title (ToC/Index)" label="%generated_title" />
+                  <comboitem description="Image" label="%image{alias; height: }" />
+                  <comboitem description="Page Number" label="%pagenumber" />
+                  <comboitem description="Publication Date" label="%pub_date" />
+                  <comboitem description="Publication Sub-Title" label="%pub_subtitle" />
+                  <comboitem description="Publication Title" label="%pub_title" />
+                  <comboitem description="Publisher" label="%publisher" />
+                  <comboitem description="Release Info" label="%release_info" />
+                  <comboitem description="Section Title" label="%section_title" />
+                  <comboitem description="Insert line break" label="%br" />
+                  <comboitem description="Span columns" label="%cols{number}" />
+                  <comboitem description="Span rows" label="%rows{number}" />
+                  <comboitem description="Custom cell style" label="%style{style_id}" />
+                </combobox>
+                <separator spacing="3px" />
+                <combobox id="MediaFooterContentCenter2Combobox" maxlength="2048" hflex="1" value=""
+                          forward="onOpen=MediaConfigDialog.onOpenHeaderFooterContent, onSelect=MediaConfigDialog.onSelectHeaderFooterContent, onChange=MediaConfigDialog.onHeaderFooterContentChanged" >
+                  <comboitem label="" />
+                  <comboitem description="Bibliographic ID" label="%biblio_id" />
+                  <comboitem description="Copyright" label="%copyright" />
+                  <comboitem description="Corporate Name" label="%corporate" />
+                  <comboitem description="Chapter Title" label="%component_title" />
+                  <comboitem description="Chapter Number+Title" label="%component_numtitle" />
+                  <comboitem description="Date timestamp" label="%timestamp" />
+                  <comboitem description="Draft indication" label="%draft" />
+                  <comboitem description="Generated Title (ToC/Index)" label="%generated_title" />
+                  <comboitem description="Image" label="%image{alias; height: }" />
+                  <comboitem description="Page Number" label="%pagenumber" />
+                  <comboitem description="Publication Date" label="%pub_date" />
+                  <comboitem description="Publication Sub-Title" label="%pub_subtitle" />
+                  <comboitem description="Publication Title" label="%pub_title" />
+                  <comboitem description="Publisher" label="%publisher" />
+                  <comboitem description="Release Info" label="%release_info" />
+                  <comboitem description="Section Title" label="%section_title" />
+                  <comboitem description="Insert line break" label="%br" />
+                  <comboitem description="Span columns" label="%cols{number}" />
+                  <comboitem description="Span rows" label="%rows{number}" />
+                  <comboitem description="Custom cell style" label="%style{style_id}" />
+                </combobox>
+              </vbox>
+            </cell>
+            <cell width="33%" style="padding:4px;" align="center">
+              <vbox id="MediaFooterContentRightBox" align="center" spacing="0px">
+                <label value="Footer Right" style="font-weight:bold;" />
+                <separator spacing="3px" />
+                <combobox id="MediaFooterContentRight1Combobox" maxlength="2048" hflex="1" value=""
+                          forward="onOpen=MediaConfigDialog.onOpenHeaderFooterContent, onSelect=MediaConfigDialog.onSelectHeaderFooterContent, onChange=MediaConfigDialog.onHeaderFooterContentChanged" >
+                  <comboitem label="" />
+                  <comboitem description="Bibliographic ID" label="%biblio_id" />
+                  <comboitem description="Copyright" label="%copyright" />
+                  <comboitem description="Corporate Name" label="%corporate" />
+                  <comboitem description="Chapter Title" label="%component_title" />
+                  <comboitem description="Chapter Number+Title" label="%component_numtitle" />
+                  <comboitem description="Date timestamp" label="%timestamp" />
+                  <comboitem description="Draft indication" label="%draft" />
+                  <comboitem description="Generated Title (ToC/Index)" label="%generated_title" />
+                  <comboitem description="Image" label="%image{alias; height: }" />
+                  <comboitem description="Page Number" label="%pagenumber" />
+                  <comboitem description="Publication Date" label="%pub_date" />
+                  <comboitem description="Publication Sub-Title" label="%pub_subtitle" />
+                  <comboitem description="Publication Title" label="%pub_title" />
+                  <comboitem description="Publisher" label="%publisher" />
+                  <comboitem description="Release Info" label="%release_info" />
+                  <comboitem description="Section Title" label="%section_title" />
+                  <comboitem description="Insert line break" label="%br" />
+                  <comboitem description="Span columns" label="%cols{number}" />
+                  <comboitem description="Span rows" label="%rows{number}" />
+                  <comboitem description="Custom cell style" label="%style{style_id}" />
+                </combobox>
+                <separator spacing="3px" />
+                <combobox id="MediaFooterContentRight2Combobox" maxlength="2048" hflex="1" value=""
+                          forward="onOpen=MediaConfigDialog.onOpenHeaderFooterContent, onSelect=MediaConfigDialog.onSelectHeaderFooterContent, onChange=MediaConfigDialog.onHeaderFooterContentChanged" >
+                  <comboitem label="" />
+                  <comboitem description="Bibliographic ID" label="%biblio_id" />
+                  <comboitem description="Copyright" label="%copyright" />
+                  <comboitem description="Corporate Name" label="%corporate" />
+                  <comboitem description="Chapter Title" label="%component_title" />
+                  <comboitem description="Chapter Number+Title" label="%component_numtitle" />
+                  <comboitem description="Date timestamp" label="%timestamp" />
+                  <comboitem description="Draft indication" label="%draft" />
+                  <comboitem description="Generated Title (ToC/Index)" label="%generated_title" />
+                  <comboitem description="Image" label="%image{alias; height: }" />
+                  <comboitem description="Page Number" label="%pagenumber" />
+                  <comboitem description="Publication Date" label="%pub_date" />
+                  <comboitem description="Publication Sub-Title" label="%pub_subtitle" />
+                  <comboitem description="Publication Title" label="%pub_title" />
+                  <comboitem description="Publisher" label="%publisher" />
+                  <comboitem description="Release Info" label="%release_info" />
+                  <comboitem description="Section Title" label="%section_title" />
+                  <comboitem description="Insert line break" label="%br" />
+                  <comboitem description="Span columns" label="%cols{number}" />
+                  <comboitem description="Span rows" label="%rows{number}" />
+                  <comboitem description="Custom cell style" label="%style{style_id}" />
+                </combobox>
+              </vbox>
+            </cell>
+          </hbox>
+
+         </vbox>
+        </vbox>
+    </vbox>
+    <!-- <space spacing="5px" /> -->
+  </hbox>
+</vbox>

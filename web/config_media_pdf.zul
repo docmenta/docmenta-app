@@ -1,0 +1,372 @@
+<vbox spacing="3px" width="100%" align="stretch" xmlns:w="http://www.zkoss.org/2005/zk/client">
+    <!--
+    <grid oddRowSclass="none_dummy"  style="border-width:0px">
+    <rows>
+      <row style="border-width:0px">
+    -->
+    <hbox>
+      <hbox spacing="3px" align="center" >
+        <label value="Paper size:" style="font-weight:bold;" />
+        <listbox id="MediaPDFPaperSizeListbox" mold="select" rows="1" onSelect="MediaConfigDialog.onSelectPaperSize()">
+            <listitem label="USletter" value="USletter" />
+            <listitem label="4A0" value="4A0" />
+            <listitem label="2A0" value="2A0" />
+            <listitem label="A0" value="A0" />
+            <listitem label="A1" value="A1" />
+            <listitem label="A2" value="A2" />
+            <listitem label="A3" value="A3" />
+            <listitem label="A4" value="A4" />
+            <listitem label="A5" value="A5" />
+            <listitem label="A6" value="A6" />
+            <listitem label="A7" value="A7" />
+            <listitem label="A8" value="A8" />
+            <listitem label="A9" value="A9" />
+            <listitem label="A10" value="A10" />
+            <listitem label="B0" value="B0" />
+            <listitem label="B1" value="B1" />
+            <listitem label="B2" value="B2" />
+            <listitem label="B3" value="B3" />
+            <listitem label="B4" value="B4" />
+            <listitem label="B5" value="B5" />
+            <listitem label="B6" value="B6" />
+            <listitem label="B7" value="B7" />
+            <listitem label="B8" value="B8" />
+            <listitem label="B9" value="B9" />
+            <listitem label="B10" value="B10" />
+            <listitem label="C0" value="C0" />
+            <listitem label="C1" value="C1" />
+            <listitem label="C2" value="C2" />
+            <listitem label="C3" value="C3" />
+            <listitem label="C4" value="C4" />
+            <listitem label="C5" value="C5" />
+            <listitem label="C6" value="C6" />
+            <listitem label="C7" value="C7" />
+            <listitem label="C8" value="C8" />
+            <listitem label="C9" value="C9" />
+            <listitem label="C10" value="C10" />
+            <listitem label="custom" value="custom" />
+        </listbox>
+      </hbox>
+      <space spacing="4px" />
+      <!--
+      </row>
+      <row style="border-width:0px">
+      -->
+      <hbox spacing="3px" align="center" pack="end">
+          <label value="Width:" style="min-width:80px;"/>
+          <textbox id="MediaPDFPageWidthTextbox" 
+                   constraint="/([0-9]+([.,][0-9]+)?)?/:${c:l('error.input.floatnumber')}"
+                   maxlength="12" cols="5" value="" disabled="true"/>
+          <listbox id="MediaPDFPageWidthUnitListbox" mold="select" rows="1" disabled="true">
+            <listitem label="cm" value="cm" />
+            <listitem label="mm" value="mm" />
+            <listitem label="in" value="in" />
+            <listitem label="pt" value="pt" />
+            <listitem label="pc" value="pc" />
+            <listitem label="px" value="px" />
+            <listitem label="em" value="em" />
+          </listbox>
+      </hbox>
+      <space spacing="2px" />
+      <hbox spacing="3px" align="center" pack="end">
+          <label value="Height:"  style="min-width:80px;"/>
+          <textbox id="MediaPDFPageHeightTextbox" 
+                   constraint="/([0-9]+([.,][0-9]+)?)?/:${c:l('error.input.floatnumber')}"
+                   maxlength="12" cols="5" value="" disabled="true"/>
+          <listbox id="MediaPDFPageHeightUnitListbox" mold="select" rows="1" disabled="true">
+            <listitem label="cm" value="cm" />
+            <listitem label="mm" value="mm" />
+            <listitem label="in" value="in" />
+            <listitem label="pt" value="pt" />
+            <listitem label="pc" value="pc" />
+            <listitem label="px" value="px" />
+            <listitem label="em" value="em" />
+          </listbox>
+      </hbox>
+    <!--
+      </row>
+    </rows>
+    </grid>
+    -->
+    </hbox>
+    <separator spacing="1px"/>
+    <hbox spacing="2px" width="474px" pack="stretch">
+      <vbox spacing="0px" hflex="1" align="stretch">
+        <label style="font-weight:bold;">Page Margins:</label>
+        <hbox width="100%" pack="end" align="center" spacing="3px">
+          <!-- <div  style="text-align:right;width:100%"> -->
+          <label value="Top: "/>
+          <textbox id="MediaPDFPageTopTextbox" cols="5" maxlength="10" width="40px"
+                   constraint="/([0-9]+([.,][0-9]+)?)?/:${c:l('error.input.floatnumber')}"
+                   w:onFocus="this.$f('PageMarginsImage').setSrc('img/page_margins_pt.png');"/>
+          <listbox id="MediaPDFPageTopUnitListbox" mold="select" rows="1">
+            <listitem label="cm" value="cm"/>
+            <listitem label="mm" value="mm"/>
+            <listitem label="in" value="in"/>
+            <listitem label="pt" value="pt"/>
+            <listitem label="pc" value="pc"/>
+            <listitem label="px" value="px"/>
+            <listitem label="em" value="em"/>
+          </listbox>
+        </hbox>
+        <hbox width="100%" pack="end" align="center" spacing="3px">
+          <label value="Bottom: "/>
+          <textbox id="MediaPDFPageBottomTextbox" cols="5" maxlength="10" width="40px"
+                   constraint="/([0-9]+([.,][0-9]+)?)?/:${c:l('error.input.floatnumber')}"
+                   w:onFocus="this.$f('PageMarginsImage').setSrc('img/page_margins_pb.png');"/>
+          <listbox id="MediaPDFPageBottomUnitListbox" mold="select" rows="1">
+            <listitem label="cm" value="cm"/>
+            <listitem label="mm" value="mm"/>
+            <listitem label="in" value="in"/>
+            <listitem label="pt" value="pt"/>
+            <listitem label="pc" value="pc"/>
+            <listitem label="px" value="px"/>
+            <listitem label="em" value="em"/>
+          </listbox>
+        </hbox>
+        <hbox width="100%" pack="end" align="center" spacing="3px">
+          <label value="Inner: "/>
+          <textbox id="MediaPDFPageInnerTextbox" cols="5" maxlength="10" width="40px"
+                   constraint="/([0-9]+([.,][0-9]+)?)?/:${c:l('error.input.floatnumber')}"
+                   w:onFocus="this.$f('PageMarginsImage').setSrc('img/page_margins_pi.png');"/>
+          <listbox id="MediaPDFPageInnerUnitListbox" mold="select" rows="1">
+            <listitem label="cm" value="cm"/>
+            <listitem label="mm" value="mm"/>
+            <listitem label="in" value="in"/>
+            <listitem label="pt" value="pt"/>
+            <listitem label="pc" value="pc"/>
+            <listitem label="px" value="px"/>
+            <listitem label="em" value="em"/>
+          </listbox>
+        </hbox>
+        <hbox width="100%" pack="end" align="center" spacing="3px">
+          <label value="Outer: "/>
+          <textbox id="MediaPDFPageOuterTextbox" cols="5" maxlength="10" width="40px"
+                   constraint="/([0-9]+([.,][0-9]+)?)?/:${c:l('error.input.floatnumber')}"
+                   w:onFocus="this.$f('PageMarginsImage').setSrc('img/page_margins_po.png');"/>
+          <listbox id="MediaPDFPageOuterUnitListbox" mold="select" rows="1">
+            <listitem label="cm" value="cm"/>
+            <listitem label="mm" value="mm"/>
+            <listitem label="in" value="in"/>
+            <listitem label="pt" value="pt"/>
+            <listitem label="pc" value="pc"/>
+            <listitem label="px" value="px"/>
+            <listitem label="em" value="em"/>
+          </listbox>
+        </hbox>
+        <label style="font-weight:bold;">Body Margins:</label>
+        <hbox width="100%" pack="end" align="center" spacing="3px">
+          <label value="Top: "/>
+          <textbox id="MediaPDFBodyTopTextbox" cols="5" maxlength="10" width="40px"
+                   constraint="/([0-9]+([.,][0-9]+)?)?/:${c:l('error.input.floatnumber')}"
+                   w:onFocus="this.$f('PageMarginsImage').setSrc('img/page_margins_bt.png');"/>
+          <listbox id="MediaPDFBodyTopUnitListbox" mold="select" rows="1">
+            <listitem label="cm" value="cm"/>
+            <listitem label="mm" value="mm"/>
+            <listitem label="in" value="in"/>
+            <listitem label="pt" value="pt"/>
+            <listitem label="pc" value="pc"/>
+            <listitem label="px" value="px"/>
+            <listitem label="em" value="em"/>
+          </listbox>
+        </hbox>
+        <hbox width="100%" pack="end" align="center" spacing="3px">
+          <label value="Bottom: "/>
+          <textbox id="MediaPDFBodyBottomTextbox" cols="5" maxlength="10" width="40px"
+                   constraint="/([0-9]+([.,][0-9]+)?)?/:${c:l('error.input.floatnumber')}"
+                   w:onFocus="this.$f('PageMarginsImage').setSrc('img/page_margins_bb.png');"/>
+          <listbox id="MediaPDFBodyBottomUnitListbox" mold="select" rows="1">
+            <listitem label="cm" value="cm"/>
+            <listitem label="mm" value="mm"/>
+            <listitem label="in" value="in"/>
+            <listitem label="pt" value="pt"/>
+            <listitem label="pc" value="pc"/>
+            <listitem label="px" value="px"/>
+            <listitem label="em" value="em"/>
+          </listbox>
+        </hbox>
+        <hbox width="100%" pack="end" align="center" spacing="3px">
+          <label value="Text start: "/>
+          <textbox id="MediaPDFBodyStartTextbox" cols="5" maxlength="10" width="40px"
+                   constraint="/([0-9]+([.,][0-9]+)?)?/:${c:l('error.input.floatnumber')}"
+                   w:onFocus="this.$f('PageMarginsImage').setSrc('img/page_margins_bs.png');"/>
+          <listbox id="MediaPDFBodyStartUnitListbox" mold="select" rows="1">
+            <listitem label="cm" value="cm"/>
+            <listitem label="mm" value="mm"/>
+            <listitem label="in" value="in"/>
+            <listitem label="pt" value="pt"/>
+            <listitem label="pc" value="pc"/>
+            <listitem label="px" value="px"/>
+            <listitem label="em" value="em"/>
+          </listbox>
+        </hbox>
+        <hbox width="100%" pack="end" align="center" spacing="3px">
+          <label value="Text end: "/>
+          <textbox id="MediaPDFBodyEndTextbox" cols="5" maxlength="10" width="40px"
+                   constraint="/([0-9]+([.,][0-9]+)?)?/:${c:l('error.input.floatnumber')}"
+                   w:onFocus="this.$f('PageMarginsImage').setSrc('img/page_margins_be.png');"/>
+          <listbox id="MediaPDFBodyEndUnitListbox" mold="select" rows="1">
+            <listitem label="cm" value="cm"/>
+            <listitem label="mm" value="mm"/>
+            <listitem label="in" value="in"/>
+            <listitem label="pt" value="pt"/>
+            <listitem label="pc" value="pc"/>
+            <listitem label="px" value="px"/>
+            <listitem label="em" value="em"/>
+          </listbox>
+        </hbox>
+        <hbox width="100%" pack="end" align="center" spacing="3px">
+          <label value="Header height: "/>
+          <textbox id="MediaPDFHeaderHeightTextbox" cols="5" maxlength="10" width="40px"
+                   constraint="/([0-9]+([.,][0-9]+)?)?/:${c:l('error.input.floatnumber')}"
+                   w:onFocus="this.$f('PageMarginsImage').setSrc('img/page_margins_hh.png');"/>
+          <listbox id="MediaPDFHeaderHeightUnitListbox" mold="select" rows="1">
+            <listitem label="cm" value="cm"/>
+            <listitem label="mm" value="mm"/>
+            <listitem label="in" value="in"/>
+            <listitem label="pt" value="pt"/>
+            <listitem label="pc" value="pc"/>
+            <listitem label="px" value="px"/>
+            <listitem label="em" value="em"/>
+          </listbox>
+        </hbox>
+        <hbox width="100%" pack="end" align="center" spacing="3px">
+          <label value="Footer height: "/>
+          <textbox id="MediaPDFFooterHeightTextbox" cols="5" maxlength="10" width="40px"
+                   constraint="/([0-9]+([.,][0-9]+)?)?/:${c:l('error.input.floatnumber')}"
+                   w:onFocus="this.$f('PageMarginsImage').setSrc('img/page_margins_fh.png');"/>
+          <listbox id="MediaPDFFooterHeightUnitListbox" mold="select" rows="1">
+            <listitem label="cm" value="cm"/>
+            <listitem label="mm" value="mm"/>
+            <listitem label="in" value="in"/>
+            <listitem label="pt" value="pt"/>
+            <listitem label="pc" value="pc"/>
+            <listitem label="px" value="px"/>
+            <listitem label="em" value="em"/>
+          </listbox>
+        </hbox>
+      </vbox>
+      <!-- <space spacing="3px" /> -->
+      <vbox spacing="0px" width="220px" align="center">
+        <separator spacing="16px" />
+        <image id="PageMarginsImage" src="img/page_margins_none.png" width="120px" />
+        <separator spacing="12px" />
+        <label style="font-weight:bold;">Page orientation:</label>
+        <hbox align="center" spacing="3px">
+            <radiogroup id="MediaPDFPageOrientationRadiogroup">
+                <radio id="MediaPDFPagePortraitRadio" label="portrait" />
+                <space spacing="4px" />
+                <radio id="MediaPDFPageLandscapeRadio" label="landscape" />
+            </radiogroup>
+        </hbox>
+      </vbox>
+    </hbox>
+    <hbox width="474px" hflex="1" align="start" pack="stretch">
+      <cell width="53%">
+        <groupbox width="100%">
+          <caption label="Options" style="font-weight:bold;" />
+          <vlayout>
+            <checkbox id="MediaPDFDoubleSidedCheckbox" label="Print double-sided"/>
+            <checkbox id="MediaPDFBookmarksCheckbox" label="Create PDF bookmarks"/>
+            <checkbox id="MediaPDFPageNumbersInRefsCheckbox" label="Include page numbers in references"/>
+            <hbox spacing="0px" align="center">
+              <checkbox id="MediaPDFShowExternalHRefCheckbox" label="Show external URL"
+                        forward="onCheck=MediaConfigDialog.onChangeShowExternalHRef" />
+              <space spacing="4px" />
+              <listbox id="MediaPDFShowExternalHRefTypeListbox" mold="select" rows="1">
+                <listitem label="in brackets" value="bracket"/>
+                <listitem label="as footnote" value="footnote"/>
+              </listbox>
+            </hbox>
+            <checkbox id="MediaPDFExportFilesCheckbox" label="Export referenced files"/>
+          </vlayout>
+        </groupbox>
+        <groupbox width="100%">
+          <caption label="Index formatting" style="font-weight:bold;"/>
+          <vbox width="100%" align="stretch">
+            <hbox spacing="3px" align="center">
+              <label value="Columns:" />
+              <listbox id="MediaPDFIndexColCountListbox" mold="select" rows="1">
+                <listitem label="1" value="1"/>
+                <listitem label="2" value="2"/>
+                <listitem label="3" value="3"/>
+                <listitem label="4" value="4"/>
+                <listitem label="5" value="5"/>
+                <listitem label="6" value="6"/>
+              </listbox>
+              <label value="Gap:" />
+              <textbox id="MediaPDFIndexGapTextbox" cols="4" maxlength="10" width="30px"
+                       constraint="/(-?[0-9]+([.,][0-9]+)?)?/:${c:l('error.input.floatnumber')}" />
+              <listbox id="MediaPDFIndexGapUnitListbox" mold="select" rows="1">
+                <listitem label="cm" value="cm"/>
+                <listitem label="mm" value="mm"/>
+                <listitem label="in" value="in"/>
+                <listitem label="pt" value="pt"/>
+                <listitem label="pc" value="pc"/>
+                <listitem label="px" value="px"/>
+                <listitem label="em" value="em"/>
+              </listbox>
+            </hbox>
+          </vbox>
+        </groupbox>
+      </cell>
+      <space spacing="3px" />
+      <cell hflex="1">
+        <groupbox width="100%">
+          <caption label="Book Cover" style="font-weight:bold;"/>
+          <vlayout>
+            <listbox id="MediaPDFCoverModeListbox" mold="select" rows="1" 
+                     forward="onSelect=MediaConfigDialog.onSelectCoverPageMode">
+                <listitem label="Add extra front-page" value="extrapage"/>
+                <listitem label="Background-image on title-page" value="titlepage"/>
+            </listbox>
+            <hbox spacing="2px" align="center">
+              <space spacing="1px" />
+              <label value="X:&#160;" hflex="min" />
+              <textbox id="MediaPDFCoverPosXBox" cols="3" maxlength="10" width="30px"
+                       constraint="/([0-9]+([.,][0-9]+)?)?/:${c:l('error.input.floatnumber')}" />
+              <listbox id="MediaPDFCoverXUnitListbox" mold="select" rows="1">
+                <listitem label="cm" value="cm"/>
+                <listitem label="mm" value="mm"/>
+                <listitem label="in" value="in"/>
+                <listitem label="pt" value="pt"/>
+                <listitem label="pc" value="pc"/>
+                <listitem label="px" value="px"/>
+                <listitem label="em" value="em"/>
+              </listbox>
+              <space spacing="1px" />
+              <label value="&#160;Y:&#160;" hflex="min" />
+              <textbox id="MediaPDFCoverPosYBox" cols="3" maxlength="10" width="30px"
+                       constraint="/([0-9]+([.,][0-9]+)?)?/:${c:l('error.input.floatnumber')}" />
+              <listbox id="MediaPDFCoverYUnitListbox" mold="select" rows="1">
+                <listitem label="cm" value="cm"/>
+                <listitem label="mm" value="mm"/>
+                <listitem label="in" value="in"/>
+                <listitem label="pt" value="pt"/>
+                <listitem label="pc" value="pc"/>
+                <listitem label="px" value="px"/>
+                <listitem label="em" value="em"/>
+              </listbox>
+            </hbox>
+            <checkbox id="MediaPDFCoverBlankPageCheckbox" label="Insert blank-page after cover"/>
+          </vlayout>
+        </groupbox>
+        <groupbox width="100%">
+          <caption label="Image settings" style="font-weight:bold;"/>
+          <vbox width="100%" align="stretch">
+            <checkbox id="MediaPDFFitImagesCheckbox" label="Shrink images to available width"/>
+            <hbox spacing="0px" align="center" pack="stretch">
+              <label value="Source resolution (dpi): " hflex="1"/>
+              <intbox id="MediaPDFSourceResolution" cols="4" maxlength="4" hflex="min" 
+                      constraint="no negative,no zero" value="96" />
+            </hbox>
+            <hbox spacing="0px" align="center" pack="stretch">
+              <label value="Target resolution (dpi): " hflex="1"/>
+              <intbox id="MediaPDFTargetResolution" cols="4" maxlength="4" hflex="min"
+                      constraint="no negative,no zero" value="300" />
+            </hbox>
+          </vbox>
+        </groupbox>
+      </cell>
+    </hbox>
+</vbox>

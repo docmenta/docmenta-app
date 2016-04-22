@@ -1,0 +1,81 @@
+<project default="help" name="mainbuild">
+
+  <dirname property="ant.file.dir" file="${ant.file.mainbuild}"/>
+  <!-- <loadproperties srcFile="${ant.file.dir}/build.properties"/> -->
+  <property name="webhelp.include.search.tab" value="true"/>
+
+  <property name="extensions.dir" value="${ant.file.dir}/../extensions"/>
+
+  <path id="classpath">
+    <pathelement location="${extensions.dir}/webhelpindexer.jar"/>
+    <pathelement location="${extensions.dir}/lucene-analyzers-3.0.0.jar"/>
+    <pathelement location="${extensions.dir}/lucene-core-3.0.0.jar"/>
+  </path>
+
+  <condition property="perform-validation-dtd">
+	<equals arg1="${validate-against-dtd}" arg2="true"/>
+  </condition>
+  <condition property="do-search-indexing">
+	<equals arg1="${webhelp.include.search.tab}" arg2="true"/>
+  </condition>
+
+  <target name="copycommon">
+
+	<!-- Copy common content such as js files of tree, css etc. to template folder. They will be copied to doc folder. They are NOT page specific! -->
+	<copy todir="${output-dir}">
+	  <fileset dir="${ant.file.dir}/template">
+		<include name="**/*"/>
+		<exclude name="content/**"/>
+	  </fileset>
+	</copy>
+
+  </target>
+
+  <target name="index" if="do-search-indexing">
+
+	<copy todir="${output-dir}">
+	  <fileset dir="${ant.file.dir}/template/content">
+		<include name="**/*"/>
+		<exclude name="search/*.props"/>
+		<exclude name="search/stemmers/*"/>
+	  </fileset>
+	</copy>
+
+	<!-- We separate this out so we only copy the stopwords list and stemmer for the indexer language -->
+	<copy todir="${output-dir}">
+	  <fileset dir="${ant.file.dir}/template/content">
+		<include name="search/default.props"/>
+		<include name="search/punctuation.props"/>
+		<include name="search/${webhelp.indexer.language}*.props"/>
+		<include name="search/stemmers/${webhelp.indexer.language}_stemmer.js"/>
+	  </fileset>
+	</copy>
+ 
+	<taskdef name="indexertask"
+	  classname="com.nexwave.nquindexer.IndexerTask">
+	  <classpath refid="classpath"/>
+	</taskdef>
+
+	<echo>Indexing html files in ${output-dir}</echo>
+
+	<indexertask htmldir="${output-dir}" indexerLanguage="${webhelp.indexer.language}"/>
+
+	<delete>
+	  <fileset dir="${output-dir}/search" includes="*.props"/>
+	</delete>
+
+  </target>
+
+  <target name="webhelp" depends="index,copycommon"/>
+
+
+  <target name="help">
+	<echo>
+Usage:
+webhelp:       Generates the document in webhelp format and indexes the content.
+clean:         Deletes webhelp output directory.
+index:         Indexes the content.
+	</echo>
+  </target>
+
+</project>

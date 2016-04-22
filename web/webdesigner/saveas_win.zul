@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+    <window id="whdSaveAsWin" title="Save as" 
+            border="normal" width="280px" visible="false" contentStyle="padding:6px;"
+            closable="true" onClose="self.visible = false; event.stopPropagation();"
+            position="center" >
+
+        <vbox spacing="3px" hflex="1" align="stretch">
+            <hbox align="center" width="100%" spacing="4px">
+              <label value="New Name:" hflex="min" />
+              <textbox id="whdSaveAsNameBox" hflex="1"/>
+            </hbox>
+            <separator spacing="2px"/>
+            <hbox width="100%" spacing="4px">
+              <cell width="50%">
+                <button label="${c:l('label.okay.btn')}" id="whdSaveAsOkayBtn" hflex="1" />
+              </cell>
+              <cell width="50%">
+                <button label="${c:l('label.cancel.btn')}" id="whdSaveAsCancelBtn" hflex="1" />
+              </cell>
+            </hbox>
+        </vbox>
+    </window>

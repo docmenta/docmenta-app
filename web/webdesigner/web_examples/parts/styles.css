@@ -1,0 +1,121 @@
+body, td, th {color:#000000; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:1em; border-color:#000000;}
+table { border-color:#000000; border-collapse:collapse; }
+.float_right { margin-left:8pt; margin-bottom:2pt; }
+table[align=left] { margin: 0pt 8pt 3pt 0pt; }
+table[align=right] { margin-left:8pt; margin-bottom:2pt; }
+table[align=center] { margin-left:auto; margin-right:auto; }
+table[align=center] caption { text-align:center; }
+p, table, div.normal-para { margin-top:8pt; margin-bottom:0; margin-right:0; margin-left:0; }
+div p, div div.normal-para { margin:0; }
+td p, td div.normal-para { margin:0; }
+th p, th div.normal-para { margin:0; }
+p + p, div.normal-para + div.normal-para { margin-top:8pt; margin-bottom:0; margin-right:0; margin-left:0; }
+div + p, div + div.normal-para { margin-top:8pt; margin-bottom:0; margin-right:0; margin-left:0; }
+ol + p, ol + div.normal-para { margin-top:8pt; margin-bottom:0; margin-right:0; margin-left:0; }
+ul + p, ul + div.normal-para { margin-top:8pt; margin-bottom:0; margin-right:0; margin-left:0; }
+table + p, table + div.normal-para { margin-top:8pt; margin-bottom:0; margin-right:0; margin-left:0; }
+blockquote + p, blockquote + div.normal-para { margin-top:8pt; margin-bottom:0; margin-right:0; margin-left:0; }
+div.doc-content + div.doc-content { margin-top:8pt; margin-bottom:0; margin-right:0; margin-left:0; }
+.toc { margin-bottom:8pt; }
+.align-left { text-align:left; }
+.align-right { text-align:right; }
+.align-center { text-align:center; }
+.align-full { text-align:justify; }
+img.align-right { display:block; margin-left:auto; margin-right:0; text-align:right; }
+img.align-center { display:block; margin-left:auto; margin-right:auto; text-align:center; }
+a[href] {color: rgb(0, 0, 255);}
+a:link {color: rgb(0, 0, 255);}
+b, strong {font-weight:bold;}
+i, em {font-style:italic;}
+td {}
+th {font-weight:bold; text-align:center;}
+caption { caption-side:bottom; text-align:left; font-size: 1em; font-style: italic; margin-top: 2pt; margin-bottom: 2pt;}
+p.title {font-size: 1em; font-style: italic; margin-top: 2pt; margin-bottom: 2pt;}
+h1 {font-size:34pt; font-weight:bold; text-align:center; margin-top:20pt;}
+h2 {font-size:28pt; font-weight:bold; margin-top:22pt; margin-bottom:16pt;}
+h3 {font-size:1.8em; font-weight:bold; font-style:italic; margin-top:1.4em; margin-bottom:0.6em;}
+h4 {font-size:1.6em; font-weight:bold; margin-top:1.2em; margin-bottom:0.5em;}
+h5 {font-size:1.3em; font-weight:bold; font-style:italic; margin-top:1.2em; margin-bottom:0.5em;}
+h6 {font-size:1.1em; font-weight:bold; margin-top:1.1em; margin-bottom:0.5em;}
+h6.hlevel7 {}
+h6.hlevel8 {}
+h6.hlevel9 {}
+ul, ol { padding-left:13pt; margin-bottom:0; margin-top:8pt; margin-left:11pt }
+ul li { margin-bottom:0; margin-top:4pt }
+ol li { margin-bottom:0; margin-top:4pt }
+ul ul { margin-top:4pt }
+ol ol { margin-top:4pt }
+ul ol { margin-top:4pt }
+ol ul { margin-top:4pt }
+table.ol-table { margin-top:8pt; margin-left:11pt; margin-bottom:0; border-width:0; border-spacing:0; border-collapse:collapse; }
+td.ol-td-number { width:13pt; vertical-align:top; padding:4pt 0 0 0; }
+td.ol-td-content { vertical-align:top; padding:4pt 0 0 0; }
+table.ol-table table.ol-table { margin-top:0pt; }
+ul table.ol-table { margin-top:0pt; }
+table.ol-table ul { margin-top:0pt; }
+blockquote { padding:0; margin-bottom:0; margin-top:0; margin-left:11pt }
+.indent-level1 { padding-left:24pt }
+table.indent-level1 { padding-left:0; margin-left:24pt }
+.indent-level2 { padding-left:48pt }
+table.indent-level2 { padding-left:0; margin-left:48pt }
+.indent-level3 { padding-left:72pt }
+table.indent-level3 { padding-left:0; margin-left:72pt }
+.indent-level4 { padding-left:96pt }
+table.indent-level4 { padding-left:0; margin-left:96pt }
+.indent-level5 { padding-left:120pt }
+table.indent-level5 { padding-left:0; margin-left:120pt }
+.indent-level6 { padding-left:144pt }
+table.indent-level6 { padding-left:0; margin-left:144pt }
+.indent-level7 { padding-left:168pt }
+table.indent-level7 { padding-left:0; margin-left:168pt }
+.indent-level8 { padding-left:192pt }
+table.indent-level8 { padding-left:0; margin-left:192pt }
+.indent-level9 { padding-left:216pt }
+table.indent-level9 { padding-left:0; margin-left:216pt }
+.footnote {font-style:italic;}
+cite { font-style:inherit; }
+span.indexterm { display:none; }
+.toc dl, .toc dt, .toc dd { margin-top:2pt; margin-bottom:0; padding-top:0; padding-bottom:0; }
+.toc > p { margin-bottom: 4pt; }
+.figure-float br.figure-break { display:none; }
+.author { font-size: 12pt; font-weight: bold; margin: 1pt; }
+.caption { font-size: 1em; font-style: italic; margin-top: 2pt; margin-bottom: 2pt; }
+.default { color:#000000; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:1em; border-color:#000000; }
+.emphasis { font-style:italic; }
+.float_left { margin: 0pt 8pt 3pt 0pt; }
+.footnote { font-style:italic; }
+.header1 { font-size:34pt; font-weight:bold; text-align:center; margin-top:20pt; }
+.header2 { font-size:28pt; font-weight:bold; margin-top:22pt; margin-bottom:16pt; }
+.header3 { font-size:1.8em; font-weight:bold; font-style:italic; margin-top:1.4em; margin-bottom:0.6em; }
+.header4 { font-size:1.6em; font-weight:bold; margin-top:1.2em; margin-bottom:0.5em; }
+.header5 { font-size:1.3em; font-weight:bold; font-style:italic; margin-top:1.2em; margin-bottom:0.5em; }
+.header6 { font-size:1.1em; font-weight:bold; margin-top:1.1em; margin-bottom:0.5em; }
+.header_note { font-weight: bold; color: #f0f0f0; background-color: #0a88d4; padding: 0pt 0pt 0pt 2pt; margin: 8pt 0pt 0pt 0pt; border: 2pt solid #0a88d4; }
+.header_para { font-weight:bold; margin-top:1em; margin-bottom:0.5em; }
+.link { color: rgb(0, 0, 255); }
+.note { background-color: #e0eefe; margin-top: 8pt; border-bottom-style: none; border-left: #bcc7d5 2pt solid; border-top-style: none; border-right-style: none; }
+.note_box { border-bottom: #0a88d4 2pt solid; border-left: #0a88d4 2pt solid; border-top: #0a88d4 0pt solid; border-right: #0a88d4 2pt solid; padding: 2pt; margin: 0pt; background-color: #f0f0f0; }
+.note_box2 { border-bottom: #bcc7d5 1pt solid; border-left: #bcc7d5 1pt solid; border-top: #bcc7d5 1pt solid; border-right: #bcc7d5 1pt solid; background-color: #e0eefe; }
+.othercredit { font-size: 10pt; }
+.page_footer { padding: 0cm 3cm; margin-right: -3cm; margin-left: -3cm; background-color: rgb(0, 101, 176); }
+.page_footer_cell { padding: 16pt 0pt; color: rgb(255, 255, 255); font-family: Arial, Helvetica, sans-serif; font-size: 12pt; }
+.page_header { padding: 0cm 1.5cm; margin-right: -3cm; margin-left: -3cm; background-color: rgb(0, 101, 176); }
+.page_header_cell { margin: 0px; padding: 24pt 5pt 10pt; text-align: right; color: rgb(255, 255, 255); letter-spacing: 1.2pt; font-family: Arial, Helvetica, sans-serif; font-size: 12pt; }
+.page_header_logo { margin: 0pt; padding: 20pt 0px 9pt; }
+.strike { text-decoration:line-through; }
+.strong { font-weight:bold; }
+.subtitle { font-size: 24pt; font-weight: bold; text-align: center; }
+.table_cell {  }
+.table_header { font-weight:bold; text-align:center; }
+.table_header1 { text-align: center; background-color: #ffffa0; font-weight: bold; }
+.underline { text-decoration:underline; }
+img[style*='float: left'], img[style*='float:left'] { margin: 0pt 8pt 3pt 0pt; }
+img[style*='float: right'], img[style*='float:right'] { margin-left:8pt; margin-bottom:2pt; }
+
+/*
+  Put your custom CSS code here and select this file in the HTML output configuration.
+*/
+div.titlepage .authorgroup { text-align:center; margin:8pt; }
+div.titlepage .releaseinfo { text-align:center; margin:8pt; }
+div.titlepage .pubdate { text-align:center; }
+div.titlepage .copyright { text-align:center; margin:8pt; }

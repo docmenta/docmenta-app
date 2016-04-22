@@ -1,0 +1,45 @@
+<window id="AutoFormatCallDialog" title="${c:l('label.autoformat.call.dialog.title')}"
+        border="normal" width="580px" height="400px" sizable="true" visible="false"
+        closable="true" onClose="self.visible = false; event.stopPropagation();"
+        use="org.docma.webapp.AutoFormatCallDialog">
+    <caption>
+        <toolbarbutton label="Help" onClick='mainWin.onHelp("help/edit_style.html")'/>
+    </caption>
+    <hbox width="100%" pack="stretch" align="stretch" vflex="1" hflex="1">
+        <space spacing="3px" />
+        <vbox spacing="3px" width="100%" pack="stretch" align="stretch" vflex="1" hflex="1">
+            <separator spacing="0px"/>
+            <label>${c:l('label.autoformat.classname')}:</label>
+            <combobox id="AutoFormatCallClassCombobox" width="98%" readonly="true" hflex="1"
+                      autodrop="true" autocomplete="false" 
+                      forward="onSelect=AutoFormatCallDialog.onSelectClass, onOpen=AutoFormatCallDialog.onOpenClassCombo"></combobox>
+            <separator spacing="2px"/>
+            <label>${c:l('label.autoformat.call.arguments')}:</label>
+            <textbox id="AutoFormatCallArgsTextbox" width="98%" hflex="1" forward="onOK=AutoFormatCallDialog.onOkayClick"/>
+            <separator spacing="2px"/>
+            <label id="AutoFormatCallSummaryLabel"
+                   style="font-size:1.0em; font-weight:bold; text-decoration:underline;"
+                   visible="false" >${c:l('label.autoformat.call.shortinfo')}:</label>
+            <label id="AutoFormatCallInfoShort" style="font-size:0.9em;" value="" />
+            <separator spacing="1px"/>
+            <label id="AutoFormatCallInfoLabel"
+                   style="font-size:1.0em; font-weight:bold; text-decoration:underline;"
+                   visible="false" >${c:l('label.autoformat.call.longinfo')}:</label>
+            <div id="AutoFormatCallInfoDiv" width="100%" vflex="1" hflex="1" style="overflow:scroll;" >
+              <html id="AutoFormatCallInfoHtml" style="font-family:Arial,sans-serif; font-size:0.9em;"></html>
+            </div>
+            <hbox pack="stretch" width="100%" hflex="1" >
+              <cell width="50%" >
+                <button label="${c:l('label.okay.btn')}" width="100%"
+                        onClick="AutoFormatCallDialog.onOkayClick()"/>
+              </cell>
+              <cell width="50%" >
+                <button label="${c:l('label.cancel.btn')}" width="100%"
+                        onClick="AutoFormatCallDialog.onCancelClick()"/>
+              </cell>
+            </hbox>
+            <separator spacing="2px"/>
+        </vbox>
+        <space spacing="3px" />
+    </hbox>
+</window>
