@@ -21,7 +21,6 @@ import org.docma.coreapi.*;
 import org.docma.app.*;
 import org.docma.app.ui.*;
 import org.docma.util.*;
-import org.docma.userapi.*;
 
 import org.zkoss.zk.ui.Desktop;
 import org.zkoss.zk.ui.event.Event;
@@ -75,6 +74,7 @@ public class MainWindow extends Window implements EventListener
     private boolean versioningInitialized = false;
     private boolean publishingInitialized = false;
 
+    // Helper objects
     private final DocmaListitemRenderer listitem_renderer = new DocmaListitemRenderer(this);
     private final CutCopyHandler cutCopyHandler = new CutCopyHandler(this);
     private final ImportExportHandler importExportHandler = new ImportExportHandler(this);
@@ -82,6 +82,7 @@ public class MainWindow extends Window implements EventListener
     private final CompareVersionsHandler compareVersionsHandler = new CompareVersionsHandler(this);
     private UploadHandler uploadHandler = null;
     private DownloadHandler downloadHandler = null;
+    private GUI_List_UsersAndGroups guilist_usersgroups = null;
 
     private Listbox products_select_list;
     private Listbox versions_select_list;
@@ -102,16 +103,8 @@ public class MainWindow extends Window implements EventListener
     private DocmaWebTreeModel docTreeModel;
 
     // Admin Tabpanel elements:
-    private GUI_List_Products guilist_products;
-    private Listbox        groups_listbox;
-    private ListModelList  groups_listmodel;
-    private Listbox        rights_listbox;
-    private ListModelList  rights_listmodel;
-    private Listbox        members_listbox;
-    private ListModelList  members_listmodel;
-    private Listbox        users_listbox;
-    private ListModelList  users_listmodel;
     private UserLoader     user_loader;
+    private GUI_List_Products         guilist_products;
     private GUI_List_CharEntities     guilist_char_entities;
     private GUI_List_AutoFormatConfig guilist_autoformatconfig;
     private GUI_List_Plugins          guilist_plugins;
@@ -245,30 +238,8 @@ public class MainWindow extends Window implements EventListener
 
         guilist_products = new GUI_List_Products(this);
         guilist_products.loadProducts();
-
         guilist_char_entities = new GUI_List_CharEntities(this, (Listbox) getFellow("EntitiesListbox"));
         // guilist_char_entities.loadCharEntities();  // list is loaded in onSelectCharEntitiesTab()
-
-        UserGroupsListitemRenderer groups_renderer = new UserGroupsListitemRenderer(this);
-        groups_listbox = (Listbox) getFellow("GroupsListbox");
-        groups_listmodel = new ListModelList();
-        groups_listmodel.setMultiple(true);
-        groups_listbox.setModel(groups_listmodel);
-        groups_listbox.setItemRenderer(groups_renderer);
-        rights_listbox = (Listbox) getFellow("AccessRightsListbox");
-        rights_listmodel = new ListModelList();
-        rights_listbox.setModel(rights_listmodel);
-        rights_listbox.setItemRenderer(groups_renderer);
-        members_listbox = (Listbox) getFellow("GroupMembersListbox");
-        members_listmodel = new ListModelList();
-        members_listmodel.setMultiple(true);
-        members_listbox.setModel(members_listmodel);
-        members_listbox.setItemRenderer(groups_renderer);
-        users_listbox = (Listbox) getFellow("UsersListbox");
-        users_listmodel = new ListModelList();
-        users_listbox.setModel(users_listmodel);
-        users_listbox.setItemRenderer(listitem_renderer);
-
         guilist_plugins = new GUI_List_Plugins(this);
         guilist_edit_extensions = new GUI_List_SystemEditors(this);
         guilist_view_extensions = new GUI_List_SystemViewers(this);
@@ -511,36 +482,20 @@ public class MainWindow extends Window implements EventListener
         }
     }
 
-    private void loadUsers()
-    {
-        initUserLoader();
-        users_listmodel.clear();
-        users_listmodel.addAll(Arrays.asList(user_loader.getUsers()));
-    }
-
-    private void loadUserGroups()
-    {
-        initUserLoader();
-        groups_listmodel.clear();
-        groups_listmodel.addAll(Arrays.asList(user_loader.getGroups()));
-    }
-
     private void loadDeclaredApplics()
     {
         DocmaSession docmaSess = getDocmaSession();
         declared_applics_listmodel.clear();
         String[] app_arr = docmaSess.getDeclaredApplics();
-        for (int i=0; i < app_arr.length; i++) {
-            declared_applics_listmodel.add(app_arr[i]);
-        }
+        declared_applics_listmodel.addAll(Arrays.asList(app_arr));
     }
 
     private void loadPublicationConfigs()
     {
         DocmaSession docmaSess = getDocmaSession();
         String[] pubids = docmaSess.getPublicationConfigIds();
-        for (int i=0; i < pubids.length; i++) {
-            DocmaPublicationConfig pubconf = docmaSess.getPublicationConfig(pubids[i]);
+        for (String pubid : pubids) {
+            DocmaPublicationConfig pubconf = docmaSess.getPublicationConfig(pubid);
             publicationconfigs_listmodel.add(pubconf);
         }
         publicationconfigs_listbox.setRows(publicationconfigs_listmodel.getSize());
@@ -550,8 +505,8 @@ public class MainWindow extends Window implements EventListener
     {
         DocmaSession docmaSess = getDocmaSession();
         String[] outids = docmaSess.getOutputConfigIds();
-        for (int i=0; i < outids.length; i++) {
-            DocmaOutputConfig outconf = docmaSess.getOutputConfig(outids[i]);
+        for (String outid : outids) {
+            DocmaOutputConfig outconf = docmaSess.getOutputConfig(outid);
             mediaconfigs_listmodel.add(outconf);
         }
         // mediaconfigs_listbox.setRows(mediaconfigs_listmodel.getSize());
@@ -564,8 +519,7 @@ public class MainWindow extends Window implements EventListener
 
         boolean needs_reload = false;
         DocmaPublication[] pubs = docmaSess.listPublications();
-        for (int i=0; i < pubs.length; i++) {
-            DocmaPublication pub = pubs[i];
+        for (DocmaPublication pub : pubs) {
             publicationexports_listmodel.add(pub);
             if (! pub.isExportFinished()) needs_reload = true;
         }
@@ -629,8 +583,7 @@ public class MainWindow extends Window implements EventListener
         if (lastconf == null) lastconf = "";
         String[] conf_ids = docmaSess.getOutputConfigIds();
         int cnt = 0;
-        for (int i=0; i < conf_ids.length; i++) {
-            String cid = conf_ids[i];
+        for (String cid : conf_ids) {
             DocmaOutputConfig outconf = docmaSess.getOutputConfig(cid);
             if ((outconf != null) && format.equalsIgnoreCase(outconf.getFormat())) {
                 listbox.appendItem(cid, cid);
@@ -995,8 +948,7 @@ public class MainWindow extends Window implements EventListener
             if (verIds.length > 0) {
                 // Fill the GUI listbox with the available versions
                 DocmaI18 docI18 = getDocmaI18();
-                for (int i = 0; i < verIds.length; i++) {
-                    DocVersionId vid = verIds[i];
+                for (DocVersionId vid : verIds) {
                     String lab = getVersionSelectionLabel(storeId, vid, docmaSess, docI18);
                     versions_select_list.appendItem(lab, vid.toString());
                 }
@@ -1111,6 +1063,7 @@ public class MainWindow extends Window implements EventListener
     void initMainWindow() throws Exception
     {
         this.listitem_renderer.applyUserSettings();
+        this.guilist_usersgroups = new GUI_List_UsersAndGroups(this);
 
         DocmaSession docmaSess = getDocmaSession();
 
@@ -1132,8 +1085,7 @@ public class MainWindow extends Window implements EventListener
         Arrays.sort(storeIds);
         List storeIdsList = new ArrayList(storeIds.length); // Arrays.asList(storeIds);
         products_select_list.appendItem("", "");  // if this item is selected, then no product is opened
-        for (int i = 0; i < storeIds.length; i++) {
-            String sid = storeIds[i];
+        for (String sid : storeIds) {
             try {
                 boolean enabled = !docmaSess.isStoreDisabled(sid);
                 if (enabled && docmaSess.hasViewRight(sid)) {
@@ -1523,8 +1475,8 @@ public class MainWindow extends Window implements EventListener
         DocmaSession docmaSess = getDocmaSession();
         ArrayList<DocmaNode> sel_nodes = new ArrayList<DocmaNode>(200);
         String lastParentId = null;
-        for (int i=0; i < node_ids.length; i++) {
-            DocmaNode selnode = docmaSess.getNodeById(node_ids[i]);
+        for (String node_id : node_ids) {
+            DocmaNode selnode = docmaSess.getNodeById(node_id);
             if (selnode != null) {
                 sel_nodes.add(selnode);
                 // Open parent node to assure child nodes are loaded.
@@ -1569,8 +1521,8 @@ public class MainWindow extends Window implements EventListener
         String[] node_ids = sel_ids.split("[, ]");
         DocmaSession docmaSess = getDocmaSession();
         String lastParentId = null;
-        for (int i=0; i < node_ids.length; i++) {
-            DocmaNode selnode = docmaSess.getNodeById(node_ids[i]);
+        for (String node_id : node_ids) {
+            DocmaNode selnode = docmaSess.getNodeById(node_id);
             if (selnode != null) {
                 // Open parent node to assure child nodes are loaded.
                 // Otherwise child will not be added to selection (ZK bug?)
@@ -1748,25 +1700,58 @@ public class MainWindow extends Window implements EventListener
 
     public void onSelectAdminTab() throws Exception
     {
-        initAdminTab();
+        if (! adminInitialized) {
+            Clients.showBusy("Retrieving administration settings...");
+            Events.echoEvent("onInitAdminTab", this, null);
+        }
         setDocTreeToolbarEnabled(false);
         setStoreSelectionEnabled(false);
         setVersionSelectionEnabled(false);
         setLanguageSelectionEnabled(false);
     }
 
-    public void onSelectUsersTab() throws Exception
+    public void onInitAdminTab()
     {
-        if (users_listmodel.isEmpty()) {
-            loadUsers();
+        String error = null;
+        try {
+            initAdminTab();
+        } catch (Exception ex) {
+            error = "Error: " + ex.getMessage();
+        } finally {
+            Clients.clearBusy();
+        }
+        if (error != null) {
+            Messagebox.show(error);
+        }
+    }
+
+    public void onSelectUsersTab()
+    {
+        Clients.showBusy("Retrieving user list...");
+        Events.echoEvent("onLoadUserList", this, null);
+    }
+
+    /**
+     * This is a follow-up event sent by onSelectUsersTab().
+     */
+    public void onLoadUserList() 
+    {
+        String error = null;
+        try {
+            guilist_usersgroups.loadUsersIfEmpty();
+        } catch (Exception ex) {
+            error = "Error: " + ex.getMessage();
+        } finally {
+            Clients.clearBusy();
+        }
+        if (error != null) {
+            Messagebox.show(error);
         }
     }
 
     public void onSelectUserGroupsTab() throws Exception
     {
-        if (groups_listmodel.isEmpty()) {
-            loadUserGroups();
-        }
+        guilist_usersgroups.loadUserGroupsIfEmpty();
     }
 
     public void onSelectContentTab() throws Exception
@@ -2015,16 +2000,17 @@ public class MainWindow extends Window implements EventListener
         docmaSess.setUserProperties(prop_names, prop_values);
     }
 
-    public void onSelectUserGroup(ForwardEvent fe)
+    public void onSelectUserGroup()
     {
-        rights_listmodel.clear();
-        members_listmodel.clear();
-        int sel_idx = groups_listbox.getSelectedIndex();
-        if (sel_idx >= 0) {
-            UserGroupModel ug = (UserGroupModel) groups_listmodel.get(sel_idx);
-            rights_listmodel.addAll(Arrays.asList(ug.getAccessRights()));
-            members_listmodel.addAll(Arrays.asList(ug.getMembers()));
-        }
+        guilist_usersgroups.onSelectUserGroup();
+    }
+
+    /**
+     * This is a follow-up event created by onSelectUserGroup.
+     */
+    public void onShowUserGroupData()
+    {
+        guilist_usersgroups.onShowUserGroupData();
     }
 
     public void onOpenTreeMenu(ForwardEvent fe) throws Exception
@@ -2277,7 +2263,7 @@ public class MainWindow extends Window implements EventListener
                 return;
             }
             NodePropertiesDialog dialog = (NodePropertiesDialog) getPage().getFellow("NodePropertiesDialog");
-            boolean isOkay = false;
+            boolean isOkay;
             if (node.isContent()) {
                 boolean hasApproveRight = docmaSess.hasRight(AccessRights.RIGHT_APPROVE_CONTENT);
                 String wfstate = node.getWorkflowStatus();
@@ -3528,238 +3514,64 @@ public class MainWindow extends Window implements EventListener
         composer.showExportQueue(docmaSess);
     }
 
-
     public void onNewUserGroup() throws Exception
     {
-        UserGroupDialog dialog = (UserGroupDialog) getPage().getFellow("UserGroupDialog");
-        DocmaSession docmaSess = getDocmaSession();
-        UserGroupModel grp = new UserGroupModel();
-        dialog.setMode_NewGroup();
-        if (dialog.doEditGroup(grp, docmaSess)) {
-            // int ins_pos = -(Collections.binarySearch(users_listmodel, usr)) - 1;
-            groups_listmodel.add(grp);
-        }
+        guilist_usersgroups.onNewUserGroup();
     }
-
 
     public void onEditUserGroup() throws Exception
     {
-        UserGroupDialog dialog = (UserGroupDialog) getPage().getFellow("UserGroupDialog");
-        DocmaSession docmaSess = getDocmaSession();
-        if (groups_listbox.getSelectedCount() <= 0) {
-            Messagebox.show("Please select a group from the list!");
-            return;
-        }
-        int sel_idx = groups_listbox.getSelectedIndex();
-        UserGroupModel grp = (UserGroupModel) groups_listmodel.getElementAt(sel_idx);
-        dialog.setMode_EditGroup();
-        if (dialog.doEditGroup(grp, docmaSess)) {
-            groups_listmodel.set(sel_idx, grp);
-        }
+        guilist_usersgroups.onEditUserGroup();
     }
-
 
     public void onDeleteUserGroup() throws Exception
     {
-        DocmaSession docmaSess = getDocmaSession();
-        if (groups_listbox.getSelectedCount() <= 0) {
-            Messagebox.show("Please select a group from the list!");
-            return;
-        }
-        int sel_idx = groups_listbox.getSelectedIndex();
-        UserGroupModel grp = (UserGroupModel) groups_listmodel.getElementAt(sel_idx);
-        if (Messagebox.show("Delete group '" + grp.getGroupName() + "'?", "Delete?",
-            Messagebox.YES | Messagebox.NO, Messagebox.QUESTION) == Messagebox.YES) {
-            UserManager um = docmaSess.getUserManager();
-            um.deleteGroup(grp.getGroupId());
-            groups_listmodel.remove(sel_idx);
-        }
+        guilist_usersgroups.onDeleteUserGroup();
     }
-
 
     public void onCopyUserGroup() throws Exception
     {
-        UserGroupDialog dialog = (UserGroupDialog) getPage().getFellow("UserGroupDialog");
-        DocmaSession docmaSess = getDocmaSession();
-        if (groups_listbox.getSelectedCount() <= 0) {
-            Messagebox.show("Please select a group to be copied!");
-            return;
-        }
-        int sel_idx = groups_listbox.getSelectedIndex();
-        UserGroupModel grp = (UserGroupModel) groups_listmodel.getElementAt(sel_idx);
-        UserGroupModel grp_new = new UserGroupModel();
-        grp_new.setGroupName("Copy of " + grp.getGroupName());
-        grp_new.setAccessRights(grp.getAccessRights());
-        grp_new.setMembers(grp.getMembers());
-        grp_new.setGroupDN(grp.getGroupDN());
-        dialog.setMode_CopyGroup();
-        if (dialog.doEditGroup(grp_new, docmaSess)) {
-            groups_listmodel.add(grp_new);
-        }
+        guilist_usersgroups.onCopyUserGroup();
     }
-
 
     public void onEditRights() throws Exception
     {
-        AccessRightsDialog dialog = (AccessRightsDialog) getPage().getFellow("AccessRightsDialog");
-        DocmaSession docmaSess = getDocmaSession();
-        if (groups_listbox.getSelectedCount() <= 0) {
-            Messagebox.show("Please select a group!");
-            return;
-        }
-        int sel_idx = groups_listbox.getSelectedIndex();
-        UserGroupModel grp = (UserGroupModel) groups_listmodel.getElementAt(sel_idx);
-        AccessRights sel_rights = null;
-        if (rights_listbox.getSelectedCount() > 0) {
-            sel_rights = (AccessRights) rights_listmodel.get(rights_listbox.getSelectedIndex());
-            // rights_listbox.clearSelection();
-        }
-        Clients.evalJavaScript("if (document.selection) document.selection.empty();");
-        if (dialog.doEditRights(grp, sel_rights, docmaSess)) {
-            rights_listmodel.clear();
-            rights_listmodel.addAll(Arrays.asList(grp.getAccessRights()));
-        }
-        rights_listbox.invalidate();
+        guilist_usersgroups.onEditRights();
     }
-
 
     public void onAddMember() throws Exception
     {
-        MembersDialog dialog = (MembersDialog) getPage().getFellow("MembersDialog");
-        DocmaSession docmaSess = getDocmaSession();
-        if (groups_listbox.getSelectedCount() <= 0) {
-            Messagebox.show("Please select a group!");
-            return;
-        }
-        int sel_idx = groups_listbox.getSelectedIndex();
-        UserGroupModel grp = (UserGroupModel) groups_listmodel.getElementAt(sel_idx);
-        if (dialog.doAddMembers(grp, docmaSess, user_loader)) {
-            members_listmodel.clear();
-            members_listmodel.addAll(Arrays.asList(grp.getMembers()));
-            // members_listmodel.addAll(dialog.getAddedUsers());
-            users_listmodel.clear(); // reload users when users tab is opened to show changed groups
-        }
+        guilist_usersgroups.onAddMember();
     }
-
 
     public void onRemoveMember() throws Exception
     {
-        if (groups_listbox.getSelectedCount() <= 0) {
-            Messagebox.show("Please select a group!");
-            return;
-        }
-        int grp_idx = groups_listbox.getSelectedIndex();
-        UserGroupModel grp = (UserGroupModel) groups_listmodel.getElementAt(grp_idx);
-
-        int sel_cnt = members_listbox.getSelectedCount();
-        if (sel_cnt <= 0) {
-            Messagebox.show("Please select one or more members from the list!");
-            return;
-        }
-        Iterator it = members_listbox.getSelectedItems().iterator();
-        UserModel[] sel_users = new UserModel[sel_cnt];
-        String[] sel_ids = new String[sel_cnt];
-        for (int i=0; i < sel_cnt; i++) {
-            Listitem item = (Listitem) it.next();
-            sel_users[i] = (UserModel) item.getValue();
-            sel_ids[i] = sel_users[i].getUserId();
-        }
-        String msg;
-        if (sel_cnt == 1) {
-            UserModel delusr = sel_users[0];
-            msg = "Remover user '" + delusr.getLoginName() + "' from group '" +
-                  grp.getGroupName() + "'?";
-        } else {
-            msg = "Remove " + sel_cnt + " users from group '" + grp.getGroupName() + "'?";
-        }
-        if (Messagebox.show(msg, "Delete?",
-            Messagebox.YES | Messagebox.NO, Messagebox.QUESTION) == Messagebox.YES) {
-            DocmaSession docmaSess = getDocmaSession();
-            UserManager um = docmaSess.getUserManager();
-            um.removeUsersFromGroup(sel_ids, grp.getGroupId());
-            for (int i=0; i < sel_users.length; i++) {
-                sel_users[i].refreshGroups(um);
-            }
-            members_listmodel.removeAll(Arrays.asList(sel_users));
-            UserModel[] new_members = new UserModel[members_listmodel.size()];
-            new_members = (UserModel[]) members_listmodel.toArray(new_members);
-            grp.setMembers(new_members);
-            users_listmodel.clear(); // rerender users list when users tab is opened to show changed groups
-        }
+        guilist_usersgroups.onRemoveMember();
     }
-
 
     public void onEditMember() throws Exception
     {
-        doEditUser(members_listbox, members_listmodel);
-        users_listmodel.clear(); // reload users when users tab is opened
+        guilist_usersgroups.onEditMember();
     }
-
 
     public void onNewUser() throws Exception
     {
-        UserDialog dialog = (UserDialog) getPage().getFellow("UserDialog");
-        DocmaSession docmaSess = getDocmaSession();
-        UserModel usr = new UserModel();
-        dialog.setMode_NewUser();
-        if (dialog.doEditUser(usr, docmaSess)) {
-            // int ins_pos = -(Collections.binarySearch(users_listmodel, usr)) - 1;
-            users_listmodel.add(usr);
-        }
+        guilist_usersgroups.onNewUser();
     }
-
 
     public void onEditUser() throws Exception
     {
-        doEditUser(users_listbox, users_listmodel);
+        guilist_usersgroups.onEditUser();
     }
 
     public void onEditUserProfile() throws Exception
     {
-        initUserLoader();
-        DocmaSession docmaSess = getDocmaSession();
-        UserModel usr = user_loader.getUser(docmaSess.getUserId());
-        UserDialog dialog = (UserDialog) getPage().getFellow("UserDialog");
-        dialog.setMode_EditUser();
-        if (dialog.doEditUser(usr, docmaSess)) {
-            if ((users_listmodel != null) && !users_listmodel.isEmpty()) {
-                loadUsers();  // reload users
-            }
-        }
+        guilist_usersgroups.onEditUserProfile();
     }
-
-    private void doEditUser(Listbox u_listbox, ListModelList u_listmodel) throws Exception
-    {
-        UserDialog dialog = (UserDialog) getPage().getFellow("UserDialog");
-        DocmaSession docmaSess = getDocmaSession();
-        if (u_listbox.getSelectedCount() <= 0) {
-            Messagebox.show("Please select a user from the list!");
-            return;
-        }
-        int sel_idx = u_listbox.getSelectedIndex();
-        UserModel usr = (UserModel) u_listmodel.getElementAt(sel_idx);
-        dialog.setMode_EditUser();
-        if (dialog.doEditUser(usr, docmaSess)) {
-            u_listmodel.set(sel_idx, usr);
-        }
-    }
-
 
     public void onDeleteUser() throws Exception
     {
-        DocmaSession docmaSess = getDocmaSession();
-        if (users_listbox.getSelectedCount() <= 0) {
-            Messagebox.show("Please select a user from the list!");
-            return;
-        }
-        int sel_idx = users_listbox.getSelectedIndex();
-        UserModel usr = (UserModel) users_listmodel.getElementAt(sel_idx);
-        if (Messagebox.show("Delete user '" + usr.getLoginName() + "'?", "Delete?",
-            Messagebox.YES | Messagebox.NO, Messagebox.QUESTION) == Messagebox.YES) {
-            UserManager um = docmaSess.getUserManager();
-            um.deleteUser(usr.getUserId());
-            users_listmodel.remove(sel_idx);
-        }
+        guilist_usersgroups.onDeleteUser();
     }
 
 

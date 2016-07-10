@@ -695,7 +695,7 @@ public class WebFormatter
                     if ((label == null) && (title == null)) {
                         label = target.getLabelNumber();
                         title = target.getTitle();
-                        String gen_key = "xref-number-and-title|" + target.getType();
+                        String gen_key = (label.equals("") ? "xref|" : "xref-number-and-title|") + target.getType();
                         String pattern = getGenText(gen_key, outConfig);
                         if ((pattern != null) && (pattern.contains("%t") || pattern.contains("%n"))) {
                             link_text = pattern.replace("%n", label).replace("%t", title);
@@ -2478,7 +2478,7 @@ public class WebFormatter
         int pos = txt.indexOf('&');
         int len = txt.length();
         if (pos >= 0) {
-            StringBuilder sb = new StringBuilder(txt.substring(0, pos));
+            StringBuilder sb = new StringBuilder(len + 16);
             int copypos = 0;
             do {
                 pos++;   // position after &

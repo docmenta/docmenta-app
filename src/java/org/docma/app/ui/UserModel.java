@@ -71,6 +71,8 @@ public class UserModel implements Comparable
         if (loginName == null) {
             throw new DocRuntimeException("User with ID '" + userId + "' does not exist.");
         }
+        loginNameChanged = false;
+        
         lastName = um.getUserProperty(userId, DocmaConstants.PROP_USER_LAST_NAME);
         firstName = um.getUserProperty(userId, DocmaConstants.PROP_USER_FIRST_NAME);
         email = um.getUserProperty(userId, DocmaConstants.PROP_USER_EMAIL);
@@ -239,8 +241,10 @@ public class UserModel implements Comparable
 
     public void setLoginName(String loginName)
     {
-        this.loginName = loginName;
-        loginNameChanged = true;
+        if (! loginName.equals(this.loginName)) {
+            this.loginName = loginName;
+            loginNameChanged = true;
+        }
     }
 
     public String getNewPassword()

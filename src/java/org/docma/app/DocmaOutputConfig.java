@@ -631,7 +631,7 @@ public class DocmaOutputConfig
     }
 
     void setDraftImagePath(String image_path) {
-        this.draftImagePath = image_path;
+        this.draftImagePath = (image_path == null) ? "" : image_path;
     }
 
     String getCoverImagePath() {

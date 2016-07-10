@@ -30,7 +30,7 @@ public class MembersDialog extends Window implements ListitemRenderer
     private int modalResult = -1;
 
     private Listbox addMembersBox;
-    private ListModelList addMembersModel = new ListModelList();
+    private final ListModelList addMembersModel = new ListModelList();
 
     private UserGroupModel grp;
 
@@ -60,7 +60,6 @@ public class MembersDialog extends Window implements ListitemRenderer
         addMembersBox.setModel(addMembersModel);
         addMembersBox.setItemRenderer(this);
 
-        UserManager um = docmaSess.getUserManager();
         do {
             modalResult = -1;
             doModal();
@@ -72,7 +71,7 @@ public class MembersDialog extends Window implements ListitemRenderer
                 continue;
             }
             try {
-                updateModel(um);
+                updateModel(userLoader);
             } catch (Exception ex) {
                 Messagebox.show(ex.getLocalizedMessage());
                 return false;
@@ -84,14 +83,15 @@ public class MembersDialog extends Window implements ListitemRenderer
     private void loadUsers(UserLoader uloader)
     {
         ArrayList tempList = new ArrayList(Arrays.asList(uloader.getUsers()));
-        UserModel[] members = grp.getMembers();
+        UserModel[] members = grp.getMembers(uloader);
         tempList.removeAll(Arrays.asList(members));
         addMembersModel.addAll(tempList);
     }
 
-    private void updateModel(UserManager um) throws Exception
+    private void updateModel(UserLoader loader) throws Exception
     {
-        ArrayList memberList = new ArrayList(Arrays.asList(grp.getMembers()));
+        // Calculate updated list of members
+        ArrayList memberList = new ArrayList(Arrays.asList(grp.getMembers(loader)));
         int start_idx = memberList.size();
         Set sel_set = addMembersBox.getSelectedItems();
         String[] addedUserIds = new String[sel_set.size()];
@@ -100,13 +100,18 @@ public class MembersDialog extends Window implements ListitemRenderer
             Listitem sel_item = (Listitem) it.next();
             UserModel usr = (UserModel) sel_item.getValue();
             addedUserIds[i] = usr.getUserId();
-            memberList.add(usr);
+            memberList.add(usr);   // add new member
         }
 
+        // Update user store (persistence layer)
+        UserManager um = loader.getUserManager();
         um.addUsersToGroup(addedUserIds, grp.getGroupId());
+        
+        // Refresh UI model
         UserModel[] new_members = new UserModel[memberList.size()];
         new_members = (UserModel[]) memberList.toArray(new_members);
-        for (int i=start_idx; i < new_members.length; i++) {
+        for (int i = start_idx; i < new_members.length; i++) {
+            // Refresh groups list of added members
             new_members[i].refreshGroups(um);
         }
         grp.setMembers(new_members);

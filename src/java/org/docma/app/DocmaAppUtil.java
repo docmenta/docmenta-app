@@ -910,6 +910,7 @@ public class DocmaAppUtil
             id_set.add(node_id);
 
             boolean is_parts = (out_conf != null) && "part".equals(out_conf.getRender1stLevel());
+            boolean is_part_level = is_parts && (node_depth == 1);
             boolean omit_single_title = (out_conf != null) && out_conf.isOmitSingleTitle();
             boolean omit_title = omit_single_title && (overwrite_title != null) && overwrite_title.equals("");
             if (! omit_title) {
@@ -1003,8 +1004,11 @@ public class DocmaAppUtil
                 cont.append("<p></p>");
             }
 
-            if (omit_single_title && (content_count == 0) && (sect_nodes.size() == 1)) {
+            if (omit_single_title && (content_count == 0) && (sect_nodes.size() == 1) && !is_part_level) {
                 overwrite_title = "";  // omit title of single sub-section
+                // Note: If the first level is rendered as book-part, and the
+                // next level contains a single chapter only, then do not omit
+                // the chapter-title, because a book-part must contain a chapter.
             } else {
                 overwrite_title = null;
             }

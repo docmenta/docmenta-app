@@ -20,19 +20,35 @@ import org.docma.util.Log;
 import java.util.*;
 
 /**
- *
+ * For each user session, a UserLoader instance is created, that caches
+ * information from the user-store (persistence layer). 
+ * The persistence layer is accessed through the UserManager interface.
+ * Therefore, an instance of UserManager needs to be provided in the constructor.
+ * For efficiency reasons, the user information should only be retrieved 
+ * through the UserLoader instance. 
+ * However, the UserLoader can only be used for read access.
+ * For updating user information in the datastore, the UserManager object
+ * is required.
+ * 
  * @author MP
  */
 public class UserLoader
 {
-    private UserManager um;
-    private Map userMap = new HashMap(500);
+    private final UserManager um;
+    private final Map userMap = new HashMap(500);
     // private Map groupMap = new HashMap(100);
 
+    /* -----------  Constructors  ------------------ */
+    
     public UserLoader(UserManager um)
     {
+        if (um == null) {
+            throw new RuntimeException("Failed to construct UserLoader: UserManager is null.");
+        }
         this.um = um;
     }
+
+    /* -----------  Public methods  ------------------ */
 
     public UserModel getUser(String userId)
     {
@@ -52,15 +68,19 @@ public class UserLoader
 
     public UserModel[] getUsers()
     {
+        List<UserModel> usr_list = getUserList();
+        return usr_list.toArray(new UserModel[usr_list.size()]);
+    }
+
+    public List<UserModel> getUserList()
+    {
         String[] ids = um.getUserIds();
-        List usr_list = new ArrayList(ids.length);
-        for (int i=0; i < ids.length; i++) {
-            UserModel usr = getUser(ids[i]);
+        List<UserModel> usr_list = new ArrayList<UserModel>(ids.length);
+        for (String id : ids) {
+            UserModel usr = getUser(id);
             if (usr != null) usr_list.add(usr);
         }
-        UserModel[] usr_arr = new UserModel[usr_list.size()];
-        usr_arr = (UserModel[]) usr_list.toArray(usr_arr);
-        return usr_arr;
+        return usr_list;
     }
 
     public UserGroupModel getGroup(String groupId)
@@ -70,7 +90,9 @@ public class UserLoader
         //     grp = new UserGroupModel(groupId, um, this);
         //     groupMap.put(groupId, grp);
         // }
-        return new UserGroupModel(groupId, um, this);  // grp;
+        UserGroupModel grp = new UserGroupModel(groupId);
+        grp.load(this);   // read group information from user store
+        return grp;
     }
 
     public UserGroupModel[] getGroups()
@@ -78,10 +100,16 @@ public class UserLoader
         String[] ids = um.getGroupIds();
         UserGroupModel[] grp_arr = new UserGroupModel[ids.length];
         for (int i=0; i < ids.length; i++) {
-            grp_arr[i] = new UserGroupModel(ids[i], um, this); // getGroup(ids[i]);
+            grp_arr[i] = getGroup(ids[i]);
         }
         return grp_arr;
     }
 
+    public UserManager getUserManager()
+    {
+        return um;
+    }
 
+    /* -----------  Package local methods  ------------------ */
+    
 }

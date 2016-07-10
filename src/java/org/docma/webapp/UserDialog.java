@@ -17,6 +17,7 @@ package org.docma.webapp;
 import org.docma.app.*;
 import org.docma.app.ui.*;
 import org.docma.userapi.*;
+import org.docma.util.Log;
 import org.zkoss.zul.*;
 
 import java.util.*;
@@ -267,7 +268,17 @@ public class UserDialog extends Window
         if (mode == MODE_NEW) {
             usr.create(um);
         } else {
-            usr.update(um);
+            try {
+                usr.update(um);
+            } catch (Exception ex) {  
+                // if update fails, try to reset fields to old values
+                try {
+                    usr.load(um);
+                } catch (Exception ex2) {
+                    Log.warning("Failed to reload user information."); // ex2.printStackTrace();
+                }
+                throw ex;
+            }
         }
     }
 

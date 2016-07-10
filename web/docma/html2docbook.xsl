@@ -774,8 +774,8 @@
 
   <xsl:template match="th">
     <th>
-      <xsl:apply-templates select="@*" />
-      <xsl:if test="not(boolean(@class))"><xsl:attribute name="class">table_header</xsl:attribute></xsl:if>
+      <xsl:apply-templates select="@*[not(local-name() = 'class')]" />
+      <xsl:call-template name="docma_cell_class" ><xsl:with-param name="default_cls" select="'table_header'" /></xsl:call-template>
       <xsl:if test="boolean(@style) and contains(@style, 'background-color:')">
         <xsl:call-template name="insert_FO_bgcolor"><xsl:with-param name="elem_style" select="@style" /></xsl:call-template>
       </xsl:if>
@@ -793,8 +793,8 @@
 
   <xsl:template match="td">
     <td>
-      <xsl:apply-templates select="@*" />
-      <xsl:if test="not(boolean(@class))"><xsl:attribute name="class">table_cell</xsl:attribute></xsl:if>
+      <xsl:apply-templates select="@*[not(local-name() = 'class')]" />
+      <xsl:call-template name="docma_cell_class" ><xsl:with-param name="default_cls" select="'table_cell'" /></xsl:call-template>
       <xsl:if test="boolean(@style) and contains(@style, 'background-color:')">
         <xsl:call-template name="insert_FO_bgcolor"><xsl:with-param name="elem_style" select="@style" /></xsl:call-template>
       </xsl:if>
@@ -1019,11 +1019,11 @@
     <xsl:param name="style_str" />
     <xsl:param name="att_name" />
 
-    <xsl:variable name="style_s" select="concat(';', concat($style_str, ';'))" />
-    <xsl:variable name="a_pattern1" select="concat(';', concat($att_name, ':'))" />
-    <xsl:variable name="a_pattern2" select="concat(' ', concat($att_name, ':'))" />
-    <xsl:variable name="a_pattern3" select="concat(';', concat($att_name, ' :'))" />
-    <xsl:variable name="a_pattern4" select="concat(' ', concat($att_name, ' :'))" />
+    <xsl:variable name="style_s" select="concat(';', $style_str, ';')" />
+    <xsl:variable name="a_pattern1" select="concat(';', $att_name, ':')" />
+    <xsl:variable name="a_pattern2" select="concat(' ', $att_name, ':')" />
+    <xsl:variable name="a_pattern3" select="concat(';', $att_name, ' :')" />
+    <xsl:variable name="a_pattern4" select="concat(' ', $att_name, ' :')" />
     <xsl:choose>
       <xsl:when test="contains($style_s, $a_pattern1)">
         <xsl:value-of select="normalize-space(substring-before(substring-after($style_s, $a_pattern1), ';'))" />
@@ -1050,6 +1050,80 @@
       </xsl:processing-instruction>
     </xsl:if>
     <title><xsl:if test="@title"><xsl:value-of select="@title" /></xsl:if></title>
+  </xsl:template>
+
+  <xsl:template name="docma_cell_class">
+    <xsl:param name="default_cls" />
+
+    <xsl:choose>
+      <xsl:when test="boolean(@class)">
+        <xsl:variable name="cls_val" select="concat(' ', @class, ' ')" />
+        <xsl:choose>
+          <xsl:when test="contains($cls_val, ' align-left ')">
+            <xsl:attribute name="align">left</xsl:attribute>
+            <xsl:call-template name="docma_remove_cls" >
+              <xsl:with-param name="cls_val" select="$cls_val" />
+              <xsl:with-param name="remove_cls" select="' align-left '" />
+              <xsl:with-param name="default_cls" select="$default_cls" />
+            </xsl:call-template>
+          </xsl:when>
+          <xsl:when test="contains($cls_val, ' align-right ')">
+            <xsl:attribute name="align">right</xsl:attribute>
+            <xsl:call-template name="docma_remove_cls" >
+              <xsl:with-param name="cls_val" select="$cls_val" />
+              <xsl:with-param name="remove_cls" select="' align-right '" />
+              <xsl:with-param name="default_cls" select="$default_cls" />
+            </xsl:call-template>
+          </xsl:when>
+          <xsl:when test="contains($cls_val, ' align-center ')">
+            <xsl:attribute name="align">center</xsl:attribute>
+            <xsl:call-template name="docma_remove_cls" >
+              <xsl:with-param name="cls_val" select="$cls_val" />
+              <xsl:with-param name="remove_cls" select="' align-center '" />
+              <xsl:with-param name="default_cls" select="$default_cls" />
+            </xsl:call-template>
+          </xsl:when>
+          <xsl:when test="contains($cls_val, ' align-justify ')">
+            <xsl:attribute name="align">justify</xsl:attribute>
+            <xsl:call-template name="docma_remove_cls" >
+              <xsl:with-param name="cls_val" select="$cls_val" />
+              <xsl:with-param name="remove_cls" select="' align-justify '" />
+              <xsl:with-param name="default_cls" select="$default_cls" />
+            </xsl:call-template>
+          </xsl:when>
+          <xsl:when test="contains($cls_val, ' align-full ')">
+            <xsl:attribute name="align">justify</xsl:attribute>
+            <xsl:call-template name="docma_remove_cls" >
+              <xsl:with-param name="cls_val" select="$cls_val" />
+              <xsl:with-param name="remove_cls" select="' align-full '" />
+              <xsl:with-param name="default_cls" select="$default_cls" />
+            </xsl:call-template>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:attribute name="class"><xsl:value-of select="@class" /></xsl:attribute>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:when>
+      <xsl:when test="string-length($default_cls) > 0">
+        <xsl:attribute name="class"><xsl:value-of select="$default_cls" /></xsl:attribute>
+      </xsl:when>
+    </xsl:choose>
+  </xsl:template>
+
+  <xsl:template name="docma_remove_cls">
+    <xsl:param name="cls_val" />
+    <xsl:param name="remove_cls" />
+    <xsl:param name="default_cls" />
+
+    <xsl:variable name="cls_other" select="normalize-space(concat(substring-before($cls_val, $remove_cls), ' ', substring-after($cls_val, $remove_cls)))" />
+    <xsl:choose>
+      <xsl:when test="string-length($cls_other) > 0">
+        <xsl:attribute name="class"><xsl:value-of select="$cls_other" /></xsl:attribute>
+      </xsl:when>
+      <xsl:when test="string-length($default_cls) > 0">
+        <xsl:attribute name="class"><xsl:value-of select="$default_cls" /></xsl:attribute>
+      </xsl:when>
+    </xsl:choose>
   </xsl:template>
 
 </xsl:stylesheet>

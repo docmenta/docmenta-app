@@ -19,6 +19,7 @@ import org.docma.coreapi.ExportLog;
 import org.docma.util.*;
 
 import java.io.*;
+import java.net.URI;
 import java.util.*;
 import javax.xml.transform.*;
 import javax.xml.transform.stream.StreamSource;
@@ -26,9 +27,12 @@ import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.sax.SAXResult;
 
 import org.apache.fop.apps.FopFactory;
+import org.apache.fop.apps.FopFactoryBuilder;
 import org.apache.fop.apps.Fop;
 import org.apache.fop.apps.MimeConstants;
 import org.apache.fop.apps.FOUserAgent;
+import org.apache.avalon.framework.configuration.Configuration;
+import org.apache.avalon.framework.configuration.DefaultConfigurationBuilder;
 
 /**
  *
@@ -505,27 +509,51 @@ public class FormattingEngine
         File gentext_file = createDocBookXSLGentextFile(out_config);
         String custom_layer = createDocBookXSLCustomLayer(pub_config, out_config, styles, null, base_URL, gentext_file);
 
-        // configure fopFactory as desired
-        FopFactory fopFactory = FopFactory.newInstance();
+        //
+        // Configure fopFactory as desired
+        //
+
+        // FOP 1.1 
+        // FopFactory fopFactory = FopFactory.newInstance();
+        
+        // FOP 2.1
+        FopFactoryBuilder fopBuilder = new FopFactoryBuilder(new URI(base_URL));
+        
         String fop_conf_path = out_config.getPdfCustomFOPConfigPath();
         if ((fop_conf_path != null) && !fop_conf_path.trim().equals("")) {
             File fop_conf_file = new File(fop_conf_path);
             if (fop_conf_file.exists()) {
                 export_log.infoMsg("Setting custom FOP configuration: " + fop_conf_file.getAbsolutePath());
-                fopFactory.setUserConfig(fop_conf_file);
+                
+                // FOP 1.1
+                // fopFactory.setUserConfig(fop_conf_file);
+                
+                // FOP 2.1
+                DefaultConfigurationBuilder cfgBuilder = new DefaultConfigurationBuilder();
+                Configuration cfg = cfgBuilder.buildFromFile(fop_conf_file);
+                fopBuilder.setConfiguration(cfg);
             } else {
                 export_log.warningMsg("FOP configuration file not found: " + fop_conf_file.getAbsolutePath());
             }
         }
+        
         // fopFactory.setStrictValidation(false);
         int source_dpi = out_config.getPdfSourceResolution();
         if (source_dpi <= 0) source_dpi = 96;  // default is 96dpi (dots/pixels per Inch)
-        fopFactory.setSourceResolution(source_dpi);
+        
+        // FOP 1.1
+        // fopFactory.setSourceResolution(source_dpi);
+
+        // FOP 2.1
+        fopBuilder.setSourceResolution(source_dpi);
+        FopFactory fopFactory = fopBuilder.build();
 
         FOUserAgent foUserAgent = fopFactory.newFOUserAgent();
         // configure foUserAgent as desired
         foUserAgent.getEventBroadcaster().addEventListener(new FOPEventListener(export_log));
-        foUserAgent.setBaseURL(base_URL);
+
+        // FOP 1.1: foUserAgent.setBaseURL(base_URL);
+
         foUserAgent.setProducer("Docmenta");
         // foUserAgent.setCreator("John Doe");
         // foUserAgent.setAuthor("John Doe");
@@ -1364,7 +1392,7 @@ public class FormattingEngine
            .append(" <xsl:param name=\"pageClass\" />")
            .append(" <xsl:param name=\"default-pagemaster\" />")
            .append(" <xsl:choose>")
-           .append("   <xsl:when test=\"($default-pagemaster = 'titlepage') and ($element = 'book')\">")
+           .append("   <xsl:when test=\"(($default-pagemaster = 'titlepage') or ($default-pagemaster = 'titlepage-draft')) and ($element = 'book')\">")
            .append("     <xsl:value-of select=\"'coverpage'\" />")
            .append("   </xsl:when>")
            .append("   <xsl:otherwise>")
