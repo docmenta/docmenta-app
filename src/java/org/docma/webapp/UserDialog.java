@@ -28,11 +28,15 @@ import java.util.*;
  */
 public class UserDialog extends Window
 {
+    public static final String EVENT_OKAY = "onOkay";
+
     private static final int MODE_NEW = 0;
     private static final int MODE_EDIT = 1;
 
-    private int modalResult = -1;
     private int mode = -1;
+    private UserModel user = null; 
+    private DocmaSession docmaSess = null;
+    private Callback callback = null;
 
     // private Tabbox userTabbox;
     private Tab generalTab;
@@ -54,51 +58,57 @@ public class UserDialog extends Window
 
     public void onOkayClick()
     {
-        modalResult = GUIConstants.MODAL_OKAY;
+        if (hasInvalidInputs(docmaSess)) {
+            return;  // keep dialog opened
+        }
+        try {
+            updateModel(user, docmaSess.getUserManager());
+            
+            // Notify caller that model has been updated
+            if (callback != null) {
+                callback.onEvent(EVENT_OKAY);
+            }
+        } catch (Exception ex) {
+            Messagebox.show("Error: " + ex.getMessage());
+            return;  // keep dialog opened
+        }
         setVisible(false);
     }
 
     public void onCancelClick()
     {
-        modalResult = GUIConstants.MODAL_CANCEL;
-        setVisible(false);
+        setVisible(false);   // close dialog
     }
 
-    public void setMode_NewUser()
+    public void newUser(UserModel usr, DocmaSession docmaSess, Callback callback)
     {
         init();
         mode = MODE_NEW;
-        setTitle(GUIUtil.i18(this).getLabel("label.users.dialog.new.title"));
+        setTitle(label("label.users.dialog.new.title"));
         generalTab.setSelected(true);
         groupsTab.setVisible(false);
+        doEditUser(usr, docmaSess, callback);
     }
 
-    public void setMode_EditUser()
+    public void editUser(UserModel usr, DocmaSession docmaSess, Callback callback)
     {
         init();
         mode = MODE_EDIT;
-        setTitle(GUIUtil.i18(this).getLabel("label.users.dialog.edit.title"));
+        setTitle(label("label.users.dialog.edit.title"));
         generalTab.setSelected(true);
         groupsTab.setVisible(true);
+        doEditUser(usr, docmaSess, callback);
     }
 
-    public boolean doEditUser(UserModel usr, DocmaSession docmaSess)
-    throws Exception
+    private void doEditUser(UserModel usr, DocmaSession docmaSess, Callback callback)
     {
+        this.user = usr;
+        this.docmaSess = docmaSess;
+        this.callback = callback;
+        
         init();
-        updateGUI(usr, docmaSess); // init dialog fields
-        do {
-            modalResult = -1;
-            doModal();
-            if (modalResult != GUIConstants.MODAL_OKAY) {
-                return false;
-            }
-            if (hasInvalidInputs(docmaSess)) {
-                continue;
-            }
-            updateModel(usr, docmaSess.getUserManager());
-            return true;
-        } while (true);
+        updateGUI(usr); // init dialog fields
+        doHighlighted();
     }
 
     private void init()
@@ -117,6 +127,12 @@ public class UserDialog extends Window
         password1Box = (Textbox) getFellow("UserPasswordTextbox1");
         password2Box = (Textbox) getFellow("UserPasswordTextbox2");
         if (guilanguageBox.getItemCount() == 0) {
+            // Add item for default language, i.e. if no language has been set.
+            // If no language is set, then the browser or OS language is used.
+            String txt_default_lang = label("text.users.default_ui_lang");
+            guilanguageBox.appendChild(new Listitem(txt_default_lang, ""));
+
+            // Add all supported UI languages to the list.
             DocmaWebApplication webapp = GUIUtil.getDocmaWebApplication(this);
             DocmaLanguage[] langs = webapp.getGUILanguages();
             for (DocmaLanguage lang : langs) {
@@ -154,7 +170,8 @@ public class UserDialog extends Window
             editorIdBox.getItems().clear();
             String defEditor = webapp.getSystemDefaultContentEditor();
             String edName = webapp.getHelperAppName(defEditor);
-            Listitem item = new Listitem("Default (" + edName + ")", "");
+            String txtdefault = label("text.users.default_editor");
+            Listitem item = new Listitem(txtdefault + " (" + edName + ")", "");
             editorIdBox.appendChild(item);
             for (String eId : editorIds) {
                 edName = webapp.getHelperAppName(eId);
@@ -165,25 +182,25 @@ public class UserDialog extends Window
         
     }
 
-    private boolean hasInvalidInputs(DocmaSession docmaSess) throws Exception
+    private boolean hasInvalidInputs(DocmaSession docmaSess)
     {
         String name = usernameBox.getValue().trim();
         if (name.equals("")) {
-            Messagebox.show("Please enter a user name!");
+            Messagebox.show(label("text.users.enter_username"));
             return true;
         }
         if (name.length() > 40) {
-            Messagebox.show("User name is too long. Maximum length is 40 characters.");
+            Messagebox.show(label("text.users.username_too_long"));
             return true;
         }
         if (! name.matches("[A-Za-z][0-9A-Za-z_]*")) {
-            Messagebox.show("Invalid user name. Allowed characters are ASCII letters and underscore.");
+            Messagebox.show(label("text.users.invalid_username"));
             return true;
         }
         if (mode == MODE_NEW) {
             UserManager um = docmaSess.getUserManager();
             if (um.getUserIdFromName(name) != null) {
-                Messagebox.show("A user with this name already exists!");
+                Messagebox.show(label("text.users.username_already_exists"));
                 return true;
             }
         }
@@ -191,14 +208,14 @@ public class UserDialog extends Window
         String pw2 = password2Box.getValue();
         if ((pw1.length() > 0) || (pw2.length() > 0)) {
             if (! pw1.equals(pw2)) {
-                Messagebox.show("Entered passwords differ!");
+                Messagebox.show(label("text.users.passwords_differ"));
                 return true;
             }
         }
         return false;
     }
 
-    private void updateGUI(UserModel usr, DocmaSession docmaSess)
+    private void updateGUI(UserModel usr)
     {
         usernameBox.setValue(usr.getLoginName());
         lastnameBox.setValue(usr.getLastName());
@@ -206,15 +223,9 @@ public class UserDialog extends Window
         emailBox.setValue(usr.getEmail());
 
         String lang_code = usr.getGuiLanguage();
-        if ((lang_code == null) || lang_code.trim().equals("")) {
-            DocmaWebApplication webapp = GUIUtil.getDocmaWebApplication(this);
-            DocmaLanguage lang = webapp.getDefaultGUILanguage();
-            lang_code = (lang == null) ? "en" : lang.getCode();
-        }
+        lang_code = (lang_code != null) ? lang_code.trim() : "";
         int langidx = getLangListIndex(lang_code);
-        if (langidx >= 0) {
-            guilanguageBox.setSelectedIndex(langidx);
-        }
+        guilanguageBox.setSelectedIndex((langidx >= 0) ? langidx : 0);
 
         String editorId = usr.getEditorId();
         if (editorId == null) editorId = "";
@@ -249,8 +260,12 @@ public class UserDialog extends Window
         usr.setEmail(emailBox.getValue());
         Listitem item = guilanguageBox.getSelectedItem();
         if (item != null) {
-            DocmaLanguage lang = (DocmaLanguage) item.getValue();
-            usr.setGuiLanguage(lang.getCode());
+            String gui_lang = "";
+            Object obj = item.getValue();
+            if (obj instanceof DocmaLanguage) {
+              gui_lang = ((DocmaLanguage) obj).getCode();
+            }
+            usr.setGuiLanguage(gui_lang);
         }
         Listitem item2 = editorIdBox.getSelectedItem();
         if (item2 != null) {
@@ -287,8 +302,16 @@ public class UserDialog extends Window
         List list = guilanguageBox.getItems();
         for (int i=0; i < list.size(); i++) {
             Listitem item = (Listitem) list.get(i);
-            DocmaLanguage lang = (DocmaLanguage) item.getValue();
-            if (lang_code.equalsIgnoreCase(lang.getCode())) return i;
+            Object obj = item.getValue();
+            String item_lang;
+            if (obj instanceof DocmaLanguage) {
+                item_lang = ((DocmaLanguage) obj).getCode();
+            } else {
+                item_lang = (obj instanceof String) ? (String) obj : "";
+            }
+            if (lang_code.equalsIgnoreCase(item_lang)) {
+                return i;
+            }
         }
         return -1;
     }
@@ -302,6 +325,11 @@ public class UserDialog extends Window
             if ((v != null) && v.equalsIgnoreCase(value)) return i;
         }
         return -1;
+    }
+
+    private String label(String key, Object... args)
+    {
+        return GUIUtil.getI18n(this).getLabel(key, args);
     }
 
 }

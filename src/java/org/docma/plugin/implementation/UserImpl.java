@@ -37,6 +37,11 @@ public class UserImpl implements User
         return id;
     }
 
+    public String getLoginId() 
+    {
+        return usrManager.getUserNameFromId(id);
+    }
+
     public String getFirstName() 
     {
         String nm = getProperty(DocmaConstants.PROP_USER_FIRST_NAME);

@@ -14,14 +14,24 @@
 
 package org.docma.webapp;
 
+import java.util.*;
+import javax.servlet.http.HttpSession;
+import javax.servlet.ServletContext;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+
 import org.docma.app.*;
 import org.docma.app.ui.UserModel;
 import org.docma.coreapi.*;
 import org.docma.lockapi.Lock;
+import org.docma.util.Log;
 
+import org.zkoss.util.Locales;
+import org.zkoss.web.Attributes;
 import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.Desktop;
 import org.zkoss.zk.ui.Session;
+import org.zkoss.zk.ui.util.Clients;
 import org.zkoss.zul.Radiogroup;
 import org.zkoss.zul.Radio;
 import org.zkoss.zul.Listbox;
@@ -31,11 +41,6 @@ import org.zkoss.zul.Treeitem;
 import org.zkoss.zul.Tree;
 import org.zkoss.zul.Messagebox;
 
-import java.util.*;
-import javax.servlet.http.HttpSession;
-import javax.servlet.ServletContext;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
 
 /**
  *
@@ -151,6 +156,57 @@ public class GUIUtil
         return getDocmaWebApplication(comp).i18();
     }
 
+    public static Locale getCurrentLocale()
+    {
+        return Locales.getCurrent();
+    }
+
+    public static String getCurrentUILanguage(Component comp)
+    {
+        Locale loc = getCurrentLocale();
+        String lang = null;
+        if (loc != null) {
+            lang = loc.getLanguage();
+        }
+        return ((lang == null) || lang.equals("")) ? "en" : lang;
+    }
+
+    public static void setCurrentUILanguage(Component comp, String lang_code, boolean switchNow)
+    {
+        if ((lang_code != null) && !lang_code.equals("")) {
+            Locale current_loc = GUIUtil.getCurrentLocale();
+            if ((current_loc == null) || 
+                !lang_code.equalsIgnoreCase(current_loc.getLanguage())) {
+
+                try {
+                    if (DocmaConstants.DEBUG) {
+                        Log.info("Switching UI language from " + current_loc + 
+                                 " to " + lang_code + ".");
+                    }
+                    Locale loc = Locales.getLocale(lang_code);
+                    if (loc == null) {
+                        if (DocmaConstants.DEBUG) {
+                            Log.warning("Could not find locale for " + lang_code + 
+                                        ". Creating new instance.");
+                        }
+                        loc = new Locale(lang_code);
+                    }
+                    comp.getDesktop().getSession().setAttribute(Attributes.PREFERRED_LOCALE, loc);
+
+                    // Switch language in current page
+                    if (switchNow) {
+                        Clients.reloadMessages(loc);
+                        Locales.setThreadLocal(loc);
+                    }
+                } catch (Exception ex) {
+                    Log.error("Failed to switch UI language: " + ex.getMessage());
+                    if (DocmaConstants.DEBUG) {
+                        ex.printStackTrace();
+                    }
+                }
+            }
+        }
+    }
 
     public static String getUserNameFromCookie(Component comp)
     {
@@ -295,7 +351,12 @@ public class GUIUtil
         }
     }
 
-    public static List getSelectedDocmaNodes(Tree docTree) throws Exception
+    public static List<DocmaNode> getSelectedDocmaNodes(Tree docTree)
+    {
+        return getSelectedDocmaNodes(docTree, true, true);
+    }
+
+    public static List<DocmaNode> getSelectedDocmaNodes(Tree docTree, boolean siblingsOnly, boolean showSelectError)
     {
         int cnt = docTree.getSelectedCount();
         if (DocmaConstants.DEBUG) {
@@ -303,11 +364,9 @@ public class GUIUtil
         }
         if (cnt == 0) return null;
 
-        List list = new ArrayList(cnt);
+        List<DocmaNode> list = new ArrayList<DocmaNode>(cnt);
         Set id_list = new HashSet(2*cnt);
-        Iterator it = docTree.getSelectedItems().iterator();
-        while (it.hasNext()) {
-            Treeitem item = (Treeitem) it.next();
+        for (Treeitem item : docTree.getSelectedItems()) {
             Object obj = item.getValue();
             if ((obj != null) && (obj instanceof DocmaNode)) {
                 DocmaNode node = (DocmaNode) obj;
@@ -316,13 +375,15 @@ public class GUIUtil
             }
         }
 
-        List resultlist = new ArrayList(cnt);
+        List<DocmaNode> resultlist = new ArrayList<DocmaNode>(cnt);
         String parentId = null;
         for (int i=0; i < list.size(); i++) {
-            DocmaNode node = (DocmaNode) list.get(i);
+            DocmaNode node = list.get(i);
             DocmaNode par = node.getParent();
             if ((par == null) || node.isRoot()) {
-                Messagebox.show("Operation cannot be applied on root folder!");
+                if (showSelectError) {
+                    Messagebox.show("Operation cannot be applied on root folder!");
+                }
                 return null;
             }
             if (id_list.contains(par.getId())) {
@@ -337,8 +398,10 @@ public class GUIUtil
             if (parentId == null) {
                 parentId = par.getId();
             } else {
-                if (! parentId.equals(par.getId())) {
-                    Messagebox.show("Operation can only be applied on content within the same folder!");
+                if (siblingsOnly && !parentId.equals(par.getId())) {
+                    if (showSelectError) {
+                        Messagebox.show(getI18n(docTree).getLabel("text.content_tree.select_siblings"));
+                    }
                     return null;
                 }
             }

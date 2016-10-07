@@ -13,18 +13,22 @@
  */
 package org.docma.plugin.implementation;
 
-import org.docma.app.*;
-import org.docma.webapp.*;
-import org.docma.util.Log;
-import org.docma.plugin.web.*;
-
 import java.util.Map;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.regex.Pattern;
 import javax.servlet.http.HttpSession;
+
+import org.docma.app.*;
+import org.docma.coreapi.DocI18n;
+import org.docma.plugin.web.*;
+import org.docma.plugin.Node;
 import org.docma.plugin.OutputConfig;
+import org.docma.plugin.StoreClosedException;
+import org.docma.util.Log;
+import org.docma.webapp.*;
 
 import org.zkoss.zul.*;
 import org.zkoss.zk.ui.Component;
@@ -38,26 +42,38 @@ import org.zkoss.zk.ui.util.Clients;
  */
 public class WebUserSessionImpl extends UserSessionImpl implements WebUserSession, EventListener
 {
+    private static final Pattern PATTERN_COMPONENT_ID = Pattern.compile("[A-Za-z_][0-9A-Za-z_]{1,99}");
+    
     private final DocmaWebSession webSess;
     private final PluginManager pluginMgr;
+    private final DocI18n i18n;
     // Map plugin-Id to components:
-    private final Map<String, List<Component>> mapPluginToComponents = new HashMap<String, List<Component>>();
-    // Map tab-Id to plugin-Id:
-    private final Map<String, String> mapTabToPlugin = new HashMap<String, String>();
+    // private final Map<String, List<Component>> mapPluginToComponents = new HashMap<String, List<Component>>();
+
+    //Map plugin-Id to UIListeners
+    private Map<String, UIListener> pluginToUIListener = null;
+    // Map main window tab-Id to plugin-Id:
+    private Map<String, String> mainTabsToPlugin = null;
+    // Map user dialog tab-Id to plugin-Id
+    private Map<String, String> userTabsToPlugin = null;
+    // Plugin menu entries
+    private List<PluginMenuEntry> menuEntries = null;
     
+    // ***************** Constructor *********************
     
     public WebUserSessionImpl(DocmaSession docmaSess, DocmaWebSession webSess, PluginManager pluginMgr)
     {
         super(docmaSess);
         this.webSess = webSess;
         this.pluginMgr = pluginMgr;
+        this.i18n = webSess.getDocmaWebApplication().getI18n();
     }
 
     // ***************** Interface WebUserSession *********************
     
-    public String getLabel(String key) 
+    public String getLabel(String key, Object... args) 
     {
-        return webSess.getDocmaWebApplication().i18().getLabel(key);
+        return i18n.getLabel(key, args);
     }
 
     public String addDialog(String zulPath)
@@ -105,42 +121,190 @@ public class WebUserSessionImpl extends UserSessionImpl implements WebUserSessio
 
     public void addAdminTab(WebPluginContext ctx, String tabId, String title, int pos, String zulPath) 
     {
-        Tabbox tabbox = (Tabbox) webSess.getMainWindow().getFellow("AdminTabbox");
-        addTab(tabbox, ctx, tabId, title, pos, zulPath);
+        addMainTab("AdminTabbox", ctx, tabId, title, pos, zulPath);
     }
 
     public boolean removeAdminTab(String tabId) 
     {
-        Tabbox tabbox = (Tabbox) webSess.getMainWindow().getFellow("AdminTabbox");
-        return removeTab(tabbox, tabId);
+        return removeMainTab("AdminTabbox", tabId);
     }
 
     public void addPublishingTab(WebPluginContext ctx, String tabId, String title, int pos, String zulPath) 
     {
-        Tabbox tabbox = (Tabbox) webSess.getMainWindow().getFellow("PublishingTabbox");
-        addTab(tabbox, ctx, tabId, title, pos, zulPath);
+        addMainTab("PublishingTabbox", ctx, tabId, title, pos, zulPath);
     }
 
     public boolean removePublishingTab(String tabId) 
     {
-        Tabbox tabbox = (Tabbox) webSess.getMainWindow().getFellow("PublishingTabbox");
-        return removeTab(tabbox, tabId);
+        return removeMainTab("PublishingTabbox", tabId);
     }
 
     public void addUserTab(WebPluginContext ctx, String tabId, String title, int pos, String zulPath) 
     {
         UserDialog usrDialog = (UserDialog) webSess.getMainWindow().getPage().getFellow("UserDialog");
+        if (usrDialog == null) {
+            return;
+        }
         Tabbox tabbox = (Tabbox) usrDialog.getFellow("UserDialogTabbox");
-        addTab(tabbox, ctx, tabId, title, pos, zulPath);
+        if (tabbox == null) {
+            return;
+        }
+        addTab(tabbox, tabId, title, pos, zulPath);
+        
+        if (userTabsToPlugin == null) {
+            userTabsToPlugin = new HashMap<String, String>();
+        }
+        userTabsToPlugin.put(tabId, ctx.getPluginId());
     }
 
     public boolean removeUserTab(String tabId) 
     {
         UserDialog usrDialog = (UserDialog) webSess.getMainWindow().getPage().getFellow("UserDialog");
+        if (usrDialog == null) {
+            return false;
+        }
         Tabbox tabbox = (Tabbox) usrDialog.getFellow("UserDialogTabbox");
-        return removeTab(tabbox, tabId);
+        boolean res = (tabbox != null) && removeTab(tabbox, tabId);
+        if (userTabsToPlugin != null) {
+            userTabsToPlugin.remove(tabId);
+        }
+        return res;
     }
-    
+
+    public void addMenuItem(WebPluginContext ctx, String parentMenuId, 
+                            String itemId, String title, String iconUrl, 
+                            String neighbourId, boolean insertBefore) 
+    {
+        // MainWindow mainWin = webSess.getMainWindow();
+        // Menupopup parentmenu = (Menupopup) mainWin.getFellow(parentMenuId);
+        // Component neighbour = mainWin.getFellow(neighbourId);
+        PluginMenuEntry entry = new PluginMenuEntry();
+        entry.setType(PluginMenuEntry.ITEM);
+        entry.setPluginId(ctx.getPluginId());
+        entry.setParentMenuId(parentMenuId);
+        entry.setEntryId(itemId);
+        entry.setNeighbourId(neighbourId);
+        entry.setInsertBefore(insertBefore);
+        entry.setOption(MenuOption.LABEL, title);
+        entry.setOption(MenuOption.IMAGE, iconUrl);
+        
+        initMenuEntries();
+        menuEntries.add(entry);
+    }
+
+    public void addMenuSeparator(WebPluginContext ctx, String parentMenuId, 
+                                 String separatorId, String neighbourId, boolean insertBefore) 
+    {
+        PluginMenuEntry entry = new PluginMenuEntry();
+        entry.setType(PluginMenuEntry.SEPARATOR);
+        entry.setPluginId(ctx.getPluginId());
+        entry.setParentMenuId(parentMenuId);
+        entry.setEntryId(separatorId);
+        entry.setNeighbourId(neighbourId);
+        entry.setInsertBefore(insertBefore);
+        
+        initMenuEntries();
+        menuEntries.add(entry);
+    }
+
+    public void addSubMenu(WebPluginContext ctx, String parentMenuId, String subMenuId, 
+                           String title, String iconUrl, String neighbourId, boolean insertBefore) 
+    {
+        PluginMenuEntry entry = new PluginMenuEntry();
+        entry.setType(PluginMenuEntry.SUB_MENU);
+        entry.setPluginId(ctx.getPluginId());
+        entry.setParentMenuId(parentMenuId);
+        entry.setEntryId(subMenuId);
+        entry.setNeighbourId(neighbourId);
+        entry.setInsertBefore(insertBefore);
+        entry.setOption(MenuOption.LABEL, title);
+        entry.setOption(MenuOption.IMAGE, iconUrl);
+        
+        initMenuEntries();
+        menuEntries.add(entry);
+    }
+
+    public String getMenuLabel(String menuOrItemId) 
+    {
+        Object val = getMenuOption(menuOrItemId, MenuOption.LABEL);
+        return (val != null) ? val.toString() : "";
+    }
+
+    public void setMenuLabel(String menuOrItemId, String label) 
+    {
+        setMenuOption(menuOrItemId, MenuOption.LABEL, label);
+    }
+
+    public String getMenuImage(String itemId) 
+    {
+        Object val = getMenuOption(itemId, MenuOption.IMAGE);
+        return (val != null) ? val.toString() : null;
+    }
+
+    public void setMenuImage(String itemId, String imageUrl) 
+    {
+        setMenuOption(itemId, MenuOption.IMAGE, imageUrl);
+    }
+
+    public boolean isMenuDisabled(String itemId) 
+    {
+        // Note: If option is not set, then item is enabled by default.
+        Object val = getMenuOption(itemId, MenuOption.DISABLED);
+        return (val != null) ? boolValue(val) : false;
+    }
+
+    public void setMenuDisabled(String itemId, boolean disabled) 
+    {
+        setMenuOption(itemId, MenuOption.DISABLED, disabled);
+    }
+
+    public boolean isMenuVisible(String menuOrItemId) 
+    {
+        // Note: If option is not set, then entry is visible by default.
+        Object val = getMenuOption(menuOrItemId, MenuOption.VISIBLE);
+        return (val != null) ? boolValue(val) : true;
+    }
+
+    public void setMenuVisible(String menuOrItemId, boolean visible) 
+    {
+        setMenuOption(menuOrItemId, MenuOption.VISIBLE, visible);
+    }
+
+    public boolean isMenuCheckbox(String itemId) 
+    {
+        // Note: If option is not set, then item has no checkbox by default.
+        Object val = getMenuOption(itemId, MenuOption.CHECKMARK);
+        return (val != null) ? boolValue(val) : false;
+    }
+
+    public void setMenuCheckbox(String itemId, boolean checkbox) 
+    {
+        setMenuOption(itemId, MenuOption.CHECKMARK, checkbox);
+    }
+
+    public boolean isMenuChecked(String itemId) 
+    {
+        // Note: If option is not set, then item is not checked by default.
+        Object val = getMenuOption(itemId, MenuOption.CHECKED);
+        return (val != null) ? boolValue(val) : false;
+    }
+
+    public void setMenuChecked(String itemId, boolean checked) 
+    {
+        setMenuOption(itemId, MenuOption.CHECKED, checked);
+    }
+
+    public void setUIListener(WebPluginContext ctx, UIListener listener) 
+    {
+        // if (ctx == null) {  // This should never occur. 
+        //     return;  // Just ignore to make implementation more robust.
+        // }
+        if (pluginToUIListener == null) {
+            pluginToUIListener = new HashMap<String, UIListener>();
+        }
+        pluginToUIListener.put(ctx.getPluginId(), listener);
+    }
+
     public String getThemeProperty(String propName)
     {
         return webSess.getThemeProperty(propName);
@@ -173,27 +337,37 @@ public class WebUserSessionImpl extends UserSessionImpl implements WebUserSessio
 
     public void showMessage(String message) 
     {
-        Messagebox.show(message);
+        Messagebox.show(message, DocmaConstants.DISPLAY_APP_SHORTNAME, Messagebox.OK, Messagebox.INFORMATION);
     }
 
-    public void showMessage(String message, String title, String msg_type) 
+    public void showMessage(String message, String title, MessageType msg_type) 
     {
-        Messagebox.show(message, title, 0, messageTypeToIcon(msg_type));
+        if (title == null) {
+            title = DocmaConstants.DISPLAY_APP_SHORTNAME;
+        }
+        Messagebox.show(message, title, Messagebox.OK, messageTypeToIcon(msg_type));
     }
 
-    public void showMessage(String message, String title, String msg_type, final UIListener listener) 
+    public void showMessage(String message, String title, MessageType msg_type, final UIListener listener) 
     {
-        Messagebox.show(message, title, 0, messageTypeToIcon(msg_type), 
+        if (title == null) {
+            title = DocmaConstants.DISPLAY_APP_SHORTNAME;
+        }
+        final WebUserSession userSession = this;
+        Messagebox.show(message, title, Messagebox.OK, messageTypeToIcon(msg_type), 
             new EventListener() {
                 public void onEvent(Event t) throws Exception {
-                    listener.onEvent(new UIEventImpl(t));
+                    listener.onEvent(new UIEventImpl(t, userSession));
                 }
             }
         );
     }
 
-    public void showMessage(String message, String title, String msg_type, ButtonType[] btns, ButtonType focus, final UIListener listener) 
+    public void showMessage(String message, String title, MessageType msg_type, ButtonType[] btns, ButtonType focus, final UIListener listener) 
     {
+        if (title == null) {
+            title = DocmaConstants.DISPLAY_APP_SHORTNAME;
+        }
         Messagebox.Button[] zkbtns = buttonTypesToZk(btns);
         if (zkbtns.length == 0) {
             zkbtns = new Messagebox.Button[] { Messagebox.Button.OK };
@@ -202,55 +376,258 @@ public class WebUserSessionImpl extends UserSessionImpl implements WebUserSessio
         if (zkfocus == null) {
             zkfocus = zkbtns[0];
         }
+        final WebUserSession userSession = this;
         Messagebox.show(message, title, zkbtns, messageTypeToIcon(msg_type), zkfocus, 
             new EventListener() {
                 public void onEvent(Event t) throws Exception {
-                    listener.onEvent(new UIEventImpl(t));
+                    listener.onEvent(new UIEventImpl(t, userSession));
                 }
             }
         );
     }
 
+    public int selectedNodesCount() 
+    {
+        return webSess.getMainWindow().getSelectedNodeCount();
+    }
+
+    public Node getSingleSelectedNode(boolean showSelectError) 
+    {
+        StoreConnectionImpl store = (StoreConnectionImpl) getOpenedStore();
+        if (store == null) {
+            throw new StoreClosedException("User session has no opened store.");
+        }
+        DocmaNode nd = webSess.getMainWindow().getSelectedDocmaNode();
+        if (nd != null) {
+            return NodeImpl.createNodeInstance(store, nd);
+        } else {
+            if (showSelectError) {
+                showMessage(getLabel("text.content_tree.select_single"), null, MessageType.ERROR);
+            }
+            return null;
+        }
+    }
+
+    public Node[] getSelectedSiblingNodes(boolean showSelectError) 
+    {
+        StoreConnectionImpl store = (StoreConnectionImpl) getOpenedStore();
+        if (store == null) {
+            throw new StoreClosedException("User session has no opened store.");
+        }
+        List<DocmaNode> sel = webSess.getMainWindow().getSelectedDocmaNodes(true, showSelectError);
+        if (sel == null) {
+            return new Node[0];
+        } else {
+            Node[] arr = new Node[sel.size()];
+            for (int i = 0; i < arr.length; i++) {
+                arr[i] = NodeImpl.createNodeInstance(store, sel.get(i));
+            }
+            return arr;
+        }
+    }
 
     // ***************** Other public methods *********************
     
     public void onEvent(Event evt) throws Exception 
     {
         Component target = evt.getTarget();
-        if ("onSelect".equalsIgnoreCase(evt.getName()) && (target instanceof Tab)) {
-            String tabId = target.getId();
-            String pluginId = mapTabToPlugin.get(tabId);
-            if (pluginId != null) {
-                PluginControl ctrl = pluginMgr.getControl(pluginId);
-                if (ctrl != null) {
-                    ctrl.sendOnSelectTab(this, tabId);
-                } else {
-                    Log.error("Tab onSelect event for plugin '" + pluginId + "' which has no control.");
+        String targetId = (target != null) ? target.getId() : null;
+        
+        // Get the plugin-Id for the component that caused this event.
+        String pluginId = null;
+        if (target instanceof Tab) {
+            pluginId = (mainTabsToPlugin != null) ? mainTabsToPlugin.get(targetId) : null;
+            if (pluginId == null) {
+                pluginId = (userTabsToPlugin != null) ? userTabsToPlugin.get(targetId) : null;
+            }
+        }
+        
+        // Send the event to the registered listener
+        if (pluginId != null) {  // If the event has been caused by a plugin.
+            PluginControl ctrl = pluginMgr.getControl(pluginId);
+            if ((ctrl != null) && ctrl.isLoaded()) {  // Assure that plugin is still enabled
+                UIListener listener = (pluginToUIListener != null) ? 
+                                      pluginToUIListener.get(pluginId) : null;
+                if (listener != null) {
+                    try {
+                        listener.onEvent(new UIEventImpl(evt, this));
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                        Log.error("Exception in UIListener.onEvent of plugin '" + 
+                                  pluginId + "': " + ex.getMessage());
+                    }
                 }
             } else {
-                Log.warning("onSelect event for tab '" + tabId + "' which is not registered for any plugin.");
+                Log.warning("Event '" + evt.getName() + "' for component '" + targetId +
+                            "' that is registered for plugin '" + pluginId + 
+                            "' but has no loaded control.");
             }
+        } else {
+            Log.warning("Event '" + evt.getName() + "' for component '" + targetId + 
+                        "' which is not registered for any plugin.");
         }
     }
     
     public synchronized void unloadPluginComponents(String pluginId)
     {
-        List<Component> comp_list = mapPluginToComponents.get(pluginId);
-        if (comp_list != null) {
-            for (Component comp : comp_list) {
-                if (comp.getParent() != null) {
-                    comp.setParent(null);
+        // Remove main tabs of plugin
+        if (mainTabsToPlugin != null) {
+            Iterator<String> it = mainTabsToPlugin.keySet().iterator();
+            while (it.hasNext()) {
+                String componentId = it.next();
+                String pId = mainTabsToPlugin.get(componentId);
+                if (pluginId.equals(pId)) {
+                    try {
+                        Tab tab = (Tab) webSess.getMainWindow().getFellow(componentId);
+                        removeTab(tab.getTabbox(), componentId);
+                        it.remove();
+                    } catch (Exception ex) {
+                        Log.error("Failed to unload main-window tab '" + componentId + 
+                                  "':" + ex.getMessage());
+                    }
                 }
             }
-            comp_list.clear();
+        }
+        
+        // Remove user-dialog tabs of plugin
+        if (userTabsToPlugin != null) {
+            UserDialog usrDialog = (UserDialog) webSess.getMainWindow().getPage().getFellow("UserDialog");
+            Iterator<String> it = userTabsToPlugin.keySet().iterator();
+            while (it.hasNext()) {
+                String componentId = it.next();
+                String pId = userTabsToPlugin.get(componentId);
+                if (pluginId.equals(pId)) {
+                    try {
+                        if (usrDialog != null) {
+                            Tab tab = (Tab) usrDialog.getFellow(componentId);
+                            removeTab(tab.getTabbox(), componentId);
+                        }
+                        it.remove();
+                    } catch (Exception ex) {
+                        Log.error("Failed to unload user-dialog tab '" + componentId + 
+                                  "':" + ex.getMessage());
+                    }
+                }
+            }
         }
     }
 
+    /**
+     * Returns the list of plug-in menu entries for this session or null
+     * if no plug-in entries exist.
+     * This method can be called for example from org.docma.webapp.MenuUtil to 
+     * retrieve the list of plug-in menu entries for the current session.
+     * 
+     * @return List of plugin menu entries or null.
+     */
+    public List<PluginMenuEntry> getMenuEntries()
+    {
+        return menuEntries;
+    }
+
+    public void sendMenuClickEventToPlugin(Menuitem item)
+    {
+        PluginMenuEntry entry = getMenuEntryById(item.getId());
+        if ((entry != null) && (pluginToUIListener != null)) {
+            String pluginId = entry.getPluginId();
+            UIListener listener = pluginToUIListener.get(pluginId);
+            if (listener != null) {
+                try {
+                    listener.onEvent(new UIEventImpl("onClick", item, this));
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                    Log.error("Exception in UIListener.onEvent for 'onClick' event of plugin '" + 
+                              pluginId + "': " + ex.getMessage());
+                }
+            }
+        }
+    }
+    
+    public void sendMenuOpenEventToPlugins(Menupopup menu)
+    {
+        if (pluginToUIListener == null) {   // no plug-in exists
+            return;
+        }
+        for (String pluginId : pluginToUIListener.keySet()) {
+            UIListener listener = pluginToUIListener.get(pluginId);
+            if (listener != null) {
+                try {
+                    listener.onEvent(new UIEventImpl("onOpen", menu, this));
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                    Log.error("Exception in UIListener.onEvent for 'onOpen' event of plugin '" + 
+                              pluginId + "': " + ex.getMessage());
+                }
+            }
+        }
+    }
+    
+    // ***************** Package local methods *********************
+
     // ***************** Private methods *********************
 
-    private void addTab(Tabbox tabbox, WebPluginContext ctx, String tabId, String title, int pos, String zulPath) 
+    private Object getMenuOption(String menuOrItemId, MenuOption name)
+    {
+        PluginMenuEntry entry = getMenuEntryById(menuOrItemId);
+        return (entry != null) ? entry.getOption(name) : null;
+    }
+
+    private void setMenuOption(String menuOrItemId, MenuOption name, Object value) 
+    {
+        PluginMenuEntry entry = getMenuEntryById(menuOrItemId);
+        if (entry != null) {
+            entry.setOption(name, value);
+        }
+    }
+
+    private void initMenuEntries()
+    {
+        if (menuEntries == null) {
+            menuEntries = new ArrayList<PluginMenuEntry>();
+        }
+    }
+    
+    private PluginMenuEntry getMenuEntryById(String id)
+    {
+        if (menuEntries == null) {
+            return null;
+        }
+        for (PluginMenuEntry entry : menuEntries) {
+            if (id.equals(entry.getEntryId())) {
+                return entry;
+            }
+        }
+        return null;
+    }
+
+    private void addMainTab(String tabboxId, WebPluginContext ctx, String tabId, String title, int pos, String zulPath)
+    {
+        Tabbox tabbox = (Tabbox) webSess.getMainWindow().getFellow(tabboxId);
+        if (tabbox == null) {
+            return;
+        }
+        addTab(tabbox, tabId, title, pos, zulPath);
+        
+        if (mainTabsToPlugin == null) {
+            mainTabsToPlugin = new HashMap<String, String>();
+        }
+        mainTabsToPlugin.put(tabId, ctx.getPluginId());
+    }
+
+    private boolean removeMainTab(String tabboxId, String tabId) 
+    {
+        Tabbox tabbox = (Tabbox) webSess.getMainWindow().getFellow(tabboxId);
+        boolean res = (tabbox != null) && removeTab(tabbox, tabId);
+        if (mainTabsToPlugin != null) {
+            mainTabsToPlugin.remove(tabId);
+        }
+        return res;
+    }
+    
+    private void addTab(Tabbox tabbox, String tabId, String title, int pos, String zulPath) 
     {
         Tabs tabs = tabbox.getTabs();
+        checkValidComponentId(tabId);
         if (tabs.hasFellow(tabId)) {
             throw new RuntimeException("Cannot add tab: component with id '" + tabId + "' already exists!");
         }
@@ -280,10 +657,8 @@ public class WebUserSessionImpl extends UserSessionImpl implements WebUserSessio
         
         tab_list.add(pos, tab);
         panel_list.add(pos, tp);
-        addPluginComponentToMap(ctx, tab);
-        addPluginComponentToMap(ctx, tp);
     }
-
+    
     private boolean removeTab(Tabbox tabbox, String tabId) 
     {
         Tabs tabs = tabbox.getTabs();
@@ -297,71 +672,27 @@ public class WebUserSessionImpl extends UserSessionImpl implements WebUserSessio
             if (tabId.equals(tab.getId())) {
                 tabs.removeChild(tab);
                 panels.removeChild(pan);
-                removePluginComponentsFromMap(tab, pan);
                 return true;
             }
         }
         Log.warning("Could not remove tab with id '" + tabId + "'!");
         return false;
     }
-
-    private void addPluginComponentToMap(WebPluginContext ctx, Component comp)
-    {
-        addPluginComponentToMap(ctx.getPluginId(), comp);
-    }
     
-    private void addPluginComponentToMap(String pluginId, Component comp)
-    {
-        List<Component> comp_list = mapPluginToComponents.get(pluginId);
-        if (comp_list == null) {
-            comp_list = new ArrayList<Component>();
-            mapPluginToComponents.put(pluginId, comp_list);
-        }
-        comp_list.add(comp);
-        if (comp instanceof Tab) {
-            mapTabToPlugin.put(comp.getId(), pluginId);
-        }
-    }
-    
-    private void removePluginComponentFromMap(Component comp1)
-    {
-        removePluginComponentsFromMap(comp1, null);
-    }
-    
-    private void removePluginComponentsFromMap(Component comp1, Component comp2)
-    {
-        Iterator<List<Component>> it = mapPluginToComponents.values().iterator();
-        while (it.hasNext()) {
-            List<Component> clist = it.next();
-            if (clist != null) {
-                clist.remove(comp1);
-                if (comp2 != null) { 
-                    clist.remove(comp2);
-                }
-            }
-        }
-        if (comp1 instanceof Tab) {
-            mapTabToPlugin.remove(comp1.getId());
-        }
-        if (comp2 instanceof Tab) {
-            mapTabToPlugin.remove(comp2.getId());
-        }
-    }
-
-    private String messageTypeToIcon(String msg_type)
+    private String messageTypeToIcon(MessageType msg_type)
     {
         if (msg_type == null) {
             return Messagebox.NONE;
         }
         
         String icon;
-        if (WebUserSession.MSG_ERROR.equals(msg_type)) {
+        if (MessageType.ERROR.equals(msg_type)) {
             icon = Messagebox.ERROR;
-        } else if (WebUserSession.MSG_INFO.equals(msg_type)) {
+        } else if (MessageType.INFO.equals(msg_type)) {
             icon = Messagebox.INFORMATION;
-        } else if (WebUserSession.MSG_QUESTION.equals(msg_type)) {
+        } else if (MessageType.QUESTION.equals(msg_type)) {
             icon = Messagebox.QUESTION;
-        } else if (WebUserSession.MSG_WARNING.equals(msg_type)) {
+        } else if (MessageType.WARNING.equals(msg_type)) {
             icon = Messagebox.EXCLAMATION;
         } else {
             icon = Messagebox.NONE;
@@ -416,6 +747,26 @@ public class WebUserSessionImpl extends UserSessionImpl implements WebUserSessio
         }
         
         return null;
+    }
+
+    private void checkValidComponentId(String id)
+    {
+        if (! PATTERN_COMPONENT_ID.matcher(id).matches()) {
+            throw new RuntimeException("Invalid component ID!");
+        }
+    }
+    
+    private void checkValidEventName(String name)
+    {
+        if (! PATTERN_COMPONENT_ID.matcher(name).matches()) {
+            throw new RuntimeException("Invalid event name!");
+        }
+    }
+    
+    private static boolean boolValue(Object value)
+    {
+        return (value instanceof Boolean) ? (Boolean) value 
+                                          : "true".equalsIgnoreCase(value.toString());
     }
 
 }

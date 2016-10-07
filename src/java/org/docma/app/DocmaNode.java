@@ -20,6 +20,7 @@ import org.docma.lockapi.Lock;
 import org.docma.util.Log;
 import java.util.*;
 import java.io.*;
+import org.docma.util.DocmaUtil;
 
 /**
  *
@@ -41,10 +42,10 @@ public class DocmaNode
     private static final boolean AUTOCALC_NODE_PROGRESS = true;
     private static final boolean AUTOCALC_NODE_WFSTATUS = true;
 
-    private int openedStoreCounter;
+    private final int openedStoreCounter;
 
     private String nodeType       = null;
-    private Boolean translated    = null;
+    // private Boolean translated    = null;
     private String title          = null;
     private String id             = null;
     private String alias          = null;
@@ -63,10 +64,8 @@ public class DocmaNode
     private String fileExtension  = null;
     private String defaultFilename = null;
 
-    // private DocmaTreeModel treemodel;
-    // private DocmaNode parent;
-    private DocmaSession docmaSess;
-    private DocNode backendNode;
+    private final DocmaSession docmaSess;
+    private final DocNode backendNode;
 
     private DocmaNode[] children = null;
     // private List childrenReadOnly = null;
@@ -111,7 +110,6 @@ public class DocmaNode
     void clearLocalCache()
     {
         // delete cached values
-        translated     = null;
         title          = null;
         alias          = null;
         refTarget      = null;
@@ -129,6 +127,7 @@ public class DocmaNode
         fileExtension  = null;
         defaultFilename = null;
         children       = null;
+        // translated     = null;
     }
 
     /* --------------  private methods  ---------------------- */
@@ -191,19 +190,41 @@ public class DocmaNode
 
     public boolean isTranslated()
     {
+        // if (translated == null) {  // read from backendNode if value is not cached
         String lang_mode = getTranslationMode();
-        if (lang_mode == null) return false;
-        if (translated == null) {  // read from backendNode if value is not cached
-            if (backendNode.hasTranslation(lang_mode)) translated = Boolean.TRUE;
-            else return false;  // translated = Boolean.FALSE;
+        if (lang_mode == null) { 
+            String[] trans = backendNode.getTranslations();
+            return (trans != null) && (trans.length > 0);
+        } else {
+            return backendNode.hasTranslation(lang_mode);
+            // if (backendNode.hasTranslation(lang_mode)) translated = Boolean.TRUE;
+            // else return false;  // translated = Boolean.FALSE;
         }
-        return translated.booleanValue();
+        // }
+        // return translated.booleanValue();
     }
 
+    public boolean isTranslated(String lang_mode)
+    {
+        if (lang_mode == null) { 
+            String[] trans = backendNode.getTranslations();
+            return (trans != null) && (trans.length > 0);
+        } else {
+            return backendNode.hasTranslation(lang_mode);
+        }
+    }
+    
+    public String[] listTranslations()
+    {
+        return backendNode.getTranslations();
+    }
+    
     public boolean isTitleTranslated()
     {
         String lang_mode = getTranslationMode();
-        if (lang_mode == null) return false;
+        if (lang_mode == null) { 
+            return false;  // this method should only be used in translation mode
+        }
         String tit = backendNode.getTitle(lang_mode);
         return (tit != null) && (tit.length() > 0);
     }
@@ -211,7 +232,18 @@ public class DocmaNode
     public boolean isContentTranslated()
     {
         String lang_mode = getTranslationMode();
-        if (lang_mode == null) return false;
+        if (lang_mode == null) { 
+            return false;  // this method should only be used in translation mode
+        }
+        if (backendNode instanceof DocContent) {
+            return ((DocContent) backendNode).hasContent(lang_mode);
+        } else {
+            return false;
+        }
+    }
+    
+    public boolean hasContent(String lang_mode)
+    {
         if (backendNode instanceof DocContent) {
             return ((DocContent) backendNode).hasContent(lang_mode);
         } else {
@@ -231,6 +263,107 @@ public class DocmaNode
     public String getId()
     {
         return id;
+    }
+
+    public String getCustomAttribute(String name)
+    {
+        String name_low = name.toLowerCase();
+        if (DocmaConstants.isInternalAttributeName(name_low)) {
+            // Use special get method for attributes that are cached by DocmaNode
+            if (name_low.equals(DocmaConstants.ATTRIBUTE_DOCNODE_APPLIC)) {
+                return getApplicability();
+            } else if (name_low.equals(DocmaConstants.ATTRIBUTE_DOCNODE_COMMENT)) {
+                return getComment();
+            } else if (name_low.equals(DocmaConstants.ATTRIBUTE_DOCNODE_LASTMOD_BY)) {
+                return getLastModifiedBy();
+            } else if (name_low.equals(DocmaConstants.ATTRIBUTE_DOCNODE_LASTMOD_DATE)) {
+                Date dt = getLastModifiedDate();
+                return (dt == null) ? "" : Long.toString(dt.getTime());
+            } else if (name_low.equals(DocmaConstants.ATTRIBUTE_DOCNODE_PRIORITY)) {
+                return getPriority();
+            } else if (name_low.equals(DocmaConstants.ATTRIBUTE_DOCNODE_PROGRESS)) {
+                return Integer.toString(getProgress());
+            } else if (name_low.equals(DocmaConstants.ATTRIBUTE_DOCNODE_WORKFLOWSTATE)) {
+                return getWorkflowStatus();
+            } else if (DocmaConstants.isPredefinedAttributeName(name_low)) {
+                return backendNode.getAttribute(name_low);
+            } else {
+                throw new DocRuntimeException("Cannot get user attribute: Invalid attribute name.");
+            }
+        } else {
+            return backendNode.getAttribute(name_low);
+        }
+    }
+
+    public String getCustomAttribute(String name, String lang_code)
+    {
+        String name_low = name.toLowerCase();
+        if (DocmaConstants.isInternalAttributeName(name_low)) {
+            if (DocmaConstants.isPredefinedAttributeName(name_low)) {
+                return backendNode.getAttribute(name_low, lang_code);
+            } else {
+                throw new DocRuntimeException("Cannot get user attribute: Invalid attribute name.");
+            }
+        } else {
+            return backendNode.getAttribute(name_low, lang_code);
+        }
+    }
+    
+    public String getCustomAttributeEntityEncoded(String name)
+    {
+        return docmaSess.encodeCharEntities(getCustomAttribute(name), false);
+    }
+
+    public String[] getCustomAttributeNames()
+    {
+        String[] attnames = backendNode.getAttributeNames();
+        
+        // Remove all hidden attributes 
+        int old_len = attnames.length;
+        int len = old_len;
+        for (int i = old_len - 1; i >= 0; i--) {
+            if (DocmaConstants.isHiddenAttributeName(attnames[i])) {
+                // Delete name at position i by moving all upper elements one
+                // position down
+                int cnt = (--len) - i;  // number of upper elements
+                System.arraycopy(attnames, i + 1, attnames, i, cnt);
+            }
+        }
+        if (old_len == len) {   // no hidden attributes 
+            return attnames;
+        }
+        String[] res = new String[len];
+        System.arraycopy(attnames, 0, res, 0, len);
+        return res;
+    }
+    
+    public void setCustomAttribute(String name, String value)
+    {
+        String name_low = name.toLowerCase();
+        if (DocmaConstants.isInternalAttributeName(name_low)) {
+            // Use special set method for attributes that are cached by DocmaNode
+            if (name_low.equals(DocmaConstants.ATTRIBUTE_DOCNODE_APPLIC)) {
+                setApplicability(value);
+            } else if (name_low.equals(DocmaConstants.ATTRIBUTE_DOCNODE_COMMENT)) {
+                setComment(value);
+            } else if (name_low.equals(DocmaConstants.ATTRIBUTE_DOCNODE_LASTMOD_BY)) {
+                setLastModifiedBy(value);
+            } else if (name_low.equals(DocmaConstants.ATTRIBUTE_DOCNODE_LASTMOD_DATE)) {
+                setLastModifiedDate(new Date(Long.parseLong(value)));
+            } else if (name_low.equals(DocmaConstants.ATTRIBUTE_DOCNODE_PRIORITY)) {
+                setPriority(value);
+            } else if (name_low.equals(DocmaConstants.ATTRIBUTE_DOCNODE_PROGRESS)) {
+                setProgress(Integer.parseInt(value), false);
+            } else if (name_low.equals(DocmaConstants.ATTRIBUTE_DOCNODE_WORKFLOWSTATE)) {
+                setWorkflowStatus(value, false);
+            } else if (DocmaConstants.isPredefinedAttributeName(name_low)) {
+                backendNode.setAttribute(name_low, value);
+            } else {
+                throw new DocRuntimeException("Cannot set user attribute: Invalid attribute name.");
+            }
+        } else {
+            backendNode.setAttribute(name_low, value);
+        }
     }
 
     public String getTitle()
@@ -289,12 +422,16 @@ public class DocmaNode
 
     public void setAlias(String alias)
     {
+        boolean not_empty = (alias != null) && (alias.length() > 0);
+        if (not_empty && !DocmaAppUtil.isValidAlias(alias)) {
+            throw new DocRuntimeException("Invalid alias.");
+        }
         boolean started = startNodeTransaction();
         try {
             defaultFilename = null;  // clear cached value;
             String old_alias = getAlias();
             if (old_alias != null) backendNode.deleteAlias(old_alias);
-            if ((alias != null) && (alias.length() > 0)) {
+            if (not_empty) {
                 backendNode.addAlias(alias);
             }
             this.alias = alias;
@@ -474,9 +611,14 @@ public class DocmaNode
 
     public void setWorkflowStatus(String wfStatus)
     {
+        setWorkflowStatus(wfStatus, true);
+    }
+    
+    public void setWorkflowStatus(String wfStatus, boolean updateParent)
+    {
         backendNode.setAttribute(DocmaConstants.ATTRIBUTE_DOCNODE_WORKFLOWSTATE, wfStatus);
         this.workflowStatus = wfStatus;
-        if (AUTOCALC_NODE_WFSTATUS) {
+        if (AUTOCALC_NODE_WFSTATUS && updateParent) {
             // recalculate workflow status of all parent nodes
             DocmaNode parnode = getParent();
             if ((parnode != null) && !isDocumentRoot()) {
@@ -509,9 +651,14 @@ public class DocmaNode
 
     public void setProgress(int progress)
     {
+        setProgress(progress, true);
+    }
+    
+    public void setProgress(int progress, boolean updateParent)
+    {
         backendNode.setAttribute(DocmaConstants.ATTRIBUTE_DOCNODE_PROGRESS, "" + progress);
         this.progress = progress;
-        if (AUTOCALC_NODE_PROGRESS) {
+        if (AUTOCALC_NODE_PROGRESS && updateParent) {
             // recalculate progress value of all parent nodes
             DocmaNode parnode = getParent();
             if ((parnode != null) && !isDocumentRoot()) {
@@ -533,7 +680,7 @@ public class DocmaNode
             }
         }
         if (cnt > 1) newprog = (int) Math.floor(newprog / cnt);
-        this.setProgress(newprog);  // recursive loop until document root is reached
+        this.setProgress(newprog, true);  // recursive loop until document root is reached
     }
 
     public void recalculateSectionWorkflowStatus()
@@ -555,7 +702,7 @@ public class DocmaNode
                 }
             }
         }
-        this.setWorkflowStatus(newstat);  // recursive loop until document root is reached
+        this.setWorkflowStatus(newstat, true);  // recursive loop until document root is reached
     }
 
     public void recalculateSectionAttributes()
@@ -719,6 +866,69 @@ public class DocmaNode
         }
     }
 
+    public void setContent(byte[] cont)
+    {
+        // Note: For HTML content, the setContentString method has to be used,
+        //       because setContentString additionally updates the content
+        //       anchors and the translation status.
+        if (isHTMLContent()) {
+            String contstr;
+            try {
+                contstr = new String(cont, "UTF-8");
+            } catch (Exception ex) {
+                throw new DocRuntimeException(ex);
+            }
+            setContentString(contstr);
+        } else if (backendNode instanceof DocContent) {
+            boolean started = startNodeTransaction();
+            try {
+                ((DocContent) backendNode).setContent(cont);
+                updateLastModifiedAttributes();
+                commitNodeTransaction(started);
+            } catch (Exception ex) {
+                rollbackNodeTransaction(started);
+                if (ex instanceof DocRuntimeException) throw (DocRuntimeException) ex;
+                else throw new DocRuntimeException(ex);
+            }
+        } else {
+            throw new DocRuntimeException("setContent not allowed for node of type " +
+                backendNode.getClass().getName());
+        }
+    }
+    
+    public void setContentStream(InputStream cont)
+    {
+        // Note: For HTML content, the setContentString method has to be used,
+        //       because setContentString additionally updates the content
+        //       anchors and the translation status.
+        if (isHTMLContent()) {
+            String contstr;
+            try {
+                ByteArrayOutputStream outstream = new ByteArrayOutputStream();
+                DocmaUtil.copyStream(cont, outstream);
+                outstream.close();
+                contstr = outstream.toString("UTF-8");
+            } catch (Exception ex) {
+                throw new DocRuntimeException(ex);
+            }
+            setContentString(contstr);
+        } else if (backendNode instanceof DocContent) {
+            boolean started = startNodeTransaction();
+            try {
+                ((DocContent) backendNode).setContentStream(cont);
+                updateLastModifiedAttributes();
+                commitNodeTransaction(started);
+            } catch (Exception ex) {
+                rollbackNodeTransaction(started);
+                if (ex instanceof DocRuntimeException) throw (DocRuntimeException) ex;
+                else throw new DocRuntimeException(ex);
+            }
+        } else {
+            throw new DocRuntimeException("setContentStream not allowed for node of type " +
+                backendNode.getClass().getName());
+        }
+    }
+    
     public void setContentString(String cont)
     {
         if (backendNode instanceof DocContent) {
@@ -815,6 +1025,9 @@ public class DocmaNode
         if (backendNode instanceof DocImage) {
             if ((mime_type == null) && (file_ext != null)) {
                 mime_type = ImageUtil.guessMIMETypeByExt(file_ext);
+            }
+            if (mime_type == null) {
+                throw new DocRuntimeException("Missing image MIME type.");
             }
             mime_type = mime_type.toLowerCase();
             boolean started = startNodeTransaction();
@@ -1439,7 +1652,21 @@ public class DocmaNode
         docmaSess.removeDocmaNodeFromCache(getId());
     }
 
-
+    public void deleteContent()
+    {
+        if (backendNode instanceof DocContent) {
+            // boolean started = startNodeTransaction();
+            // try {
+            ((DocContent) backendNode).deleteContent();
+            //     deleteAllContentRevisions();
+            //     commitNodeTransaction(started);
+            // } catch (Exception ex) {
+            //     rollbackNodeTransaction(started);
+            //     throw new DocRuntimeException(ex);
+            // }
+        }
+    }
+    
     public void deleteContentRecursive()
     {
         if (getTranslationMode() != null) {

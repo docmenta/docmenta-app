@@ -22,7 +22,11 @@ import org.docma.plugin.web.WebUserSession;
 import org.docma.plugin.web.ContentAppHandler;
 import org.docma.plugin.web.DefaultContentAppHandler;
 import org.docma.plugin.implementation.WebUserSessionImpl;
+import org.zkoss.util.Locales;
+import org.zkoss.web.Attributes;
 import org.zkoss.zk.ui.Component;
+import org.zkoss.zul.Menuitem;
+import org.zkoss.zul.Menupopup;
 
 /**
  *
@@ -30,8 +34,8 @@ import org.zkoss.zk.ui.Component;
  */
 public class DocmaWebSession
 {
-    private DocmaWebApplication docmaApp = null;
-    private DocmaSession docmaSess = null;
+    private final DocmaWebApplication docmaApp;
+    private DocmaSession docmaSess;
     private WebUserSessionImpl pluginWebSess = null;
     private MainWindow mainWin = null;
     private DocmaSearchResult searchResult = null;
@@ -92,6 +96,22 @@ public class DocmaWebSession
         this.previewLog = preview_log;
     }
 
+    Locale getCurrentLocale()
+    {
+        Locale loc = null;
+        Component comp = getMainWindow();
+        if (comp != null) {
+            Object obj = comp.getDesktop().getSession().getAttribute(Attributes.PREFERRED_LOCALE);
+            if (obj instanceof Locale) {
+                loc = (Locale) obj;
+            }
+        }
+        if (loc == null) {
+            loc = Locales.getCurrent();
+        }
+        return loc;
+    }
+    
     public HttpSession getHttpSession()
     {
         Component comp = getMainWindow();
@@ -314,6 +334,23 @@ public class DocmaWebSession
         return docmaApp.getThemeProperty(getUserTheme(), propName);
     }
 
+    /* --------------  Package local methods  ---------------------- */
+    
+    void sendMenuClickEventToPlugin(Menuitem item)
+    {
+        if (pluginWebSess != null) {
+            pluginWebSess.sendMenuClickEventToPlugin(item);
+        } 
+    }
+
+    void sendMenuOpenEventToPlugins(Menupopup menu)
+    {
+        if (pluginWebSess != null) {
+            pluginWebSess.sendMenuOpenEventToPlugins(menu);
+        }
+    }
+    
+    
     /* --------------  Private methods  ---------------------- */
 
     private ContentAppHandler getContentEditorHandler()

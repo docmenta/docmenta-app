@@ -38,7 +38,7 @@
 
     DocmaNode node = docmaSess.getNodeById(nodeid);
 
-    Menupopup contextMenu = ContextMenuUtil.createFileViewContextMenu(docmaWebSess);
+    Menupopup contextMenu = MenuUtil.createFileViewContextMenu(docmaWebSess);
     String contextMenuId = contextMenu.getId();
     int contextItemCount = contextMenu.getChildren().size();
 %>

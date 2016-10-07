@@ -189,7 +189,7 @@ public class UploadHandler implements UploadCallback
                 return null;
             }
             String img_alias = extractAliasFromName(name);
-            if (! img_alias.matches(DocmaConstants.REGEXP_ALIAS)) {
+            if (! DocmaAppUtil.isValidAlias(img_alias)) {
                 String new_alias = resolveInvalidImageAlias(img_alias);
                 if (new_alias == null) {  // skip image
                     return null;

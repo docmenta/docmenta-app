@@ -95,7 +95,7 @@ public class Main implements Composer {
         // has been sent to the plugins, because the plugins may register
         // additional context menu items.
         Menupopup treemenu = (Menupopup) mainWin.getFellow("treemenu");
-        ContextMenuUtil.createDocTreeContextMenu(treemenu, webSess);
+        MenuUtil.createDocTreeContextMenu(treemenu, webSess);
     }
 
 }

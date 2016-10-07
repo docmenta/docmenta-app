@@ -35,7 +35,7 @@ public class DocmaI18Impl implements DocmaI18
         return Labels.getLabel(key, key);
     }
 
-    public String getLabel(String key, Object[] args) 
+    public String getLabel(String key, Object... args) 
     {
         return Labels.getLabel(key, key, args);
     }

@@ -30,14 +30,15 @@ import org.docma.util.DocmaUtil;
  */
 public class PluginControl 
 {
-    private String pluginId;
-    private PluginManager pluginManager;
+    private final String pluginId;
+    private final PluginManager pluginManager;
+    private final PluginContext pluginContext;
+    
     private File pluginDir;
     private File pluginPropsFile;
     private Properties pluginProps;
     
     private Plugin pluginInstance = null;
-    private PluginContext pluginContext;
 
     private boolean loaded = false;
     private boolean installError = false;
@@ -321,22 +322,6 @@ public class PluginControl
                 } catch (Exception ex) {
                     ex.printStackTrace();
                     Log.error("Exception in onInitMainWindow of plugin '" + 
-                              getId() + "': " + ex.getMessage());
-                }
-            }
-        }
-    }
-    
-    public void sendOnSelectTab(WebUserSession webSess, String tabId)
-    {
-        if (isLoaded()) {
-            if (pluginInstance instanceof WebPlugin) {
-                WebPlugin webplug = (WebPlugin) pluginInstance;
-                try {
-                    webplug.onSelectTab(tabId, (WebPluginContext) pluginContext, webSess);
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                    Log.error("Exception in onSelectTab of plugin '" + 
                               getId() + "': " + ex.getMessage());
                 }
             }

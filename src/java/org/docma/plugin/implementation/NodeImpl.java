@@ -1,7 +1,7 @@
 /*
  * NodeImpl.java
  * 
- *  Copyright (C) 2013  Manfred Paula, http://www.docmenta.org
+ *  Copyright (C) 2016  Manfred Paula, http://www.docmenta.org
  *   
  *  This file is part of Docmenta. Docmenta is free software: you can 
  *  redistribute it and/or modify it under the terms of the GNU Lesser 
@@ -13,108 +13,381 @@
  */
 package org.docma.plugin.implementation;
 
-import java.util.Properties;
-import org.docma.app.*;
-import org.docma.webapp.GUIConstants;
-import org.docma.webapp.EditContentTransformer;
+import java.util.Date;
+import org.docma.app.DocmaNode;
+import org.docma.app.DocmaSession;
+import org.docma.plugin.DocmaException;
 import org.docma.plugin.Lock;
 import org.docma.plugin.Node;
+import org.docma.plugin.StoreConnection;
+import org.docma.webapp.GUIConstants;
 
 
 /**
  *
  * @author MP
  */
-public class NodeImpl implements Node
+public abstract class NodeImpl implements Node
 {
-    private final DocmaNode docNode;
+    protected final StoreConnectionImpl store;
+    protected final DocmaNode docNode;
     
-    NodeImpl(DocmaNode docNode) 
+    NodeImpl(StoreConnectionImpl store, DocmaNode docNode) 
     {
+        this.store = store;
         this.docNode = docNode;
     }
+    
+    static NodeImpl createNodeInstance(StoreConnectionImpl store, DocmaNode docNode)
+    {
+        if (docNode.isImageContent()) {
+            return new ImageFileImpl(store, docNode);
+        } else if (docNode.isFileContent()) {
+            return new FileContentImpl(store, docNode);
+        } else if (docNode.isHTMLContent()) {
+            return new PubContentImpl(store, docNode);
+        } else if (docNode.isFolder()) {
+            return new FolderImpl(store, docNode);
+        } else if (docNode.isSection()) {
+            return new PubSectionImpl(store, docNode);
+        } else if (docNode.isReference()) {
+            return new ReferenceImpl(store, docNode);
+        } else {
+            throw new DocmaException("Unknown node type.");
+        }
+    }
+    
+//    DocmaSession getDocmaSession()
+//    {
+//        return docNode.getDocmaSession();
+//    }
 
-    public String getId() 
+    //************************************************************
+    //**************    Attribute methods       ******************  
+    //************************************************************
+    
+    public String getId() throws DocmaException
     {
         return docNode.getId();
     }
-    
-    public Lock getLock() 
+
+    public String getAttribute(String name) throws DocmaException 
     {
-        org.docma.lockapi.Lock doc_lock = docNode.getLock();
-        return (doc_lock == null) ? null : new LockImpl(doc_lock);
+        try {
+            return docNode.getCustomAttribute(name);
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
     }
 
-    public boolean setLock() 
+    public String getAttribute(String name, String lang_code) throws DocmaException
     {
-        return docNode.setLock(GUIConstants.LOCK_TIMEOUT);
+        try {
+            return docNode.getCustomAttribute(name, lang_code);
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
     }
 
-    public boolean refreshLock() 
+    public String getAttributeEntityEncoded(String name) throws DocmaException 
     {
-        return docNode.refreshLock(GUIConstants.LOCK_TIMEOUT);
-    }
-    
-    public Lock removeLock()
-    {
-        org.docma.lockapi.Lock doc_lock = docNode.removeLock();
-        return (doc_lock == null) ? null : new LockImpl(doc_lock);
+        try {
+            return docNode.getCustomAttributeEntityEncoded(name);
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
     }
 
-    public String getTitle() 
+    public String[] getAttributeNames() throws DocmaException
     {
-        return docNode.getTitle();
+        try {
+            return docNode.getCustomAttributeNames();
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
     }
 
-    public String getTitleEntityEncoded() 
+    public void setAttribute(String name, String value) throws DocmaException 
     {
-        return docNode.getTitleEntityEncoded();
+        try {
+            docNode.setCustomAttribute(name, value);
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
     }
 
-    public String getTranslationMode() 
+    public String getAlias() throws DocmaException 
     {
-        return docNode.getTranslationMode();
+        try {
+            return docNode.getAlias();
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
     }
 
-    public byte[] getContent() 
+    public String getLinkName() throws DocmaException 
     {
-        return docNode.getContent();
+        try {
+            return docNode.getLinkAlias();
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
     }
 
-    public String getContentString() 
+    public void setAlias(String name) throws DocmaException 
     {
-        return docNode.getContentString();
+        try {
+            docNode.setAlias(name);
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
     }
 
-    public void setContentString(String content) throws Exception
+    public Date getLastModifiedDate() throws DocmaException 
     {
-        docNode.setContentString(content);
+        try {
+            return docNode.getLastModifiedDate();
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
     }
 
-    public String prepareXHTML(String content, Properties props) throws Exception
+    public String getLastModifiedBy() throws DocmaException 
     {
-        return EditContentTransformer.prepareContentForSave(getDocmaSession(), content, props);
+        try {
+            return docNode.getLastModifiedBy();
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
     }
 
-    public boolean makeRevision() 
+    public String getWorkflowStatus() throws DocmaException 
     {
-        return docNode.makeRevision();
+        try {
+            String ws = docNode.getWorkflowStatus();
+            return ((ws != null) && ws.equals("")) ? null : ws;
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
+    }
+
+    public void setWorkflowStatus(String status) throws DocmaException 
+    {
+        setWorkflowStatus(status, true);
+    }
+
+    public void setWorkflowStatus(String status, boolean updateParent) throws DocmaException 
+    {
+        try {
+            docNode.setWorkflowStatus(status, updateParent);
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
+    }
+
+    public String getApplicability() throws DocmaException 
+    {
+        try {
+            return docNode.getApplicability();
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
+    }
+
+    public void setApplicability(String expression) throws DocmaException 
+    {
+        try {
+            docNode.setApplicability(expression);
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
     }
 
     public int getProgress() 
     {
-        return docNode.getProgress();
+        try {
+            return docNode.getProgress();
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
     }
 
-    public void setProgress(int value) 
+    public void setProgress(int percent) 
     {
-        docNode.setProgress(value);
+        setProgress(percent, true);
     }
 
-    // ------------ Private Methods ------------------
+    public void setProgress(int percent, boolean updateParent) throws DocmaException 
+    {
+        // Note: this check could also be moved into DocmaNode.setProgress(...) 
+        if ((percent < -1) || (percent > 100)) {
+            throw new DocmaException("Invalid percent value: " + percent);
+        }
+        
+        try {
+            docNode.setProgress(percent, updateParent);
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
+    }
     
-    private DocmaSession getDocmaSession()
+    //************************************************************
+    //**************    Translation methods     ******************  
+    //************************************************************
+    
+    public String getTranslationMode() throws DocmaException
     {
-        return docNode.getDocmaSession();
+        try {
+            return docNode.getTranslationMode();
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
     }
+
+    public boolean isTranslationMode() throws DocmaException 
+    {
+        try {
+            return docNode.isTranslationMode();
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
+    }
+
+    public boolean isTranslated() throws DocmaException 
+    {
+        try {
+            return docNode.isTranslated();
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
+    }
+
+    public boolean isTranslated(String lang_code) throws DocmaException
+    {
+        try {
+            return docNode.isTranslated(lang_code);
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
+    }
+            
+    public String[] listTranslations() throws DocmaException 
+    {
+        try {
+            return docNode.listTranslations();
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
+    }
+
+    public void deleteTranslation() throws DocmaException 
+    {
+        try {
+            docNode.deleteTranslation();
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
+    }
+    
+    //************************************************************
+    //**************    Lock methods            ******************  
+    //************************************************************
+    
+    public Lock getLock() throws DocmaException
+    {
+        try {
+            org.docma.lockapi.Lock doc_lock = docNode.getLock();
+            return (doc_lock == null) ? null : new LockImpl(doc_lock);
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
+    }
+
+    public boolean setLock() throws DocmaException
+    {
+        try {
+            return docNode.setLock(GUIConstants.LOCK_TIMEOUT);
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
+    }
+
+    public boolean refreshLock() throws DocmaException
+    {
+        try {
+            return docNode.refreshLock(GUIConstants.LOCK_TIMEOUT);
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
+    }
+    
+    public Lock removeLock() throws DocmaException
+    {
+        try {
+            org.docma.lockapi.Lock doc_lock = docNode.removeLock();
+            return (doc_lock == null) ? null : new LockImpl(doc_lock);
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
+    }
+
+    //************************************************************
+    //**************    Other methods           ******************  
+    //************************************************************
+
+    public void invalidateCache() 
+    {
+        docNode.refresh();
+    }
+
+    public boolean hasAncestor(String node_id) throws DocmaException 
+    {
+        try {
+            return docNode.hasAncestor(node_id);
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
+    }
+
+    public Node getParent() throws DocmaException 
+    {
+        try {
+            DocmaNode par = docNode.getParent();
+            return (par == null) ? null : createNodeInstance(store, par);
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
+    }
+
+    public void delete() throws DocmaException 
+    {
+        try {
+            docNode.delete();
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
+    }
+
+    public StoreConnection getStoreConnection() 
+    {
+        return store;
+    }
+    
+    @Override
+    public boolean equals(Object obj) 
+    {
+        if ((obj != null) && (obj instanceof Node)) {
+            Node other = (Node) obj;
+            return (store == other.getStoreConnection()) && getId().equals(other.getId());
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public int hashCode() 
+    {
+        return getId().hashCode();
+    }
+    
 }

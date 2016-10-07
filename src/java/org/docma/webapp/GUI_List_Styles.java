@@ -36,12 +36,12 @@ public class GUI_List_Styles
     private static final String VARIANTS_ALL = "::all";
     private static final String VARIANTS_NONE = "::none";
 
-    private MainWindow mainWin;
-    private Listbox typefilter_listbox;
-    private Listbox variantfilter_listbox;
-    private Hbox variantfilter_area;
-    private Listbox styles_listbox;
-    private ListModelList styles_listmodel;
+    private final MainWindow mainWin;
+    private final Listbox typefilter_listbox;
+    private final Listbox variantfilter_listbox;
+    private final Hbox variantfilter_area;
+    private final Listbox styles_listbox;
+    private final ListModelList styles_listmodel;
     private String currentTypeFilter = null;     // the selected type filter value
     private String currentVariantFilter = null;  // the selected variant filter value
     private SortedSet<String> currentVariants = new TreeSet<String>();
@@ -97,8 +97,7 @@ public class GUI_List_Styles
         DocmaSession docmaSess = mainWin.getDocmaSession();
         DocmaStyle[] styles = single_variant ? docmaSess.getStyles(currentVariantFilter) : 
                                                docmaSess.getStyles();
-        for (int i=0; i < styles.length; i++) {
-            DocmaStyle s = styles[i];
+        for (DocmaStyle s : styles) {
             if (s.isVariant() && no_variants) {
                 continue;
             }
@@ -125,8 +124,11 @@ public class GUI_List_Styles
             // rebuild variant list
             variantfilter_listbox.getItems().clear();
             if (has_variants) {
-                variantfilter_listbox.appendItem("Show base styles and all variants", VARIANTS_ALL);
-                variantfilter_listbox.appendItem("Hide variants (show only base styles)", VARIANTS_NONE);
+                DocI18n i18n = mainWin.getI18n();
+                String txt_variants_all = i18n.getLabel("text.styles.show_base_and_variants");
+                String txt_variants_none = i18n.getLabel("text.styles.show_only_base");
+                variantfilter_listbox.appendItem(txt_variants_all, VARIANTS_ALL);
+                variantfilter_listbox.appendItem(txt_variants_none, VARIANTS_NONE);
                 for (String variant_id : variants) {
                     variantfilter_listbox.appendItem(variant_id, variant_id);
                 }
@@ -145,7 +147,30 @@ public class GUI_List_Styles
 
     public void doNewStyle() throws Exception
     {
-        doNewStyle(currentTypeFilter);
+        newStyle(currentTypeFilter);
+    }
+
+    public void doCopyStyle() throws Exception
+    {
+        DocI18n i18n = mainWin.getI18n();
+        int selcnt = styles_listbox.getSelectedCount();
+        if (selcnt <= 0) {
+            Messagebox.show(i18n.getLabel("text.styles.none_selected"));
+            return;
+        }
+        if (selcnt > 1) {
+            Messagebox.show(i18n.getLabel("text.styles.select_single"));
+            return;
+        }
+        DocmaSession docmaSess = mainWin.getDocmaSession();
+        int sel_idx = styles_listbox.getSelectedIndex();
+        DocmaStyle docstyle = (DocmaStyle) styles_listmodel.getElementAt(sel_idx);
+        
+        // Create instance that is a copy of the style:
+        DocmaStyle style_copy = docmaSess.getStyleVariant(docstyle.getBaseId(), docstyle.getVariantId());
+        style_copy.setId("");  // user has to enter a new ID
+        
+        newStyle(docmaSess, style_copy);
     }
 
     public void doEditStyle() throws Exception
@@ -155,8 +180,9 @@ public class GUI_List_Styles
             return;  // Editing of styles is not allowed. Disable editing by double click on style.
         }
 
+        DocI18n i18n = mainWin.getI18n();
         if (styles_listbox.getSelectedCount() <= 0) {
-            Messagebox.show("Please select a style from the list!");
+            Messagebox.show(i18n.getLabel("text.styles.none_selected"));
             return;
         }
         int sel_idx = styles_listbox.getSelectedIndex();
@@ -176,9 +202,10 @@ public class GUI_List_Styles
     public void doDeleteStyles() throws Exception
     {
         DocmaSession docmaSess = mainWin.getDocmaSession();
+        DocI18n i18n = mainWin.getI18n();
         int sel_cnt = styles_listbox.getSelectedCount();
         if (sel_cnt <= 0) {
-            Messagebox.show("Please select a style from the list!");
+            Messagebox.show(i18n.getLabel("text.styles.none_selected"));
             return;
         }
         try {
@@ -190,11 +217,11 @@ public class GUI_List_Styles
             }
             String msg;
             if (sel_cnt == 1) {
-                msg = "Delete style '" + sel_styles[0].getId() + "'?";
+                msg = i18n.getLabel("text.styles.confirm_delete_style", sel_styles[0].getId());
             } else {
-                msg = "Delete " + sel_cnt + " styles?";
+                msg = i18n.getLabel("text.styles.confirm_delete_count", sel_cnt);
             }
-            if (Messagebox.show(msg, "Delete?",
+            if (Messagebox.show(msg, i18n.getLabel("text.styles.confirm_delete_title"),
                 Messagebox.YES | Messagebox.NO, Messagebox.QUESTION) == Messagebox.YES) {
 
                 for (int i=0; i < sel_cnt; i++) {
@@ -243,8 +270,9 @@ public class GUI_List_Styles
 
     public void doNewVariantStyle() throws Exception
     {
+        DocI18n i18n = mainWin.getI18n();
         if (styles_listbox.getSelectedCount() <= 0) {
-            Messagebox.show("Please select a style from the list!");
+            Messagebox.show(i18n.getLabel("text.styles.none_selected"));
             return;
         }
         int sel_idx = styles_listbox.getSelectedIndex();
@@ -302,11 +330,16 @@ public class GUI_List_Styles
         }
     }
 
-    private void doNewStyle(String style_type) throws Exception
+    private void newStyle(String style_type) throws Exception
     {
-        StyleDialog dialog = getStyleDialog();
         DocmaSession docmaSess = mainWin.getDocmaSession();
         DocmaStyle docstyle = new DocmaStyle("", style_type, "", "");
+        newStyle(docmaSess, docstyle);
+    }
+
+    private void newStyle(DocmaSession docmaSess, DocmaStyle docstyle) throws Exception
+    {
+        StyleDialog dialog = getStyleDialog();
         dialog.setMode_NewStyle();
         if (dialog.doEditStyle(docstyle, mainWin)) {
             try {
@@ -322,7 +355,10 @@ public class GUI_List_Styles
 
     private void doImportStyle(boolean is_inline) throws Exception
     {
-        Media media = Fileupload.get("Select a file from your local file system", "Upload CSS file", true);
+        DocI18n i18n = mainWin.getI18n();
+        String txt_select_file = i18n.getLabel("text.styles.upload_css_select_file");
+        String txt_upload_title = i18n.getLabel("text.styles.upload_css_title");
+        Media media = Fileupload.get(txt_select_file, txt_upload_title, true);
         if (media == null) return;  // user canceled the upload
         byte[] data = media.getByteData();
         String css = new String(data, "UTF-8");
@@ -331,41 +367,43 @@ public class GUI_List_Styles
         try {
             styles = DocmaStyle.parseCSS(css, is_inline);
         } catch (Exception ex) {
-            Messagebox.show("Invalid CSS file: " + ex.getMessage());
+            Messagebox.show(i18n.getLabel("text.styles.upload_css_invalid", ex.getMessage()));
             return;
         }
         try {
-            for (int i=0; i < styles.length; i++) {
-                DocmaStyle new_style = styles[i];
+            for (DocmaStyle new_style : styles) {
                 DocmaStyle old_style = docmaSess.getStyle(new_style.getId());
                 if (old_style != null) {
                     if (is_inline && old_style.isBlockStyle()) {
-                        Messagebox.show("Cannot import style '" + old_style.getId() +
-                                        "'. A block style with this ID already exists.");
+                        String msg = i18n.getLabel("text.styles.import_failed_blockstyle_exists", old_style.getId());
+                        Messagebox.show(msg);
                         continue;
                     }
                     if (!is_inline && old_style.isInlineStyle()) {
-                        Messagebox.show("Cannot import style '" + old_style.getId() +
-                                        "'. An inline style with this ID already exists.");
+                        String msg = i18n.getLabel("text.styles.import_failed_inlinestyle_exists", old_style.getId());
+                        Messagebox.show(msg);
                         continue;
                     }
-                    if (Messagebox.show("Style '" + old_style.getId() + "' already exists. Overwrite?", "Overwrite?",
-                        Messagebox.YES | Messagebox.NO, Messagebox.QUESTION) == Messagebox.NO) {
+                    String msg = i18n.getLabel("text.styles.import_overwrite_msg", old_style.getId());
+                    String title = i18n.getLabel("text.styles.import_overwrite_title");
+                    if (Messagebox.show(msg, title,
+                            Messagebox.YES | Messagebox.NO, Messagebox.QUESTION) == Messagebox.NO) {
                         continue;
                     }
                 }
                 docmaSess.saveStyle(new_style);
             }
         } catch (Exception ex) {
-            Messagebox.show("Import error: " + ex.getMessage());
+            Messagebox.show(i18n.getLabel("text.styles.import_error", ex.getMessage()));
         }
         loadStyles();  // reload styles
     }
 
     private void doExportStyle(String filename) throws Exception
     {
+        DocI18n i18n = mainWin.getI18n();
         if (styles_listbox.getSelectedCount() <= 0) {
-            Messagebox.show("Please select one or more styles from the list!");
+            Messagebox.show(i18n.getLabel("text.styles.select_one_or_more"));
             return;
         }
         Set sel_items = styles_listbox.getSelectedItems();

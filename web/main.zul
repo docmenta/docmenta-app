@@ -116,14 +116,14 @@ div.z-listheader-cnt { height:16px; max-height:16px; color:#000000; font-weight:
           <space spacing="2px" />
           <menubar id="docTreeMenubar" style="background-color:transparent;">
             <menu label="Menu" style="background-color:transparent;">
-              <menupopup>
-                <menuitem id="mainMenuitemShowIndexTerms" label="${c:l('label.menuitem.showindexterms')}" checkmark="true" autocheck="true" forward="mainWin.onTogglePreviewIndexTerms" />
-                <menuitem id="mainMenuitemFindByAlias" label="${c:l('label.menuitem.findbyalias')}" forward="mainWin.onFindByAliasAll" />
-                <menuitem id="mainMenuitemClearCutList" label="${c:l('label.menuitem.clearcutlist')}" forward="mainWin.onClearCutCopyList" />
+              <menupopup id="contentmenu" forward="onOpen=mainWin.onOpenContentMenu">
+                <menuitem id="menuitemShowIndexTerms" label="${c:l('label.menuitem.showindexterms')}" checkmark="true" autocheck="true" forward="mainWin.onTogglePreviewIndexTerms" />
+                <menuitem id="menuitemFindByAlias" label="${c:l('label.menuitem.findbyalias')}" forward="mainWin.onFindByAliasAll" />
+                <menuitem id="menuitemClearCutList" label="${c:l('label.menuitem.clearcutlist')}" forward="mainWin.onClearCutCopyList" />
                 <menuseparator/>
-                <menuitem id="mainMenuitemSwitchLayout" label="${c:l('label.menuitem.switchlayout')}" forward="mainWin.onSwitchContentLayout" />
+                <menuitem id="menuitemSwitchLayout" label="${c:l('label.menuitem.switchlayout')}" forward="mainWin.onSwitchContentLayout" />
                 <menuseparator/>
-                <menuitem id="mainMenuitemShowPreviewLog" label="${c:l('label.menuitem.showpreviewlog')}" forward="mainWin.onShowPreviewLog" />
+                <menuitem id="menuitemShowPreviewLog" label="${c:l('label.menuitem.showpreviewlog')}" forward="mainWin.onShowPreviewLog" />
               </menupopup>
             </menu>
           </menubar>
@@ -174,19 +174,21 @@ div.z-listheader-cnt { height:16px; max-height:16px; color:#000000; font-weight:
     <space spacing="2px" />
     <cell hflex="min">
       <vbox align="stretch" hflex="min" spacing="2px" style="min-width:126px;">
-        <button id="NewStyleBtn" label="${c:l('label.styles.new.btn')}" hflex="1" image="img/add.gif" forward="mainWin.onNewStyle"/>
-        <button id="EditStyleBtn" label="${c:l('label.styles.edit.btn')}" hflex="1" image="img/edit_style.gif" forward="mainWin.onEditStyle" />
+        <button id="NewStyleBtn" label="${c:l('label.styles.new.btn')}" hflex="1" image="img/new_style.png" forward="mainWin.onNewStyle"/>
+        <button id="EditStyleBtn" label="${c:l('label.styles.edit.btn')}" hflex="1" image="img/edit_style.png" forward="mainWin.onEditStyle" />
         <button id="DeleteStyleBtn" label="${c:l('label.styles.delete.btn')}" hflex="1" image="img/delete.gif" forward="mainWin.onDeleteStyle" />
-        <button id="VariantStyleBtn" label="${c:l('label.styles.createvariant.btn')}" hflex="1" image="img/create_variant.gif" forward="mainWin.onVariantStyle" />
+        <button id="CopyStyleBtn" label="${c:l('label.styles.copy.btn')}" hflex="1" image="img/copy_style.png" forward="mainWin.onCopyStyle" />
+        <button id="VariantStyleBtn" label="${c:l('label.styles.createvariant.btn')}" hflex="1" image="img/create_variant.png" forward="mainWin.onVariantStyle" />
         <separator spacing="8px" />
         <button id="ImportStyleBtn" label="${c:l('label.styles.import.btn')}" hflex="1" forward="mainWin.onImportStyle" />
         <button id="ExportStyleBtn" label="${c:l('label.styles.export.btn')}" hflex="1" forward="mainWin.onExportStyle" />
 
         <menupopup id="StylesContextmenu">
-          <menuitem id="NewStyleMenuitem" label="${c:l('label.styles.new.btn')}" image="img/add.gif" forward="mainWin.onNewStyle"/>
-          <menuitem id="EditStyleMenuitem" label="${c:l('label.styles.edit.btn')}" image="img/edit_style.gif" forward="mainWin.onEditStyle"/>
+          <menuitem id="NewStyleMenuitem" label="${c:l('label.styles.new.btn')}" image="img/new_style.png" forward="mainWin.onNewStyle"/>
+          <menuitem id="EditStyleMenuitem" label="${c:l('label.styles.edit.btn')}" image="img/edit_style.png" forward="mainWin.onEditStyle"/>
           <menuitem id="DeleteStyleMenuitem" label="${c:l('label.styles.delete.btn')}" image="img/delete.gif" forward="mainWin.onDeleteStyle"/>
-          <menuitem id="VariantStyleMenuitem" label="${c:l('label.styles.createvariant.btn')}" image="img/create_variant.gif" forward="mainWin.onVariantStyle"/>
+          <menuitem id="CopyStyleMenuitem" label="${c:l('label.styles.copy.btn')}" image="img/copy_style.png" forward="mainWin.onCopyStyle"/>
+          <menuitem id="VariantStyleMenuitem" label="${c:l('label.styles.createvariant.btn')}" image="img/create_variant.png" forward="mainWin.onVariantStyle"/>
           <menuseparator/>
           <menuitem id="ImportStyleMenuitem" label="${c:l('label.styles.import.btn')}" forward="mainWin.onImportStyle"/>
           <menuitem id="ExportStyleMenuitem" label="${c:l('label.styles.export.btn')}" forward="mainWin.onExportStyle"/>

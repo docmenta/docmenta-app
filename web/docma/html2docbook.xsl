@@ -606,7 +606,12 @@
   </xsl:template>
 
   <xsl:template name="table_template">
-    <xsl:if test="boolean(@id)"><xsl:attribute name="id"><xsl:value-of select="@id" /></xsl:attribute></xsl:if>
+    <!-- <xsl:if test="boolean(@id)"><xsl:attribute name="id"><xsl:value-of select="@id" /></xsl:attribute></xsl:if> -->
+    <xsl:if test="boolean(@class)">
+      <xsl:if test="contains(concat(' ', @class, ' '), ' landscape_table ')">
+          <xsl:attribute name="orient"><xsl:text>land</xsl:text></xsl:attribute>
+      </xsl:if>
+    </xsl:if>
     <xsl:if test="boolean(@style)">
       <xsl:variable name="style_val" select="concat(' ', translate(@style, ';', ' '))" />
       <xsl:if test="contains($style_val, ' width:')">

@@ -81,7 +81,7 @@ public class NodePropertiesDialog extends Window implements EventListener
                 //       in the content editor.
                 return true;
             }
-            if (! newalias.matches(DocmaConstants.REGEXP_ALIAS)) {
+            if (! DocmaAppUtil.isValidAlias(newalias)) {
                 Messagebox.show("Invalid alias name. \nAllowed characters are ASCII letters, digits, underscore, dash and question mark.");
                 return true;
             }

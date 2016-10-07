@@ -14,20 +14,26 @@
 
 package org.docma.webapp;
 
+import java.util.Locale;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Cookie;
 
-import org.docma.coreapi.*;
 import org.docma.app.*;
+import org.docma.coreapi.*;
+import org.docma.userapi.UserManager;
 import org.docma.util.Log;
+import org.zkoss.util.Locales;
 
+import org.zkoss.web.Attributes;
+import org.zkoss.zk.ui.Desktop;
 import org.zkoss.zk.ui.Session;
 import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.Execution;
 import org.zkoss.zk.ui.event.*;
 import org.zkoss.zk.ui.util.Composer;
 import org.zkoss.zk.ui.event.EventListener;
+import org.zkoss.zk.ui.util.Clients;
 import org.zkoss.zul.Messagebox;
 import org.zkoss.zul.Window;
 import org.zkoss.zul.Button;
@@ -81,6 +87,28 @@ public class Login implements Composer, EventListener
             }
             return;
         }
+
+        // Try to get username from stored cookie and set preferred UI language.
+        String uName = GUIUtil.getUserNameFromCookie(loginWin);
+        if ((uName != null) && (uName.length() > 0)) {
+            username.setValue(uName);   // prefill username field
+            userpwd.setFocus(true);     // switch focus to password field
+            
+            // Set preferred UI language of user
+            try {
+                UserManager um = app.getUserManager();
+                String uid = um.getUserIdFromName(uName);
+                if (uid != null) {
+                    String lang_code = um.getUserProperty(uid, DocmaConstants.PROP_USER_GUI_LANGUAGE);
+                    GUIUtil.setCurrentUILanguage(loginWin, lang_code, true);
+                }
+            } catch (Exception ex) {
+                Log.error("Failed to set UI language: " + ex.getMessage());
+                if (DocmaConstants.DEBUG) {
+                    ex.printStackTrace();
+                }
+            }
+        }
         
         if (app.hasPluginRestartNotification(true)) {
             Events.echoEvent("onShowPluginRestartMsg", loginWin, null);
@@ -100,13 +128,6 @@ public class Login implements Composer, EventListener
         //         loginWin.getDesktop().getExecution().sendRedirect("main.zul");
         //     }
         // }
-
-        // try to get username from stored cookie
-        String uName = GUIUtil.getUserNameFromCookie(loginWin);
-        if ((uName != null) && (uName.length() > 0)) {
-            username.setValue(uName);
-            userpwd.setFocus(true);
-        }
     }
 
     public void onEvent(Event evt) throws Exception 

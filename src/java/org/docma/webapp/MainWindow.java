@@ -696,20 +696,6 @@ public class MainWindow extends Window implements EventListener
         }
     }
 
-    private void updateContentContextMenuLabels(Menupopup treemenu, boolean isTransMode)
-    {
-        DocmaI18 i18n = getDocmaI18();
-        Menuitem item_editContent = (Menuitem) treemenu.getFellow("menuitemEditContent");
-        Menuitem item_deleteNode = (Menuitem) treemenu.getFellow("menuitemDeleteNode");
-        if (isTransMode) {
-            item_editContent.setLabel(i18n.getLabel("label.menuitem.translatecontent"));
-            item_deleteNode.setLabel(i18n.getLabel("label.menuitem.deletetranslation"));
-        } else {
-            item_editContent.setLabel(i18n.getLabel("label.menuitem.editcontent"));
-            item_deleteNode.setLabel(i18n.getLabel("label.menuitem.deletenode"));
-        }
-    }
-
     private String getVersionSelectionLabel(String storeId, DocVersionId verId,
                                             DocmaSession docmaSess, DocmaI18 docmaI18)
     {
@@ -768,7 +754,7 @@ public class MainWindow extends Window implements EventListener
     {
         Borderlayout border_layout = (Borderlayout) getFellow("contentBorderLayout");
         // Button switch_btn = (Button) getFellow("switchContentLayoutBtn");
-        Menuitem m_item = (Menuitem) getFellow("mainMenuitemSwitchLayout");
+        Menuitem m_item = (Menuitem) getFellow("menuitemSwitchLayout");
         String tree_size;
         if (horizontal) {
             tree_size = docmaSess.getUserProperty(GUIConstants.PROP_USER_CONTENT_TREE_SIZE_HORIZONTAL);
@@ -846,21 +832,44 @@ public class MainWindow extends Window implements EventListener
     {
         return docTreeModel;
     }
+    
+    CutCopyHandler getCutCopyHandler()
+    {
+        return cutCopyHandler;
+    }
 
     DocmaSession getDocmaSession()
     {
         return GUIUtil.getDocmaWebSession(this).getDocmaSession();
     }
+    
+    DocmaWebSession getDocmaWebSession()
+    {
+        return GUIUtil.getDocmaWebSession(this);
+    }
 
+    /**
+     * Deprecated. Should be replaced by method getI18n().
+     * @return An instance of DocmaI18.
+     */
     DocmaI18 getDocmaI18()
     {
         return GUIUtil.getDocmaWebApplication(this).i18();
     }
 
     /**
+     * Returns an instance of DocI18n.
+     * @return An instance of DocI18n.
+     */
+    DocI18n getI18n()
+    {
+        return GUIUtil.getDocmaWebApplication(this).getI18n();
+    }
+
+    /**
      * Deprecated. Should be replaced by method i18n().
      * @param key
-     * @return 
+     * @return The label for the provided key.
      */
     String i18(String key)
     {
@@ -896,10 +905,7 @@ public class MainWindow extends Window implements EventListener
 
     String getGUILanguage()
     {
-        DocmaSession docmaSess = getDocmaSession();
-        UserModel um = getUser(docmaSess.getUserId());
-        if (um == null) return "en";
-        return um.getGuiLanguage();
+        return GUIUtil.getCurrentUILanguage(this);
     }
 
     AutoFormatConfigModel[] getAutoFormatConfigs()
@@ -1049,8 +1055,7 @@ public class MainWindow extends Window implements EventListener
         if (verIds.length > 0) {
             // Fill the GUI listbox with the available versions
             DocmaI18 docI18 = getDocmaI18();
-            for (int i = 0; i < verIds.length; i++) {
-                DocVersionId vid = verIds[i];
+            for (DocVersionId vid : verIds) {
                 String lab = getVersionSelectionLabel(opened_sid, vid, docmaSess, docI18);
                 versions_select_list.appendItem(lab, vid.toString());
             }
@@ -1165,7 +1170,7 @@ public class MainWindow extends Window implements EventListener
 
     public boolean isShowIndexTermsChecked()
     {
-        Menuitem mi = (Menuitem) getFellow("mainMenuitemShowIndexTerms");
+        Menuitem mi = (Menuitem) getFellow("menuitemShowIndexTerms");
         return mi.isChecked();
     }
 
@@ -1323,6 +1328,11 @@ public class MainWindow extends Window implements EventListener
         }
     }
 
+    public int getSelectedNodeCount() 
+    {
+        return docTree.getSelectedCount();
+    }
+
     public DocmaNode getSelectedDocmaNode()
     {
         if (docTree.getSelectedCount() == 1) {
@@ -1336,6 +1346,11 @@ public class MainWindow extends Window implements EventListener
         } else {
             return null;
         }
+    }
+    
+    public List<DocmaNode> getSelectedDocmaNodes(boolean siblingsOnly, boolean showSelectError)
+    {
+        return GUIUtil.getSelectedDocmaNodes(docTree, siblingsOnly, showSelectError);
     }
 
     public void refreshPreviewOnClientSide()
@@ -1354,8 +1369,10 @@ public class MainWindow extends Window implements EventListener
     public void onEvent(Event evt) throws Exception
     {
         // Component t = evt.getTarget();
-        // String ename = evt.getName();
-        // Messagebox.show("Event: " + ename);
+        String name = evt.getName();
+        if (DocmaConstants.DEBUG) {
+            Log.info("Main window event: " + name);
+        }
     }
 
     public void onClientInfo(Event evt)
@@ -1595,7 +1612,7 @@ public class MainWindow extends Window implements EventListener
 
         updateVersionSelectionList(docmaSess);
         Menupopup treemenu = (Menupopup) getFellow("treemenu");
-        updateContentContextMenuLabels(treemenu, lang_code != null);
+        MenuUtil.updateContentContextMenuLabels(treemenu, lang_code != null, getI18n());
 
         String selected_tab = getSelectedMainTabId();
         if ("contentTab".equals(selected_tab)) {
@@ -2013,124 +2030,26 @@ public class MainWindow extends Window implements EventListener
         guilist_usersgroups.onShowUserGroupData();
     }
 
+    public void onOpenContentMenu(ForwardEvent fe) throws Exception
+    {
+        if (((OpenEvent) fe.getOrigin()).isOpen()) {
+            Menupopup contmenu = (Menupopup) getFellow("contentmenu");
+            DocmaWebSession webSess = GUIUtil.getDocmaWebSession(this);
+            webSess.sendMenuOpenEventToPlugins(contmenu);
+            MenuUtil.updateContentMainMenu(contmenu, this);
+        }
+    }
+    
     public void onOpenTreeMenu(ForwardEvent fe) throws Exception
     {
         if (((OpenEvent) fe.getOrigin()).isOpen()) {
             Menupopup treemenu = (Menupopup) getFellow("treemenu");
-            updateContentContextMenu(treemenu);
+            DocmaWebSession webSess = GUIUtil.getDocmaWebSession(this);
+            webSess.sendMenuOpenEventToPlugins(treemenu);
+            MenuUtil.updateContentContextMenu(treemenu, this);
         }
     }
     
-    public void updateContentContextMenu(Menupopup treemenu) 
-    {
-        Menuitem item_editContent = (Menuitem) treemenu.getFellow("menuitemEditContent");
-        Menuitem item_editNodeProps = (Menuitem) treemenu.getFellow("menuitemEditNodeProps");
-        Menuitem item_addSubNode = (Menuitem) treemenu.getFellow("menuitemAddSubNode");
-        Menuitem item_insertNode = (Menuitem) treemenu.getFellow("menuitemInsertNode");
-        Menuitem item_uploadFile = (Menuitem) treemenu.getFellow("menuitemUploadFile");
-        Menuitem item_downloadFile = (Menuitem) treemenu.getFellow("menuitemDownloadFile");
-        Menuitem item_previewPDF = (Menuitem) treemenu.getFellow("menuitemPreviewPDF");
-        Menuitem item_cutNode = (Menuitem) treemenu.getFellow("menuitemCutNode");
-        Menuitem item_copyNode = (Menuitem) treemenu.getFellow("menuitemCopyNode");
-        Menuitem item_pasteHere = (Menuitem) treemenu.getFellow("menuitemPasteHere");
-        Menuitem item_pasteSub = (Menuitem) treemenu.getFellow("menuitemPasteSub");
-        Menuitem item_deleteNode = (Menuitem) treemenu.getFellow("menuitemDeleteNode");
-        Menuitem item_searchReplace = (Menuitem) treemenu.getFellow("menuitemSearchReplace");
-        Menuitem item_sortFilenames = (Menuitem) treemenu.getFellow("menuitemSortByFilename");
-        Menuitem item_exportNodes = (Menuitem) treemenu.getFellow("menuitemExportNodes");
-        Menuitem item_importSubNodes = (Menuitem) treemenu.getFellow("menuitemImportSubNodes");
-
-        DocmaSession docmaSess = getDocmaSession();
-        String storeId = docmaSess.getStoreId();
-        DocVersionId verId = docmaSess.getVersionId();
-        String ver_state = docmaSess.getVersionState(storeId, verId);
-
-        int sel_cnt = docTree.getSelectedCount();
-        if (sel_cnt < 1) {
-            // if no node is selected, then wait for 0.5 seconds and try again.
-            try { Thread.sleep(500); } catch (Exception ex) {}
-            sel_cnt = docTree.getSelectedCount();
-        }
-        Treeitem item = (sel_cnt >= 1) ? docTree.getSelectedItem() : null;
-        boolean disable_menu = (item == null); // (sel_cnt < 1) ;
-        if (disable_menu) {
-            Messagebox.show("Please select a node!");
-            return;
-        }
-        // Object sel_obj = null;
-        // if (sel_cnt == 1) {
-        //     Treeitem item = docTree.getSelectedItem();
-        //     sel_obj = item.getValue();
-        //     if (! (sel_obj instanceof DocmaNode)) disable_menu = true;
-        // }
-        // if (disable_menu) {
-        //     // nothing selected, therefore disable all menu items
-        //     List item_list = treemenu.getChildren();
-        //     for (int i=0; i < item_list.size(); i++) {
-        //         Object obj = item_list.get(i);
-        //         if (obj instanceof Menuitem) {
-        //             ((Menuitem) obj).setDisabled(true);
-        //         }
-        //     }
-        //     return;
-        // }
-        // if (sel_cnt == 1) {
-        DocmaNode node = (DocmaNode) item.getValue();
-        DocmaNode parent = node.getParent();
-        // int pos = parent.getChildPos(node);
-
-        // item_editContent.setAction(client_action);
-        // item_editContent.addForward(null, "mainWin", "onEditContent");
-        boolean multiple = (sel_cnt > 1);
-        boolean isRoot = (parent == docmaSess.getRoot()); // node.isDocumentRoot() || node.isSystemRoot();
-        boolean isTransMode = node.isTranslationMode();
-        boolean hasContentRight = docmaSess.hasRight(AccessRights.RIGHT_EDIT_CONTENT);
-        boolean hasTransRight = docmaSess.hasRight(AccessRights.RIGHT_TRANSLATE_CONTENT);
-        boolean noEditRight = ! ((hasContentRight && !isTransMode) || (hasTransRight && isTransMode));
-        boolean isReleased = (ver_state != null) && ver_state.equals(DocmaConstants.VERSION_STATE_RELEASED);
-        boolean noEdit = noEditRight || isReleased;
-        boolean contNode = node.isContent();
-        boolean htmlNode = node.isHTMLContent();
-        boolean sectNode = node.isSection();
-        boolean notContentOrSect = ! (contNode || sectNode || node.isReference());
-        boolean sysFolder = node.isSystemFolder();
-        boolean folderNode = node.isImageFolder() || sysFolder;
-        boolean groupNode = sectNode || folderNode;
-        boolean fileNode = contNode && node.isFileContent();
-        boolean textFile = fileNode && node.isTextFile();
-        boolean editableContent = htmlNode || textFile;
-        // boolean insertContentAllowed = parent.isInsertContentAllowed(pos);
-        // boolean insertSectionAllowed = parent.isInsertSectionAllowed(pos);
-        // boolean notSectOrSys = ! (sectNode || sysFolder);
-
-        updateContentContextMenuLabels(treemenu, isTransMode);
-
-        item_editContent.setDisabled(multiple || noEdit || !editableContent);
-        item_editNodeProps.setDisabled(noEdit || (notContentOrSect && !folderNode));
-        item_addSubNode.setDisabled(multiple || noEdit || isTransMode || !groupNode);
-        item_insertNode.setDisabled(multiple || noEdit || isTransMode || isRoot);
-        item_uploadFile.setDisabled(multiple || noEdit || (! folderNode));
-        item_downloadFile.setDisabled(!(folderNode || contNode));
-        item_previewPDF.setDisabled(notContentOrSect);
-        item_cutNode.setDisabled(noEdit || isTransMode);
-        item_copyNode.setDisabled(noEdit || isTransMode);
-        item_pasteHere.setDisabled(multiple || noEdit || isRoot || isTransMode || cutCopyHandler.isCutCopyListEmpty());
-        item_pasteSub.setDisabled(multiple || noEdit || isTransMode || cutCopyHandler.isCutCopyListEmpty());
-        item_deleteNode.setDisabled(noEdit);
-        item_searchReplace.setDisabled(multiple || notContentOrSect);
-        item_sortFilenames.setDisabled(multiple || noEdit || isTransMode || (! folderNode));
-        item_exportNodes.setDisabled(false);
-        item_importSubNodes.setDisabled(multiple || noEdit || isTransMode || !groupNode);
-        // }
-        // Messagebox.show("onOpen");
-        // ListIterator l = treeMenu.getChildren().listIterator();
-        // while (l.hasNext()) {
-        //     l.next(); l.remove();
-        // }
-        // itemNewSection.setVisible(false);
-        // itemTest.setDisabled(true);
-    }
-
     public void onAddSubNode() throws Exception
     {
         SelectNodeTypeDialog dialog = (SelectNodeTypeDialog) getPage().getFellow("SelectNodeTypeDialog");
@@ -2868,6 +2787,12 @@ public class MainWindow extends Window implements EventListener
     public void onDeleteStyle() throws Exception
     {
         guilist_styles.doDeleteStyles();
+    }
+
+
+    public void onCopyStyle() throws Exception
+    {
+        guilist_styles.doCopyStyle();
     }
 
 

@@ -14,9 +14,13 @@
 
 package org.docma.app;
 
+import java.util.Arrays;
+import java.util.Set;
+import java.util.HashSet;
 import org.docma.coreapi.fsimplementation.FilesystemStoreProperties;
 import org.docma.coreapi.DocVersionState;
 import org.docma.coreapi.DocConstants;
+import org.docma.coreapi.implementation.DocAttributes;
 import org.docma.plugin.web.DefaultContentAppHandler;
 
 /**
@@ -271,5 +275,100 @@ public class DocmaConstants
     static final String ATTRIBUTE_DOCNODE_COMMENT = "comment";
     static final String ATTRIBUTE_DOCNODE_PRIORITY = "priority";
     static final String ATTRIBUTE_DOCNODE_CHARSET = "charset";
+
+    private static final Set<String> HIDDEN_NODE_ATTRIBS = new HashSet();
+    private static final Set<String> PREDEFINED_NODE_ATTRIBS = new HashSet();
+    private static final Set<String> INTERNAL_NODE_ATTRIBS = new HashSet(); 
+    
+    static {
+        // Attributes internally used by the DocmaNode implementation.  
+        // These attributes are not visible or modifiable through the
+        // node.getCustomAttribute(...) and node.setCustomAttribute(...) methods.
+        HIDDEN_NODE_ATTRIBS.addAll(Arrays.asList(new String[] {
+            DocmaNode.ATTR_GROUP_TYPE,
+            DocmaNode.ATTR_REFERENCE_TYPE,
+            ATTRIBUTE_DOCNODE_CHARSET
+        }));
+        
+        // Attributes that have a pre-defined meaning for the DocmaNode 
+        // implementation. Normally, special getter and setter methods exist
+        // for these attributes. Though, these attributes could also be
+        // retrieved and updated through the node.getCustomAttribute(...) and 
+        // node.setCustomAttribute(...) methods.
+        PREDEFINED_NODE_ATTRIBS.addAll(Arrays.asList(new String[] {
+            ATTRIBUTE_DOCNODE_WORKFLOWSTATE, 
+            ATTRIBUTE_DOCNODE_PROGRESS,
+            ATTRIBUTE_DOCNODE_APPLIC,
+            ATTRIBUTE_DOCNODE_LASTMOD_DATE,
+            ATTRIBUTE_DOCNODE_LASTMOD_BY,
+            ATTRIBUTE_DOCNODE_COMMENT,
+            ATTRIBUTE_DOCNODE_PRIORITY,
+        }));
+        
+        // The INTERNAL_NODE_ATTRIBS is a helper set, that contains the union
+        // of the hidden and special attribute names.
+        INTERNAL_NODE_ATTRIBS.addAll(PREDEFINED_NODE_ATTRIBS);
+        INTERNAL_NODE_ATTRIBS.addAll(HIDDEN_NODE_ATTRIBS);
+    }
+
+    /**
+     * Indicates whether the supplied name is a hidden attribute used by the
+     * <code>DocmaNode</code> implementation.
+     * 
+     * @param attName  the name to be tested
+     * @return  <code>true</code> if the supplied name is a hidden attribute;
+     *          <code>false</code> otherwise
+     */    
+    public static boolean isHiddenAttributeName(String attName)
+    {
+        return HIDDEN_NODE_ATTRIBS.contains(attName);
+    }
+
+    /**
+     * Indicates whether the supplied name has a pre-defined meaning for the
+     * <code>DocmaNode</code> implementation.
+     * Normally, special getter and setter methods exist
+     * for these attributes. Though, these attributes could also be
+     * retrieved and updated through the 
+     * <code>node.getCustomAttribute(...)</code> and 
+     * <code>node.setCustomAttribute(...)</code> methods.
+     * 
+     * @param attName  the name to be tested
+     * @return  <code>true</code> if the supplied name is used internally;
+     *          <code>false</code> otherwise
+     */    
+    public static boolean isPredefinedAttributeName(String attName)
+    {
+        return PREDEFINED_NODE_ATTRIBS.contains(attName);
+    }
+
+    /**
+     * Indicates whether the supplied name is a reserved or pre-defined 
+     * attribute name used by the <code>DocmaNode</code> implementation.
+     * 
+     * @param attName the name to be tested
+     * @return  <code>true</code> if the supplied name is used internally;
+     *          <code>false</code> otherwise
+     */    
+    public static boolean isInternalAttributeName(String attName)
+    {
+        return INTERNAL_NODE_ATTRIBS.contains(attName) || 
+               DocAttributes.isInternalAttributeName(attName);
+    }
+    
+    /**
+     * Indicates whether the supplied name is not allowed to be passed as 
+     * attribute name in the <code>DocmaNode.getCustomAttribute(...)</code> and 
+     * <code>DocmaNode.setCustomAttribute(...)</code> methods.
+     * 
+     * @param attName  the name to be tested
+     * @return  <code>true</code> if the supplied name is a system attribute;
+     *          <code>false</code> otherwise
+     */    
+    public static boolean isSystemAttributeName(String attName)
+    {
+        return isHiddenAttributeName(attName) || 
+               DocAttributes.isInternalAttributeName(attName);
+    }
 
 }

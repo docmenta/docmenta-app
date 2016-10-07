@@ -16,10 +16,10 @@ package org.docma.app.ui;
 
 import java.util.*;
 import org.docma.coreapi.*;
-import org.docma.util.DocmaUtil;
 import org.docma.app.*;
-import org.docma.webapp.GUIConstants;
 import org.docma.userapi.*;
+import org.docma.util.DocmaUtil;
+import org.docma.webapp.GUIConstants;
 
 /**
  *
@@ -36,7 +36,7 @@ public class UserModel implements Comparable
     private String   email     = "";
     private Date     lastLogin = null;
     private String[] groupNames  = {};
-    private String   guiLanguage = "en";
+    private String   guiLanguage = "";   // Empty string means default language (OS or browser language)
     private String   editorId    = null;
     private String   dateFormat  = "";
     private String   newPassword = null;
@@ -56,6 +56,8 @@ public class UserModel implements Comparable
 
     /**
      * Constructor to initialize instance for an existing user.
+     * @param userId The user identifier.
+     * @param um     The UserManager instance (persistence layer).
      */
     public UserModel(String userId, UserManager um)
     {
@@ -65,6 +67,12 @@ public class UserModel implements Comparable
 
     /* -----------  Public methods  ------------------ */
 
+    /**
+     * Load or reload all user data from the persistence layer.
+     * Before this method can be called, the user Id needs to be set.
+     * 
+     * @param um The UserManager instance (persistence layer).
+     */
     public void load(UserManager um)
     {
         loginName = um.getUserNameFromId(userId);
@@ -205,12 +213,12 @@ public class UserModel implements Comparable
 
     public String getGuiLanguage()
     {
-        return ((guiLanguage == null) || guiLanguage.equals("")) ? "en" : guiLanguage;
+        return (guiLanguage == null) ? "" : guiLanguage;
     }
 
     public void setGuiLanguage(String guiLanguage)
     {
-        this.guiLanguage = guiLanguage;
+        this.guiLanguage = (guiLanguage == null) ? "" : guiLanguage;
     }
 
     public Date getLastLogin()

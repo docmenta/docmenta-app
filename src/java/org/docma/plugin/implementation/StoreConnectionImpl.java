@@ -13,14 +13,19 @@
  */
 package org.docma.plugin.implementation;
 
+import java.util.Properties;
+import org.docma.app.DocmaAppUtil;
+import org.docma.app.DocmaNode;
 import org.docma.app.DocmaSession;
 import org.docma.coreapi.DocVersionId;
 import org.docma.plugin.CharEntity;
+import org.docma.plugin.DocmaException;
 import org.docma.plugin.Node;
 import org.docma.plugin.Style;
 import org.docma.plugin.VersionId;
 import org.docma.plugin.StoreConnection;
 import org.docma.plugin.StoreClosedException;
+import org.docma.webapp.EditContentTransformer;
 
 /**
  *
@@ -79,60 +84,106 @@ public class StoreConnectionImpl implements StoreConnection
         }
     }
 
-
-    public Node getNodeById(String id) 
+    public Node getNodeById(String id) throws DocmaException
     {
         checkClosed();
-        return new NodeImpl(docmaSess.getNodeById(id));
+        DocmaNode nd;
+        try {
+            nd = docmaSess.getNodeById(id);
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
+        return (nd == null) ? null : NodeImpl.createNodeInstance(this, nd);
     }
 
-    public Style[] getStyles()
+    public Style[] getStyles() throws DocmaException
     {
         checkClosed();
-        return docmaSess.getStyles();
+        try {
+            return docmaSess.getStyles();
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
     }
     
-    public CharEntity[] getCharEntities() 
+    public CharEntity[] getCharEntities() throws DocmaException
     {
         checkClosed();
-        return docmaSess.getCharEntities();
+        try {
+            return docmaSess.getCharEntities();
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
     }
 
-
-    public String getTranslationMode() 
+    public String encodeCharEntities(String text, boolean symbolic) throws DocmaException
     {
         checkClosed();
-        return docmaSess.getTranslationMode();
+        try {
+            return docmaSess.encodeCharEntities(text, symbolic);
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
     }
 
-    public void enterTranslationMode(String langCode) 
+    public String getTranslationMode()  throws DocmaException
     {
         checkClosed();
-        docmaSess.enterTranslationMode(langCode);
+        try {
+            return docmaSess.getTranslationMode();
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
     }
 
-    public void leaveTranslationMode() 
+    public void enterTranslationMode(String langCode)  throws DocmaException
     {
         checkClosed();
-        docmaSess.leaveTranslationMode();
+        try {
+            docmaSess.enterTranslationMode(langCode);
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
     }
 
-    public String getLanguageCode() 
+    public void leaveTranslationMode()  throws DocmaException
     {
         checkClosed();
-        return docmaSess.getLanguageCode();
+        try {
+            docmaSess.leaveTranslationMode();
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
     }
 
-    public void startTransaction() throws Exception 
+    public String getLanguageCode()  throws DocmaException
     {
         checkClosed();
-        docmaSess.startTransaction();
+        try {
+            return docmaSess.getLanguageCode();
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
     }
 
-    public void commitTransaction() throws Exception 
+    public void startTransaction() throws DocmaException 
     {
         checkClosed();
-        docmaSess.commitTransaction();
+        try {
+            docmaSess.startTransaction();
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
+    }
+
+    public void commitTransaction() throws DocmaException 
+    {
+        checkClosed();
+        try {
+            docmaSess.commitTransaction();
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
     }
 
     public void rollbackTransaction() 
@@ -147,7 +198,23 @@ public class StoreConnectionImpl implements StoreConnection
         return docmaSess.runningTransaction();
     }
 
+    public boolean isValidAlias(String name) 
+    {
+        return DocmaAppUtil.isValidAlias(name);
+    }
+    
+    public String prepareXHTML(String content, Properties props) throws DocmaException
+    {
+        try {
+            return EditContentTransformer.prepareContentForSave(docmaSess, content, props);
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
+    }
+
+    //
     // ********* Other methods (not directly visible by plugins) **********
+    //
 
     private void checkClosed()
     {

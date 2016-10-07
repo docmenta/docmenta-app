@@ -332,12 +332,15 @@ public class GUI_List_UsersAndGroups
     {
         UserDialog dialog = (UserDialog) mainWin.getPage().getFellow("UserDialog");
         DocmaSession docmaSess = mainWin.getDocmaSession();
-        UserModel usr = new UserModel();
-        dialog.setMode_NewUser();
-        if (dialog.doEditUser(usr, docmaSess)) {
-            // int ins_pos = -(Collections.binarySearch(users_listmodel, usr)) - 1;
-            users_listmodel.add(usr);
-        }
+        final UserModel usr = new UserModel();
+        dialog.newUser(usr, docmaSess, new Callback() {
+            public void onEvent(String evt) {
+                if (UserDialog.EVENT_OKAY.equals(evt)) {
+                    // int ins_pos = -(Collections.binarySearch(users_listmodel, usr)) - 1;
+                    users_listmodel.add(usr);
+                }
+            }
+        });
     }
 
 
@@ -349,17 +352,28 @@ public class GUI_List_UsersAndGroups
     public void onEditUserProfile() throws Exception
     {
         DocmaSession docmaSess = mainWin.getDocmaSession();
-        UserModel usr = mainWin.getUserLoader().getUser(docmaSess.getUserId());
+        final UserModel usr = mainWin.getUserLoader().getUser(docmaSess.getUserId());
+        // final String old_lang = usr.getGuiLanguage();
         UserDialog dialog = (UserDialog) mainWin.getPage().getFellow("UserDialog");
-        dialog.setMode_EditUser();
-        if (dialog.doEditUser(usr, docmaSess)) {
-            if ((users_listmodel != null) && !users_listmodel.isEmpty()) {
-                loadUsers();  // reload users
+        dialog.editUser(usr, docmaSess, new Callback() {
+            public void onEvent(String evt) {
+                if (UserDialog.EVENT_OKAY.equals(evt)) {
+                    if ((users_listmodel != null) && !users_listmodel.isEmpty()) {
+                        loadUsers();  // reload users
+                    }
+
+                    // Following is commented out, because it didn't work.
+                    // Switch UI language if it has changed.
+                    // String new_lang = usr.getGuiLanguage();
+                    // if ((new_lang != null) && !new_lang.equals("") && !new_lang.equals(old_lang)) {
+                    //     GUIUtil.setCurrentUILanguage(mainWin, new_lang, true);
+                    // }
+                }
             }
-        }
+        });
     }
 
-    private void doEditUser(Listbox u_listbox, ListModelList u_listmodel) throws Exception
+    private void doEditUser(Listbox u_listbox, final ListModelList u_listmodel) throws Exception
     {
         UserDialog dialog = (UserDialog) mainWin.getPage().getFellow("UserDialog");
         DocmaSession docmaSess = mainWin.getDocmaSession();
@@ -367,12 +381,15 @@ public class GUI_List_UsersAndGroups
             Messagebox.show("Please select a user from the list!");
             return;
         }
-        int sel_idx = u_listbox.getSelectedIndex();
-        UserModel usr = (UserModel) u_listmodel.getElementAt(sel_idx);
-        dialog.setMode_EditUser();
-        if (dialog.doEditUser(usr, docmaSess)) {
-            u_listmodel.set(sel_idx, usr);
-        }
+        final int sel_idx = u_listbox.getSelectedIndex();
+        final UserModel usr = (UserModel) u_listmodel.getElementAt(sel_idx);
+        dialog.editUser(usr, docmaSess, new Callback() {
+            public void onEvent(String evt) {
+                if (UserDialog.EVENT_OKAY.equals(evt)) {
+                    u_listmodel.set(sel_idx, usr);
+                }
+            }
+        });
     }
 
 

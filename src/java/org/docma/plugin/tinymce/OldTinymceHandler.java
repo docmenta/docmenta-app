@@ -24,6 +24,7 @@ import org.docma.plugin.User;
 import org.docma.plugin.web.ButtonType;
 import org.docma.plugin.web.ContentAppHandler;
 import org.docma.plugin.web.DefaultContentAppHandler;
+import org.docma.plugin.web.MessageType;
 import org.docma.plugin.web.UIEvent;
 import org.docma.plugin.web.UIListener;
 import org.docma.plugin.web.WebUserSession;
@@ -92,14 +93,14 @@ public class OldTinymceHandler implements ContentAppHandler
             if ((usr_id != null) && usr_id.equals(sessUser.getId())) {
                 webSess.showMessage(
                     "This content is already locked by you! Continue?", 
-                    "Continue?", WebUserSession.MSG_QUESTION, 
+                    "Continue?", MessageType.QUESTION, 
                     new ButtonType[] { ButtonType.OK, ButtonType.CANCEL }, 
                     ButtonType.OK, 
                     new UIListener() {
                         public void onEvent(UIEvent evt) 
                         {
                             // If user clicks okay, refresh lock and open editor window
-                            if (evt.isButtonClick() && 
+                            if (evt.isClick() && evt.isButtonTarget() &&
                                 ButtonType.OK.equals(evt.getButtonType())) {
                                 node.refreshLock();
                                 openEditWindow(webSess, sessUser, nodeId);

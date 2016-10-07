@@ -31,6 +31,7 @@ import org.docma.userapi.UserManager;
 public class ApplicationContextImpl implements ApplicationContext
 {
     private DocmaApplication docmaApp;
+    private LoggerImpl logger = new LoggerImpl();
     
     public ApplicationContextImpl(DocmaApplication app)
     {
@@ -52,6 +53,11 @@ public class ApplicationContextImpl implements ApplicationContext
     public void setObject(String objectName, Object instance) 
     {
         docmaApp.getApplicationServices().setInstance(objectName, instance);
+    }
+    
+    public Logger getLogger()
+    {
+        return logger;
     }
     
     public UserManager getUserManager() 

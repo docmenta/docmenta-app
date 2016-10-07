@@ -14,8 +14,9 @@
 
 package org.docma.app;
 
-import java.util.*;
 import java.io.*;
+import java.util.*;
+import java.util.regex.Pattern;
 import javax.servlet.http.*;
 
 import org.docma.coreapi.*;
@@ -27,9 +28,15 @@ import org.docma.util.CSSUtil;
  */
 public class DocmaAppUtil
 {
+    private static final Pattern ALIAS_PATTERN = Pattern.compile(DocmaConstants.REGEXP_ALIAS);
     private static final DocmaOutputConfig DEFAULT_OUTPUT_CONFIG = new DocmaOutputConfig("default");
 
 
+    public static boolean isValidAlias(String name)
+    {
+        return ALIAS_PATTERN.matcher(name).matches();
+    }
+    
     public static DocmaNode getNodeByPath(DocmaSession docmaSess, String path) 
     {
         String remaining = path.trim();

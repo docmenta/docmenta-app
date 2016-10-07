@@ -147,19 +147,42 @@ public class DocmaWebApplication extends DocmaApplication implements WebAppPlugI
         List list = new ArrayList();
         DocmaLanguage lang = new DocmaLanguage("en", "English");
         list.add(lang);
+        
+        Locale current = GUIUtil.getCurrentLocale();
+        String current_lang_code = (current != null) ? current.getLanguage() : null;
+        if (current_lang_code != null) {
+            current_lang_code = current_lang_code.toLowerCase();
+        }
+        boolean current_exists = "en".equals(current_lang_code);
+        
         ContentLanguages supportedLangs = getContentLanguages();
         String[] fnames = webInfDir.list();
         for (String fn : fnames) {
             final String PREFIX = "i3-label_";
             if (fn.startsWith(PREFIX)) {
                 int idx = PREFIX.length();
-                String lang_code = fn.substring(idx, idx + 2);
+                int idx_end = fn.lastIndexOf('.');
+                if (idx_end < idx) {
+                    idx_end = fn.length();
+                }
+                String lang_code = fn.substring(idx, idx_end).toLowerCase();
+                if (lang_code.equals(current_lang_code)) {
+                    current_exists = true;
+                }
                 lang = supportedLangs.getLanguage(lang_code);
                 if (lang == null) {
                     lang = new DocmaLanguage(lang_code, "");
                 }
                 list.add(lang);
             }
+        }
+        if ((current_lang_code != null) &&  !current_exists) {
+            // Add the current language even if it is not supported by the 
+            // web application.
+            // This helps to determine which language is currently used by 
+            // the GUI framework to load labels. 
+            lang = new DocmaLanguage(current_lang_code, "");
+            list.add(lang);
         }
         DocmaLanguage[] arr = new DocmaLanguage[list.size()];
         return (DocmaLanguage[]) list.toArray(arr);
