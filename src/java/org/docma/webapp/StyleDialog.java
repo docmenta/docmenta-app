@@ -335,7 +335,7 @@ public class StyleDialog extends Window
                 Messagebox.show("Style ID is too long. Maximum length is 30 characters.");
                 return true;
             }
-            if (! sid.matches(DocmaConstants.REGEXP_STYLE_ID)) {
+            if (! sid.matches(DocmaConstants.REGEXP_STYLE_BASE_ID)) {
                 Messagebox.show("Invalid style ID. Allowed characters are ASCII letters and underscore.");
                 return true;
             }
@@ -373,7 +373,7 @@ public class StyleDialog extends Window
         }
         if (docStyle.isBlockStyle() && formal_checkbox.isChecked()) {
             String label_id = labelid_box.getValue().trim();
-            if ((label_id.length() > 0) && !label_id.matches(DocmaConstants.REGEXP_STYLE_ID)) {
+            if ((label_id.length() > 0) && !label_id.matches(DocmaConstants.REGEXP_STYLE_BASE_ID)) {
                 Messagebox.show("Invalid label ID. Allowed characters are ASCII letters and underscore.");
                 return true;
             }

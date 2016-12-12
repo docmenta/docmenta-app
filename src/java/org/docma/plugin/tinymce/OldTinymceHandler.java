@@ -44,6 +44,8 @@ public class OldTinymceHandler implements ContentAppHandler
     
     private TinyMCECharEntities tinyEntities;
 
+    /* -------------   Interface ContentAppHandler --------------- */
+    
     public void initialize(File webBasePath, String relativeAppPath, Properties props) throws Exception 
     {
         this.webBasePath = webBasePath;
@@ -61,7 +63,7 @@ public class OldTinymceHandler implements ContentAppHandler
         return applicationId;
     }
 
-    public String getApplicationName() 
+    public String getApplicationName(String languageCode) 
     {
         return applicationName;
     }
@@ -76,7 +78,7 @@ public class OldTinymceHandler implements ContentAppHandler
         return new String[0];  // view is not supported
     }
 
-    public String getViewURL(WebUserSession webSess, String nodeId) 
+    public String getPreviewURL(WebUserSession webSess, String nodeId) 
     {
         return null;   // view is not supported
     }
@@ -130,23 +132,35 @@ public class OldTinymceHandler implements ContentAppHandler
         openEditWindow(webSess, sessUser, nodeId);
     }
 
+    public void openViewer(WebUserSession webSess, String nodeId) throws Exception 
+    {
+        throw new UnsupportedOperationException("View is not supported.");
+    }
+
+    public void setCharEntities(CharEntity[] entities) 
+    {
+        tinyEntities.setCharEntities(entities);
+    }
+ 
+    /* -------------   Other methods   --------------- */
+    
     private void openEditWindow(WebUserSession webSess, User sessUser, String nodeId)
     {
         // Get editor position 
         HttpSession hsess = webSess.getHttpSession();
         Object posx = hsess.getAttribute(DefaultContentAppHandler.ATTRIBUTE_EDITOR_POS_X);
         Object posy = hsess.getAttribute(DefaultContentAppHandler.ATTRIBUTE_EDITOR_POS_Y);
-        int win_left = (posx instanceof Integer) ? (Integer) posx : DefaultContentAppHandler.EDITOR_DEFAULT_POSITION_X;
-        int win_top = (posy instanceof Integer) ? (Integer) posy : DefaultContentAppHandler.EDITOR_DEFAULT_POSITION_Y;
+        int win_left = (posx instanceof Integer) ? (Integer) posx : DefaultContentAppHandler.WINDOW_DEFAULT_POSITION_X;
+        int win_top = (posy instanceof Integer) ? (Integer) posy : DefaultContentAppHandler.WINDOW_DEFAULT_POSITION_Y;
         
         // Get editor width and height
         String win_width = sessUser.getProperty(DefaultContentAppHandler.USER_PROPERTY_EDIT_WIN_WIDTH);
         String win_height = sessUser.getProperty(DefaultContentAppHandler.USER_PROPERTY_EDIT_WIN_HEIGHT);
         if ((win_width == null) || win_width.equals("")) {
-            win_width = "" + DefaultContentAppHandler.EDITOR_DEFAULT_WIDTH;
+            win_width = "" + DefaultContentAppHandler.WINDOW_DEFAULT_WIDTH;
         }
         if ((win_height == null) || win_height.equals("")) {
-            win_height = "" + DefaultContentAppHandler.EDITOR_DEFAULT_HEIGHT;
+            win_height = "" + DefaultContentAppHandler.WINDOW_DEFAULT_HEIGHT;
         }
         
         // Desktop desk = getDesktop();
@@ -166,11 +180,6 @@ public class OldTinymceHandler implements ContentAppHandler
         webSess.evalJavaScript(client_action);
     }
 
-    public void setCharEntities(CharEntity[] entities) 
-    {
-        tinyEntities.setCharEntities(entities);
-    }
- 
     CharEntity[] getCharEntities()
     {
         return tinyEntities.getCharEntities();

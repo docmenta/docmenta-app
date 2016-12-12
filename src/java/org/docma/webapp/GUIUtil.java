@@ -454,88 +454,32 @@ public class GUIUtil
         return docmaSess.createVersionId(ver_str);
     }
 
-    public static boolean checkEditVersionAllowed(MainWindow mainWin, 
-                                                  DocmaSession docmaSess, 
-                                                  boolean showMessage) 
+    public static boolean isUpdateVersionAllowed(DocmaSession docmaSess, 
+                                                 boolean showMessage) 
     {
-        String msg = checkEditVersionAllowed(mainWin, docmaSess);
-        if (msg == null) {
+        try {
+            docmaSess.checkUpdateVersionAllowed();
             return true;
-        } else {
+        } catch (Exception ex) {
             if (showMessage) {
-                Messagebox.show(msg);
+                Messagebox.show(ex.getLocalizedMessage());
             }
             return false;
         }
     }
 
-    public static String checkEditVersionAllowed(MainWindow mainWin, 
-                                                 DocmaSession docmaSess)
+    public static boolean isUpdateContentAllowed(DocmaNode node,
+                                                 boolean showMessage)
     {
-        String ver_state = docmaSess.getVersionState(docmaSess.getStoreId(), docmaSess.getVersionId());
-        boolean isReleased = (ver_state != null) && ver_state.equals(DocmaConstants.VERSION_STATE_RELEASED);
-        boolean isTransMode = (docmaSess.getTranslationMode() != null);
-        boolean hasContentRight = docmaSess.hasRight(AccessRights.RIGHT_EDIT_CONTENT);
-        boolean hasTransRight = docmaSess.hasRight(AccessRights.RIGHT_TRANSLATE_CONTENT);
-        boolean allowEdit = (hasContentRight && !isTransMode) || (hasTransRight && isTransMode);
-        if (isReleased || !allowEdit) {
-            String msg;
-            if (isReleased) {
-                msg = "This product version is already released. Editing is not allowed.";
-            } else {
-                msg = "Editing is not allowed due to missing access rights.";
-            }
-            return msg;  // disable editing if user has no rights for editing
-                         // or version is already released.
-        } else {
-            return null;  // editing is allowed
-        }
-    }
-    
-    public static boolean checkEditFileAllowed(MainWindow mainWin,
-                                               DocmaSession docmaSess,
-                                               DocmaNode node, 
-                                               boolean showMessage)
-    {
-        String msg = checkEditFileAllowed(mainWin, docmaSess, node);
-        if (msg == null) {
+        try {
+            node.checkUpdateContentAllowed();
             return true;
-        } else {
+        } catch (Exception ex) {
             if (showMessage) {
-                Messagebox.show(msg);
+                Messagebox.show(ex.getLocalizedMessage());
             }
             return false;
         }
-    }
-    
-    public static String checkEditFileAllowed(MainWindow mainWin,
-                                              DocmaSession docmaSess,
-                                              DocmaNode node)
-    {
-        String wfstate = node.getWorkflowStatus();
-        if ((wfstate != null) && (wfstate.length() > 0) && !wfstate.equalsIgnoreCase("wip")) {
-            return "File can only be edited in workflow status 'Work In Progress'!";
-        } else {
-            return null;  // editing is allowed
-        }
-    }
-
-    public static boolean isEditContentAllowedByWorkflow(DocmaSession docmaSess,
-                                                         DocmaNode node)
-    {
-        String wfstate = node.getWorkflowStatus();
-        return (wfstate == null) || wfstate.equals("") || wfstate.equalsIgnoreCase("wip");
-    }
-    
-    public static boolean isEditContentAllowedByWorkflow(DocmaSession docmaSess,
-                                                         DocmaNode node,
-                                                         boolean showMessage)
-    {
-        boolean res = isEditContentAllowedByWorkflow(docmaSess, node);
-        if (showMessage && !res) {
-            Messagebox.show("Content can only be edited in workflow status 'Work In Progress'!");
-        }
-        return res;
     }
 
     public static boolean isContentNotLocked(MainWindow mainWin,

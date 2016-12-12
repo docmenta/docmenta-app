@@ -57,13 +57,13 @@ public class GUIConstants
     public static final String CONTENT_WIN_LAYOUT_HORIZONTAL = "horizontal";
     public static final String CONTENT_WIN_LAYOUT_VERTICAL = "vertical";
     public static final String CONTENT_TREE_DEFAULT_SIZE = "50%";
-    public static final int EDIT_WIN_DEFAULT_WIDTH = DefaultContentAppHandler.EDITOR_DEFAULT_WIDTH;
-    public static final int EDIT_WIN_DEFAULT_HEIGHT = DefaultContentAppHandler.EDITOR_DEFAULT_HEIGHT;
+    public static final int EDIT_WIN_DEFAULT_WIDTH = DefaultContentAppHandler.WINDOW_DEFAULT_WIDTH;
+    public static final int EDIT_WIN_DEFAULT_HEIGHT = DefaultContentAppHandler.WINDOW_DEFAULT_HEIGHT;
     public static final String IMAGE_PREVIEW_MODE_GALLERY = "gallery";
     public static final String IMAGE_PREVIEW_MODE_GALLERY_BIG = "gallery_big";
     public static final String IMAGE_PREVIEW_MODE_LIST = "list";
     public static final String IMAGE_PREVIEW_MODE_LIST_BIG = "list_big";
     public static final String CONTENT_EDITOR_DEFAULT_ID = "tinymce_3_5_11_b";
-    public static final String TEXT_EDITOR_DEFAULT_ID = "internal_text_editor_1_0";
+    public static final String TEXT_EDITOR_DEFAULT_ID = "internal_text_editor";
 
 }

@@ -315,7 +315,7 @@ public class MediaConfigDialog extends Window
         DocmaNode nd = getContentNodeForEdit(htmlCustomHeaderBox.getValue());
         if (nd != null) {
             MainWindow mainWin = getMainWindow();
-            mainWin.doEditContent(nd, docmaSess);
+            mainWin.doEditContent(nd);
         }
     }
 
@@ -324,7 +324,7 @@ public class MediaConfigDialog extends Window
         DocmaNode nd = getContentNodeForEdit(htmlCustomFooterBox.getValue());
         if (nd != null) {
             MainWindow mainWin = getMainWindow();
-            mainWin.doEditContent(nd, docmaSess);
+            mainWin.doEditContent(nd);
         }
     }
     
@@ -343,7 +343,7 @@ public class MediaConfigDialog extends Window
         DocmaNode nd = getHTMLConfFileNode(htmlCustomCSSBox);
         if (nd != null) {
             MainWindow mainWin = getMainWindow();
-            mainWin.openFileNodeInWindow(nd, docmaSess, true);
+            mainWin.openFileNodeInWindow(nd, true);
         }
     }
 
@@ -352,7 +352,7 @@ public class MediaConfigDialog extends Window
         DocmaNode nd = getHTMLConfFileNode(htmlCustomJSBox);
         if (nd != null) {
             MainWindow mainWin = getMainWindow();
-            mainWin.openFileNodeInWindow(nd, docmaSess, true);
+            mainWin.openFileNodeInWindow(nd, true);
         }
     }
 
@@ -361,7 +361,7 @@ public class MediaConfigDialog extends Window
         DocmaNode nd = getHTMLConfFileNode(htmlCustomMetaBox);
         if (nd != null) {
             MainWindow mainWin = getMainWindow();
-            mainWin.openFileNodeInWindow(nd, docmaSess, true);
+            mainWin.openFileNodeInWindow(nd, true);
         }
     }
     

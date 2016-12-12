@@ -41,6 +41,7 @@ public class DocmaApplication
     private RevisionStoreFactory revStoreFactory = null;
     private final ApplicationServices appServices = new ApplicationServicesImpl();
     private final Activities activities;
+    private final RulesManager rulesManager;
     private final List<DocmaSession> openSessions = new ArrayList<DocmaSession>();
     private Set<String> disabledStores = null;
 
@@ -63,6 +64,8 @@ public class DocmaApplication
         
         File activitiesDir = new File(getTempDirectory(), "activities");
         this.activities = new Activities(activitiesDir, i18);
+        File rulesDir = new File(getBaseDirectory(), "rules");
+        this.rulesManager = new RulesManager(rulesDir);
         
         this.applicationCtx = new ApplicationContextImpl(this);
     }
@@ -132,13 +135,13 @@ public class DocmaApplication
         return i18;
     }
     
-    public File getBaseDirectory()
+    public final File getBaseDirectory()
     {
         String basePath = appProps.getProperty(DocmaConstants.PROP_BASE_PATH);
         return new File(basePath);
     }
 
-    public File getTempDirectory()
+    public final File getTempDirectory()
     {
         String tempPath = appProps.getProperty(DocmaConstants.PROP_TEMP_PATH);
         return new File(tempPath);
@@ -195,7 +198,41 @@ public class DocmaApplication
         return false;
     }
 
+    public String getApplicationProperty(String name) 
+    {
+        return getApplicationProperties().getProperty(name);
+    }
 
+    public void setApplicationProperty(String name, String value) throws DocException 
+    {
+        getApplicationProperties().setProperty(name, value);
+    }
+
+    public void setApplicationProperties(String[] names, String[] values) throws DocException 
+    {
+        getApplicationProperties().setProperties(names, values);
+    }
+
+    public void setApplicationProperties(Map<String, String> props) throws DocException 
+    {
+        String[] names = props.keySet().toArray(new String[props.size()]);
+        String[] values = new String[names.length];
+        for (int i = 0; i < names.length; i++) {
+            values[i] = props.get(names[i]);
+        }
+        getApplicationProperties().setProperties(names, values);
+    }
+    
+    public DocmaLanguage[] getSupportedContentLanguages()
+    {
+        return getContentLanguages().getSupportedLanguages();
+    }
+    
+    public RulesManager getRulesManager()
+    {
+        return rulesManager;
+    }
+    
     /* --------------  Package local methods  ---------------------- */
 
     DocmaSession connect(String userId) throws Exception
@@ -231,7 +268,7 @@ public class DocmaApplication
         return contentLangs;
     }
 
-    protected DocmaCharEntity[] getCharEntities()
+    public DocmaCharEntity[] getCharEntities()
     {
         if (charEntities == null) {
             synchronized(this) {
@@ -251,7 +288,7 @@ public class DocmaApplication
         return charEntities;
     }
 
-    protected synchronized void setCharEntities(DocmaCharEntity[] entities)
+    public synchronized void setCharEntities(DocmaCharEntity[] entities)
     {
         // Store character entities as application property (to be able to
         // restore editor configuration files after installation of new

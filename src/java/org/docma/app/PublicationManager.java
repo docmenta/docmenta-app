@@ -48,6 +48,11 @@ class PublicationManager
         this.allArchives = pub_archives;
     }
 
+    String[] getPublicationIds()
+    {
+        openPublicationArchive();
+        return archive.listPublications();
+    }
 
     DocmaPublication getPublication(String publicationId)
     {
@@ -59,12 +64,18 @@ class PublicationManager
 
     DocmaPublication[] listPublications(String language)
     {
+        return listPublications(language, null);
+    }
+    
+    DocmaPublication[] listPublications(String language, String versionState)
+    {
         openPublicationArchive();
         String[] pub_ids = archive.listPublications();
         List list = new ArrayList(pub_ids.length);
-        for (int i=0; i < pub_ids.length; i++) {
-            DocmaPublication pub = get_Publication(pub_ids[i]);
-            if ((language == null) || language.equalsIgnoreCase(pub.getLanguage())) {
+        for (String pub_id : pub_ids) {
+            DocmaPublication pub = get_Publication(pub_id);
+            if (((language == null) || language.equalsIgnoreCase(pub.getLanguage())) &&
+                ((versionState == null) || versionState.equalsIgnoreCase(pub.getPublicationState()))) {
                 pub.refresh();
                 list.add(pub);
             }
@@ -82,17 +93,22 @@ class PublicationManager
 
     String createPublication(String pubConfigId, String outConfigId, String filename)
     {
-        openPublicationArchive();
-
-        if (filename == null) {
-            filename = getDefaultPublicationFilename(pubConfigId, outConfigId);
-        }
         String transMode = docmaSess.getTranslationMode();
         String lang;
         if (transMode == null) {
             lang = docmaSess.getOriginalLanguage().getCode();
         } else {
             lang = transMode;
+        }
+        return createPublication(pubConfigId, outConfigId, lang, filename);
+    }
+    
+    String createPublication(String pubConfigId, String outConfigId, String lang, String filename)
+    {
+        openPublicationArchive();
+
+        if (filename == null) {
+            filename = getDefaultPublicationFilename(pubConfigId, outConfigId);
         }
 
         String publicationId = archive.createPublication(lang, filename);

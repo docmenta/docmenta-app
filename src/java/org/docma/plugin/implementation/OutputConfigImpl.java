@@ -31,11 +31,29 @@ public class OutputConfigImpl implements OutputConfig
         this.docmaOutConf = docmaOutConf;
     }
 
-    public String getConfigId() 
+    DocmaOutputConfig getDocmaOutputConfig()
+    {
+        return docmaOutConf;
+    }
+    
+    // ********* Interface OutputConfig (visible by plugins) **********
+
+    public String getId() 
     {
         return docmaOutConf.getId();
     }
 
+    public String getFormat() 
+    {
+        return docmaOutConf.getFormat();
+    }
+
+    public String getSubformat() 
+    {
+        return docmaOutConf.getSubformat();
+    }
+
+    
     public String getProperty(String propName) 
     {
         // final String verPropName = "docversion." + propName + "." + configId;
@@ -52,5 +70,4 @@ public class OutputConfigImpl implements OutputConfig
         }
     }
 
-    
 }

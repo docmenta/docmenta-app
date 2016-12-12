@@ -1,7 +1,7 @@
 /*
  * ImageFileImpl.java
  * 
- *  Copyright (C) 2013  Manfred Paula, http://www.docmenta.org
+ *  Copyright (C) 2016  Manfred Paula, http://www.docmenta.org
  *   
  *  This file is part of Docmenta. Docmenta is free software: you can 
  *  redistribute it and/or modify it under the terms of the GNU Lesser 
@@ -14,6 +14,8 @@
 package org.docma.plugin.implementation;
 
 import org.docma.app.DocmaNode;
+import org.docma.coreapi.DocImageRendition;
+import org.docma.webapp.ImageRenditions;
 import org.docma.plugin.DocmaException;
 import org.docma.plugin.ImageFile;
 
@@ -33,14 +35,51 @@ public class ImageFileImpl extends FileContentImpl implements ImageFile
     //**************    Interface methods       ******************  
     //************************************************************
     
+    public String getTitle() throws DocmaException 
+    {
+        try {
+            return docNode.getTitle();
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
+    }
+
+    public String getTitle(String lang_code) throws DocmaException 
+    {
+        try {
+            return docNode.getTitle(lang_code);
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
+    }
+
+    public String getTitleEntityEncoded() throws DocmaException 
+    {
+        try {
+            return docNode.getTitleEntityEncoded();
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
+    }
+    
     public void setTitle(String value) throws DocmaException 
     {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        try {
+            docNode.setTitle(value);
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
     }
 
     public byte[] getImageRendition(String renditionName) throws DocmaException 
     {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        try {
+            DocImageRendition rend = ImageRenditions.getImageRenditionInfo(renditionName);
+            return (rend == null) ? null : docNode.getImageRendition(rend);
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
     }
+
     
 }

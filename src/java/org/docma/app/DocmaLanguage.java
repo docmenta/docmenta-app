@@ -14,14 +14,16 @@
 
 package org.docma.app;
 
+import org.docma.plugin.Language;
+
 /**
  *
  * @author MP
  */
-public class DocmaLanguage implements Comparable
+public class DocmaLanguage implements Language, Comparable
 {
-    private String code;
-    private String description;
+    private final String code;
+    private final String description;
 
     public DocmaLanguage(String code, String description)
     {
@@ -34,7 +36,26 @@ public class DocmaLanguage implements Comparable
         return code;
     }
 
+    /**
+     * Returns a human readable description of the language.
+     * The default implementation returns the same value as the
+     * {@link #getDisplayName() } method. However, future implementations
+     * might return a more descriptive text.
+     * 
+     * @return the language description
+     */
     public String getDescription()
+    {
+        return description;
+    }
+
+    /**
+     * Returns a name for the language that is appropriate for display 
+     * to the user.
+     * 
+     * @return the language name
+     */
+    public String getDisplayName() 
     {
         return description;
     }

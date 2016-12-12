@@ -130,7 +130,7 @@ public class DocmaWebSession
         if (posx instanceof Integer) {
             return (Integer) posx;
         } else {
-            return DefaultContentAppHandler.EDITOR_DEFAULT_POSITION_X;
+            return DefaultContentAppHandler.WINDOW_DEFAULT_POSITION_X;
         }
     }
 
@@ -153,7 +153,7 @@ public class DocmaWebSession
         if (posy instanceof Integer) {
             return (Integer) posy;
         } else {
-            return DefaultContentAppHandler.EDITOR_DEFAULT_POSITION_Y;
+            return DefaultContentAppHandler.WINDOW_DEFAULT_POSITION_Y;
         }
     }
 
@@ -277,6 +277,55 @@ public class DocmaWebSession
         }
     }
 
+    public String[] getEditorIds(String... exts)
+    {
+        return docmaApp.getEditorIds(exts);
+    }
+
+    public String[] getViewerIds(String... exts)
+    {
+        return docmaApp.getViewerIds(exts);
+    }
+
+    public String getFileEditorId(String ext)
+    {
+        // To do: consider file extension assignments defined by the user
+        return docmaApp.getFileEditorId(ext);
+    }
+    
+    public String getFileViewerId(String ext)
+    {
+        // To do: consider file extension assignments defined by the user
+        return docmaApp.getFileViewerId(ext);
+    }
+    
+    public String getPreviewURL(String viewer_id, String node_id)
+    {
+        ContentAppHandler handler = docmaApp.getContentAppHandler(viewer_id);
+        if (handler == null) {
+            return null;   // no preview available
+        }
+        return handler.getPreviewURL(getPluginInterface(), node_id);
+    }
+    
+    public void openEditor(String editor_id, String node_id) throws Exception
+    {
+        ContentAppHandler handler = docmaApp.getContentAppHandler(editor_id);
+        if (handler == null) {
+            throw new Exception("Editor with id '" + editor_id + "' not found.");
+        }
+        handler.openEditor(getPluginInterface(), node_id);
+    }
+    
+    public void openViewer(String viewer_id, String node_id) throws Exception
+    {
+        ContentAppHandler handler = docmaApp.getContentAppHandler(viewer_id);
+        if (handler == null) {
+            throw new Exception("Viewer with id '" + viewer_id + "' not found.");
+        }
+        handler.openViewer(getPluginInterface(), node_id);
+    }
+    
     public void openContentEditor(String node_id) throws Exception
     {
         ContentAppHandler handler = getContentEditorHandler();

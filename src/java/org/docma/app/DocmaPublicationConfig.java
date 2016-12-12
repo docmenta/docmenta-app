@@ -15,6 +15,7 @@
 package org.docma.app;
 
 import org.docma.coreapi.*;
+import org.docma.plugin.PublicationConfig;
 import org.docma.util.*;
 import java.util.*;
 
@@ -22,7 +23,7 @@ import java.util.*;
  *
  * @author MP
  */
-public class DocmaPublicationConfig
+public class DocmaPublicationConfig implements PublicationConfig
 {
     private static final String PROP_VERSION_PUBCONFIG_IDS = "docversion.pubconfig.ids";
     private static final String PROP_VERSION_PUBCONFIG_ROOT = "docversion.pubconfig.root";

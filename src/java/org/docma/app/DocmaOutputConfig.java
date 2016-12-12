@@ -241,6 +241,26 @@ public class DocmaOutputConfig
         id = outConfigId;
     }
 
+    public DocmaOutputConfig(String outConfigId, String format, String sub_format)
+    {
+        id = outConfigId;
+        this.format = format;
+        this.subformat = (sub_format == null) ? "" : sub_format.toLowerCase();
+        if (this.subformat.startsWith("webhelp")) {
+            // Webhelp defaults
+            htmlSingleFile = false;
+            htmlSeparateFileLevel = 2;
+        } else if (this.subformat.startsWith("epub")) {
+            // EPUB defaults
+            htmlSingleFile = false;
+            toc = true;
+            htmlSeparateTOC = true;
+            sectionTocDepth = 2;
+            // htmlSeparateEachTable = true;
+            htmlSeparateFileLevel = 1;
+        }
+    }
+
     /* -----------  Package local  ------------------ */
 
     static String[] getIds(DocmaSession docmaSess)

@@ -25,7 +25,7 @@
     String serv_url = request.getContextPath();
     if (! serv_url.endsWith("/")) serv_url += "/";
     String base_url = serv_url + "servmedia/" + docsess + "/" + storeid + "/" + verid +
-                      "/" + storeConn.getLanguageCode() + "/";
+                      "/" + storeConn.getCurrentLanguage().getCode() + "/";
     String css_url = response.encodeURL("css/content.css?mode=edit&expire=" + stamp);
     String imagelist_url = response.encodeURL("imagelist/imglist.js?nodeid=" + nodeid +
                                               "&expire=" + stamp);
@@ -42,7 +42,7 @@
         org.docma.util.Log.warning("Missing preview output configuration for editor.");
     }
     if (para_indent == null) {
-        para_indent = DefaultContentAppHandler.EDITOR_DEFAULT_PARA_INDENT;
+        para_indent = DefaultContentAppHandler.DEFAULT_PARA_INDENT;
     }
     // round to next higher int because Tinymce can only handle int values:
     para_indent = TinyEditorUtil.roundIndentToHigherInt(para_indent);
@@ -112,7 +112,7 @@
           if (! (style.isVariant() || style.isHidden() || style.isInternalStyle() || "indexterm".equals(s_id))) {
               if (style.isInlineStyle()) {
 %>
-            {title : '<%= style.getName() %>', inline : 'span', classes : '<%= s_id %>'},
+            {title : '<%= style.getTitle() %>', inline : 'span', classes : '<%= s_id %>'},
 <%
               } else {
                   blockstyles.add(style);
@@ -131,7 +131,7 @@
           // String is_wrap = "" + (! is_para);
           // String html_elem = is_para ? "p" : "div";
           out.print(",{title : '");
-          out.print(style.getName());
+          out.print(style.getTitle());
           out.print("', block : 'div', classes : '");
           out.print(sid);
           out.print("', wrapper : true }");
@@ -235,7 +235,7 @@
 <body style="margin:0;padding:0;height:100%;overflow:hidden;" onload="doFullScreen();">
 <div id="docmacontent" style="width:100%; height:100%;">
 <%
-    Node node = storeConn.getNodeById(nodeid);
+    Content node = (Content) storeConn.getNodeById(nodeid);
     out.print(TinyEditorUtil.prepareContentForEdit(node.getContentString(), editorId, para_indent));
 %>
 </div>

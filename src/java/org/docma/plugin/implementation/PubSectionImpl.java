@@ -35,22 +35,38 @@ public class PubSectionImpl extends GroupImpl implements PubSection
     
     public String getTitle() throws DocmaException 
     {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        try {
+            return docNode.getTitle();
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
+    }
+
+    public String getTitle(String lang_code) throws DocmaException 
+    {
+        try {
+            return docNode.getTitle(lang_code);
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
     }
 
     public String getTitleEntityEncoded() throws DocmaException 
     {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        try {
+            return docNode.getTitleEntityEncoded();
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
     }
 
     public void setTitle(String value) throws DocmaException 
     {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        try {
+            docNode.setTitle(value);
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
     }
 
-    public boolean isTitleTranslated(String lang_code) throws DocmaException 
-    {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-    
 }

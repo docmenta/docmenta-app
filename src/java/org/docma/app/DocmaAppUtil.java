@@ -485,7 +485,7 @@ public class DocmaAppUtil
             out.write(show_index_terms);
 
             // This fixes a bug in IE, where the caption line is not editable if empty
-            String caption_hint = docmaSess.getI18().getLabel("text.caption_edit_hint");
+            String caption_hint = docmaSess.getI18n().getLabel("text.caption_edit_hint");
             caption_hint = caption_hint.replace('\'', ' ');
             out.write("caption:before { content:'" + caption_hint + " '; color:#707070; }\n");
         } else {

@@ -18,13 +18,30 @@ import java.util.Locale;
 import org.zkoss.util.resource.Labels;
 import org.zkoss.util.Locales;
 import org.docma.coreapi.DocmaI18;
+import org.docma.plugin.internals.LabelProvider;
+import org.docma.plugin.internals.LabelUtil;
 
 /**
  *
  * @author MP
  */
-public class DocmaI18Impl implements DocmaI18 
+public class DocmaI18Impl implements DocmaI18, LabelProvider
 {
+    private static final DocmaI18Impl i18 = new DocmaI18Impl();
+
+    static {
+        LabelUtil.setLabelProvider(i18);
+    }
+    
+    private DocmaI18Impl()
+    {
+    }
+    
+    public static DocmaI18 getInstance()
+    {
+        return i18;
+    }
+    
     public Locale getCurrentLocale()
     {
         return Locales.getCurrent();

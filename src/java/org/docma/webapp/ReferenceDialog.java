@@ -226,7 +226,7 @@ public class ReferenceDialog extends Window
                 all_aliases = docmaSess.listSectionAliases();
             } else
             if ((mode == MODE_EDIT_IMAGE_REF) || (mode == MODE_NEW_IMAGE_REF)) {
-                all_aliases = docmaSess.listMediaContentAliases();
+                all_aliases = docmaSess.listImageAliases();
             }
         }
         return all_aliases;

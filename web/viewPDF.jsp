@@ -29,10 +29,7 @@
     if ((draft != null) && draft.equals("true") && (pubconf != null)) {
         pubconf.setDraft(true);
     }
-    
-    DocmaExportContext export_ctx = new DocmaExportContext(docmaSess, pubconf, outconf, true);
-    DocmaExportLog preview_log = export_ctx.getDocmaExportLog();
+
+    DocmaExportLog preview_log = docmaSess.previewPDF(streamout, nodeid, pubconf, outconf);
     docmaWebSess.setPreviewLog(preview_log);
-    docmaSess.previewPDF(streamout, nodeid, export_ctx);
-    export_ctx.finished();
 %>

@@ -107,8 +107,7 @@ public class CompareVersionsDialog extends Window
                     if (transMode != null) tempSess.enterTranslationMode(transMode);
                     node = tempSess.getNodeById(nodeId);
                 }
-                if (! (GUIUtil.checkEditVersionAllowed(mainWin, tempSess, true) &&
-                       GUIUtil.isEditContentAllowedByWorkflow(tempSess, node, true) &&
+                if (! (GUIUtil.isUpdateContentAllowed(node, true) &&
                        GUIUtil.isContentNotLocked(mainWin, tempSess, node, true, false))) {
                     return;
                 }
@@ -275,7 +274,7 @@ public class CompareVersionsDialog extends Window
         oldVersionBox.setSelectedIndex(0);
         
         try {
-            isVersionReadOnly = !GUIUtil.checkEditVersionAllowed(mainWin, docmaSess, false);
+            isVersionReadOnly = !GUIUtil.isUpdateVersionAllowed(docmaSess, false);
             onSelectRevision();  // show selection, disable/enable restore button
         } catch (Exception ex) {
             Log.error("Error in CompareVersionsDialog.onSelectRevision(): " + ex.getMessage());

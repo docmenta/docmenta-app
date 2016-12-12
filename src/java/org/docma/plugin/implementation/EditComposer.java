@@ -14,17 +14,19 @@
 
 package org.docma.plugin.implementation;
 
-import org.docma.plugin.StoreConnection;
-import org.docma.plugin.VersionId;
+import javax.servlet.http.HttpSession;
+        
+import org.docma.coreapi.DocConstants;
+import org.docma.plugin.FileContent;
 import org.docma.plugin.Node;
+import org.docma.plugin.PubContent;
+import org.docma.plugin.StoreConnection;
 import org.docma.plugin.User;
+import org.docma.plugin.VersionId;
 import org.docma.plugin.web.WebPluginUtil;
 import org.docma.plugin.web.WebUserSession;
 import org.docma.plugin.web.DefaultContentAppHandler;
-import org.docma.coreapi.DocConstants;
 
-import javax.servlet.http.HttpSession;
-        
 import org.zkoss.zk.ui.Desktop;
 import org.zkoss.zk.ui.Execution;
 import org.zkoss.zk.ui.Component;
@@ -85,7 +87,17 @@ public class EditComposer implements Composer
         Label prodLang = (Label) win.getFellow("productLanguage");
         Slider contProgress = (Slider) win.getFellow("editProgressSlider");
 
-        contTitle.setValue((node != null) ? node.getTitle() : "");
+        String ntitle; 
+        if (node == null) { 
+            ntitle = "";
+        } else if (node instanceof PubContent) {
+            ntitle = ((PubContent) node).getTitle();
+        } else if (node instanceof FileContent) {
+            ntitle = ((FileContent) node).getFileName();
+        } else {
+            ntitle = node.getId();
+        }
+        contTitle.setValue(ntitle);
         prodId.setValue((storeId != null) ? storeId : "");
         prodVer.setValue((verId != null) ? verId.toString() : "");
         String lang = langid;
@@ -98,8 +110,8 @@ public class EditComposer implements Composer
         HttpSession httpsess = webSess.getHttpSession();
         Object objx = httpsess.getAttribute(DefaultContentAppHandler.ATTRIBUTE_EDITOR_POS_X);
         Object objy = httpsess.getAttribute(DefaultContentAppHandler.ATTRIBUTE_EDITOR_POS_Y);
-        int win_x = (objx instanceof Integer) ? (Integer) objx : DefaultContentAppHandler.EDITOR_DEFAULT_POSITION_X;
-        int win_y = (objy instanceof Integer) ? (Integer) objy : DefaultContentAppHandler.EDITOR_DEFAULT_POSITION_Y;
+        int win_x = (objx instanceof Integer) ? (Integer) objx : DefaultContentAppHandler.WINDOW_DEFAULT_POSITION_X;
+        int win_y = (objy instanceof Integer) ? (Integer) objy : DefaultContentAppHandler.WINDOW_DEFAULT_POSITION_Y;
 
         User usr = webSess.getUser();
         String win_width = usr.getProperty(DefaultContentAppHandler.USER_PROPERTY_EDIT_WIN_WIDTH);

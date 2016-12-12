@@ -209,6 +209,10 @@ public class RevisionStoreSessImpl implements RevisionStoreSession
                             Date revDate,
                             String userId)
     {
+        if (revDate == null) {
+            revDate = new Date();  // set date to now
+        }
+        
         //
         // Database implementation
         //

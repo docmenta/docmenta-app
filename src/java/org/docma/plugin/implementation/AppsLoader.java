@@ -17,10 +17,12 @@ import java.io.*;
 import java.util.*;
 
 import org.docma.app.DocmaConstants;
+import org.docma.coreapi.DocI18n;
 import org.docma.util.Log;
 import org.docma.plugin.CharEntity;
 import org.docma.plugin.web.*;
 import org.docma.plugin.tinymce.OldTinymceHandler;
+import org.zkoss.util.resource.Labels;
 
 /**
  *
@@ -35,6 +37,7 @@ public class AppsLoader
     
     private final File webAppsDir;
     private final File pluginAppsDir;
+    private final DocI18n i18n;
     
     // Maps application id to handler instance.
     private final SortedMap<String, ContentAppHandler> loadedApps = new TreeMap<String, ContentAppHandler>();
@@ -53,18 +56,28 @@ public class AppsLoader
     private long updateTimestamp = 0;
 
     private CharEntity[] charEntities = null;
+    
+    // All application directories from which the labels have already been loaded.
+    // If an application is removed and added again, this set allows to detect
+    // that labels have already been loaded and need to be refreshed.
+    private final Set<String> loadedLabels = new HashSet<String>();
 
-
-    public AppsLoader(File webAppsDir)
+    public AppsLoader(File webAppsDir, DocI18n i18n)
     {
         this.webAppsDir = webAppsDir;
         this.pluginAppsDir = new File(webAppsDir, PLUGIN_APPS_PATH);
+        this.i18n = i18n;
     }
     
     public String getApplicationName(String app_id)
     {
         ContentAppHandler app = loadedApps.get(app_id);
-        return (app == null) ? app_id : app.getApplicationName();
+        if (app == null) {
+            return app_id; 
+        } else { 
+            Locale loc = i18n.getCurrentLocale();
+            return app.getApplicationName(loc.getLanguage()); 
+        }
     }
     
     public ContentAppHandler getContentAppHandler(String app_id)
@@ -242,6 +255,8 @@ public class AppsLoader
             
             setCharEntities(handler, charEntities);
             
+            loadLabels(appDir);
+            
             return app_id;
         } catch (Exception ex) {
             Log.error("Failed to load app '" + appDir.getAbsolutePath() + "': " + ex.getMessage());
@@ -279,6 +294,18 @@ public class AppsLoader
                     it.remove();
                 }
             }
+        }
+    }
+
+    private synchronized void loadLabels(File appDir)
+    {
+        String app_path = appDir.getAbsolutePath();
+        if (loadedLabels.contains(app_path)) {
+            // The application was removed and is now added again.
+            Labels.reset();  // reload labels
+        } else {
+            Labels.register(new PluginLabelLocator(appDir, PluginManager.LABEL_PROPS_FILE_PATTERN));
+            loadedLabels.add(app_path);
         }
     }
 

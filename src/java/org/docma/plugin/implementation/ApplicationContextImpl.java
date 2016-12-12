@@ -13,6 +13,7 @@
  */
 package org.docma.plugin.implementation;
 
+import java.util.Map;
 import org.docma.app.*;
 import org.docma.plugin.*;
 import org.docma.userapi.UserManager;
@@ -30,8 +31,8 @@ import org.docma.userapi.UserManager;
  */
 public class ApplicationContextImpl implements ApplicationContext
 {
-    private DocmaApplication docmaApp;
-    private LoggerImpl logger = new LoggerImpl();
+    private final DocmaApplication docmaApp;
+    private final LoggerImpl logger = new LoggerImpl();
     
     public ApplicationContextImpl(DocmaApplication app)
     {
@@ -39,6 +40,70 @@ public class ApplicationContextImpl implements ApplicationContext
     }
 
     // ********* Interface ApplicationContext (visible by plugins) **********
+
+    public String getApplicationProperty(String name) throws DocmaException 
+    {
+        try {
+            return docmaApp.getApplicationProperty(name);
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
+    }
+
+    public void setApplicationProperty(String name, String value) throws DocmaException 
+    {
+        try {
+            docmaApp.setApplicationProperty(name, value);
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
+    }
+
+    public void setApplicationProperties(Map<String, String> props) throws DocmaException 
+    {
+        try {
+            docmaApp.setApplicationProperties(props);
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
+    }
+
+    public Language[] getSupportedContentLanguages() throws DocmaException
+    {
+        try {
+            return docmaApp.getSupportedContentLanguages();
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
+    }
+    
+    public CharEntity[] getCharEntities() throws DocmaException 
+    {
+        try {
+            return docmaApp.getCharEntities();
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
+    }
+
+    public void setCharEntities(CharEntity[] entities) throws DocmaException 
+    {
+        try {
+            docmaApp.setCharEntities(PlugHelper.toDocmaCharEntities(entities));
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
+    }
+
+    public CharEntity createCharEntity(String sym, String num, String desc) throws DocmaException 
+    {
+        return createCharEntity(sym, num, desc, true);
+    }
+
+    public CharEntity createCharEntity(String sym, String num, String desc, boolean sel) throws DocmaException 
+    {
+        return new DocmaCharEntity(sym, num, sel, desc);
+    }
 
     public boolean hasObject(String objectName) 
     {

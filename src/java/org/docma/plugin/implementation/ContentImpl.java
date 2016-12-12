@@ -15,6 +15,7 @@ package org.docma.plugin.implementation;
 
 import java.io.InputStream;
 import org.docma.app.DocmaNode;
+import org.docma.coreapi.DocContentRevision;
 import org.docma.plugin.Content;
 import org.docma.plugin.ContentRevision;
 import org.docma.plugin.DocmaException;
@@ -119,6 +120,15 @@ public abstract class ContentImpl extends NodeImpl implements Content
         }
     }
 
+    public void checkUpdateContentAllowed() throws DocmaException
+    {
+        try {
+            docNode.checkUpdateContentAllowed();
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
+    }
+
     public boolean makeRevision() 
     {
         try {
@@ -131,6 +141,15 @@ public abstract class ContentImpl extends NodeImpl implements Content
     public ContentRevision[] getRevisions() throws DocmaException 
     {
         try {
+            DocContentRevision[] docrevs = docNode.getRevisions();
+            if (docrevs == null) {
+                return new ContentRevision[0];
+            }
+            ContentRevision[] revs = new ContentRevision[docrevs.length];
+            for (int i = 0; i < revs.length; i++) {
+                revs[i] = new ContentRevisionImpl(docrevs[i]);
+            }
+            return revs;
         } catch (Exception ex) {
             throw new DocmaException(ex);
         }

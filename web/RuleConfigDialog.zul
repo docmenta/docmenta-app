@@ -1,0 +1,61 @@
+<?component name="textbutton" extends="toolbarbutton" style="font-size:11px;color:blue;" ?>
+<window id="ruleConfigDialog" title="${c:l('rule.config.dialog.new.title')}"
+        border="normal" width="500px" visible="false" contentStyle="padding:7px;"
+        sizable="true" closable="true" onClose="self.visible = false; event.stopPropagation();"
+        apply="org.docma.webapp.RuleConfigComposer">
+  <caption>
+    <toolbarbutton id="ruleConfigHelpBtn" label="${c:l('label.help')}" />
+  </caption>
+  <vbox spacing="8px" hflex="1" vflex="1" align="stretch">
+    <hbox pack="stretch" align="start" hflex="1" vflex="1" spacing="6px">
+      <cell width="60%">
+        <vbox spacing="3px" hflex="1" align="stretch">
+          <label style="font-weight:bold;">${c:l('rule.config.dialog.rule_id')}:</label>
+          <textbox id="ruleConfigIdTextbox" maxlength="80" hflex="1" />
+          <label style="font-weight:bold;">${c:l('rule.config.dialog.rule_title')}:</label>
+          <textbox id="ruleConfigTitleTextbox" maxlength="100" hflex="1" />
+          <hbox width="100%" align="center">
+            <label hflex="1" style="font-weight:bold;">${c:l('rule.config.dialog.rule_cls')}:</label>
+            <textbutton id="ruleConfigClsHelpBtn" label="${c:l('rule.config.dialog.cls_help')}" />
+          </hbox>
+          <listbox id="ruleConfigClsListbox" mold="select" rows="1" width="100%"></listbox>
+          <label style="font-weight:bold;">${c:l('rule.config.dialog.rule_args')}:</label>
+          <textbox id="ruleConfigArgsTextbox" maxlength="100" hflex="1" />
+          <label style="font-weight:bold;">${c:l('rule.config.dialog.max_severity')}:</label>
+          <listbox id="ruleConfigSeverityListbox" mold="select" rows="1" width="100%"></listbox>
+          <separator spacing="2px"/>
+          <hbox width="100%" align="center">
+            <checkbox id="ruleConfigEnabledCheckbox" hflex="min" />
+            <label value="${c:l('rule.config.dialog.enabled')}" style="font-weight:bold;"/>
+          </hbox>
+          <hbox width="100%" align="center">
+            <checkbox id="ruleConfigCorrectSaveCheckbox" hflex="min" />
+            <label value="${c:l('rule.config.dialog.correct_on_save')}" style="font-weight:bold;"/>
+          </hbox>
+        </vbox>
+      </cell>
+      <groupbox hflex="1" vflex="1">
+        <caption  style="font-weight:bold;" label="${c:l('rule.config.dialog.scope')}:" />
+        <vbox spacing="3px" hflex="1" vflex="1" align="stretch" pack="stretch">
+          <hbox width="100%" align="center">
+            <checkbox id="ruleConfigScopeAllCheckbox" />
+            <label value="${c:l('rule.config.dialog.scope_all')}" />
+          </hbox>
+          <listbox id="ruleConfigScopeListbox" multiple="true" checkmark="true" hflex="1" vflex="1">
+            <listhead>
+              <listheader label="${c:l('rule.config.dialog.scope_listhead')}" />
+            </listhead>
+          </listbox>
+        </vbox>
+      </groupbox>
+    </hbox>
+    <hbox pack="stretch" hflex="1" spacing="4px">
+      <cell width="50%">
+        <button id="ruleConfigOkayBtn" label="${c:l('label.okay.btn')}" hflex="1" />
+      </cell>
+      <cell width="50%">
+        <button id="ruleConfigCancelBtn" label="${c:l('label.cancel.btn')}" hflex="1" />
+      </cell>
+    </hbox>
+  </vbox>
+</window>

@@ -107,6 +107,7 @@ public class MainWindow extends Window implements EventListener
     private GUI_List_Products         guilist_products;
     private GUI_List_CharEntities     guilist_char_entities;
     private GUI_List_AutoFormatConfig guilist_autoformatconfig;
+    private GUI_List_Rules            guilist_rules;
     private GUI_List_Plugins          guilist_plugins;
     private GUI_List_SystemEditors    guilist_edit_extensions;
     private GUI_List_SystemViewers    guilist_view_extensions;
@@ -240,6 +241,7 @@ public class MainWindow extends Window implements EventListener
         guilist_products.loadProducts();
         guilist_char_entities = new GUI_List_CharEntities(this, (Listbox) getFellow("EntitiesListbox"));
         // guilist_char_entities.loadCharEntities();  // list is loaded in onSelectCharEntitiesTab()
+        guilist_rules = new GUI_List_Rules(this);
         guilist_plugins = new GUI_List_Plugins(this);
         guilist_edit_extensions = new GUI_List_SystemEditors(this);
         guilist_view_extensions = new GUI_List_SystemViewers(this);
@@ -1821,9 +1823,39 @@ public class MainWindow extends Window implements EventListener
         guilist_autoformatconfig.loadAll();  // load list if not already loaded
     }
 
+    public void onSelectRulesTab() throws Exception
+    {
+        guilist_rules.loadAll();  // load list if not already loaded
+    }
+    
     public void onSelectPluginsTab() throws Exception
     {
         guilist_plugins.loadAll();  // load list if not already loaded
+    }
+
+    public void onNewRule() 
+    {
+        guilist_rules.onNewRule();
+    }
+    
+    public void onEditRule() 
+    {
+        guilist_rules.onEditRule();
+    }
+    
+    public void onDeleteRule() 
+    {
+        guilist_rules.onDeleteRule();
+    }
+    
+    public void onEnableRule() 
+    {
+        guilist_rules.onEnableRule();
+    }
+    
+    public void onDisableRule() 
+    {
+        guilist_rules.onDisableRule();
     }
     
     public void onInstallPlugin() throws Exception
@@ -1937,8 +1969,15 @@ public class MainWindow extends Window implements EventListener
                            node.getId() + "&desk=" + deskId + stamp);
             } else 
             if (node.isFileContent()) {
-                view_url = getDesktop().getExecution().encodeURL("viewFile.jsp?nodeid=" +
-                           node.getId() + "&desk=" + deskId + stamp);
+                String ext = node.getFileExtension();
+                if ((ext != null) && !ext.equals("")) {
+                    // Get assigned viewer application for this file extension
+                    DocmaWebSession webSess = getDocmaWebSession();
+                    String appid = webSess.getFileViewerId(ext);
+                    if (appid != null) {
+                        view_url = webSess.getPreviewURL(appid, node.getId());
+                    }
+                }
             } else {
                 String pubId = getPreviewPubConfigId();
                 String pubParam = (pubId != null) ? ("&pub=" + pubId) : "";
@@ -2062,9 +2101,27 @@ public class MainWindow extends Window implements EventListener
         dialog.insertNodeHere(this);
     }
 
+    public void onViewContent() throws Exception
+    {
+        Treeitem item = docTree.getSelectedItem();
+        if (item == null) {
+            Log.warning("Call of onViewContent() without node selection!");
+            return;
+        }
+        Object obj = item.getValue();
+        if (obj == null) {
+            Messagebox.show("Cannot open viewer. No object assigned to tree item!");
+        }
+        if (obj instanceof DocmaNode) {
+            DocmaNode node = (DocmaNode) obj;
+            if (node.isContent()) {
+                openFileNodeInWindow(node, false);
+            }
+        }
+    }
+    
     public void onEditContent() throws Exception
     {
-        DocmaSession docmaSess = getDocmaSession();
         Treeitem item = docTree.getSelectedItem();
         if (item == null) {
             Log.warning("Call of onEditContent() without node selection!");
@@ -2076,7 +2133,7 @@ public class MainWindow extends Window implements EventListener
         }
         if (obj instanceof DocmaNode) {
             DocmaNode node = (DocmaNode) obj;
-            doEditContent(node, docmaSess);
+            doEditContent(node);
         }
     }
 
@@ -2094,41 +2151,50 @@ public class MainWindow extends Window implements EventListener
             Messagebox.show("Cannot open editor. Object with this ID does not exist!");
             return;
         }
-        doEditContent(node, docmaSess);
+        doEditContent(node);
     }
 
-    void doEditContent(DocmaNode node, DocmaSession docmaSess) throws Exception
+    void doEditContent(DocmaNode node) throws Exception
     {
-        if (! GUIUtil.checkEditVersionAllowed(this, docmaSess, true)) {
+        if (! GUIUtil.isUpdateContentAllowed(node, true)) {
             return;
         }
-        if (! node.isHTMLContent()) {
-            if (node.isTextFile()) {
-                openFileNodeInWindow(node, docmaSess, true);
+        if (node.isHTMLContent()) {
+            getDocmaWebSession().openContentEditor(node.getId());
+        } else if (node.isFileContent() || node.isImageContent()) {
+            openFileNodeInWindow(node, true);
+        } else {
+            doEditNodeProps(node);
+        }
+    }
+
+    void openFileNodeInWindow(DocmaNode node, boolean editMode)
+    {
+        String ext = node.isHTMLContent() ? "html" : node.getFileExtension();
+        if ((ext != null) && !ext.equals("")) {
+            DocmaWebSession webSess = getDocmaWebSession();
+            String appid = editMode ? webSess.getFileEditorId(ext) 
+                                    : webSess.getFileViewerId(ext);
+            if (appid != null) {
+                try {
+                    if (editMode) {
+                        webSess.openEditor(appid, node.getId());
+                    } else {
+                        webSess.openViewer(appid, node.getId());
+                    }
+                } catch (Exception ex) {
+                    Messagebox.show(ex.getLocalizedMessage());
+                }
             } else {
-                doEditNodeProps(node);
+                if (editMode) {
+                    Messagebox.show("No editor assigned to file extension '" + ext + "'.");
+                } else {
+                    Messagebox.show("No viewer assigned to file extension '" + ext + "'.");
+                }
             }
-            return;
+        } else {
+            Messagebox.show("Unknown file type.");
         }
-        if (! GUIUtil.isEditContentAllowedByWorkflow(docmaSess, node, true)) {
-            return;
-        }
-
-        DocmaWebSession webSess = GUIUtil.getDocmaWebSession(this);
-        webSess.openContentEditor(node.getId());
-    }
-
-    void openFileNodeInWindow(DocmaNode node, DocmaSession docmaSess, boolean editMode)
-    {
-        Desktop desk = getDesktop();
-        long now = System.currentTimeMillis();
-        String url = "viewFile.jsp?desk=" + desk.getId() + "&nodeid=" + node.getId() +
-                     "&iswin=true&edit=" + editMode + "&stamp=" + now;
-        url = desk.getExecution().encodeURL(url);
-        String client_action = 
-          "window.open('" + url + 
-          "', '_blank', 'width=600,height=700,resizable=yes,scrollbars=no,location=no,menubar=no,status=yes');";
-        Clients.evalJavaScript(client_action);
     }
 
     public void onEditNodeProps() throws Exception

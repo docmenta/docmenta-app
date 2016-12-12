@@ -247,7 +247,7 @@ public class PublicationConfigDialog extends Window implements org.zkoss.zk.ui.e
         DocmaNode nd = getValidContentNode(alias);  // shows error and returns null if no valid alias
         if (nd != null) {
             MainWindow mainWin = getMainWindow();
-            mainWin.doEditContent(nd, docmaSess);
+            mainWin.doEditContent(nd);
         }
     }
 

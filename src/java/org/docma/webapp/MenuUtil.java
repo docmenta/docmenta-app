@@ -79,6 +79,7 @@ public class MenuUtil
         
         addItem(menu, clientMode, "menuitemEditContent", i18n.getLabel("label.menuitem.editcontent"), "img/edit.gif", "onEditContent");
         addItem(menu, clientMode, "menuitemEditNodeProps", i18n.getLabel("label.menuitem.editproperties"), "img/edit_props.gif", "onEditNodeProps");
+        addItem(menu, clientMode, "menuitemViewContent", i18n.getLabel("label.menuitem.viewcontent"), "img/view.gif", "onViewContent");
         addSeparator(menu);
         addItem(menu, clientMode, "menuitemAddSubNode", i18n.getLabel("label.menuitem.addsubnode"), "img/add_subnode.gif", "onAddSubNode");
         addItem(menu, clientMode, "menuitemInsertNode", i18n.getLabel("label.menuitem.insertnode"), "img/insert_nodehere.gif", "onInsertNode");
@@ -90,7 +91,7 @@ public class MenuUtil
         addSeparator(menu);
         addItem(menu, clientMode, "menuitemCutNode", i18n.getLabel("label.menuitem.cut"), "img/cut_icon.gif", "onCutNode");
         addItem(menu, clientMode, "menuitemCopyNode", i18n.getLabel("label.menuitem.copy"), "img/copy_icon.gif", "onCopyNode");
-        Menupopup submenu1 = addSubMenu(menu, "treemenuPaste", i18n.getLabel("label.submenu.paste"), "img/paste_icon.gif", "menupopupPaste");
+        Menupopup submenu1 = addSubMenu(menu, "treemenuPaste", i18n.getLabel("label.submenu.paste"), "img/paste_icon.gif");
         menuMap.put(submenu1.getId(), submenu1);
         addItem(submenu1, clientMode, "menuitemPasteSub", i18n.getLabel("label.menuitem.pastesub"), "img/paste_subnode.gif", clientMode ? "onPasteFilesSub" : "onPasteSub");
         addItem(submenu1, clientMode, "menuitemPasteHere", i18n.getLabel("label.menuitem.pastehere"), "img/paste_nodehere.gif", clientMode ? "onPasteFilesHere": "onPasteHere");
@@ -101,7 +102,7 @@ public class MenuUtil
         addItem(menu, clientMode, "menuitemFindReferencingThis", i18n.getLabel("label.menuitem.findrefthis"), null, "onFindReferencingThis");
         // addItem(menu, clientMode, "menuitemFindByAlias", i18n.getLabel("label.menuitem.findbyalias"), null, "onFindByAlias");
         addSeparator(menu);
-        Menupopup submenu2 = addSubMenu(menu, "treemenuExtra", i18n.getLabel("label.submenu.extra"), null, "menupopupExtra");
+        Menupopup submenu2 = addSubMenu(menu, "treemenuExtra", i18n.getLabel("label.submenu.extra"), null);
         menuMap.put(submenu2.getId(), submenu2);
         addItem(submenu2, clientMode, "menuitemSortByFilename", i18n.getLabel("label.menuitem.sortbyfilename"), null, "onSortByFilename");
         addItem(submenu2, clientMode, "menuitemExportNodes", i18n.getLabel("label.menuitem.exportnodes"), "img/export_icon.gif", "onExportNodes");
@@ -155,6 +156,7 @@ public class MenuUtil
     {
         Menuitem item_editContent = (Menuitem) treemenu.getFellow("menuitemEditContent");
         Menuitem item_editNodeProps = (Menuitem) treemenu.getFellow("menuitemEditNodeProps");
+        Menuitem item_viewContent = (Menuitem) treemenu.getFellow("menuitemViewContent");
         Menuitem item_addSubNode = (Menuitem) treemenu.getFellow("menuitemAddSubNode");
         Menuitem item_insertNode = (Menuitem) treemenu.getFellow("menuitemInsertNode");
         Menuitem item_uploadFile = (Menuitem) treemenu.getFellow("menuitemUploadFile");
@@ -183,8 +185,7 @@ public class MenuUtil
             sel_cnt = docTree.getSelectedCount();
         }
         Treeitem item = (sel_cnt >= 1) ? docTree.getSelectedItem() : null;
-        boolean disable_menu = (item == null); // (sel_cnt < 1) ;
-        if (disable_menu) {
+        if (item == null) {  // (sel_cnt < 1)
             Messagebox.show("Please select a node!");
             return;
         }
@@ -228,18 +229,36 @@ public class MenuUtil
         boolean folderNode = node.isImageFolder() || sysFolder;
         boolean groupNode = sectNode || folderNode;
         boolean fileNode = contNode && node.isFileContent();
+        boolean editorExists = false;
+        boolean viewerExists = false;
+        if (fileNode) {
+            String ext = node.getFileExtension();
+            if ((ext != null) && !ext.equals("")) {
+                DocmaWebSession webSess = mainWin.getDocmaWebSession();
+                editorExists = webSess.getEditorIds(ext).length > 0;
+                viewerExists = webSess.getViewerIds(ext).length > 0;
+            }
+        }
         boolean textFile = fileNode && node.isTextFile();
-        boolean editableContent = htmlNode || textFile;
+        boolean editableContent = htmlNode || textFile || editorExists;
+        boolean viewableContent = htmlNode || textFile || viewerExists;
         // boolean insertContentAllowed = parent.isInsertContentAllowed(pos);
         // boolean insertSectionAllowed = parent.isInsertSectionAllowed(pos);
         // boolean notSectOrSys = ! (sectNode || sysFolder);
 
-        updateContentContextMenuLabels(treemenu, isTransMode, mainWin.getI18n());
+        DocI18n i18n = mainWin.getI18n();
+        if (htmlNode) {
+            item_viewContent.setLabel(i18n.getLabel("label.menuitem.viewsource"));
+        } else {
+            item_viewContent.setLabel(i18n.getLabel("label.menuitem.viewcontent"));
+        }
+        updateContentContextMenuLabels(treemenu, isTransMode, i18n);
         
         CutCopyHandler cutCopyHandler = mainWin.getCutCopyHandler();
 
         item_editContent.setDisabled(multiple || noEdit || !editableContent);
         item_editNodeProps.setDisabled(noEdit || (notContentOrSect && !folderNode));
+        item_viewContent.setDisabled(multiple || !viewableContent);
         item_addSubNode.setDisabled(multiple || noEdit || isTransMode || !groupNode);
         item_insertNode.setDisabled(multiple || noEdit || isTransMode || isRoot);
         item_uploadFile.setDisabled(multiple || noEdit || (! folderNode));
@@ -344,7 +363,7 @@ public class MenuUtil
             } else {
                 // If neighbour is set to null, then the new entry will be added 
                 // as last element.
-                neighbour = (neighbourId != null) ? parentMenu.getFellowIfAny(neighbourId) 
+                neighbour = (neighbourId != null) ? getMenuNeighbour(parentMenu, neighbourId) 
                                                   : null;
             }
             // String label = e.getStringOption(PluginMenuEntry.OPTION_LABEL);
@@ -360,36 +379,51 @@ public class MenuUtil
                     break;
                 case PluginMenuEntry.SUB_MENU:
                     Menupopup submenu =
-                      addSubMenu(parentMenu, null, null, null, e.getOptions(), 
-                                 e.getEntryId(), neighbour, insertBefore);
+                      addSubMenu(parentMenu, e.getEntryId(), null, null, e.getOptions(), 
+                                 neighbour, insertBefore);
                     menuMap.put(submenu.getId(), submenu);
                     break;
             }
         }
     }
     
-    private static Menupopup addSubMenu(Menupopup parentMenu, 
-                                        String menuId, 
-                                        String label, 
-                                        String imgUrl, 
-                                        String popupId)
+    private static Component getMenuNeighbour(Menupopup parentMenu, String neighbourId)
     {
-        return addSubMenu(parentMenu, menuId, label, imgUrl, null, popupId, null, false);
+        for (Component child : parentMenu.getChildren()) {
+            if (neighbourId.equals(child.getId())) {
+                return child;
+            } else if (child instanceof Menu) {
+                // If the child is a sub-menu, then also compare with the 
+                // id of the nested popup-menu.
+                Menupopup popup = ((Menu) child).getMenupopup();
+                if ((popup != null) && neighbourId.equals(popup.getId())) {
+                    return child;
+                }
+            }
+        }
+        return null;
     }
     
     private static Menupopup addSubMenu(Menupopup parentMenu, 
-                                        String menuId, 
+                                        String popupId,
+                                        String label, 
+                                        String imgUrl)
+    {
+        return addSubMenu(parentMenu, popupId, label, imgUrl, null, null, false);
+    }
+
+    private static Menupopup addSubMenu(Menupopup parentMenu, 
+                                        String popupId, 
                                         String label, 
                                         String imgUrl, 
                                         Map<MenuOption, Object> options,
-                                        String popupId, 
                                         Component neighbour, 
                                         boolean insertBefore)
     {
         Menu submenu = new Menu();
-        if (menuId != null) {
-            submenu.setId(menuId);
-        }
+        // if (menuId != null) {
+        //     submenu.setId(menuId);
+        // }
         if (label != null) {
             submenu.setLabel(label);
         }

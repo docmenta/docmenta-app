@@ -15,6 +15,7 @@
 package org.docma.app;
 
 import org.docma.coreapi.*;
+import org.docma.plugin.ExportJob;
 import org.docma.util.Log;
 
 /**
@@ -23,9 +24,9 @@ import org.docma.util.Log;
  */
 public class DocmaExportJob
 {
-    public static final int STATE_QUEUED = 1;
-    public static final int STATE_RUNNING = 2;
-    public static final int STATE_CANCELED = 3;
+    public static final int STATE_QUEUED = ExportJob.STATE_QUEUED;
+    public static final int STATE_RUNNING = ExportJob.STATE_RUNNING;
+    public static final int STATE_CANCELED = ExportJob.STATE_CANCELED;
     
     private final String storeId;
     private final DocVersionId versionId;

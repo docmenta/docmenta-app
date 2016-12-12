@@ -13,6 +13,7 @@
  */
 package org.docma.plugin.implementation;
 
+import java.io.File;
 import java.util.*;
 
 import org.docma.coreapi.DocVersionId;
@@ -56,6 +57,16 @@ public class UserSessionImpl implements UserSession
         return user;
     }
 
+    public Locale getCurrentLocale()
+    {
+        return docmaSess.getI18n().getCurrentLocale();
+    }
+
+    public String  getLabel(String key, Object... args)
+    {
+        return docmaSess.getI18n().getLabel(key, args);
+    }
+
     public StoreConnection getOpenedStore() 
     {
         String storeId = docmaSess.getStoreId();
@@ -67,7 +78,7 @@ public class UserSessionImpl implements UserSession
             openedStore = null;
         }
         if (openedStore == null) {
-            openedStore = new StoreConnectionImpl(docmaSess, storeId, verId, true);
+            openedStore = new StoreConnectionImpl(this, docmaSess, storeId, verId, true);
         }
         return openedStore;
     }
@@ -81,19 +92,19 @@ public class UserSessionImpl implements UserSession
         }
     }
 
-    public StoreConnection createTempStoreConnection(String storeId, String verId) throws Exception
+    public StoreConnection createTempStoreConnection(String storeId, String verId) throws DocmaException
     {
         return createTempStoreConnection(storeId, createVersionId(verId));
     }
     
-    public StoreConnection createTempStoreConnection(String storeId, VersionId verId) throws Exception
+    public StoreConnection createTempStoreConnection(String storeId, VersionId verId) throws DocmaException
     {
         DocmaSession new_sess = docmaSess.createNewSession();
         try {
             DocVersionId dver = versionIdToInternal(verId);
             new_sess.openDocStore(storeId, dver);
 
-            StoreConnectionImpl temp_conn = new StoreConnectionImpl(new_sess, storeId, dver, false);
+            StoreConnectionImpl temp_conn = new StoreConnectionImpl(this, new_sess, storeId, dver, false);
             String conn_id = temp_conn.getConnectionId();
             if (tempStores.containsKey(conn_id)) {
                 throw new Exception("Store connection ID is not unique.");
@@ -104,7 +115,7 @@ public class UserSessionImpl implements UserSession
             try {
                 new_sess.closeSession();
             } catch (Exception ex2) {}
-            throw ex;
+            throw new DocmaException(ex);
         }
     }
 
@@ -117,14 +128,23 @@ public class UserSessionImpl implements UserSession
         }
     }
 
-    public String[] listStores() 
+    public String[] listStores() throws DocmaException
     {
-        return docmaSess.listDocStores();
+        try {
+            return docmaSess.listDocStores();
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
     }
 
-    public VersionId[] listVersions(String storeId) 
+    public VersionId[] listVersions(String storeId) throws DocmaException
     {
-        DocVersionId[] vids = docmaSess.listVersions(storeId);
+        DocVersionId[] vids;
+        try {
+            vids = docmaSess.listVersions(storeId);
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
         if (vids == null) {
             return null;
         }
@@ -135,12 +155,103 @@ public class UserSessionImpl implements UserSession
         return res;
     }
 
-    public VersionId getLatestVersion(String storeId) 
+    public VersionId getLatestVersionId(String storeId) throws DocmaException
     {
-        DocVersionId vid = docmaSess.getLatestVersionId(storeId);
+        DocVersionId vid;
+        try {
+            vid = docmaSess.getLatestVersionId(storeId);
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
         return (vid == null) ? null : VersionIdCreator.create(vid);
     }
 
+    public void createVersion(String storeId, VersionId baseVersion, VersionId newVersion) throws DocmaException
+    {
+        try {
+            DocVersionId basever = versionIdToInternal(baseVersion);
+            DocVersionId newver = versionIdToInternal(newVersion);
+            docmaSess.createVersion(storeId, basever, newver);
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
+    }
+
+    public void deleteVersion(String storeId, VersionId verId) throws DocmaException 
+    {
+        try {
+            docmaSess.deleteVersion(storeId, versionIdToInternal(verId));
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
+    }
+    
+    public void renameVersion(String storeId, VersionId oldVerId, VersionId newVerId) throws DocmaException
+    {
+        try {
+            docmaSess.renameVersion(storeId, versionIdToInternal(oldVerId), 
+                                             versionIdToInternal(newVerId));
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
+    }
+
+    public VersionId[] getSubVersions(String storeId, VersionId verId) throws DocmaException
+    {
+        DocVersionId[] subs;
+        try {
+            subs = docmaSess.getSubVersions(storeId, versionIdToInternal(verId));
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
+        if (subs == null) {
+            return new VersionId[0];
+        }
+        VersionId[] res = new VersionId[subs.length];
+        for (int i=0; i < res.length; i++) {
+            res[i] = VersionIdCreator.create(subs[i]);
+        }
+        return res;
+    }
+    
+    public VersionId getVersionDerivedFrom(String storeId, VersionId verId) throws DocmaException
+    {
+        DocVersionId base;
+        try {
+            base = docmaSess.getVersionDerivedFrom(storeId, versionIdToInternal(verId));
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
+        return (base == null) ? null : VersionIdCreator.create(base);
+    }
+
+    public ExportJob[] getExportQueue() throws DocmaException
+    {
+        DocmaExportJob[] queue;
+        try {
+            queue = docmaSess.getExportQueue();
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
+        if (queue == null) {
+            return new ExportJob[0];
+        }
+        ExportJob[] res = new ExportJob[queue.length];
+        for (int i = 0; i < res.length; i++) {
+            res[i] = new ExportJobImpl(queue[i]);
+        }
+        return res;
+    }
+    
+    public Language[] listImportTranslations(File importDir) throws DocmaException
+    {
+        try {
+            return docmaSess.getImportTranslationLanguages(importDir);
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
+    }
+    
     // ********* Other methods (not visible by plugins) **********
 
     public void onSessionClose()

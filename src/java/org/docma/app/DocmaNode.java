@@ -231,7 +231,11 @@ public class DocmaNode
 
     public boolean isContentTranslated()
     {
-        String lang_mode = getTranslationMode();
+        return isContentTranslated(getTranslationMode());
+    }
+    
+    public boolean isContentTranslated(String lang_mode)
+    {
         if (lang_mode == null) { 
             return false;  // this method should only be used in translation mode
         }
@@ -376,6 +380,11 @@ public class DocmaNode
             }
         }
         return title;
+    }
+
+    public String getTitle(String lang_mode)
+    {
+        return backendNode.getTitle(lang_mode);
     }
 
     public String getTitleEntityEncoded()
@@ -553,6 +562,15 @@ public class DocmaNode
         return docmaSess.getNodeByAlias(target_alias);
     }
 
+    public DocmaNode[] getReferencedNodes()
+    {
+        String link_alias = getReferenceTarget();
+        if ((link_alias == null) || link_alias.equals("")) { 
+            return new DocmaNode[0];
+        }
+        return docmaSess.getNodesByLinkAlias(link_alias);
+    }
+
     public Date getLastModifiedDate()
     {
         if (lastModifiedDate == null) {
@@ -605,7 +623,7 @@ public class DocmaNode
         if ((wf_state == null) || wf_state.equals("")) {
             return "-";
         }
-        DocmaI18 i18 = docmaSess.getI18();
+        DocI18n i18 = docmaSess.getI18n();
         return i18.getLabel("label.workflowstatus." + wf_state.toLowerCase());
     }
 
@@ -1014,7 +1032,7 @@ public class DocmaNode
                 backendNode.getClass().getName());
         }
     }
-
+    
     public void setImageContent(byte[] content, String alias, String mime_type, String file_ext)
     {
         setImageContentStream(new ByteArrayInputStream(content), alias, mime_type, file_ext);
@@ -1104,33 +1122,114 @@ public class DocmaNode
         return fileExtension;
     }
 
+    public void setFileExtension(String ext)
+    {
+        if (isTranslationMode()) {
+            throw new DocRuntimeException("Setting the file extension in translation mode is not allowed.");
+        }
+        
+        // Clear all cached fields that may be affected 
+        fileExtension = null;    // clear cached file-extension
+        defaultFilename = null;  // clear cached filename
+        
+        if (backendNode instanceof DocImage) {
+            if (! ImageUtil.isSupportedImageExtension(ext)) {
+                throw new DocRuntimeException("The file extension is no supported image extension.");
+            }
+            ((DocImage) backendNode).setFileExtension(ext);
+        } else if (backendNode instanceof DocFile) {
+            ((DocFile) backendNode).setFileExtension(ext);
+        } else {
+            throw new DocRuntimeException("setFileExtension not allowed for node of type " +
+                backendNode.getClass().getName());
+        }
+    }
+
     public String getDefaultFileName()
     {
         if (defaultFilename == null) {
-            if (isFileContent()) {
-                defaultFilename = ((DocFile) backendNode).getFileName();
-            } else {
-                String fname;
-                if (isImageContent()) {
-                    String a = getAlias();
-                    fname = ((a == null) || a.equals("")) ? getId() : a;
-                    String lang_code = getTranslationMode();
-                    if ((lang_code != null) && isTranslated()) {
-                        fname += "[" + lang_code.toUpperCase() + "]";
-                    }
-                } else {
-                    fname = getTitle();
+            // Note that the backend (org.docma.coreapi) allows different 
+            // filenames for different translation languages, because the 
+            // DocFile.getFileName() method includes the translated title 
+            // in the filename. However, the Docmenta application does 
+            // not support this. In Docmenta the filename of a translated 
+            // node is the same as for the original language, except that 
+            // the language code [XX] is included in the filename.
+            String fname = null;
+            
+            // For image nodes use alias as filename
+            if (backendNode instanceof DocImage) { 
+                String a = getAlias();
+                if ((a != null) && !a.equals("")) { // if alias exists
+                    fname = a;  // use alias as filename
                 }
-                if (backendNode instanceof DocContent) {
-                    String ext = ((DocContent) backendNode).getFileExtension();
-                    if ((ext != null) && (ext.length() > 0)) {
-                        fname += "." + ext;
-                    }
-                }
-                defaultFilename = fname;
             }
+            
+            // If image has no alias and for non-image nodes, use title as filename
+            if (fname == null) {
+                fname = backendNode.getTitle(null);  // title for original language
+                if ((fname == null) || fname.equals("")) {
+                    fname = "file_" + getId();  // use dummy filename, if no title exists
+                }
+            }
+            
+            // Add language code in translation mode (if translated content exists)
+            String lang_code = getTranslationMode();
+            if ((lang_code != null) && isContentTranslated(lang_code)) {
+                fname += "[" + lang_code.toUpperCase() + "]";
+            }
+
+            // Add file extension
+            if (backendNode instanceof DocContent) {
+                String ext = ((DocContent) backendNode).getFileExtension();
+                if ((ext != null) && (ext.length() > 0)) {
+                    fname += "." + ext;
+                }
+            }
+            
+            // Store the new filename in the member field (cache)
+            defaultFilename = fname;
         }
         return defaultFilename;
+    }
+
+    public void setFileName(String filename)
+    {
+        if (isTranslationMode()) {
+            throw new DocRuntimeException("Setting the filename in translation mode is not allowed.");
+        }
+
+        // Clear all cached fields that may be affected 
+        fileExtension = null;    // clear cached file-extension
+        defaultFilename = null;  // clear cached filename
+        title = null;            // clear cached title
+        
+        if (backendNode instanceof DocImage) {
+            // Extract name- and extension-part from filename.
+            String ext_new = "";
+            String name_new = filename;
+            int p = filename.lastIndexOf('.');
+            if (p >= 0) {
+                ext_new = filename.substring(p + 1);
+                name_new = filename.substring(0, p);
+            }
+            
+            // If alias exists, then update alias. Otherwise update the title.
+            String a_old = getAlias();
+            if ((a_old != null) && !a_old.equals("")) {
+                setAlias(name_new);  // use alias as filename
+            } else {
+                setTitle(name_new);
+            }
+            
+            // Set file extension to new value
+            setFileExtension(ext_new);
+        } else if (backendNode instanceof DocFile) {
+            ((DocFile) backendNode).setFileName(filename);
+        } else {
+            throw new DocRuntimeException("setFileExtension not allowed for node of type " +
+                backendNode.getClass().getName());
+        }
     }
 
     public int getDepth()
@@ -1190,19 +1289,31 @@ public class DocmaNode
         return (children == null) ? null : children[index];
     }
 
+    public DocmaNode[] getChildren()
+    {
+        initChildren();
+        return (children == null) ? new DocmaNode[0] : children.clone();
+    }
+
     public DocmaNode getChildByAlias(String alias)
     {
-        for (int i=0; i < getChildCount(); i++) {
-            DocmaNode n = getChild(i);
+        for (DocmaNode n : getChildren()) {
             if (alias.equals(n.getAlias())) return n;
+        }
+        return null;
+    }
+
+    public DocmaNode getChildById(String node_id)
+    {
+        for (DocmaNode n : getChildren()) {
+            if (node_id.equals(n.getId())) return n;
         }
         return null;
     }
 
     public DocmaNode getChildByTitle(String title)
     {
-        for (int i=0; i < getChildCount(); i++) {
-            DocmaNode n = getChild(i);
+        for (DocmaNode n : getChildren()) {
             if (title.equals(n.getTitle())) return n;
         }
         return null;
@@ -1210,8 +1321,7 @@ public class DocmaNode
 
     public DocmaNode getChildByTitleIgnoreCase(String title)
     {
-        for (int i=0; i < getChildCount(); i++) {
-            DocmaNode n = getChild(i);
+        for (DocmaNode n : getChildren()) {
             if (title.equalsIgnoreCase(n.getTitle())) return n;
         }
         return null;
@@ -1219,8 +1329,7 @@ public class DocmaNode
 
     public DocmaNode getChildByTitleAndExtension(String title, String ext)
     {
-        for (int i=0; i < getChildCount(); i++) {
-            DocmaNode n = getChild(i);
+        for (DocmaNode n : getChildren()) {
             if (title.equals(n.getTitle())) {
                 String n_ext = n.getFileExtension();
                 if (ext == null) {
@@ -1235,8 +1344,7 @@ public class DocmaNode
 
     public DocmaNode getChildByFilename(String filename)
     {
-        for (int i=0; i < getChildCount(); i++) {
-            DocmaNode n = getChild(i);
+        for (DocmaNode n : getChildren()) {
             if (filename.equals(n.getDefaultFileName())) {
                 return n;
             }
@@ -1391,6 +1499,30 @@ public class DocmaNode
         }
     }
 
+    public boolean hasTextFileExtension()
+    {
+        if (backendNode instanceof DocContent) {
+            DocmaSession sess = getDocmaSession();
+            return sess.isTextFileExtension(getFileExtension());
+        } else {
+            return false;
+        }
+    }
+
+    public void checkUpdateContentAllowedByWorkflow() throws DocException
+    {
+        String wfstate = getWorkflowStatus();
+        if (! ((wfstate == null) || wfstate.equals("") || wfstate.equalsIgnoreCase("wip"))) {
+            throw new DocException("Content can only be edited in workflow status 'Work In Progress'!");
+        }
+    }
+    
+    public void checkUpdateContentAllowed() throws DocException
+    {
+        getDocmaSession().checkUpdateVersionAllowed();
+        checkUpdateContentAllowedByWorkflow();
+    }
+
     public boolean isInsertContentAllowed(int insert_pos)
     {
         int child_cnt = getChildCount();
@@ -1481,6 +1613,37 @@ public class DocmaNode
         removeChildren(index, index);
     }
 
+    public void removeChildren(DocmaNode... nodes)
+    {
+        if (getTranslationMode() != null) {
+            throw new DocRuntimeException("Removing nodes in translation mode is not allowed!");
+        }
+        initChildren();
+        if (children == null) { 
+            throw new DocRuntimeException("Cannot remove child from leaf node");
+        }
+        
+        children = null;   // invalidate cache
+        DocGroup backendGroup = (DocGroup) backendNode;
+        boolean started = startNodeTransaction();
+        try {
+            for (DocmaNode removeNode : nodes) {
+                // Throws an exception if node is not a child of this node:
+                backendGroup.removeChild(removeNode.backendNode);
+            }
+            if (children != null) {
+                Log.warning("Concurrent access in DocmaNode.insertChildren()");
+                children = null;  // invalidate cache again
+            }
+            if (this.isSection()) { 
+                this.recalculateSectionAttributes();
+            }
+            commitNodeTransaction(started);
+        } catch (Exception ex) {
+            rollbackNodeTransaction(started);
+            throw new DocRuntimeException(ex);
+        }
+    }
 
     public void removeChildren(int indexFrom, int indexTo)
         throws IndexOutOfBoundsException
@@ -1514,7 +1677,9 @@ public class DocmaNode
             }
             children = newarr;
 
-            if (this.isSection()) this.recalculateSectionAttributes();
+            if (this.isSection()) { 
+                this.recalculateSectionAttributes();
+            }
 
             commitNodeTransaction(started);
         } catch (Exception ex) {
@@ -1544,7 +1709,6 @@ public class DocmaNode
         insertChildren(index, new DocmaNode[] {newNode});
     }
 
-
     public void insertChildren(int indexFrom, DocmaNode[] newNodes)
         throws IndexOutOfBoundsException
     {
@@ -1553,12 +1717,32 @@ public class DocmaNode
         //       This means the number of children does not necessarily increase
         //       by newNodes.length. Furthermore the index position of the first
         //       inserted node is not necessarily equal to indexFrom after insertion.
+        initChildren();
+        if (children == null) { 
+            throw new DocRuntimeException("Cannot add child to leaf node");
+        }
+        if ((indexFrom < 0) || (indexFrom > children.length)) { 
+            throw new IndexOutOfBoundsException("Index out of bounds: " + indexFrom);
+        }
+        DocmaNode refNode = (indexFrom == children.length) ? null : children[indexFrom];
+        insertChildrenBefore(refNode, newNodes);
+    }
+    
+    public void insertChildrenBefore(DocmaNode refNode, DocmaNode[] newNodes)
+    {
+        // Note: newNodes can also include nodes which are already children
+        //       of this node (i.e. node just changes its index position).
+        //       This means the number of children does not necessarily increase
+        //       by newNodes.length. Furthermore the index position of the first
+        //       inserted node is not necessarily equal to the position of 
+        //       refNode before insertion.
         if (getTranslationMode() != null) {
             throw new DocRuntimeException("Inserting nodes in translation mode is not allowed!");
         }
         initChildren();
-        if (children == null) throw new DocRuntimeException("Cannot add child to leaf node");
-        if ((indexFrom < 0) || (indexFrom > children.length)) throw new IndexOutOfBoundsException("Index out of bounds: " + indexFrom);
+        if (children == null) { 
+            throw new DocRuntimeException("Cannot add child to leaf node");
+        }
 
         int cnt = newNodes.length;
 
@@ -1569,15 +1753,13 @@ public class DocmaNode
             if (p != null) affectedparents.put(p.getId(), p);
         }
 
-        // int indexTo = indexFrom + cnt - 1;
-        DocmaNode[] tempChildren = children;  // create local variable to avoid problems with
-                                              // concurrent access
+        // DocmaNode[] tempChildren = children;  // create local variable to avoid problems with
+        //                                       // concurrent access
         children = null;  // invalidate cache
-        // DocmaNode[] newarr = new DocmaNode[tempChildren.length + cnt];
+
+        DocNode nodeafter = (refNode == null) ? null : refNode.backendNode;
 
         DocGroup backendGroup = (DocGroup) backendNode; // docsess.getNodeById(id);
-        DocNode nodeafter = (indexFrom == tempChildren.length) ? null : tempChildren[indexFrom].backendNode;
-
         boolean started = startNodeTransaction();
         try {
             // for (int i = 0; i < indexFrom; i++) {

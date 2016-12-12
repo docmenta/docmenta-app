@@ -16,7 +16,7 @@
     String win_height = request.getParameter("winheight");
     String para_indent = request.getParameter("indent");
     String editorId = request.getParameter("editor");
-    String content = request.getParameter("nodecontent");
+    String cont = request.getParameter("nodecontent");
     WebUserSession webSess = WebPluginUtil.getUserSession(application, docsess);
     StoreConnection storeConn = webSess.getOpenedStore();
 
@@ -54,15 +54,15 @@
 
         // If content has changed, save content and create revision
         try {
-            Node node = storeConn.getNodeById(nodeid);
+            Content node = (Content) storeConn.getNodeById(nodeid);
             // Prepare content for saving (editor specific and general XHTML cleaning)
-            content = TinyEditorUtil.prepareContentForSave(content, editorId, para_indent);
-            content = node.prepareXHTML(content, null);  // transform quick links, trim empty paragraphs,... 
+            cont = TinyEditorUtil.prepareContentForSave(cont, editorId, para_indent);
+            cont = storeConn.prepareXHTML(cont, null);  // transform quick links, trim empty paragraphs,... 
 
-            String old_content = node.getContentString();
+            String old_cont = node.getContentString();
             if (isCancel) {
                 // If content changed, show confirmation message
-                if (TinyEditorUtil.contentIsEqual(content, old_content, false)) {
+                if (TinyEditorUtil.contentIsEqual(cont, old_cont, false)) {
                     node.removeLock();
                     cancelAction = "parent.doCancel();";
                 } else {
@@ -70,14 +70,14 @@
                 }
             } else {
                 // Save content
-                if (! TinyEditorUtil.contentIsEqual(content, old_content, true)) {
+                if (! TinyEditorUtil.contentIsEqual(cont, old_cont, true)) {
                     storeConn.startTransaction();
                     try {
                         node.makeRevision();
                     } catch (Exception ex) {
                         ex.printStackTrace(); 
                     }
-                    node.setContentString(content);
+                    node.setContentString(cont);
                     if ((progress >= 0) && (progress != node.getProgress())) {
                         node.setProgress(progress);
                     }

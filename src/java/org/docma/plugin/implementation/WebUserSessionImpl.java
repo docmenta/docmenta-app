@@ -46,7 +46,6 @@ public class WebUserSessionImpl extends UserSessionImpl implements WebUserSessio
     
     private final DocmaWebSession webSess;
     private final PluginManager pluginMgr;
-    private final DocI18n i18n;
     // Map plugin-Id to components:
     // private final Map<String, List<Component>> mapPluginToComponents = new HashMap<String, List<Component>>();
 
@@ -66,20 +65,17 @@ public class WebUserSessionImpl extends UserSessionImpl implements WebUserSessio
         super(docmaSess);
         this.webSess = webSess;
         this.pluginMgr = pluginMgr;
-        this.i18n = webSess.getDocmaWebApplication().getI18n();
     }
 
     // ***************** Interface WebUserSession *********************
     
-    public String getLabel(String key, Object... args) 
-    {
-        return i18n.getLabel(key, args);
-    }
-
     public String addDialog(String zulPath)
     {
         MainWindow mainWin = webSess.getMainWindow();
         Execution exec = mainWin.getDesktop().getExecution();
+        if (exec == null) {  // method is called outside of ZK event
+            throw new RuntimeException("Cannot access ZK Execution instance.");
+        }
         Component[] comps = exec.createComponents(zulPath, null);
         Window dialogWin = null;
         for (Component comp : comps) {
@@ -322,7 +318,15 @@ public class WebUserSessionImpl extends UserSessionImpl implements WebUserSessio
     
     public String encodeURL(String url) 
     {
-        return webSess.getMainWindow().getDesktop().getExecution().encodeURL(url);
+        Execution exec = webSess.getMainWindow().getDesktop().getExecution();
+        if (exec == null) {  // The session is accessed outside of a ZK event
+            // if (DocmaConstants.DEBUG) {
+            //     Log.info("Cannot access Execution instance from within WebUserSessionImpl.encodeURL().");
+            // }
+            return url;
+        } else {
+            return exec.encodeURL(url);
+        }
     }
     
     public HttpSession getHttpSession()
@@ -643,6 +647,9 @@ public class WebUserSessionImpl extends UserSessionImpl implements WebUserSessio
         // tp.appendChild(new Label("Hello world!"));
         if ((zulPath != null) && (zulPath.length() > 0)) {
             Execution exec = webSess.getMainWindow().getDesktop().getExecution();
+            if (exec == null) {  // method is called outside of ZK event
+                throw new RuntimeException("Cannot access ZK Execution instance.");
+            }
             Component[] comps = exec.createComponents(zulPath, null);
             for (Component com : comps) {
                 tp.appendChild(com);

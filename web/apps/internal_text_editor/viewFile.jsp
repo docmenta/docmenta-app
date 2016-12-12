@@ -1,6 +1,6 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"
         session="true"
-        import="org.docma.util.*,org.docma.webapp.*,org.docma.app.*"
+        import="org.docma.plugin.*,org.docma.plugin.web.*,org.docma.plugin.internaleditor.*"
 %><html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
@@ -13,53 +13,71 @@ div.docma_msg { margin: 1em; }
 .labeltxt { font-size:12px; }
 </style>
 <%
+    boolean isFile = false;
     boolean isTextFile = false;
 
-    String deskid = request.getParameter("desk");
+    String sessid = request.getParameter("docsess");  // String deskid = request.getParameter("desk");
     String nodeid = request.getParameter("nodeid");
+    String appid = request.getParameter("appid");
     String action = request.getParameter("action");
     String iswin_str = request.getParameter("iswin");
     boolean iswin = (iswin_str != null) && iswin_str.equals("true");
     String edit_str = request.getParameter("edit");
     boolean start_edit = (edit_str != null) && edit_str.equals("true");
 
-    DocmaWebSession docmaWebSess = GUIUtil.getDocmaWebSession(session, deskid);
-    DocmaSession docmaSess = docmaWebSess.getDocmaSession();
-    DocmaNode node = docmaSess.getNodeById(nodeid);
+    WebUserSession webSess = WebPluginUtil.getUserSession(application, sessid);
+    StoreConnection storeConn = webSess.getOpenedStore();
+    if (storeConn == null) {
+        throw new Exception("Store connection of session is closed!");
+    }
+    Node node = storeConn.getNodeById(nodeid);
 
+    TextFileHandler appHandler = (appid == null) ? null : (TextFileHandler) webSess.getContentAppHandler(appid);
+
+    // String rel_path = request.getContextPath();
+    // if (! rel_path.endsWith("/")) rel_path += "/";
+    // if (appHandler != null) {
+    //     rel_path += appHandler.getRelativeAppURL();
+    // }
+    
     long now = System.currentTimeMillis();
-    String url = "viewFile.jsp?desk=" + deskid + "&nodeid=" + nodeid +
-                 "&stamp=" + now;
+    String app_param = (appid == null) ? "" : ("&appid=" + appid);
+    String url = "viewFile.jsp?docsess=" + sessid + "&nodeid=" + nodeid +
+                 app_param + "&stamp=" + now;
     String self_url = response.encodeURL(url);
-    String self_url_frame = self_url;
+    String preview_url = self_url;
     String self_url_win = response.encodeURL(url + "&iswin=true");
-    if (iswin) self_url = self_url_win;
-    String content_url = response.encodeURL("viewEditTxtArea.jsp?desk=" + deskid +
+    if (iswin) {
+        self_url = self_url_win;
+    }
+    String content_url = response.encodeURL("viewEditTxtArea.jsp?docsess=" + sessid +
                                             "&nodeid=" + nodeid + "&stamp=" + now);
 
+    String js_open_viewer = null;
+    if (appHandler != null) {
+        js_open_viewer = appHandler.getJSOpenWindow(webSess, self_url_win);
+    }
+
     String ext = "";
-    if (node.isFileContent()) {
-        ext = node.getFileExtension();
+    if (node instanceof FileContent) {
+        isFile = true;
+        ext = ((FileContent) node).getFileExtension();
         if (ext == null) ext = "";
         ext = ext.toLowerCase();
-        isTextFile = docmaSess.isTextFileExtension(ext);
+        isTextFile = storeConn.isTextFileExtension(ext);
     }
 
     if ((action != null) && action.equals("change_encoding") && isTextFile) {
         String charsetName = request.getParameter("file_encoding");
-        node.setFileCharset(charsetName);
+        ((FileContent) node).setCharset(charsetName);
     }
 
-    MainWindow mainWin = docmaWebSess.getMainWindow();
-    String readonly_msg = GUIUtil.checkEditVersionAllowed(mainWin, docmaSess);
-    if (readonly_msg != null) {
+    String readonly_msg = null; 
+    try {
+        ((Content) node).checkUpdateContentAllowed();
+    } catch (Exception ex) {
         start_edit = false;
-    }
-    if (start_edit) {
-        readonly_msg = GUIUtil.checkEditFileAllowed(mainWin, docmaSess, node);
-        if (readonly_msg != null) {
-            start_edit = false;
-        }
+        readonly_msg = ex.getLocalizedMessage();
     }
 %>
 <script type="text/javascript">
@@ -114,10 +132,6 @@ div.docma_msg { margin: 1em; }
         closeAfterSave = true;
     }
 
-    function openInNewWin() {
-        parent.open('<%= self_url_win %>', '_blank', 'width=600,height=700,resizable=yes,scrollbars=no,location=no,menubar=no,status=yes');
-    }
-
     function doClose() {
         // if (currentStatus == 'edit') {
         //     var check = window.confirm("Close without saving?");
@@ -128,29 +142,42 @@ div.docma_msg { margin: 1em; }
 
     function cancelEdit()
     {
-        window.location.reload();
+        window.location.replace('<%= self_url %>');
     }
 
     function saveFinished() {
         var errmsg = window.frames['filesave_frm'].getErrorMsg();
+        if (isWin || (errmsg != '')) {
+            document.forms["btnform"].saveBtn.disabled = false;
+            if (isWin) {
+                document.forms["btnform"].saveCloseBtn.disabled = false;
+            }
+        }
         if (errmsg != '') {
             window.alert(errmsg);
-            document.forms["btnform"].saveBtn.disabled = false;  // enable button to try again
-            if (isWin) {
-                document.forms["btnform"].saveCloseBtn.disabled = false;  // enable button to try again
-            }
             return;
         }
-        switchToViewMode();
-        
-        var main_win = isWin ? opener : parent;
+        if (! isWin) {
+            switchToViewMode();
+        }
+
+        var main_win;
+        if (isWin) {
+            main_win = (typeof opener.processDeferredDocmaEvents == 'undefined') ? opener.parent : opener;
+        } else {
+            main_win = parent;
+        }
         main_win.processDeferredDocmaEvents();  // update modification date in product tree
         if (isWin) {
             // If same file is currently opened in preview frame, reload the file to show the new content
             var p_url = main_win.frames['viewcontentfrm'].location.href;
             var node_pattern = "nodeid=<%= nodeid %>";
-            if ((p_url.indexOf('viewFile.jsp') >= 0) && (p_url.indexOf(node_pattern) >= 0)) {
-                main_win.frames['viewcontentfrm'].location.replace('<%= self_url_frame %>');
+            if (p_url.indexOf(node_pattern) >= 0) {
+              if (p_url.indexOf('viewFile.jsp') >= 0) {
+                  main_win.frames['viewcontentfrm'].location.replace('<%= preview_url %>');
+              } else {
+                  main_win.previewContentRefresh();
+              }
             }
         }
         
@@ -183,20 +210,29 @@ div.docma_msg { margin: 1em; }
             document.forms["btnform"].submit();
         }
     }
+
+    function openInNewWin() {
+        <%= (js_open_viewer == null) ? "" : js_open_viewer  %>
+    }
 </script>
 </head>
 <body onload="doInit();" style="background:#E0E0E0; font-family:Arial,sans-serif; margin:0 3px 0 0; padding:0; width:100%; max-width:100%; height:100%; overflow:hidden;">
 <%
-    if (!isTextFile) {
-        out.println("<div class=\"docma_msg\"><b>No preview available for " +
-                    node.getDefaultFileName() + 
-                    "</b><br /><br /><i>If files with extension '." + ext + 
-                    "' are text-files, then add this extension as text-file extension in the application settings.</i></div>");
+    if (! (isTextFile || node instanceof PubContent)) {
+        if (isFile) {
+            out.println("<div class=\"docma_msg\"><b>No preview available for " +
+                        ((FileContent) node).getFileName() + 
+                        "</b><br /><br /><i>If files with extension '." + ext + 
+                        "' are text-files, then add this extension as text-file extension in the application settings.</i></div>");
+        } else {
+            out.println("<div class=\"docma_msg\"><b>No preview available for node " +
+                        node.getId() + "</div>");
+        }
     } else {
-        String charsetName = node.getFileCharset();
+        String charsetName = ((Content) node).getCharset();
         if (charsetName == null) {
             String alias = node.getAlias();
-            String fn = node.getDefaultFileName();
+            String fn = isFile ? ((FileContent) node).getFileName() : "";
             if (((alias != null) && alias.equals("gentext")) || fn.startsWith("gentext")) {
                 charsetName = "ISO-8859-1";
             } else {
@@ -260,8 +296,13 @@ div.docma_msg { margin: 1em; }
                 <td valign="middle">
     <select name="file_encoding" size="1" onchange="changeEncoding();">
 <%
-    String[] charsets = new String[] { "ISO-8859-1", "US-ASCII", "UTF-8",
-                                       "UTF-16BE", "UTF-16LE", "UTF-16" };
+    String[] charsets;
+    if (node instanceof PubContent) {
+        charsets = new String[] { "UTF-8" };
+    } else {
+        charsets = new String[] { "ISO-8859-1", "US-ASCII", "UTF-8",
+                                  "UTF-16BE", "UTF-16LE", "UTF-16" };
+    }
     for (int i = 0; i < charsets.length; i++) {
         String cs = charsets[i];
 %>

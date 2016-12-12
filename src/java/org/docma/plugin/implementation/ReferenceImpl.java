@@ -36,47 +36,80 @@ public class ReferenceImpl extends NodeImpl implements Reference
     
     public String getTitle() throws DocmaException 
     {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        try {
+            return docNode.getTitle();
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
     }
 
+    public String getTitle(String lang_code) throws DocmaException 
+    {
+        try {
+            return docNode.getTitle(lang_code);
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
+    }
+    
     public String getTitleEntityEncoded() throws DocmaException 
     {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        try {
+            return docNode.getTitleEntityEncoded();
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
     }
 
     public void setTitle(String value) throws DocmaException 
     {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        try {
+            docNode.setTitle(value);
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
     }
 
     public String getTarget() throws DocmaException 
     {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        try {
+            return docNode.getReferenceTarget();
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
     }
 
     public void setTarget(String target) throws DocmaException 
     {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        try {
+            docNode.setReferenceTarget(target);
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
     }
 
     public Node[] getTargetNodes() throws DocmaException 
     {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        try {
+            DocmaNode[] arr = docNode.getReferencedNodes();
+            Node[] res = new Node[arr.length];
+            for (int i = 0; i < res.length; i++) {
+                res[i] = NodeImpl.createNodeInstance(store, arr[i]);
+            }
+            return res;
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
     }
 
-    public boolean isIncludeReference() 
+    public boolean isContentInclusion() throws DocmaException
     {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return docNode.isContentIncludeReference();
     }
 
-    public boolean isContentIncludeReference() 
+    public boolean isSectionInclusion() throws DocmaException
     {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return docNode.isSectionIncludeReference();
     }
 
-    public boolean isSectionIncludeReference() 
-    {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-    
 }

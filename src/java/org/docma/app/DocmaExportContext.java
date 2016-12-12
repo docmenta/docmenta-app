@@ -30,10 +30,10 @@ import java.util.Iterator;
  */
 public class DocmaExportContext implements ExportContext
 {
-    private DocmaSession docmaSess;
+    private final DocmaSession docmaSess;
+    private final DocmaExportLog exportLog;
     private DocmaPublicationConfig pubConf;
     private DocmaOutputConfig outConf;
-    private DocmaExportLog exportLog;
 
     private Properties genTextProps = null;
     private HashMap<String, DocmaStyle> styleCache = null;
@@ -57,8 +57,7 @@ public class DocmaExportContext implements ExportContext
         this.pubConf = pubConf;
         this.outConf = outConf;
         if (writeLog) {
-            DocmaI18 i18 = docmaSess.getI18();
-            exportLog = new DocmaExportLog(i18);
+            exportLog = new DocmaExportLog(docmaSess.getI18n());
         } else {
             exportLog = null;
         }

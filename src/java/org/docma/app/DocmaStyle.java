@@ -105,6 +105,28 @@ public class DocmaStyle implements Style, Comparable, Cloneable
         this.style_name = style_name;
     }
 
+    /**
+     * Returns the style title. Same as <code>getName()</code>.
+     * This method is part of the <code>org.docma.plugin.Style</code> interface.
+     * 
+     * @return  a descriptive style name
+     */
+    public String getTitle()
+    {
+        return style_name;
+    }
+    
+    /**
+     * Sets the style title. Same as <code>setName(String)</code>.
+     * This method is part of the <code>org.docma.plugin.Style</code> interface.
+     * 
+     * @param styleTitle  a descriptive style name
+     */
+    public void setTitle(String styleTitle)
+    {
+        this.style_name = styleTitle;
+    }
+
     public String getType()
     {
         return style_type;
@@ -155,6 +177,17 @@ public class DocmaStyle implements Style, Comparable, Cloneable
         }
     }
 
+    /**
+     * Same as <code>getVariantId()</code>.
+     * This method is part of the <code>org.docma.plugin.Style</code> interface.
+     * 
+     * @return  the variant name
+     */
+    public String getVariantName()
+    {
+        return getVariantId();
+    }
+    
     public String getAutoFormatString()
     {
         return (style_autoformat != null) ? style_autoformat : "";
@@ -371,7 +404,7 @@ public class DocmaStyle implements Style, Comparable, Cloneable
                 if (Character.isWhitespace(ch) || (ch == '{')) break;
             }
             String s_id = css.substring(pos + 1, idx);
-            if (! s_id.matches(DocmaConstants.REGEXP_STYLE_ID)) {
+            if (! s_id.matches(DocmaConstants.REGEXP_STYLE_BASE_ID)) {
                 continue;  // no valid CSS class name, i.e. this dot is not start of a css class
             }
             if (Character.isWhitespace(ch)) {  // ch is whitespace or end of css string reached

@@ -1,7 +1,7 @@
 /*
  * FileContentImpl.java
  * 
- *  Copyright (C) 2013  Manfred Paula, http://www.docmenta.org
+ *  Copyright (C) 2016  Manfred Paula, http://www.docmenta.org
  *   
  *  This file is part of Docmenta. Docmenta is free software: you can 
  *  redistribute it and/or modify it under the terms of the GNU Lesser 
@@ -35,32 +35,67 @@ public class FileContentImpl extends ContentImpl implements FileContent
 
     public String getFileExtension() throws DocmaException 
     {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        try {
+            return docNode.getFileExtension();
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
     }
 
     public void setFileExtension(String ext) throws DocmaException 
     {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        try {
+            docNode.setFileExtension(ext);
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
     }
 
     public String getFileName() throws DocmaException 
     {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        try {
+            return docNode.getDefaultFileName();
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
     }
 
     public void setFileName(String filename) throws DocmaException 
     {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        try {
+            docNode.setFileName(filename);
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
     }
 
     public boolean isTextFile() throws DocmaException 
     {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        try {
+            return docNode.hasTextFileExtension();
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
     }
 
-    public void setCharset(String charsetName) throws DocmaException 
+    @Override
+    public String getCharset() throws DocmaException 
     {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        try {
+            String cs = docNode.getFileCharset();
+            return (cs == null) ? "UTF-8" : cs;
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
     }
     
+    public void setCharset(String charsetName) throws DocmaException 
+    {
+        try {
+            docNode.setFileCharset(charsetName);
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
+    }
+
 }

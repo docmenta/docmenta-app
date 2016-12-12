@@ -154,7 +154,7 @@ public class DocmaConstants
     public static final String REGEXP_ALIAS = "[A-Za-z_][0-9A-Za-z_!?-]{1,39}";
     public static final String REGEXP_ALIAS_LINK = "[A-Za-z_][0-9A-Za-z_-]{1,39}";
     public static final String REGEXP_GENTEXT_KEY = "[^\\s\"'<>]+";  // sequence of non-whitespace, quotes and < > not allowed
-    public static final String REGEXP_STYLE_ID = "[A-Za-z][0-9A-Za-z_]*";
+    public static final String REGEXP_STYLE_BASE_ID = "[A-Za-z][0-9A-Za-z_]*";
     public static final String REGEXP_STYLE_NAME = "[0-9A-Za-z_,;. -]+";
     public static final String REGEXP_PRODUCT_ID = "[0-9A-Za-z_-]+";
 
@@ -197,7 +197,7 @@ public class DocmaConstants
 
     // Default output configuration values
     public static final String DEFAULT_PARA_SPACE = "8pt";
-    public static final String DEFAULT_PARA_INDENT = DefaultContentAppHandler.EDITOR_DEFAULT_PARA_INDENT;
+    public static final String DEFAULT_PARA_INDENT = DefaultContentAppHandler.DEFAULT_PARA_INDENT;
     public static final String DEFAULT_ITEM_SPACE = "4pt";
     public static final String DEFAULT_LIST_INDENT = "11pt";
 

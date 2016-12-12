@@ -71,7 +71,7 @@ public class DocmaWebApplication extends DocmaApplication implements WebAppPlugI
         super(dsm, um, i18, contentLangs, appProps, pubArchivesFactory);
         this.servletCtx = servletCtx;
         this.webAppDir = new File(webAppPath);
-        this.appsLoader = new AppsLoader(this.webAppDir);
+        this.appsLoader = new AppsLoader(this.webAppDir, i18);
         this.editorAssignments = new ExtAssignments(servletCtx);
         this.viewerAssignments = new ExtAssignments(servletCtx);
         // editorDir = new File(webAppPath, "tinymce_editor" + File.separator + "jscripts");
@@ -212,6 +212,50 @@ public class DocmaWebApplication extends DocmaApplication implements WebAppPlugI
     {
         return appsLoader.listViewers(exts);
     }
+
+    
+    /**
+     * Returns the editor to be used for file editing. 
+     * Note that this method does not consider user specific editor assignments.
+     * 
+     * @param ext  the file extension
+     * @return  the ID of the editor to be used for the given file extension.
+     */
+    public String getFileEditorId(String ext)
+    {
+        String app_id = getEditorAssignments().getAssignedApplication(ext);
+        if ((app_id == null) && !ext.equalsIgnoreCase("txt")) {
+            if (isTextFileExtension(ext)) {
+                app_id = getEditorAssignments().getAssignedApplication("txt");
+                if (app_id == null) {
+                    app_id = getSystemDefaultTextEditor();
+                }
+            }
+        }
+        return app_id;
+    }
+    
+    /**
+     * Returns the viewer to be used for file viewing. 
+     * Note that this method does not consider user specific viewer assignments.
+     * 
+     * @param ext  the file extension
+     * @return  the ID of the viewer to be used for the given file extension.
+     */
+    public String getFileViewerId(String ext)
+    {
+        String app_id = getViewerAssignments().getAssignedApplication(ext);
+        if ((app_id == null) && !ext.equalsIgnoreCase("txt")) {
+            if (isTextFileExtension(ext)) {
+                app_id = getViewerAssignments().getAssignedApplication("txt");
+                if (app_id == null) {
+                    // use the default text editor for viewing the file
+                    app_id = getSystemDefaultTextEditor();
+                }
+            }
+        }
+        return app_id;
+    }
     
     /**
      * Returns the editor ID to be used for content editing. If  no editor has  
@@ -339,7 +383,7 @@ public class DocmaWebApplication extends DocmaApplication implements WebAppPlugI
     }
     
     @Override
-    protected synchronized void setCharEntities(DocmaCharEntity[] entities)
+    public synchronized void setCharEntities(DocmaCharEntity[] entities)
     {
         super.setCharEntities(entities);
         appsLoader.setCharEntities(entities);

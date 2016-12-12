@@ -243,9 +243,7 @@ public class FindNodesDialog extends Window implements ListitemRenderer
                 }
             } else {
                 String search_prefix = search_term.substring(0, search_term.length() - 1);  // strip "*"
-                List all = docmaSess.listAliases();
-                for (int i=0; i < all.size(); i++) {
-                    String alias = (String) all.get(i);
+                for (String alias : docmaSess.getNodeAliases()) {
                     if (alias.startsWith(search_prefix)) {
                         DocmaNode nd = docmaSess.getNodeByAlias(alias);
                         if (nd != null) resultListModel.add(nd);

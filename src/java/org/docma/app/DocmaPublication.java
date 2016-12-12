@@ -143,7 +143,7 @@ public class DocmaPublication implements Comparable
         if ((pub_state == null) || pub_state.equals("")) {
             return "-";
         }
-        DocmaI18 i18 = docmaSess.getI18();
+        DocI18n i18 = docmaSess.getI18n();
         return i18.getLabel("label.publicationstatus." + pub_state.toLowerCase());
     }
 

@@ -13,6 +13,7 @@
  */
 package org.docma.plugin.implementation;
 
+import org.docma.app.DocmaAnchor;
 import org.docma.app.DocmaNode;
 import org.docma.plugin.ContentAnchor;
 import org.docma.plugin.DocmaException;
@@ -36,37 +37,85 @@ public class PubContentImpl extends ContentImpl implements PubContent
     
     public String getTitle() throws DocmaException
     {
-        return docNode.getTitle();
+        try {
+            return docNode.getTitle();
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
     }
 
+    public String getTitle(String lang_code) throws DocmaException 
+    {
+        try {
+            return docNode.getTitle(lang_code);
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
+    }
+    
     public String getTitleEntityEncoded() throws DocmaException
     {
-        return docNode.getTitleEntityEncoded();
+        try {
+            return docNode.getTitleEntityEncoded();
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
     }
 
     public void setTitle(String value) throws DocmaException 
     {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    public boolean isTitleTranslated(String lang_code) throws DocmaException 
-    {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        try {
+            docNode.setTitle(value);
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
     }
 
     public ContentAnchor[] getContentAnchors() throws DocmaException 
     {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        try {
+            DocmaAnchor[] arr = docNode.getContentAnchors();
+            if (arr == null) {
+                return new ContentAnchor[0];
+            } else {
+                ContentAnchor[] res = new ContentAnchor[arr.length];
+                for (int i = 0; i < res.length; i++) {
+                    res[i] = new ContentAnchorImpl(this, arr[i]);
+                }
+                return res;
+            }
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
     }
 
     public boolean hasContentAnchors() throws DocmaException 
     {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        try {
+            return docNode.hasContentAnchor();
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
     }
 
-    public boolean hasContentAnchor(String anchorId) throws DocmaException 
+    public ContentAnchor getContentAnchor(String anchorId) throws DocmaException 
     {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        try {
+            for (DocmaAnchor anch : docNode.getContentAnchors()) {
+                if (anchorId.equals(anch.getAlias())) {
+                    return new ContentAnchorImpl(this, anch);
+                }
+            }
+            return null;
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
     }
-    
+
+    @Override
+    public String getCharset() throws DocmaException 
+    {
+        return "UTF-8";
+    }
+
 }

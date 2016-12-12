@@ -116,7 +116,7 @@ public class UserModel implements Comparable
         }
     }
 
-    public void update(UserManager um) throws DocException
+    public void update(UserManager um) throws Exception
     {
         if (loginNameChanged) {
             um.setUserName(userId, loginName);
@@ -147,7 +147,7 @@ public class UserModel implements Comparable
         }
     }
 
-    public void create(UserManager um) throws DocException
+    public void create(UserManager um) throws Exception
     {
         if (loginName.trim().equals("")) {
             throw new DocException("Cannot create user: Missing user name.");

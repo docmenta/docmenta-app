@@ -36,22 +36,55 @@ public class FolderImpl extends GroupImpl implements Folder
     
     public String getName() throws DocmaException 
     {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        try {
+            return docNode.getTitle();
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
     }
 
+    public String getName(String lang_code) throws DocmaException 
+    {
+        try {
+            return docNode.getTitle(lang_code);
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
+    }
+    
     public void setName(String value) throws DocmaException 
     {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        try {
+            docNode.setTitle(value);
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
     }
 
     public FolderType getFolderType() throws DocmaException 
     {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        try {
+            if (docNode.isImageFolder()) {
+                return FolderType.IMAGE;
+            } else {
+                return FolderType.GENERAL;
+            }
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
     }
 
     public void setFolderType(FolderType folder_type) throws DocmaException 
     {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        try {
+            if (FolderType.IMAGE.equals(folder_type)) {
+                docNode.setFolderTypeImage();
+            } else {
+                docNode.setFolderTypeFile();
+            }
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
     }
-    
+
 }

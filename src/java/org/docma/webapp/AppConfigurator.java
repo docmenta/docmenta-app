@@ -33,7 +33,7 @@ import javax.servlet.ServletContext;
  *
  * @author MP
  */
-public class AppConfigurator implements DocmaConfiguration, WebConfiguration
+public class AppConfigurator
 {
     private static final String DOCMA_CONFIG_FILE = "WEB-INF" + File.separator + "docma.properties";
     private static final String DB_CONFIG_FILE = "WEB-INF" + File.separator + "db_config.properties";
@@ -107,7 +107,7 @@ public class AppConfigurator implements DocmaConfiguration, WebConfiguration
         userDataDir = new File(docStoreDir, "userdata");
         if (! userDataDir.exists()) userDataDir.mkdir();
         userMgmt = new UserManagerImpl(userDataDir.getAbsolutePath()); // new FiledUsers();
-        i18 = new DocmaI18Impl();
+        i18 = DocmaI18Impl.getInstance();
 
         File docStoreDTDFile = new File(docmaDir, "docma.dtd");
         dsm = new DocStoreManagerImpl(docStoreDir.getAbsolutePath(), docStoreDTDFile.getAbsolutePath());
@@ -222,13 +222,11 @@ public class AppConfigurator implements DocmaConfiguration, WebConfiguration
 //        this.baseDir = baseDir;
 //    }
 
-    /* --------------  Interface DocmaConfiguration  --------------- */
-
     public UserManager getUserManager() {
         return userMgmt;
     }
 
-    public DocmaI18 getI18() {
+    public DocI18n getI18n() {
         return i18;
     }
 

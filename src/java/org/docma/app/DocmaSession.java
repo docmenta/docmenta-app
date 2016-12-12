@@ -191,7 +191,7 @@ public class DocmaSession
     {
         // Create image folder within templates folder
         DocmaNode img_folder = createImageFolder();
-        img_folder.setTitle(getI18().getLabel("label.templatesfolder.images.title"));
+        img_folder.setTitle(getI18n().getLabel("label.templatesfolder.images.title"));
         templates_folder.insertChild(0, img_folder);
         
         String res_path = getApplicationProperty(DocmaConstants.PROP_DOCMA_RESOURCES_PATH);
@@ -205,7 +205,7 @@ public class DocmaSession
 
         // Create image folder within system folder
         DocmaNode img_folder = createImageFolder();
-        img_folder.setTitle(getI18().getLabel("label.sysimagefolder.title"));
+        img_folder.setTitle(getI18n().getLabel("label.sysimagefolder.title"));
         sys_folder.insertChild(0, img_folder);
 
         // Insert default images into image folder
@@ -259,7 +259,7 @@ public class DocmaSession
 
         // Create file folder within system folder
         DocmaNode folder = createSystemFolder();
-        folder.setTitle(getI18().getLabel("label.htmlconfigfolder.title"));
+        folder.setTitle(getI18n().getLabel("label.htmlconfigfolder.title"));
         folder.setAlias(DocmaConstants.HTML_CONFIG_FOLDER_ALIAS_NAME);
         sys_folder.insertChild(0, folder);
 
@@ -434,11 +434,6 @@ public class DocmaSession
         nodeMap.remove(nodeId);
     }
 
-    DocmaI18 getI18()
-    {
-        return docmaApp.i18();
-    }
-
     FormattingEngine getFormatter() throws Exception
     {
         return docmaApp.getFormatter();
@@ -498,6 +493,11 @@ public class DocmaSession
 
     /* --------------  public methods  ---------------------- */
 
+    public DocI18n getI18n()
+    {
+        return docmaApp.getI18n();
+    }
+
     public DocmaSession createNewSession()
     {
         try {
@@ -523,14 +523,18 @@ public class DocmaSession
     {
         try {
             getUserManager().setUserProperty(getUserId(), name, value);
-        } catch (DocException ex) {}
+        } catch (Exception ex) {
+            throw new DocRuntimeException(ex);
+        }
     }
 
     public void setUserProperties(String[] names, String[] values)
     {
         try {
             getUserManager().setUserProperties(getUserId(), names, values);
-        } catch (DocException ex) {}
+        } catch (Exception ex) {
+            throw new DocRuntimeException(ex);
+        }
     }
 
     public String getApplicationProperty(String name) {
@@ -684,6 +688,22 @@ public class DocmaSession
         }
     }
 
+    public DocmaLanguage getLanguage()
+    {
+        String trans_mode = getTranslationMode();
+        DocmaLanguage res;
+        if (trans_mode == null) {
+            res = getOriginalLanguage();
+        } else {
+            res = docmaApp.getContentLanguages().getLanguage(trans_mode);
+            if (res == null) {  // this should never occur
+                // Create language object to avoid NullPointerException
+                res = new DocmaLanguage(trans_mode, trans_mode);
+            }
+        }
+        return res;
+    }
+    
     public DocmaLanguage getOriginalLanguage()
     {
         return getOriginalLanguage(getStoreId());
@@ -695,7 +715,12 @@ public class DocmaSession
         if ((lang_code == null) || lang_code.trim().equals("")) {
             lang_code = "en";  // set English as default language
         }
-        return docmaApp.getContentLanguages().getLanguage(lang_code);
+        DocmaLanguage res = docmaApp.getContentLanguages().getLanguage(lang_code);
+        if (res == null) {  // this should never occur
+            // Create language object to avoid NullPointerException
+            res = new DocmaLanguage(lang_code, lang_code);
+        }
+        return res;
     }
 
     public void setOriginalLanguage(String lang_code) throws DocException
@@ -953,7 +978,7 @@ public class DocmaSession
                 if (getRoot().getChildByAlias(MEDIA_ROOT_ALIAS) == null) {
                     DocmaNode media_folder = createImageFolder();
                     media_folder.setAlias(MEDIA_ROOT_ALIAS);
-                    media_folder.setTitle(getI18().getLabel("label.mediafolder.title"));
+                    media_folder.setTitle(getI18n().getLabel("label.mediafolder.title"));
                     Log.info("Created media root: " + media_folder.getId());
                     root.addChild(media_folder);
                 }
@@ -962,7 +987,7 @@ public class DocmaSession
                 if (getRoot().getChildByAlias(FILE_ROOT_ALIAS) == null) {
                     DocmaNode file_folder = createSystemFolder();
                     file_folder.setAlias(FILE_ROOT_ALIAS);
-                    file_folder.setTitle(getI18().getLabel("label.filefolder.title"));
+                    file_folder.setTitle(getI18n().getLabel("label.filefolder.title"));
                     Log.info("Created file root: " + file_folder.getId());
                     root.addChild(file_folder);
                 }
@@ -971,7 +996,7 @@ public class DocmaSession
                 if (getSystemRoot() == null) {
                     DocmaNode sys_folder = createSystemFolder();
                     sys_folder.setAlias(SYS_ROOT_ALIAS);
-                    sys_folder.setTitle(getI18().getLabel("label.systemfolder.title"));
+                    sys_folder.setTitle(getI18n().getLabel("label.systemfolder.title"));
                     Log.info("Created system root: " + sys_folder.getId());
                     root.addChild(sys_folder);
                     systemRoot = sys_folder;
@@ -1002,7 +1027,7 @@ public class DocmaSession
                     // Create templates folder
                     DocmaNode templates_folder = createSection(); // createSystemFolder();
                     templates_folder.setAlias(TEMPLATES_ALIAS);
-                    templates_folder.setTitle(getI18().getLabel("label.templatesfolder.title"));
+                    templates_folder.setTitle(getI18n().getLabel("label.templatesfolder.title"));
                     Log.info("Created templates folder: " + templates_folder.getId());
                     sys_folder.addChild(templates_folder);
 
@@ -1024,7 +1049,7 @@ public class DocmaSession
 
                     // Create Auto-Format folder
                     DocmaNode autoformat_folder = createSection(); // createSystemFolder();
-                    autoformat_folder.setTitle(getI18().getLabel("label.templatesfolder.autoformat.title"));
+                    autoformat_folder.setTitle(getI18n().getLabel("label.templatesfolder.autoformat.title"));
                     templates_folder.addChild(autoformat_folder);
 
                     // Add Auto-Format example templates:
@@ -1376,7 +1401,7 @@ public class DocmaSession
                 if (f != null) {
                     File pubdir = new File(f, PublicationArchivesSessImpl.PUBLICATION_ARCHIVES_FOLDERNAME);
                     if (pubdir.exists()) {
-                        String msg = getI18().getLabel("text.product.remove_db_connection.error_fsarchive", new Object[] { pubdir.getAbsolutePath() });
+                        String msg = getI18n().getLabel("text.product.remove_db_connection.error_fsarchive", new Object[] { pubdir.getAbsolutePath() });
                         throw new DocException(msg);
                     }
                 }
@@ -1651,8 +1676,7 @@ public class DocmaSession
         // Difficult case: evaluate applicability of node(s)
         ApplicEvaluator evaluator = new ApplicEvaluator();
         evaluator.setApplicability(applics);
-        for (int i=0; i < nodes.length; i++) {
-            DocmaNode nd = nodes[i];
+        for (DocmaNode nd : nodes) {
             String appl = nd.getApplicability();
             if ((appl == null) || appl.trim().equals("")) {
                 return nd;  // no applicability assigned, therefore node is applicable
@@ -1666,95 +1690,395 @@ public class DocmaSession
         return null;
     }
 
+    
     /**
-     * Returns a sorted list of all node aliases.
+     * Returns a sorted array of all node aliases.
+     * The sort order is defined by the
+     * <code>java.lang.String.compareTo(Object)</code> method.
      * 
-     * @return Sorted list of aliases.
+     * @return  sorted list of aliases.
      */
-    public List<String> listAliases()
+    public String[] getNodeAliases()
     {
-        return Arrays.asList(docSess.listAliases(null));
+        return docSess.listAliases(DocNode.class);
     }
 
     /**
-     * Returns a sorted list of all HTML node aliases.
+     * Returns a sorted read-only list of all node aliases.
+     * This method provides the same functionality as {@link getNodeAliases()}, 
+     * except that the values are returned in a read-only list instead of 
+     * an array.
      * 
-     * @return Sorted list of aliases.
+     * @return  sorted list of aliases.
      */
-    public List<String> listHTMLContentAliases()
+    public List<String> listNodeAliases()
     {
-        // String[] all_aliases = docSess.listAliases(DocXML.class);
-        // ArrayList res_list = new ArrayList(500);
-        // for (int i=0; i < all_aliases.length; i++) {
-            // String a = all_aliases[i];
-            // DocmaNode nd = this.getNodeByAlias(a);
-            // if ((nd != null) && nd.isHTMLContent()) res_list.add(a);
-        // }
-        String[] aliases = docSess.listAliases(DocXML.class);
-        ArrayList<String> res_list = new ArrayList<String>(aliases.length);
-        res_list.addAll(Arrays.asList(aliases));
-        return res_list;
+        return Arrays.asList(getNodeAliases());
+    }
+
+    /**
+     * Returns the node information of all nodes.
+     * The returned list might be read-only.
+     * 
+     * @return  node information of all nodes
+     */
+    public List<NodeInfo> listNodeInfos()
+    {
+        return docSess.listNodeInfos(DocNode.class);
+    }
+
+    /**
+     * Returns a sorted array of all content aliases.
+     * The sort order is defined by the
+     * <code>java.lang.String.compareTo(Object)</code> method.
+     * 
+     * @return  sorted list of aliases.
+     */
+    public String[] getContentAliases()
+    {
+        return docSess.listAliases(DocContent.class);
     }
     
     /**
-     * Returns a sorted array of all image aliases.
+     * Returns a sorted read-only list of all content aliases.
+     * This method provides the same functionality as {@link getContentAliases()}, 
+     * except that the values are returned in a read-only list instead of 
+     * an array.
      * 
-     * @return Sorted array of aliases.
+     * @return  sorted list of aliases.
+     */
+    public List<String> listContentAliases()
+    {
+        return Arrays.asList(getContentAliases());
+    }
+    
+    /**
+     * Returns the node information of all content nodes.
+     * The returned list might be read-only.
+     * 
+     * @return  node information of all content nodes
+     */
+    public List<NodeInfo> listContentInfos()
+    {
+        return docSess.listNodeInfos(DocContent.class);
+    }
+
+    /**
+     * Returns a sorted array of all HTML content aliases.
+     * The sort order is defined by the
+     * <code>java.lang.String.compareTo(Object)</code> method.
+     * 
+     * @return  sorted list of aliases.
+     */
+    public String[] getHTMLContentAliases()
+    {
+        return docSess.listAliases(DocXML.class);
+    }
+    
+    /**
+     * Returns a sorted read-only list of all HTML content aliases.
+     * This method provides the same functionality as {@link getHTMLContentAliases()}, 
+     * except that the values are returned in a read-only list instead of 
+     * an array.
+     * 
+     * @return  sorted list of aliases.
+     */
+    public List<String> listHTMLContentAliases()
+    {
+        return Arrays.asList(getHTMLContentAliases());
+    }
+    
+    /**
+     * Returns the node information of all HTML content nodes.
+     * The returned list might be read-only.
+     * 
+     * @return  node information of all HTML content nodes
+     */
+    public List<NodeInfo> listHTMLContentInfos()
+    {
+        return docSess.listNodeInfos(DocXML.class);
+    }
+
+    /**
+     * Returns a sorted array of all file aliases.
+     * The sort order is defined by the
+     * <code>java.lang.String.compareTo(Object)</code> method.
+     * 
+     * @return  sorted array of aliases.
+     */
+    public String[] getFileAliases()
+    {
+        return docSess.listAliases(DocFile.class);
+    }
+
+    /**
+     * Returns a sorted read-only list of all file aliases.
+     * This method provides the same functionality as {@link getFileAliases()}, 
+     * except that the values are returned in a read-only list instead of 
+     * an array.
+     * 
+     * @return  sorted list of aliases.
+     */
+    public List<String> listFileAliases()
+    {
+        return Arrays.asList(getFileAliases());
+    }
+    
+    /**
+     * Returns the node information of all file nodes.
+     * The returned list might be read-only.
+     * 
+     * @return  node information of all file nodes
+     */
+    public List<NodeInfo> listFileInfos()
+    {
+        return docSess.listNodeInfos(DocFile.class);
+    }
+
+    /**
+     * Returns a sorted array of all image aliases.
+     * The sort order is defined by the
+     * <code>java.lang.String.compareTo(Object)</code> method.
+     * 
+     * @return  sorted array of aliases.
      */
     public String[] getImageAliases()
     {
         return docSess.listAliases(DocImage.class);
     }
 
+    /**
+     * Returns a sorted read-only list of all image aliases.
+     * This method provides the same functionality as {@link getImageAliases()}, 
+     * except that the values are returned in a read-only list instead of 
+     * an array.
+     * 
+     * @return  sorted list of aliases.
+     */
+    public List<String> listImageAliases()
+    {
+        return Arrays.asList(getImageAliases());
+    }
+
+    /**
+     * Returns the node information of all image nodes.
+     * The returned list might be read-only.
+     * 
+     * @return  node information of all image nodes
+     */    
     public List<NodeInfo> listImageInfos()
     {
         return docSess.listNodeInfos(DocImage.class);
     }
 
     /**
-     * Returns a sorted list of all media content aliases.
+     * Returns a sorted array of all group aliases.
+     * The sort order is defined by the
+     * <code>java.lang.String.compareTo(Object)</code> method.
      * 
-     * @return Sorted list of aliases.
+     * @return  sorted array of aliases.
      */
-    public List<String> listMediaContentAliases()
+    public String[] getGroupAliases()
     {
-        // String[] all_aliases = docSess.listAliases();
-        // ArrayList res_list = new ArrayList(500);
-        // for (int i=0; i < all_aliases.length; i++) {
-        //     String a = all_aliases[i];
-        //     DocmaNode nd = this.getNodeByAlias(a);
-        //     if ((nd != null) && nd.isImageContent()) res_list.add(a);
-        // }
-        String[] aliases = docSess.listAliases(DocImage.class);
-        ArrayList<String> res_list = new ArrayList<String>(aliases.length);
-        res_list.addAll(Arrays.asList(aliases));
-        return res_list;
+        return docSess.listAliases(DocGroup.class);
     }
 
     /**
-     * Returns a sorted list of all section node aliases.
+     * Returns a sorted read-only list of all group aliases.
+     * This method provides the same functionality as {@link getGroupAliases()}, 
+     * except that the values are returned in a read-only list instead of 
+     * an array.
+     * 
+     * @return  sorted list of aliases.
+     */
+    public List<String> listGroupAliases()
+    {
+        return Arrays.asList(getGroupAliases());
+    }
+
+    /**
+     * Returns the node information of all group nodes.
+     * The returned list might be read-only.
+     * 
+     * @return  node information of all group nodes
+     */    
+    public List<NodeInfo> listGroupInfos()
+    {
+        return docSess.listNodeInfos(DocGroup.class);
+    }
+
+    /**
+     * Returns a sorted array of all section aliases.
+     * The sort order is defined by the
+     * <code>java.lang.String.compareTo(Object)</code> method.
+     * 
+     * @return  sorted list of aliases.
+     */
+    public String[] getSectionAliases()
+    {
+        List<String> res = listSectionAliases();
+        return res.toArray(new String[res.size()]);
+    }
+
+    /**
+     * Returns a sorted read-only list of all section aliases.
+     * This method provides the same functionality as {@link getSectionAliases()}, 
+     * except that the values are returned in a read-only list instead of 
+     * an array.
      * 
      * @return Sorted list of aliases.
      */
     public List<String> listSectionAliases()
     {
-        // String[] all_aliases = docSess.listAliases();
-        // ArrayList res_list = new ArrayList(500);
-        // for (int i=0; i < all_aliases.length; i++) {
-        //     String a = all_aliases[i];
-        //     DocmaNode nd = this.getNodeByAlias(a);
-        //     if ((nd != null) && nd.isSection()) res_list.add(a);
-        // }
-        String[] aliases = docSess.listAliases(DocGroup.class);
+        String[] aliases = getGroupAliases();
         ArrayList<String> res_list = new ArrayList<String>(aliases.length);
-        res_list.addAll(Arrays.asList(aliases));
+        for (String a : aliases) {
+            DocmaNode n = getNodeByAlias(a);
+            if ((n != null) && n.isSection()) {
+                res_list.add(a);
+            }
+        }
         return res_list;
     }
 
-    // public DocmaNode createContent() {
-    //     DocContent cont = docSess.createContent();
-    //     return addToNodeMap(cont);
-    // }
+    /**
+     * Returns the node information of all section nodes.
+     * The returned list might be read-only.
+     * 
+     * @return  node information of all section nodes
+     */    
+    public List<NodeInfo> listSectionInfos()
+    {
+        List<NodeInfo> infos = listGroupInfos();
+        ArrayList<NodeInfo> res = new ArrayList<NodeInfo>(infos.size());
+        for (NodeInfo info : infos) {
+            DocmaNode n = getNodeById(info.getId());
+            if ((n != null) && n.isSection()) {
+                res.add(info);
+            }
+        }
+        return res;
+    }
+
+    /**
+     * Returns a sorted array of all folder aliases.
+     * The sort order is defined by the
+     * <code>java.lang.String.compareTo(Object)</code> method.
+     * 
+     * @return  sorted list of aliases.
+     */
+    public String[] getFolderAliases()
+    {
+        List<String> res = listFolderAliases();
+        return res.toArray(new String[res.size()]);
+    }
+
+    /**
+     * Returns a sorted read-only list of all folder aliases.
+     * This method provides the same functionality as {@link getFolderAliases()}, 
+     * except that the values are returned in a read-only list instead of 
+     * an array.
+     * 
+     * @return Sorted list of aliases.
+     */
+    public List<String> listFolderAliases()
+    {
+        String[] aliases = getGroupAliases();
+        ArrayList<String> res_list = new ArrayList<String>(aliases.length);
+        for (String a : aliases) {
+            DocmaNode n = getNodeByAlias(a);
+            if ((n != null) && n.isFolder()) {
+                res_list.add(a);
+            }
+        }
+        return res_list;
+    }
+
+    /**
+     * Returns the node information of all folder nodes.
+     * The returned list might be read-only.
+     * 
+     * @return  node information of all folder nodes
+     */    
+    public List<NodeInfo> listFolderInfos()
+    {
+        List<NodeInfo> infos = listGroupInfos();
+        ArrayList<NodeInfo> res = new ArrayList<NodeInfo>(infos.size());
+        for (NodeInfo info : infos) {
+            DocmaNode n = getNodeById(info.getId());
+            if ((n != null) && n.isFolder()) {
+                res.add(info);
+            }
+        }
+        return res;
+    }
+
+    /**
+     * Returns a sorted array of all reference aliases.
+     * The sort order is defined by the
+     * <code>java.lang.String.compareTo(Object)</code> method.
+     * 
+     * @return  sorted list of aliases.
+     */
+    public String[] getReferenceAliases()
+    {
+        return docSess.listAliases(DocReference.class);
+    }
+
+    /**
+     * Returns a sorted read-only list of all reference aliases.
+     * This method provides the same functionality as {@link getReferenceAliases()}, 
+     * except that the values are returned in a read-only list instead of 
+     * an array.
+     * 
+     * @return  sorted list of aliases.
+     */
+    public List<String> listReferenceAliases()
+    {
+        return Arrays.asList(getReferenceAliases());
+    }
+
+    /**
+     * Returns the node information of all reference nodes.
+     * The returned list might be read-only.
+     * 
+     * @return  node information of all group nodes
+     */    
+    public List<NodeInfo> listReferenceInfos()
+    {
+        return docSess.listNodeInfos(DocReference.class);
+    }
+
+    /**
+     * Tests whether the current user is allowed to edit this product version.
+     * If editing is allowed, this method does nothing. Otherwise an exception
+     * is thrown.
+     * 
+     * @throws DocException if editing is not allowed, for example, because
+     *                      version is already released or due to missing
+     *                      access rights.
+     */
+    public void checkUpdateVersionAllowed() throws DocException
+    {
+        String ver_state = getVersionState(getStoreId(), getVersionId());
+        boolean isReleased = (ver_state != null) && ver_state.equals(DocmaConstants.VERSION_STATE_RELEASED);
+        boolean isTransMode = (getTranslationMode() != null);
+        boolean hasContentRight = hasRight(AccessRights.RIGHT_EDIT_CONTENT);
+        boolean hasTransRight = hasRight(AccessRights.RIGHT_TRANSLATE_CONTENT);
+        boolean allowEdit = (hasContentRight && !isTransMode) || (hasTransRight && isTransMode);
+        if (isReleased || !allowEdit) {
+            String msg;
+            if (isReleased) {
+                msg = "This product version is already released. Editing is not allowed.";
+            } else {
+                msg = "Editing is not allowed due to missing access rights.";
+            }
+            throw new DocException(msg);  // disable editing if user has no rights for editing
+                                          // or version is already released.
+        }
+        // No exception means editing is allowed
+    }
+    
 
     public DocmaNode createFileContent() {
         DocFile cont = docSess.createFile();
@@ -1825,6 +2149,14 @@ public class DocmaSession
         return addToNodeMap(group);
     }
 
+    public DocmaNode createFileFolder() {
+        return createSystemFolder();
+    }
+
+    /**
+     * This method is deprecated. Use createFileFolder() instead.
+     * @return a file folder instance
+     */    
     public DocmaNode createSystemFolder() {
         DocGroup group = docSess.createGroup();
         group.setAttribute(DocmaNode.ATTR_GROUP_TYPE, DocmaNode.TYPE_SYS_FOLDER);
@@ -1900,6 +2232,26 @@ public class DocmaSession
         setDocStoreProperty(getStoreId(), DocmaConstants.PROP_STORE_DECLARED_APPLICS, vals);
     }
 
+    public void addDeclaredApplics(String... applics) throws DocException
+    {
+        List<String> list = new ArrayList<String>(Arrays.asList(getDeclaredApplics()));
+        for (String a : applics) {
+            if (! list.contains(a)) {
+                list.add(a);
+            }
+        }
+        setDeclaredApplics(list);
+    }
+            
+    public void removeDeclaredApplics(String... applics) throws DocException
+    {
+        List<String> list = new ArrayList<String>(Arrays.asList(getDeclaredApplics()));
+        for (String a : applics) {
+            list.remove(a);
+        }
+        setDeclaredApplics(list);
+    }
+            
     public String[] getFilterSettingNames()
     {
         String filternames = getDocStoreProperty(getStoreId(), DocmaConstants.PROP_STORE_FILTER_NAMES);
@@ -2179,6 +2531,14 @@ public class DocmaSession
         return getPublicationManager().createPublication(pubConfigId, outConfigId, filename);
     }
 
+    public String createPublication(String pubConfigId,
+                                    String outConfigId,
+                                    String langCode,
+                                    String filename)
+    {
+        return getPublicationManager().createPublication(pubConfigId, outConfigId, langCode, filename);
+    }
+
     public void exportPublication(String publicationId)
     {
         getPublicationManager().exportPublication(publicationId);
@@ -2208,11 +2568,21 @@ public class DocmaSession
         return PublicationManager.getExportQueue();
     }
 
+    public String[] getPublicationIds()
+    {
+        return getPublicationManager().getPublicationIds();
+    }
+
     public DocmaPublication getPublication(String publicationId)
     {
         return getPublicationManager().getPublication(publicationId);
     }
 
+    /**
+     * Returns all archived publications for the current language.
+     * 
+     * @return  the exported publications for the current language
+     */
     public DocmaPublication[] listPublications()
     {
         String lang = getTranslationMode();
@@ -2220,12 +2590,43 @@ public class DocmaSession
         return getPublicationManager().listPublications(lang);
     }
 
+    /**
+     * Returns all archived publications for the given language and release state.
+     * If the <code>langCode</code> argument is <code>null</code>, then 
+     * the exported publications for all languages are returned
+     * (for the original language and for all translation languages).
+     * If the <code>versionState</code> argument is <code>null</code>, then 
+     * the exported publications for all version states are returned 
+     * (draft and released publications).
+     * 
+     * @param langCode  the language code, or <code>null</code>
+     * @param versionState  the release state, or <code>null</code>
+     * @return  all exported publications for the given language and release state
+     */
+    public DocmaPublication[] listPublications(String langCode, String versionState)
+    {
+        return getPublicationManager().listPublications(langCode, versionState);
+    }
+
     public void deletePublication(String publicationId)
     {
         getPublicationManager().deletePublication(publicationId);
     }
 
-    public void previewPDF(OutputStream outstream,
+    public DocmaExportLog previewPDF(OutputStream outstream,
+                           String node_id,
+                           DocmaPublicationConfig pubConf, 
+                           DocmaOutputConfig outConf)
+    throws DocException
+    {
+        final boolean WRITE_LOG = true;
+        DocmaExportContext export_ctx = new DocmaExportContext(this, pubConf, outConf, WRITE_LOG);
+        previewPDF(outstream, node_id, export_ctx);
+        export_ctx.finished();
+        return export_ctx.getDocmaExportLog();
+    }
+
+    private void previewPDF(OutputStream outstream,
                            String node_id,
                            DocmaExportContext export_ctx)
     throws DocException
@@ -2241,15 +2642,23 @@ public class DocmaSession
     public void copyNodes(DocmaNode[] sourceNodes, DocmaNode targetParent, int insertPos)
     throws DocException
     {
+        DocmaNode nodeAfter  = null;
+        if ((insertPos >= 0) && (insertPos < targetParent.getChildCount())) {
+            nodeAfter = targetParent.getChild(insertPos);
+        }
+        copyNodes(sourceNodes, targetParent, nodeAfter);
+    }
+
+    public void copyNodes(DocmaNode[] sourceNodes, DocmaNode targetParent, DocmaNode refChild)
+    throws DocException
+    {
         DocNode[] copy_nodes = new DocNode[sourceNodes.length];
         for (int i=0; i < sourceNodes.length; i++) {
             copy_nodes[i] = sourceNodes[i].getBackendNode();
         }
         DocGroup doc_parent = (DocGroup) targetParent.getBackendNode();
-        DocNode node_after = null;
-        if ((insertPos >= 0) && (insertPos < targetParent.getChildCount())) {
-            node_after = targetParent.getChild(insertPos).getBackendNode();
-        }
+        DocNode node_after = (refChild == null) ? null : refChild.getBackendNode();
+        
         DocStoreSession target_session = targetParent.getDocmaSession().docSess;
         Map aliasMap = new HashMap();
         ContentCopyStrategy copyStrategy = new HTMLCopyStrategy(aliasMap);

@@ -17,6 +17,7 @@ import org.docma.app.DocmaNode;
 import org.docma.plugin.DocmaException;
 import org.docma.plugin.Group;
 import org.docma.plugin.Node;
+import org.docma.plugin.OutOfRangeException;
 
 /**
  *
@@ -36,72 +37,170 @@ public abstract class GroupImpl extends NodeImpl implements Group
 
     public boolean isAncestorOf(String node_id) throws DocmaException 
     {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        try {
+            return docNode.isAncestor(node_id);
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
     }
 
     public Node getChild(int index) throws DocmaException 
     {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        DocmaNode child;
+        try {
+            child = docNode.getChild(index);
+        } catch (IndexOutOfBoundsException ioob) {
+            throw new OutOfRangeException(ioob);
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
+        if (child == null) {
+            throw new DocmaException("Internal error: child is null.");
+        }
+        return NodeImpl.createNodeInstance(store, child);
     }
 
     public Node[] getChildren() throws DocmaException 
     {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        try {
+            DocmaNode[] arr = docNode.getChildren();
+            Node[] res = new Node[arr.length];
+            for (int i = 0; i < res.length; i++) {
+                res[i] = NodeImpl.createNodeInstance(store, arr[i]);
+            }
+            return res;
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
     }
 
     public Node getChildByAlias(String alias) throws DocmaException 
     {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        try {
+            DocmaNode nd = docNode.getChildByAlias(alias);
+            return (nd == null) ? null 
+                                : NodeImpl.createNodeInstance(store, nd);
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
     }
 
     public Node getChildById(String node_id) throws DocmaException 
     {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        try {
+            DocmaNode nd = docNode.getChildById(node_id);
+            return (nd == null) ? null 
+                                : NodeImpl.createNodeInstance(store, nd);
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
     }
 
     public int getChildCount() throws DocmaException 
     {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        try {
+            return docNode.getChildCount();
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
     }
 
     public int getChildPos(Node child) throws DocmaException 
     {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        try {
+            return docNode.getChildPos(((NodeImpl) child).docNode);
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
     }
 
-    public void removeChild(int index) throws DocmaException 
+    public void removeChildren(Node... nds) throws DocmaException 
     {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    public boolean removeChild(Node nd) throws DocmaException 
-    {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    public void removeChildren(int firstIndex, int lastIndex) throws DocmaException 
-    {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        try {
+            DocmaNode[] arr = new DocmaNode[nds.length];
+            for (int i = 0; i < arr.length; i++) {
+                arr[i] = ((NodeImpl) nds[i]).docNode;
+            }
+            docNode.removeChildren(arr);
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
     }
 
     public void addChildren(Node... nds) throws DocmaException 
     {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        try {
+            DocmaNode[] arr = new DocmaNode[nds.length];
+            for (int i = 0; i < arr.length; i++) {
+                arr[i] = ((NodeImpl) nds[i]).docNode;
+            }
+            docNode.addChildren(arr);
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
     }
 
     public void insertChildren(int index, Node... nds) throws DocmaException 
     {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        try {
+            DocmaNode[] arr = new DocmaNode[nds.length];
+            for (int i = 0; i < arr.length; i++) {
+                arr[i] = ((NodeImpl) nds[i]).docNode;
+            }
+            docNode.insertChildren(index, arr);
+        } catch (IndexOutOfBoundsException ioob) {
+            throw new OutOfRangeException(ioob);
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
     }
 
-    public void insertChildren(Node refNode, Node... nds) throws DocmaException 
+    public void insertChildrenBefore(Node refNode, Node... nds) throws DocmaException 
     {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        try {
+            DocmaNode[] arr = new DocmaNode[nds.length];
+            for (int i = 0; i < arr.length; i++) {
+                arr[i] = ((NodeImpl) nds[i]).docNode;
+            }
+            docNode.insertChildrenBefore(((NodeImpl) refNode).docNode, arr);
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
     }
 
     public void deleteRecursive() throws DocmaException 
     {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        try {
+            docNode.deleteRecursive();
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
+    }
+
+    //************************************************************
+    //**************    Other methods       **********************  
+    //************************************************************
+
+    public void removeChild(int index) throws DocmaException 
+    {
+        try {
+            docNode.removeChild(index);
+        } catch (IndexOutOfBoundsException ioob) {
+            throw new OutOfRangeException(ioob);
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
+    }
+
+    public void removeChildren(int firstIndex, int lastIndex) throws DocmaException 
+    {
+        try {
+            docNode.removeChildren(firstIndex, lastIndex);
+        } catch (IndexOutOfBoundsException ioob) {
+            throw new OutOfRangeException(ioob);
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
     }
     
 }
