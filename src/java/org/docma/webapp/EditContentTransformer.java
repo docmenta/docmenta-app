@@ -17,7 +17,12 @@ package org.docma.webapp;
 import java.util.*;
 
 import org.docma.app.*;
-import org.docma.util.Log;
+import org.docma.plugin.DocmaException;
+import org.docma.plugin.LogEntries;
+import org.docma.plugin.implementation.HTMLRuleContextImpl;
+import org.docma.plugin.implementation.LogEntriesImpl;
+import org.docma.plugin.implementation.StoreConnectionImpl;
+import org.docma.plugin.rules.HTMLRule;
 import org.docma.util.CSSUtil;
 import org.docma.util.XMLParser;
 
@@ -37,34 +42,86 @@ public class EditContentTransformer
     public static final String PROP_TRANSFORM_TRIM_EMPTY_PARAS = "trim_empty_paras";
     public static final String PROP_TRANSFORM_TRIM_FIGURE_SPACES = "trim_figure_spaces";
 
-    public static String prepareContentForSave(DocmaSession docmaSess, 
-                                               String content, 
-                                               Properties props)
+    public static LogEntries prepareHTMLForSave(StringBuilder content,
+                                                String nodeId,
+                                                Map<Object, Object> props,
+                                                DocmaSession docmaSess)
     {
         // String editorId = props.getProperty(PROP_TRANSFORM_EDITOR_ID, "");
         String ql = null;
         boolean trim_empty_p = true;
         boolean trim_fig_spaces = true;
         if (props != null) {
-            ql = props.getProperty(PROP_TRANSFORM_QUICKLINKS);
-            trim_empty_p = props.getProperty(PROP_TRANSFORM_TRIM_EMPTY_PARAS, "true").equalsIgnoreCase("true");
-            trim_fig_spaces = props.getProperty(PROP_TRANSFORM_TRIM_FIGURE_SPACES, "true").equalsIgnoreCase("true");
+            Object obj = props.get(PROP_TRANSFORM_QUICKLINKS);
+            ql = (obj == null) ? null : obj.toString();
+            obj = props.get(PROP_TRANSFORM_TRIM_EMPTY_PARAS);
+            trim_empty_p = (obj == null) ? true : obj.toString().equalsIgnoreCase("true");
+            obj = props.get(PROP_TRANSFORM_TRIM_FIGURE_SPACES);
+            trim_fig_spaces = (obj == null) ? true : obj.toString().equalsIgnoreCase("true");
         }
         if ((ql == null) || ql.equals("")) {
             ql = docmaSess.getUserProperty(GUIConstants.PROP_USER_QUICKLINKS_ENABLED);
         }
         boolean ql_enabled = (ql != null) && ql.equalsIgnoreCase("true");
         
-        String fixcontent = ql_enabled ? transformQuickLinks(docmaSess, content) : content;
-        if (trim_empty_p) {
-            fixcontent = removeEmptyParaFromEnd(fixcontent);
+        if (ql_enabled || trim_empty_p || trim_fig_spaces) {
+            String cont = content.toString();
+            String fixcontent = ql_enabled ? transformQuickLinks(docmaSess, cont) : cont;
+            if (trim_empty_p) {
+                fixcontent = removeEmptyParaFromEnd(fixcontent);
+            }
+            if (trim_fig_spaces) {
+                fixcontent = removeSpacesBeforeAfterFigure(fixcontent);
+            }
+            // Replace old content by new content
+            content.replace(0, content.length(), fixcontent);
         }
-        if (trim_fig_spaces) {
-            fixcontent = removeSpacesBeforeAfterFigure(fixcontent);
-        }
-        return fixcontent;
+        return applyHTMLRules(content, nodeId, props, docmaSess);
     }
 
+    private static LogEntries applyHTMLRules(StringBuilder content,
+                                             String nodeId, 
+                                             Map<Object, Object> props, 
+                                             DocmaSession docmaSess) throws DocmaException
+    {
+        RulesManager rm = docmaSess.getRulesManager();
+        RuleConfig[] rules = rm.getAllRules();
+        StoreConnectionImpl storeConn = (StoreConnectionImpl) docmaSess.getPluginStoreConnection();
+        HTMLRuleContextImpl ctx = new HTMLRuleContextImpl(storeConn, content);
+        if (props != null) {
+            ctx.setProperties(props);
+        }
+        ctx.setModeSave();
+        ctx.setAllowAutoCorrect(true);
+        ctx.setNodeId(nodeId);
+        
+        for (RuleConfig rc : rules) {
+            if (rc.isRuleEnabled() && rc.isApplicableForStore(docmaSess.getStoreId())) {
+                // check if rule is turned off by supplied properties
+                Object val = (props == null) ? null : props.get(rc.getId());
+                if (val != null) {
+                    String v = val.toString();
+                    if (v.equalsIgnoreCase("false") || v.equalsIgnoreCase("off")) {
+                        continue;   // skip this rule
+                    }
+                }
+                
+                Object obj = rc.getRuleInstance();
+                if (obj instanceof HTMLRule) {
+                    HTMLRule hr = (HTMLRule) obj;
+                    ctx.setActiveRule(rc);
+                    try {
+                        hr.apply(content, ctx);
+                    } catch (Exception ex) {
+                        ctx.log(null, "Exception in rule " + rc.getId() + ": " + ex.getMessage());
+                    }
+                }
+            }
+        }
+        
+        return new LogEntriesImpl(ctx.getLog());
+    }
+    
     private static String transformQuickLinks(DocmaSession docmaSess, String content)
     {
         // find first quick link

@@ -1,6 +1,6 @@
 /*
- * LoggerImpl.java
- * 
+ * HTMLRuleConfigImpl.java
+ *
  *  Copyright (C) 2016  Manfred Paula, http://www.docmenta.org
  *   
  *  This file is part of Docmenta. Docmenta is free software: you can 
@@ -13,28 +13,36 @@
  */
 package org.docma.plugin.implementation;
 
-import org.docma.plugin.Logger;
+import org.docma.app.RuleConfig;
+import org.docma.plugin.LogLevel;
+import org.docma.plugin.rules.HTMLRuleConfig;
 
 /**
  *
  * @author MP
  */
-public class LoggerImpl implements Logger
+public class HTMLRuleConfigImpl implements HTMLRuleConfig
 {
+    private final RuleConfig ruleConf;
 
-    public void info(String msg, Object... args) 
+    public HTMLRuleConfigImpl(RuleConfig ruleConf)
     {
-        org.docma.util.Log.info(msg, args);
+        this.ruleConf = ruleConf;
+    }
+        
+    public String getRuleId() 
+    {
+        return ruleConf.getId();
     }
 
-    public void warning(String msg, Object... args) 
+    public String[] getArguments() 
     {
-        org.docma.util.Log.warning(msg, args);
+        return ruleConf.getArgs();
     }
 
-    public void error(String msg, Object... args) 
+    public LogLevel getLogLevel(String checkId) 
     {
-        org.docma.util.Log.error(msg, args);
+        return ruleConf.getLogLevel(checkId);
     }
     
 }

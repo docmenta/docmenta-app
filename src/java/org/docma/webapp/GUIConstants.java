@@ -51,6 +51,7 @@ public class GUIConstants
     public static final String PROP_USER_EDIT_WIN_HEIGHT = DefaultContentAppHandler.USER_PROPERTY_EDIT_WIN_HEIGHT;
     public static final String PROP_USER_IMAGE_PREVIEW_MODE = "imagepreviewmode";
     public static final String PROP_USER_EDITOR_ID = "editor.id";
+    public static final String PROP_USER_TXT_EDITOR_ID = "txteditor.id";
     public static final String PROP_USER_QUICKLINKS_ENABLED = "quicklinks.enabled";
 
     // User property values

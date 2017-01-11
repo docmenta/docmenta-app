@@ -401,10 +401,10 @@ div.z-listheader-cnt { height:16px; max-height:16px; color:#000000; font-weight:
                     <tab label="${c:l('tab.admin.usergroups')}" forward="onSelect=mainWin.onSelectUserGroupsTab" />
                     <tab label="${c:l('tab.admin.users')}" forward="onSelect=mainWin.onSelectUsersTab" />
                     <tab label="${c:l('tab.admin.rules')}" forward="onSelect=mainWin.onSelectRulesTab" />
-                    <tab label="${c:l('tab.admin.plugins')}" forward="onSelect=mainWin.onSelectPluginsTab" />
                     <tab label="${c:l('tab.admin.autoformat')}" forward="onSelect=mainWin.onSelectAutoFormatTab" />
                     <tab label="${c:l('tab.admin.editapps')}" forward="onSelect=mainWin.onSelectEditAppsTab" />
                     <tab label="${c:l('tab.admin.viewapps')}" forward="onSelect=mainWin.onSelectViewAppsTab" />
+                    <tab label="${c:l('tab.admin.plugins')}" forward="onSelect=mainWin.onSelectPluginsTab" />
                     <tab label="${c:l('tab.admin.settings')}"/>
                 </tabs>
                 <tabpanels style="background-color:#FFFFFF;">
@@ -629,38 +629,6 @@ div.z-listheader-cnt { height:16px; max-height:16px; color:#000000; font-weight:
       </hbox>
     </tabpanel>
 
-    <tabpanel id="PluginsConfigTabpanel" height="100%" width="100%">
-      <hbox width="100%" align="start" pack="stretch" hflex="1" vflex="1">
-          <listbox id="PluginsConfigListbox" width="100%" hflex="1" vflex="1" sizedByContent="false" multiple="true"
-                   context="PluginsAdminContextmenu">
-              <listhead sizable="true">
-                  <listheader label="${c:l('label.plugin.id')}" width="20%" />
-                  <listheader label="${c:l('label.plugin.version')}" width="10%" />
-                  <listheader label="${c:l('label.plugin.title')}" width="27%" />
-                  <listheader label="${c:l('label.plugin.state')}" width="15%" />
-                  <listheader label="" width="28%" />
-              </listhead>
-          </listbox>
-          <space spacing="2px" />
-          <cell hflex="min">
-            <vbox align="stretch" hflex="min" spacing="2px">
-              <button id="InstallPluginBtn" label="${c:l('label.plugin.install.btn')}" hflex="1" forward="mainWin.onInstallPlugin"/>
-              <button id="UninstallPluginBtn" label="${c:l('label.plugin.uninstall.btn')}" hflex="1" forward="mainWin.onUninstallPlugin" />
-              <separator spacing="18px"/>
-              <button id="EnablePluginBtn" label="${c:l('label.plugin.enable.btn')}" hflex="1" forward="mainWin.onEnablePlugin"/>
-              <button id="DisablePluginBtn" label="${c:l('label.plugin.disable.btn')}" hflex="1" forward="mainWin.onDisablePlugin" />
-              <menupopup id="PluginsAdminContextmenu">
-                <menuitem id="UninstallPluginMenuitem" label="${c:l('label.plugin.uninstall.btn')}" forward="mainWin.onUninstallPlugin" />
-                <menuseparator/>
-                <menuitem id="EnablePluginMenuitem" label="${c:l('label.plugin.enable.btn')}" forward="mainWin.onEnablePlugin"/>
-                <menuitem id="DisablePluginMenuitem" label="${c:l('label.plugin.disable.btn')}" forward="mainWin.onDisablePlugin" />
-              </menupopup>
-            </vbox>
-          </cell>
-          <space spacing="4px" />
-      </hbox>
-    </tabpanel>
-                        
     <tabpanel id="AutoFormatConfigTabpanel" height="100%" width="100%">
       <vbox spacing="2px" width="100%" align="stretch" vflex="1" hflex="1">
         <hbox width="100%" align="start" pack="stretch" hflex="1" vflex="1">
@@ -722,6 +690,38 @@ div.z-listheader-cnt { height:16px; max-height:16px; color:#000000; font-weight:
         </columns>
         <rows></rows>
       </grid>
+    </tabpanel>
+
+    <tabpanel id="PluginsConfigTabpanel" height="100%" width="100%">
+      <hbox width="100%" align="start" pack="stretch" hflex="1" vflex="1">
+          <listbox id="PluginsConfigListbox" width="100%" hflex="1" vflex="1" sizedByContent="false" multiple="true"
+                   context="PluginsAdminContextmenu">
+              <listhead sizable="true">
+                  <listheader label="${c:l('label.plugin.id')}" width="20%" />
+                  <listheader label="${c:l('label.plugin.version')}" width="10%" />
+                  <listheader label="${c:l('label.plugin.title')}" width="27%" />
+                  <listheader label="${c:l('label.plugin.state')}" width="15%" />
+                  <listheader label="" width="28%" />
+              </listhead>
+          </listbox>
+          <space spacing="2px" />
+          <cell hflex="min">
+            <vbox align="stretch" hflex="min" spacing="2px">
+              <button id="InstallPluginBtn" label="${c:l('label.plugin.install.btn')}" hflex="1" forward="mainWin.onInstallPlugin"/>
+              <button id="UninstallPluginBtn" label="${c:l('label.plugin.uninstall.btn')}" hflex="1" forward="mainWin.onUninstallPlugin" />
+              <separator spacing="18px"/>
+              <button id="EnablePluginBtn" label="${c:l('label.plugin.enable.btn')}" hflex="1" forward="mainWin.onEnablePlugin"/>
+              <button id="DisablePluginBtn" label="${c:l('label.plugin.disable.btn')}" hflex="1" forward="mainWin.onDisablePlugin" />
+              <menupopup id="PluginsAdminContextmenu">
+                <menuitem id="UninstallPluginMenuitem" label="${c:l('label.plugin.uninstall.btn')}" forward="mainWin.onUninstallPlugin" />
+                <menuseparator/>
+                <menuitem id="EnablePluginMenuitem" label="${c:l('label.plugin.enable.btn')}" forward="mainWin.onEnablePlugin"/>
+                <menuitem id="DisablePluginMenuitem" label="${c:l('label.plugin.disable.btn')}" forward="mainWin.onDisablePlugin" />
+              </menupopup>
+            </vbox>
+          </cell>
+          <space spacing="4px" />
+      </hbox>
     </tabpanel>
 
     <tabpanel height="100%" style="padding-right:0;">

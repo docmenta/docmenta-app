@@ -37,6 +37,17 @@
         if (storeConn == null) {
             throw new Exception("Store connection of user session is closed!");
         }
+        
+        // Prepare content for saving (editor specific and general XHTML cleaning)
+        cont = TinyEditorUtil.prepareContentForSave(cont, editorId, para_indent);
+        StringBuilder cont_buf = new StringBuilder(cont);
+        // Transform quick links, trim empty paragraphs, apply HTML rules, ... 
+        LogEntries res = storeConn.prepareHTMLForSave(cont_buf, nodeid, null);
+        if (res.getErrorCount() > 0) {
+            throw new Exception(res.getErrors()[0].getMessage());
+        }
+        cont = cont_buf.toString();
+        
         VersionId verid = webSess.createVersionId(verstr);
         String sessStoreid = storeConn.getStoreId();
         VersionId sessVerid = storeConn.getVersionId();
@@ -55,10 +66,6 @@
         // If content has changed, save content and create revision
         try {
             Content node = (Content) storeConn.getNodeById(nodeid);
-            // Prepare content for saving (editor specific and general XHTML cleaning)
-            cont = TinyEditorUtil.prepareContentForSave(cont, editorId, para_indent);
-            cont = storeConn.prepareXHTML(cont, null);  // transform quick links, trim empty paragraphs,... 
-
             String old_cont = node.getContentString();
             if (isCancel) {
                 // If content changed, show confirmation message
@@ -98,7 +105,11 @@
             throw excpt;  // re-throw exception
         } finally {
             if (isTempConn) {
-                webSess.closeTempStoreConnection(storeConn);
+                try {
+                    storeConn.close();
+                } catch (Exception ex) {
+                    System.out.println("Failed to close temporary connection: " + ex.getMessage());
+                }
             }
         }
     } catch (Exception ex) {

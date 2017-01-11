@@ -1,5 +1,5 @@
 /*
- * UserDialog.java
+ * UserDialogComposer.java
  * 
  *  Copyright (C) 2013  Manfred Paula, http://www.docmenta.org
  *   
@@ -14,19 +14,28 @@
 
 package org.docma.webapp;
 
+import java.util.List;
+
 import org.docma.app.*;
 import org.docma.app.ui.*;
 import org.docma.userapi.*;
 import org.docma.util.Log;
-import org.zkoss.zul.*;
+import org.docma.plugin.implementation.PluginTab;
+import org.docma.plugin.implementation.WebUserSessionImpl;
 
-import java.util.*;
+import org.zkoss.zk.ui.Component;
+import org.zkoss.zk.ui.select.SelectorComposer;
+import org.zkoss.zk.ui.select.annotation.*;
+import org.zkoss.zk.ui.event.Event;
+import org.zkoss.zk.ui.event.EventListener;
+import org.zkoss.zk.ui.event.OpenEvent;
+import org.zkoss.zul.*;
 
 /**
  *
  * @author MP
  */
-public class UserDialog extends Window
+public class UserDialogComposer extends SelectorComposer<Component> 
 {
     public static final String EVENT_OKAY = "onOkay";
 
@@ -38,30 +47,36 @@ public class UserDialog extends Window
     private DocmaSession docmaSess = null;
     private Callback callback = null;
 
-    // private Tabbox userTabbox;
-    private Tab generalTab;
-    private Tab groupsTab;
-    private Textbox usernameBox;
-    private Textbox lastnameBox;
-    private Textbox firstnameBox;
-    private Textbox emailBox;
-    private Listbox guilanguageBox;
-    private Listbox editorIdBox;
-    private Textbox dateformatBox;
-    private Checkbox quickLinksBox;
-    private Textbox password1Box;
-    private Textbox password2Box;
-    private Listbox membershipBox;
+    @Wire("#UserDialog") Window userDialog;
+    @Wire("#UserDialogOkayBtn") Button okayBtn;
+    @Wire("#UserDialogCancelBtn") Button cancelBtn;
+    @Wire("#UserDialogTabbox") Tabbox userDialogTabbox;
+    @Wire("#UserDialogGeneralTab") Tab generalTab;
+    @Wire("#UserDialogGroupsTab") Tab groupsTab;
+    @Wire("#UserLoginNameTextbox") Textbox usernameBox;
+    @Wire("#UserLastNameTextbox") Textbox lastnameBox;
+    @Wire("#UserFirstNameTextbox") Textbox firstnameBox;
+    @Wire("#UserEmailTextbox") Textbox emailBox;
+    @Wire("#UserGUILangListbox") Listbox guilanguageBox;
+    @Wire("#UserEditorIdListbox") Listbox editorIdBox;
+    @Wire("#UserTxtEditorIdListbox") Listbox txtEditorIdBox;
+    @Wire("#UserDateFormatTextbox") Textbox dateformatBox;
+    @Wire("#UserQuickLinksCheckbox") Checkbox quickLinksBox;
+    @Wire("#UserPasswordTextbox1") Textbox password1Box;
+    @Wire("#UserPasswordTextbox2") Textbox password2Box;
+    @Wire("#UserMembershipListbox") Listbox membershipBox;
     
     private String[] editorIds = null;
 
 
-    public void onOkayClick()
+    @Listen("onClick = #UserDialogOkayBtn")
+    public void onOkayClick(Event evt)
     {
         if (hasInvalidInputs(docmaSess)) {
             return;  // keep dialog opened
         }
         try {
+            propagateEventToPlugins(evt);
             updateModel(user, docmaSess.getUserManager());
             
             // Notify caller that model has been updated
@@ -69,22 +84,39 @@ public class UserDialog extends Window
                 callback.onEvent(EVENT_OKAY);
             }
         } catch (Exception ex) {
-            Messagebox.show("Error: " + ex.getMessage());
+            Messagebox.show(ex.getLocalizedMessage());
             return;  // keep dialog opened
         }
-        setVisible(false);
+        userDialog.setVisible(false);
     }
 
-    public void onCancelClick()
+    @Listen("onClick = #UserDialogCancelBtn")
+    public void onCancelClick(Event evt)
     {
-        setVisible(false);   // close dialog
+        try {
+            propagateEventToPlugins(evt);
+        } catch (Exception ex) {
+            Messagebox.show(ex.getLocalizedMessage());
+        }
+        userDialog.setVisible(false);   // close dialog
     }
 
+    @Listen("onClose = #UserDialog")
+    public void onDialogClose(Event evt)
+    {
+        try {
+            propagateEventToPlugins(evt);
+        } catch (Exception ex) {
+            Messagebox.show(ex.getLocalizedMessage());
+        }
+        userDialog.setVisible(false);   // close dialog
+        evt.stopPropagation();          // prevent detaching the window
+    }
+    
     public void newUser(UserModel usr, DocmaSession docmaSess, Callback callback)
     {
-        init();
         mode = MODE_NEW;
-        setTitle(label("label.users.dialog.new.title"));
+        userDialog.setTitle(label("label.users.dialog.new.title"));
         generalTab.setSelected(true);
         groupsTab.setVisible(false);
         doEditUser(usr, docmaSess, callback);
@@ -92,9 +124,8 @@ public class UserDialog extends Window
 
     public void editUser(UserModel usr, DocmaSession docmaSess, Callback callback)
     {
-        init();
         mode = MODE_EDIT;
-        setTitle(label("label.users.dialog.edit.title"));
+        userDialog.setTitle(label("label.users.dialog.edit.title"));
         generalTab.setSelected(true);
         groupsTab.setVisible(true);
         doEditUser(usr, docmaSess, callback);
@@ -106,26 +137,18 @@ public class UserDialog extends Window
         this.docmaSess = docmaSess;
         this.callback = callback;
         
-        init();
         updateGUI(usr); // init dialog fields
-        doHighlighted();
+        try {
+            propagateEventToPlugins("onOpen", userDialog);
+        } catch (Exception ex) {
+            Log.error(ex.getMessage());
+        }
+        userDialog.doHighlighted();   // show dialog
     }
 
-    private void init()
+    private void initGUILanguages()
     {
         // userTabbox = (Tabbox) getFellow("UserDialogTabbox");
-        generalTab = (Tab) getFellow("UserDialogGeneralTab");
-        groupsTab = (Tab) getFellow("UserDialogGroupsTab");
-        usernameBox = (Textbox) getFellow("UserLoginNameTextbox");
-        lastnameBox = (Textbox) getFellow("UserLastNameTextbox");
-        firstnameBox = (Textbox) getFellow("UserFirstNameTextbox");
-        emailBox = (Textbox) getFellow("UserEmailTextbox");
-        guilanguageBox = (Listbox) getFellow("UserGUILangListbox");
-        editorIdBox = (Listbox) getFellow("UserEditorIdListbox");
-        quickLinksBox = (Checkbox) getFellow("UserQuickLinksCheckbox");
-        dateformatBox = (Textbox) getFellow("UserDateFormatTextbox");
-        password1Box = (Textbox) getFellow("UserPasswordTextbox1");
-        password2Box = (Textbox) getFellow("UserPasswordTextbox2");
         if (guilanguageBox.getItemCount() == 0) {
             // Add item for default language, i.e. if no language has been set.
             // If no language is set, then the browser or OS language is used.
@@ -133,7 +156,7 @@ public class UserDialog extends Window
             guilanguageBox.appendChild(new Listitem(txt_default_lang, ""));
 
             // Add all supported UI languages to the list.
-            DocmaWebApplication webapp = GUIUtil.getDocmaWebApplication(this);
+            DocmaWebApplication webapp = GUIUtil.getDocmaWebApplication(userDialog);
             DocmaLanguage[] langs = webapp.getGUILanguages();
             for (DocmaLanguage lang : langs) {
                 Listitem item = new Listitem();
@@ -143,13 +166,11 @@ public class UserDialog extends Window
                 guilanguageBox.appendChild(item);
             }
         }
-        updateEditorIds();
-        membershipBox = (Listbox) getFellow("UserMembershipListbox");
     }
     
-    private void updateEditorIds()
+    private void updateContentEditorIds()
     {
-        DocmaWebApplication webapp = GUIUtil.getDocmaWebApplication(this);
+        DocmaWebApplication webapp = GUIUtil.getDocmaWebApplication(userDialog);
         // webapp.updateEditorIds();
         String[] new_ids = webapp.getContentEditorIds();
         boolean do_update = false;
@@ -168,18 +189,70 @@ public class UserDialog extends Window
         if (do_update) {
             editorIds = new_ids;
             editorIdBox.getItems().clear();
-            String defEditor = webapp.getSystemDefaultContentEditor();
+            
+            // Determine HTML source editor
+            String srcEditor = webapp.getFileEditorId("html");
+            if (srcEditor == null) {
+                // If no HTML source editor exists, fall back to plain text editor
+                srcEditor = webapp.getFileEditorId("txt");
+                if (srcEditor == null) {
+                    srcEditor = webapp.getSystemDefaultTextEditor();
+                }
+            }
+
+            // Create list of available content editors
+            String defEditor = webapp.getContentEditorId();  // default content editor
             String edName = webapp.getHelperAppName(defEditor);
             String txtdefault = label("text.users.default_editor");
-            Listitem item = new Listitem(txtdefault + " (" + edName + ")", "");
-            editorIdBox.appendChild(item);
+            Listitem item = new Listitem(txtdefault + " [" + edName + "]", "");
+            editorIdBox.appendChild(item);   // default item
+            boolean srcEditorIncluded = false;
             for (String eId : editorIds) {
+                if (eId.equals(srcEditor)) {
+                    srcEditorIncluded = true;
+                }
                 edName = webapp.getHelperAppName(eId);
                 item = new Listitem(edName, eId);
                 editorIdBox.appendChild(item);
             }
+            
+            // Add HTML source editor to the list
+            if (! srcEditorIncluded) {
+                edName = webapp.getHelperAppName(srcEditor);
+                item = new Listitem(edName, srcEditor);
+                editorIdBox.appendChild(item);
+            }
+        }
+    }
+
+    private void updateTextEditorIds()
+    {
+        if (txtEditorIdBox.getItemCount() > 0) {
+            return;   // list is already initialized; do nothing
         }
         
+        // txtEditorIdBox.getItems().clear();
+        DocmaWebApplication webapp = GUIUtil.getDocmaWebApplication(userDialog);
+        
+        String[] txtExts = docmaSess.getTextFileExtensions();
+        if (txtExts.length == 0) {
+            txtExts = new String[] { "txt" };
+        }
+        String[] edIds = webapp.getEditorIds(txtExts);
+        
+        String defEditor = webapp.getFileEditorId("txt");
+        if (defEditor == null) {
+            defEditor = webapp.getSystemDefaultTextEditor();
+        }
+        String edName = webapp.getHelperAppName(defEditor);
+        String txtdefault = label("text.users.default_editor");
+        Listitem item = new Listitem(txtdefault + " [" + edName + "]", "");
+        txtEditorIdBox.appendChild(item);   // default item
+        for (String eId : edIds) {
+            edName = webapp.getHelperAppName(eId);
+            item = new Listitem(edName, eId);
+            txtEditorIdBox.appendChild(item);
+        }
     }
 
     private boolean hasInvalidInputs(DocmaSession docmaSess)
@@ -217,6 +290,10 @@ public class UserDialog extends Window
 
     private void updateGUI(UserModel usr)
     {
+        initGUILanguages();
+        updateContentEditorIds();
+        updateTextEditorIds();
+        
         usernameBox.setValue(usr.getLoginName());
         lastnameBox.setValue(usr.getLastName());
         firstnameBox.setValue(usr.getFirstName());
@@ -234,8 +311,16 @@ public class UserDialog extends Window
         editorIdBox.setSelectedIndex(idx);
         quickLinksBox.setChecked(usr.isQuickLinksEnabled());
 
+        String txtEditorId = usr.getTxtEditorId();
+        if (txtEditorId == null) txtEditorId = "";
+        int txtIdx = getListIndex(txtEditorIdBox, txtEditorId);
+        if (txtIdx < 0) txtIdx = 0;  // default text editor
+        txtEditorIdBox.setSelectedIndex(txtIdx);
+
         String df = usr.getDateFormat();
-        if (df.trim().equals("")) df = GUIUtil.i18(this).getLabel("format.lastmodified");
+        if (df.trim().equals("")) {
+            df = label("format.lastmodified");
+        }
         dateformatBox.setValue(df);
         password1Box.setValue("");
         password2Box.setValue("");
@@ -250,14 +335,34 @@ public class UserDialog extends Window
             }
         }
         membershipBox.setDisabled(true);  // only show groups
+        
+        addPluginTabs();  // add plugin tabs if not already added
     }
 
+    private void addPluginTabs()
+    {
+        DocmaWebSession webSess = GUIUtil.getDocmaWebSession(userDialog);
+        WebUserSessionImpl plugSess = (WebUserSessionImpl) webSess.getPluginInterface();
+        List<PluginTab> utabs = plugSess.getUserDialogTabs();
+        if (utabs == null) {
+            return;  // no tabs to be added
+        }
+        for (PluginTab tab_data : utabs) {
+            // Add tab if not already added
+            plugSess.addTab(userDialogTabbox, tab_data.getTabId(), 
+                            tab_data.getTabTitle(), tab_data.getPosition(),
+                            tab_data.getZulPath());
+        }
+    }
+    
     private void updateModel(UserModel usr, UserManager um) throws Exception
     {
         usr.setLoginName(usernameBox.getValue());
         usr.setLastName(lastnameBox.getValue());
         usr.setFirstName(firstnameBox.getValue());
         usr.setEmail(emailBox.getValue());
+
+        // Update GUI language and date format
         Listitem item = guilanguageBox.getSelectedItem();
         if (item != null) {
             String gui_lang = "";
@@ -267,13 +372,22 @@ public class UserDialog extends Window
             }
             usr.setGuiLanguage(gui_lang);
         }
+        usr.setDateFormat(dateformatBox.getValue());
+        
+        // Update content editor and quick links setting
         Listitem item2 = editorIdBox.getSelectedItem();
         if (item2 != null) {
-            String editorId = (String) item2.getValue();
-            usr.setEditorId(editorId);
+            usr.setEditorId((String) item2.getValue());
         }
         usr.setQuickLinksEnabled(quickLinksBox.isChecked());
-        usr.setDateFormat(dateformatBox.getValue());
+
+        // Update text editor setting
+        Listitem item3 = txtEditorIdBox.getSelectedItem();
+        if (item3 != null) {
+            usr.setTxtEditorId((String) item3.getValue());
+        }
+        
+        // Change password?
         String pw = password1Box.getValue();
         if (pw.length() > 0) {
             usr.setNewPassword(pw);
@@ -329,7 +443,26 @@ public class UserDialog extends Window
 
     private String label(String key, Object... args)
     {
-        return GUIUtil.getI18n(this).getLabel(key, args);
+        return GUIUtil.getI18n(userDialog).getLabel(key, args);
+    }
+
+    private void propagateEventToPlugins(String evtName, Component evtTarget) 
+    {
+        DocmaWebSession webSess = GUIUtil.getDocmaWebSession(userDialog);
+        WebUserSessionImpl plugSess = (WebUserSessionImpl) webSess.getPluginInterface();
+        
+        // Following call may throw a runtime exception
+        plugSess.propagateUserDialogEventToPlugins(evtName, evtTarget);
+    }
+
+    private void propagateEventToPlugins(Event evt) 
+    {
+        DocmaWebSession webSess = GUIUtil.getDocmaWebSession(userDialog);
+        WebUserSessionImpl plugSess = (WebUserSessionImpl) webSess.getPluginInterface();
+        
+        // Following call may throw a runtime exception, to prevent closing of 
+        // the user dialog 
+        plugSess.propagateUserDialogEventToPlugins(evt);
     }
 
 }

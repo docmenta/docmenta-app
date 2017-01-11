@@ -1,6 +1,6 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"
         session="true"
-        import="org.docma.plugin.*,org.docma.plugin.web.*,org.docma.plugin.internaleditor.*"
+        import="org.docma.plugin.*,org.docma.plugin.web.*,org.docma.plugin.internals.*"
 %><html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
@@ -85,8 +85,8 @@ div.docma_msg { margin: 1em; }
     var closeAfterSave = false;
     var isWin = <%= iswin ? "true" : "false" %>;
 
-    function doInit() {
-      <%=  start_edit ? "doEdit();" : "" %>
+    function initAfterLoad() {
+      <%=  start_edit ? "doEdit();" : "switchToViewMode();" %>
     }
 <% 
   if (readonly_msg != null) {
@@ -98,9 +98,7 @@ div.docma_msg { margin: 1em; }
   } else {
 %>
     function doEdit() {
-        var editform = window.frames['edit_txt_frame'].document.forms["editform"];
-        editform.file_content.readOnly = false;
-        editform.file_content.style.backgroundColor = "#FFFFFF";
+        window.frames['edit_txt_frame'].docmaEnterEdit();
         document.forms["btnform"].editBtn.style.display = 'none';
         document.forms["btnform"].saveBtn.style.display = 'inline';
         if (isWin) {
@@ -116,6 +114,7 @@ div.docma_msg { margin: 1em; }
   }
 %>
     function doSave() {
+        window.frames['edit_txt_frame'].docmaBeforeSave();
         var editform = window.frames['edit_txt_frame'].document.forms["editform"];
         var sel = document.forms["btnform"].file_encoding;
         editform.charset_name.value = sel.options[sel.selectedIndex].value;
@@ -187,9 +186,7 @@ div.docma_msg { margin: 1em; }
     }
 
     function switchToViewMode() {
-        var editform = window.frames['edit_txt_frame'].document.forms["editform"];
-        editform.file_content.readOnly = true;
-        editform.file_content.style.backgroundColor = "#F4F4F4";
+        window.frames['edit_txt_frame'].docmaEnterView();
         document.forms["btnform"].saveBtn.disabled = false;
         document.forms["btnform"].saveBtn.style.display = 'none';
         document.forms["btnform"].editBtn.style.display = 'inline';
@@ -216,7 +213,7 @@ div.docma_msg { margin: 1em; }
     }
 </script>
 </head>
-<body onload="doInit();" style="background:#E0E0E0; font-family:Arial,sans-serif; margin:0 3px 0 0; padding:0; width:100%; max-width:100%; height:100%; overflow:hidden;">
+<body style="background:#E0E0E0; font-family:Arial,sans-serif; margin:0 3px 0 0; padding:0; width:100%; max-width:100%; height:100%; overflow:hidden;">
 <%
     if (! (isTextFile || node instanceof PubContent)) {
         if (isFile) {

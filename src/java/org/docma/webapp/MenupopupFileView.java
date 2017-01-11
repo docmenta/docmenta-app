@@ -52,7 +52,7 @@ public class MenupopupFileView extends Menupopup // implements EventListener
         if (DocmaConstants.DEBUG) { 
             System.out.println("MenupopupFileView.onShowContextMenu()");
         }
-        webSess.sendMenuOpenEventToPlugins(this);
+        webSess.propagateMenuOpenEventToPlugins(this);
         MenuUtil.updateContentContextMenu(this, webSess.getMainWindow());
         Clients.evalJavaScript("openCtx();");  // open context menu at cursor position (or at top)
     }

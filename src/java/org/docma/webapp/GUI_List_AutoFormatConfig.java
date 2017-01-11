@@ -14,6 +14,7 @@
 
 package org.docma.webapp;
 
+import java.util.ArrayList;
 import org.docma.app.*;
 import org.docma.app.ui.*;
 import org.docma.plugin.*;
@@ -21,6 +22,7 @@ import org.docma.plugin.*;
 import java.util.Arrays;
 import java.util.Set;
 import java.util.HashSet;
+import java.util.List;
 
 import org.zkoss.zul.*;
 import org.zkoss.zk.ui.event.*;
@@ -108,14 +110,8 @@ public class GUI_List_AutoFormatConfig implements EventListener
         }
 
         // Update application configuration
-        DocmaSession docmaSess = mainWin.getDocmaSession();
-        String propval = docmaSess.getApplicationProperty(DocmaConstants.PROP_AUTOFORMAT_CLASSES);
-        if ((propval == null) || (propval.equals(""))) {
-            propval = clsname;
-        } else {
-            propval += " " + clsname;
-        }
-        docmaSess.setApplicationProperty(DocmaConstants.PROP_AUTOFORMAT_CLASSES, propval);
+        DocmaApplication docmaApp = GUIUtil.getDocmaWebApplication(mainWin);
+        docmaApp.registerAutoFormatClasses(clsname);
 
         // Update GUI list
         af_listmodel.add(ins_pos, createModel(clsname, mainWin.getGUILanguage()));
@@ -133,10 +129,13 @@ public class GUI_List_AutoFormatConfig implements EventListener
             return;
         }
         try {
+            List<String> removeNames = new ArrayList<String>();
+            for (Object obj : selection) {
+                removeNames.add(((AutoFormatConfigModel) obj).getAutoFormatClassName());
+            }
             String msg;
             if (sel_cnt == 1) {
-                AutoFormatConfigModel model = (AutoFormatConfigModel) selection.iterator().next();
-                msg = "Delete Auto-Format class '" + model.getAutoFormatClassName() + "'?";
+                msg = "Delete Auto-Format class '" + removeNames.get(0) + "'?";
             } else {
                 msg = "Delete " + sel_cnt + " Auto-Format classes?";
             }
@@ -151,13 +150,8 @@ public class GUI_List_AutoFormatConfig implements EventListener
                 selectionChanged();
 
                 // Update application configuration
-                StringBuilder buf = new StringBuilder();
-                for (int i=0; i < af_listmodel.size(); i++) {
-                    AutoFormatConfigModel model = (AutoFormatConfigModel) af_listmodel.get(i);
-                    buf.append(model.getAutoFormatClassName()).append(" ");
-                }
-                DocmaSession docmaSess = mainWin.getDocmaSession();
-                docmaSess.setApplicationProperty(DocmaConstants.PROP_AUTOFORMAT_CLASSES, buf.toString().trim());
+                DocmaApplication docmaApp = GUIUtil.getDocmaWebApplication(mainWin);
+                docmaApp.unregisterAutoFormatClasses(removeNames.toArray(new String[sel_cnt]));
             }
         } catch(Exception ex) {
             ex.printStackTrace();

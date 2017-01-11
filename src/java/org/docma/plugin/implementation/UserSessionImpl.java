@@ -28,11 +28,9 @@ import org.docma.plugin.*;
 public class UserSessionImpl implements UserSession
 {
     final DocmaSession docmaSess;
-    private StoreConnectionImpl openedStore = null;
     private UserImpl user = null;
-    private final Map<String, StoreConnectionImpl> tempStores = new HashMap<String, StoreConnectionImpl>();
     
-    UserSessionImpl(DocmaSession docmaSess)
+    public UserSessionImpl(DocmaSession docmaSess)
     {
         this.docmaSess = docmaSess;
     }
@@ -69,18 +67,7 @@ public class UserSessionImpl implements UserSession
 
     public StoreConnection getOpenedStore() 
     {
-        String storeId = docmaSess.getStoreId();
-        DocVersionId verId = docmaSess.getVersionId();
-        if ((storeId == null) || (verId == null)) {
-            return null;
-        }
-        if ((openedStore != null) && openedStore.isClosed()) {
-            openedStore = null;
-        }
-        if (openedStore == null) {
-            openedStore = new StoreConnectionImpl(this, docmaSess, storeId, verId, true);
-        }
-        return openedStore;
+        return docmaSess.getPluginStoreConnection();
     }
 
     public VersionId createVersionId(String verId) throws InvalidVersionIdException
@@ -99,32 +86,16 @@ public class UserSessionImpl implements UserSession
     
     public StoreConnection createTempStoreConnection(String storeId, VersionId verId) throws DocmaException
     {
-        DocmaSession new_sess = docmaSess.createNewSession();
+        DocmaSession new_sess = docmaSess.createChildSession();
         try {
             DocVersionId dver = versionIdToInternal(verId);
             new_sess.openDocStore(storeId, dver);
-
-            StoreConnectionImpl temp_conn = new StoreConnectionImpl(this, new_sess, storeId, dver, false);
-            String conn_id = temp_conn.getConnectionId();
-            if (tempStores.containsKey(conn_id)) {
-                throw new Exception("Store connection ID is not unique.");
-            }
-            tempStores.put(conn_id, temp_conn);
-            return temp_conn;
+            return new_sess.getPluginStoreConnection();
         } catch (Exception ex) {
             try {
                 new_sess.closeSession();
             } catch (Exception ex2) {}
             throw new DocmaException(ex);
-        }
-    }
-
-    public void closeTempStoreConnection(StoreConnection conn) 
-    {
-        StoreConnectionImpl impl = (StoreConnectionImpl) conn;
-        String conn_id = impl.getConnectionId();
-        if (tempStores.remove(conn_id) != null) {
-            impl.close();
         }
     }
 
@@ -254,18 +225,6 @@ public class UserSessionImpl implements UserSession
     
     // ********* Other methods (not visible by plugins) **********
 
-    public void onSessionClose()
-    {
-        // Close all temporary store connections
-        Iterator<StoreConnectionImpl> it = tempStores.values().iterator();
-        while (it.hasNext()) {
-            try {
-                StoreConnectionImpl sconn = it.next();
-                it.remove();
-                sconn.close();
-            } catch (Exception ex) {}
-        }
-    }
 
     DocmaSession getDocmaSession()
     {

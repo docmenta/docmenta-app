@@ -105,6 +105,57 @@ public class ApplicationContextImpl implements ApplicationContext
         return new DocmaCharEntity(sym, num, sel, desc);
     }
 
+    public String[] getTextFileExtensions() throws DocmaException
+    {
+        return docmaApp.getTextFileExtensions();
+    }
+
+    public String[] getAutoFormatClassNames() throws DocmaException 
+    {
+        return docmaApp.getAutoFormatClassNames();
+    }
+
+    public void registerAutoFormatClasses(String... clsNames) throws DocmaException 
+    {
+        try {
+            docmaApp.registerAutoFormatClasses(clsNames);
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
+    }
+
+    public void unregisterAutoFormatClasses(String... clsNames) throws DocmaException 
+    {
+        try {
+            docmaApp.unregisterAutoFormatClasses(clsNames);
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
+    }
+
+    public String[] getRuleClassNames() throws DocmaException 
+    {
+        return docmaApp.getRuleClassNames();
+    }
+
+    public void registerRuleClasses(String... clsNames) throws DocmaException 
+    {
+        try {
+            docmaApp.registerRuleClasses(clsNames);
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
+    }
+
+    public void unregisterRuleClasses(String... clsNames) throws DocmaException 
+    {
+        try {
+            docmaApp.unregisterRuleClasses(clsNames);
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
+    }
+
     public boolean hasObject(String objectName) 
     {
         return docmaApp.getApplicationServices().hasInstance(objectName);

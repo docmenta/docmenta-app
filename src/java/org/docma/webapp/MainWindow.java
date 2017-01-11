@@ -2074,7 +2074,7 @@ public class MainWindow extends Window implements EventListener
         if (((OpenEvent) fe.getOrigin()).isOpen()) {
             Menupopup contmenu = (Menupopup) getFellow("contentmenu");
             DocmaWebSession webSess = GUIUtil.getDocmaWebSession(this);
-            webSess.sendMenuOpenEventToPlugins(contmenu);
+            webSess.propagateMenuOpenEventToPlugins(contmenu);
             MenuUtil.updateContentMainMenu(contmenu, this);
         }
     }
@@ -2084,7 +2084,7 @@ public class MainWindow extends Window implements EventListener
         if (((OpenEvent) fe.getOrigin()).isOpen()) {
             Menupopup treemenu = (Menupopup) getFellow("treemenu");
             DocmaWebSession webSess = GUIUtil.getDocmaWebSession(this);
-            webSess.sendMenuOpenEventToPlugins(treemenu);
+            webSess.propagateMenuOpenEventToPlugins(treemenu);
             MenuUtil.updateContentContextMenu(treemenu, this);
         }
     }

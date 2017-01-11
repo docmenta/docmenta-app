@@ -17,12 +17,12 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.regex.Pattern;
 import javax.servlet.http.HttpSession;
 
 import org.docma.app.*;
-import org.docma.coreapi.DocI18n;
 import org.docma.plugin.web.*;
 import org.docma.plugin.Node;
 import org.docma.plugin.OutputConfig;
@@ -53,8 +53,8 @@ public class WebUserSessionImpl extends UserSessionImpl implements WebUserSessio
     private Map<String, UIListener> pluginToUIListener = null;
     // Map main window tab-Id to plugin-Id:
     private Map<String, String> mainTabsToPlugin = null;
-    // Map user dialog tab-Id to plugin-Id
-    private Map<String, String> userTabsToPlugin = null;
+    // Added user dialog tabs
+    private List<PluginTab> userTabs = null;
     // Plugin menu entries
     private List<PluginMenuEntry> menuEntries = null;
     
@@ -137,36 +137,75 @@ public class WebUserSessionImpl extends UserSessionImpl implements WebUserSessio
 
     public void addUserTab(WebPluginContext ctx, String tabId, String title, int pos, String zulPath) 
     {
-        UserDialog usrDialog = (UserDialog) webSess.getMainWindow().getPage().getFellow("UserDialog");
-        if (usrDialog == null) {
-            return;
-        }
-        Tabbox tabbox = (Tabbox) usrDialog.getFellow("UserDialogTabbox");
-        if (tabbox == null) {
-            return;
-        }
-        addTab(tabbox, tabId, title, pos, zulPath);
+        // Note: The tab cannot be added to the UI here, because this method
+        // is called after initialization of the main window. But the user 
+        // dialog is initialized after the main window (that means at this 
+        // point the user dialog does not yet exist). Therefore the tab 
+        // defintion is just added to the userTabs list. The creation of the
+        // user tab is done by the user dialog composer, just before the dialog
+        // is displayed.
         
-        if (userTabsToPlugin == null) {
-            userTabsToPlugin = new HashMap<String, String>();
+        // UserDialog usrDialog = (UserDialog) webSess.getMainWindow().getPage().getFellowIfAny("UserDialog");
+        // if (usrDialog == null) {
+        //     return;
+        // }
+        // Tabbox tabbox = (Tabbox) usrDialog.getFellowIfAny("UserDialogTabbox");
+        // if (tabbox == null) {
+        //     return;
+        // }
+        // addTab(tabbox, tabId, title, pos, zulPath);
+        
+        removeUserTab(tabId);  // remove user tab with same id, if existent
+        if (userTabs == null) {
+            userTabs = new ArrayList<PluginTab>();
         }
-        userTabsToPlugin.put(tabId, ctx.getPluginId());
+        userTabs.add(new PluginTab(ctx.getPluginId(), tabId, title, pos, zulPath));
     }
 
     public boolean removeUserTab(String tabId) 
     {
-        UserDialog usrDialog = (UserDialog) webSess.getMainWindow().getPage().getFellow("UserDialog");
-        if (usrDialog == null) {
-            return false;
+        // Remove from tab definitions
+        boolean res = false;
+        if (userTabs != null) {
+            Iterator<PluginTab> it = userTabs.iterator();
+            while (it.hasNext()) {
+                if (tabId.equals(it.next().getTabId())) {
+                    it.remove();
+                    res = true;
+                    break;
+                }
+            }
         }
-        Tabbox tabbox = (Tabbox) usrDialog.getFellow("UserDialogTabbox");
-        boolean res = (tabbox != null) && removeTab(tabbox, tabId);
-        if (userTabsToPlugin != null) {
-            userTabsToPlugin.remove(tabId);
+        
+        // Remove from UI
+        Window usrDialog = getUserDialog();
+        if (usrDialog != null) {
+            Tabbox tabbox = (Tabbox) usrDialog.getFellowIfAny("UserDialogTabbox");
+            if ((tabbox != null) && removeTab(tabbox, tabId)) {
+                res = true;
+            }
         }
         return res;
     }
 
+    public Object getTabComponent(String tabId, String componentId)
+    {
+        Component comp = null;
+        if ((mainTabsToPlugin != null) && mainTabsToPlugin.containsKey(tabId)) {
+            // If tabId is a tab in the main window, then the component is 
+            // a fellow of the main window.
+            comp = webSess.getMainWindow().getFellowIfAny(componentId);
+        } else if (getPluginIdOfUserTab(tabId) != null) {
+            // If tabId is not a main tab, then it's a user dialog component
+            Window usrDialog = getUserDialog();
+            if (usrDialog == null) {
+                return null;
+            }
+            comp = usrDialog.getFellowIfAny(componentId);
+        }
+        return comp;
+    }
+    
     public void addMenuItem(WebPluginContext ctx, String parentMenuId, 
                             String itemId, String title, String iconUrl, 
                             String neighbourId, boolean insertBefore) 
@@ -441,8 +480,9 @@ public class WebUserSessionImpl extends UserSessionImpl implements WebUserSessio
         String pluginId = null;
         if (target instanceof Tab) {
             pluginId = (mainTabsToPlugin != null) ? mainTabsToPlugin.get(targetId) : null;
-            if (pluginId == null) {
-                pluginId = (userTabsToPlugin != null) ? userTabsToPlugin.get(targetId) : null;
+            if (pluginId == null) {  
+                // If it's not a main tab, then maybe it's a user dialog tab
+                pluginId = getPluginIdOfUserTab(targetId);
             }
         }
         
@@ -482,8 +522,10 @@ public class WebUserSessionImpl extends UserSessionImpl implements WebUserSessio
                 String pId = mainTabsToPlugin.get(componentId);
                 if (pluginId.equals(pId)) {
                     try {
-                        Tab tab = (Tab) webSess.getMainWindow().getFellow(componentId);
-                        removeTab(tab.getTabbox(), componentId);
+                        Tab tab = (Tab) webSess.getMainWindow().getFellowIfAny(componentId);
+                        if (tab != null) {
+                            removeTab(tab.getTabbox(), componentId);
+                        }
                         it.remove();
                     } catch (Exception ex) {
                         Log.error("Failed to unload main-window tab '" + componentId + 
@@ -494,42 +536,58 @@ public class WebUserSessionImpl extends UserSessionImpl implements WebUserSessio
         }
         
         // Remove user-dialog tabs of plugin
-        if (userTabsToPlugin != null) {
-            UserDialog usrDialog = (UserDialog) webSess.getMainWindow().getPage().getFellow("UserDialog");
-            Iterator<String> it = userTabsToPlugin.keySet().iterator();
+        if (userTabs != null) {
+            Window usrDialog = (Window) webSess.getMainWindow().getPage().getFellowIfAny("UserDialog");
+            Iterator<PluginTab> it = userTabs.iterator();
             while (it.hasNext()) {
-                String componentId = it.next();
-                String pId = userTabsToPlugin.get(componentId);
-                if (pluginId.equals(pId)) {
+                PluginTab tabData = it.next();
+                if (pluginId.equals(tabData.getPluginId())) {
+                    String tabId = tabData.getTabId();
                     try {
                         if (usrDialog != null) {
-                            Tab tab = (Tab) usrDialog.getFellow(componentId);
-                            removeTab(tab.getTabbox(), componentId);
+                            Tab tab = (Tab) usrDialog.getFellowIfAny(tabId);
+                            if (tab != null) {
+                                removeTab(tab.getTabbox(), tabId);
+                            }
                         }
                         it.remove();
                     } catch (Exception ex) {
-                        Log.error("Failed to unload user-dialog tab '" + componentId + 
+                        Log.error("Failed to unload user-dialog tab '" + tabId + 
                                   "':" + ex.getMessage());
                     }
                 }
             }
         }
     }
-
+    
     /**
-     * Returns the list of plug-in menu entries for this session or null
-     * if no plug-in entries exist.
+     * Returns the list of plug-in tabs that have been added to the user dialog 
+     * of this session. If no tabs have been added, then <code>null</code>
+     * or an empty list is returned.
+     * This method can be called from the user dialog composer to 
+     * retrieve the list of tabs to be added for the current session.
+     * 
+     * @return List of plug-in tabs or null.
+     */
+    public List<PluginTab> getUserDialogTabs()
+    {
+        return userTabs;
+    }
+    
+    /**
+     * Returns the list of plug-in menu entries for this session or 
+     * <code>null</code> if no plug-in entries exist.
      * This method can be called for example from org.docma.webapp.MenuUtil to 
      * retrieve the list of plug-in menu entries for the current session.
      * 
-     * @return List of plugin menu entries or null.
+     * @return List of plug-in menu entries or null.
      */
     public List<PluginMenuEntry> getMenuEntries()
     {
         return menuEntries;
     }
 
-    public void sendMenuClickEventToPlugin(Menuitem item)
+    public void propagateMenuClickEventToPlugin(Menuitem item)
     {
         PluginMenuEntry entry = getMenuEntryById(item.getId());
         if ((entry != null) && (pluginToUIListener != null)) {
@@ -547,7 +605,7 @@ public class WebUserSessionImpl extends UserSessionImpl implements WebUserSessio
         }
     }
     
-    public void sendMenuOpenEventToPlugins(Menupopup menu)
+    public void propagateMenuOpenEventToPlugins(Menupopup menu)
     {
         if (pluginToUIListener == null) {   // no plug-in exists
             return;
@@ -565,11 +623,119 @@ public class WebUserSessionImpl extends UserSessionImpl implements WebUserSessio
             }
         }
     }
+
+    public void propagateUserDialogEventToPlugins(String evtName, Component target)
+    {
+        // Find all plugins that have added a user dialog tab
+        HashSet<String> plugIds = new HashSet();
+        for (PluginTab utab : userTabs) {
+            plugIds.add(utab.getPluginId());
+        }
+        
+        // Send event to all found plugins
+        UIEventImpl uievt = new UIEventImpl(evtName, target, this);
+        for (String pluginId : plugIds) {
+            UIListener listener = pluginToUIListener.get(pluginId);
+            if (listener != null) {
+                // try {
+                listener.onEvent(uievt);  // may throw a runtime exception, 
+                                          // for example to prevent closing of 
+                                          // the user dialog 
+                // } catch (Exception ex) {
+                //     ex.printStackTrace();
+                //     Log.error("Exception in UIListener.onEvent for '" + sourceEvt.getName() +
+                //               "' event of plugin '" + pluginId + "': " + ex.getMessage());
+                // }
+            }
+        }
+    }
+    
+    public void propagateUserDialogEventToPlugins(Event sourceEvt)
+    {
+        // Find all plugins that have added a user dialog tab
+        HashSet<String> plugIds = new HashSet();
+        for (PluginTab utab : userTabs) {
+            plugIds.add(utab.getPluginId());
+        }
+        
+        // Send event to all found plugins
+        UIEventImpl uievt = new UIEventImpl(sourceEvt, this);
+        for (String pluginId : plugIds) {
+            UIListener listener = pluginToUIListener.get(pluginId);
+            if (listener != null) {
+                // try {
+                listener.onEvent(uievt);  // may throw a runtime exception, 
+                                          // for example to prevent closing of 
+                                          // the user dialog 
+                // } catch (Exception ex) {
+                //     ex.printStackTrace();
+                //     Log.error("Exception in UIListener.onEvent for '" + sourceEvt.getName() +
+                //               "' event of plugin '" + pluginId + "': " + ex.getMessage());
+                // }
+            }
+        }
+    }
+
+    public boolean addTab(Tabbox tabbox, String tabId, String title, int pos, String zulPath) 
+    {
+        Tabs tabs = tabbox.getTabs();
+        checkValidComponentId(tabId);
+        if (tabs.hasFellow(tabId)) {
+            return false;  // Cannot add tab. Tab with same id already exists
+        }
+        Tabpanels panels = tabbox.getTabpanels();
+        
+        Tab tab = new Tab(title);
+        tab.setId(tabId);
+        tab.addEventListener("onSelect", this);
+        
+        Tabpanel tp = new Tabpanel();
+        // tp.setHflex("1"); // tp.setWidth("100%");
+        tp.setHeight("100%");
+        // tp.appendChild(new Label("Hello world!"));
+        if ((zulPath != null) && (zulPath.length() > 0)) {
+            Execution exec = webSess.getMainWindow().getDesktop().getExecution();
+            if (exec == null) {  // method is called outside of ZK event
+                throw new RuntimeException("Cannot access ZK Execution instance.");
+            }
+            Component[] comps = exec.createComponents(zulPath, null);
+            for (Component com : comps) {
+                tp.appendChild(com);
+            }
+        }
+        List tab_list = tabs.getChildren();
+        List panel_list = panels.getChildren();
+        int maxpos = Math.min(tab_list.size(), panel_list.size());
+        if ((pos < 0) || (pos > maxpos)) {
+            pos = maxpos;
+        }
+        
+        tab_list.add(pos, tab);
+        panel_list.add(pos, tp);
+        return true;
+    }
     
     // ***************** Package local methods *********************
 
     // ***************** Private methods *********************
 
+    private Window getUserDialog()
+    {
+        return (Window) webSess.getMainWindow().getPage().getFellowIfAny("UserDialog");
+    }
+    
+    private String getPluginIdOfUserTab(String tabId)
+    {
+        if (userTabs != null) {
+            for (PluginTab tab : userTabs) {
+                if (tabId.equals(tab.getTabId())) {
+                    return tab.getPluginId();
+                }
+            }
+        }
+        return null;
+    }
+    
     private Object getMenuOption(String menuOrItemId, MenuOption name)
     {
         PluginMenuEntry entry = getMenuEntryById(menuOrItemId);
@@ -606,7 +772,7 @@ public class WebUserSessionImpl extends UserSessionImpl implements WebUserSessio
 
     private void addMainTab(String tabboxId, WebPluginContext ctx, String tabId, String title, int pos, String zulPath)
     {
-        Tabbox tabbox = (Tabbox) webSess.getMainWindow().getFellow(tabboxId);
+        Tabbox tabbox = (Tabbox) webSess.getMainWindow().getFellowIfAny(tabboxId);
         if (tabbox == null) {
             return;
         }
@@ -628,44 +794,6 @@ public class WebUserSessionImpl extends UserSessionImpl implements WebUserSessio
         return res;
     }
     
-    private void addTab(Tabbox tabbox, String tabId, String title, int pos, String zulPath) 
-    {
-        Tabs tabs = tabbox.getTabs();
-        checkValidComponentId(tabId);
-        if (tabs.hasFellow(tabId)) {
-            throw new RuntimeException("Cannot add tab: component with id '" + tabId + "' already exists!");
-        }
-        Tabpanels panels = tabbox.getTabpanels();
-        
-        Tab tab = new Tab(title);
-        tab.setId(tabId);
-        tab.addEventListener("onSelect", this);
-        
-        Tabpanel tp = new Tabpanel();
-        tp.setWidth("100%");
-        tp.setHeight("100%");
-        // tp.appendChild(new Label("Hello world!"));
-        if ((zulPath != null) && (zulPath.length() > 0)) {
-            Execution exec = webSess.getMainWindow().getDesktop().getExecution();
-            if (exec == null) {  // method is called outside of ZK event
-                throw new RuntimeException("Cannot access ZK Execution instance.");
-            }
-            Component[] comps = exec.createComponents(zulPath, null);
-            for (Component com : comps) {
-                tp.appendChild(com);
-            }
-        }
-        List tab_list = tabs.getChildren();
-        List panel_list = panels.getChildren();
-        int maxpos = Math.min(tab_list.size(), panel_list.size());
-        if ((pos < 0) || (pos > maxpos)) {
-            pos = maxpos;
-        }
-        
-        tab_list.add(pos, tab);
-        panel_list.add(pos, tp);
-    }
-    
     private boolean removeTab(Tabbox tabbox, String tabId) 
     {
         Tabs tabs = tabbox.getTabs();
@@ -684,6 +812,23 @@ public class WebUserSessionImpl extends UserSessionImpl implements WebUserSessio
         }
         Log.warning("Could not remove tab with id '" + tabId + "'!");
         return false;
+    }
+
+    private Tabpanel getTabpanel(Tabbox tabbox, String tabId) 
+    {
+        Tabs tabs = tabbox.getTabs();
+        Tabpanels panels = tabbox.getTabpanels();
+        List tab_list = tabs.getChildren();
+        List panel_list = panels.getChildren();
+        int maxpos = Math.min(tab_list.size(), panel_list.size());
+        for (int i=0; i < maxpos; i++) {
+            Tab tab = (Tab) tab_list.get(i);
+            Tabpanel pan = (Tabpanel) panel_list.get(i);
+            if (tabId.equals(tab.getId())) {
+                return pan;
+            }
+        }
+        return null;
     }
     
     private String messageTypeToIcon(MessageType msg_type)

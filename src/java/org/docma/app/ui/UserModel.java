@@ -38,6 +38,7 @@ public class UserModel implements Comparable
     private String[] groupNames  = {};
     private String   guiLanguage = "";   // Empty string means default language (OS or browser language)
     private String   editorId    = null;
+    private String   txtEditorId = null;
     private String   dateFormat  = "";
     private String   newPassword = null;
     private boolean  quickLinksEnabled = false;
@@ -93,6 +94,7 @@ public class UserModel implements Comparable
         guiLanguage = um.getUserProperty(userId, DocmaConstants.PROP_USER_GUI_LANGUAGE);
         dateFormat = um.getUserProperty(userId, DocmaConstants.PROP_USER_DATE_FORMAT);
         editorId = um.getUserProperty(userId, GUIConstants.PROP_USER_EDITOR_ID);
+        txtEditorId = um.getUserProperty(userId, GUIConstants.PROP_USER_TXT_EDITOR_ID);
         String ql_str = um.getUserProperty(userId, GUIConstants.PROP_USER_QUICKLINKS_ENABLED);
         quickLinksEnabled = (ql_str != null) && ql_str.equalsIgnoreCase("true");
         refreshGroups(um);
@@ -129,6 +131,7 @@ public class UserModel implements Comparable
             DocmaConstants.PROP_USER_GUI_LANGUAGE,
             DocmaConstants.PROP_USER_DATE_FORMAT,
             GUIConstants.PROP_USER_EDITOR_ID,
+            GUIConstants.PROP_USER_TXT_EDITOR_ID,
             GUIConstants.PROP_USER_QUICKLINKS_ENABLED
         };
         String[] propValues = {
@@ -138,6 +141,7 @@ public class UserModel implements Comparable
             guiLanguage,
             dateFormat,
             editorId,
+            txtEditorId,
             quickLinksEnabled ? "true" : "false"
         };
         um.setUserProperties(userId, propNames, propValues);
@@ -278,6 +282,16 @@ public class UserModel implements Comparable
     public void setEditorId(String editorId)
     {
         this.editorId = editorId;
+    }
+    
+    public String getTxtEditorId()
+    {
+        return txtEditorId;
+    }
+
+    public void setTxtEditorId(String editorId)
+    {
+        this.txtEditorId = editorId;
     }
     
     public boolean isQuickLinksEnabled()

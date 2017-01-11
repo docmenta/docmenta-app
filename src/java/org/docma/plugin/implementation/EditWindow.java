@@ -156,7 +156,11 @@ public class EditWindow extends Window
             }
         } finally {
             if (isTempConn) {
-                webSess.closeTempStoreConnection(editConn);
+                try {
+                    editConn.close();
+                } catch (Exception ex) {
+                    Log.error("onCancel: Failed to close temporary store connection: " + ex.getMessage());
+                }
             }
         }
 
@@ -190,7 +194,11 @@ public class EditWindow extends Window
             }
         } finally {
             if (isTempConn) {
-                webSess.closeTempStoreConnection(editConn);
+                try {
+                    editConn.close();
+                } catch (Exception ex) {
+                    Log.error("onKeepAlive: Failed to close temporary store connection: " + ex.getMessage());
+                }
             }
         }
     }

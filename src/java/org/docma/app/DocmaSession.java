@@ -24,6 +24,10 @@ import org.docma.util.*;
 import org.docma.userapi.UserManager;
 import org.docma.lockapi.LockListener;
 import org.docma.plugin.ApplicationContext;
+import org.docma.plugin.StoreConnection;
+import org.docma.plugin.UserSession;
+import org.docma.plugin.implementation.StoreConnectionImpl;
+import org.docma.plugin.implementation.UserSessionImpl;
 import org.docma.app.fsimplementation.PublicationArchivesSessImpl;
 
 /**
@@ -45,6 +49,13 @@ public class DocmaSession
     private Map              accessRights = null;
     private Set              openedStoreRights = null;
 
+    private boolean isUISession = false;
+    private Map<String, DocmaSession> childSessions = null;
+    private DocmaSession parentSession = null;
+    
+    private UserSessionImpl pluginUserSession = null;
+    private StoreConnectionImpl pluginStoreConnection = null;
+
     private Properties genTextProps = null;
     private Date       genTextPropsDate = null;
 
@@ -65,7 +76,7 @@ public class DocmaSession
     DocmaNode systemRoot = null;
 
 
-    /* --------------  Constructor  ---------------------- */
+    /* ------------  Constructor and initialization  ---------------- */
 
     DocmaSession(DocmaApplication docmaApp, DocStoreSession docSess)
     {
@@ -73,6 +84,19 @@ public class DocmaSession
         this.docSess = docSess;
     }
 
+    /**
+     * Initializes the UI session.
+     * If this session is the user's UI session, then this method has to be
+     * called after this instance has been created.
+     * 
+     * @param userSess  the plugin facade of the UI user session 
+     */
+    public void initUISession(UserSessionImpl userSess)
+    {
+        this.isUISession = true;
+        this.pluginUserSession = userSess;
+    }
+    
     /* --------------  private methods  ---------------------- */
 
     private DocmaNode addToNodeMap(DocNode docNode) {
@@ -498,6 +522,18 @@ public class DocmaSession
         return docmaApp.getI18n();
     }
 
+    public String getSessionId()
+    {
+        return docSess.getSessionId();
+    }
+    
+    /**
+     * Create a new independent session owned by the same user as this session.
+     * The lifetime of the new session is independent from the lifetime 
+     * of this session.
+     * 
+     * @return the created session
+     */
     public DocmaSession createNewSession()
     {
         try {
@@ -509,9 +545,67 @@ public class DocmaSession
         }
     }
 
-    public String getSessionId()
+    /**
+     * Create a new child session owned by the same user as this session.
+     * Closing this session causes all created child session to be closed  
+     * as well.
+     * 
+     * @return the created session
+     */
+    public DocmaSession createChildSession()
     {
-        return docSess.getSessionId();
+        if (childSessions == null) {
+            childSessions = new HashMap<String, DocmaSession>();
+        }
+        DocmaSession newSess = createNewSession();
+        newSess.parentSession = this;
+        try {
+            String newId = newSess.getSessionId();
+            if (childSessions.containsKey(newId)) {
+                throw new DocRuntimeException("ID of temporary session is not unique: " + newId);
+            }
+            childSessions.put(newId, newSess);
+            return newSess;
+        } catch (Exception ex) {
+            try {
+                newSess.closeSession();
+            } catch (Exception ex2) {}
+            throw new DocRuntimeException(ex);
+        }
+    }
+
+    public UserSession getPluginUserSession()
+    {
+        if (pluginUserSession == null) {
+            // pluginUserSession is null if the initUISession method has not 
+            // been called. In other words, this is a daemon session (a session
+            // that is not connected to the UI).
+            if (parentSession != null) {  // this is a child session
+                // In the plugin API, the plugin user session of child sessions 
+                // (temporary store connections) is the user session from which 
+                // the child session has been created (i.e. the parent session).
+                pluginUserSession = (UserSessionImpl) parentSession.getPluginUserSession();
+            } else {
+                // If this session is a daemon session and also no child session 
+                // of another session, then the plugin user session is 
+                // this session itself.
+                pluginUserSession = new UserSessionImpl(this);
+            }
+        }
+        return pluginUserSession;
+    }
+    
+    public StoreConnection getPluginStoreConnection()
+    {
+        if (pluginStoreConnection == null) {
+            String sId = getStoreId();
+            DocVersionId vId = getVersionId();
+            if ((sId != null) && (vId != null)) {
+                pluginStoreConnection = 
+                  new StoreConnectionImpl(getPluginUserSession(), this, sId, vId, isUISession);
+            }
+        }
+        return pluginStoreConnection;
     }
 
     public String getUserProperty(String name)
@@ -584,6 +678,11 @@ public class DocmaSession
     public UserManager getUserManager()
     {
         return docmaApp.getUserManager();
+    }
+    
+    public RulesManager getRulesManager()
+    {
+        return docmaApp.getRulesManager();
     }
 
     public DocmaCharEntity[] getCharEntities()
@@ -1255,6 +1354,7 @@ public class DocmaSession
         systemRoot = null;
         nodeMap.clear();
         openedStoreRights = null;
+        pluginStoreConnection = null;
     }
 
     public boolean usersConnected(String storeId, DocVersionId verId)
@@ -2199,7 +2299,31 @@ public class DocmaSession
 
     public void closeSession()
     {
+        // First, close all child sessions
+        if (childSessions != null) {
+            Map<String, DocmaSession> tempMap = childSessions;
+            childSessions = null;
+            for (DocmaSession childSess : tempMap.values()) {
+                try {
+                    childSess.closeSession();
+                } catch (Exception ex) {
+                    Log.error("Failed to close child session: " + ex.getMessage());
+                }
+            }
+        }
+        
+        // If this session is a child of another session, remove this session 
+        // from the child list of the parent session.
+        if (parentSession != null) {
+            if (parentSession.childSessions != null) {
+                parentSession.childSessions.remove(getSessionId());
+            }
+            parentSession = null;
+        }
+        
+        // Now, close this session
         docSess.closeSession();
+        pluginStoreConnection = null;
         docmaApp.releaseSession(this);
         if (sessionListener != null) {
             sessionListener.sessionClosed();

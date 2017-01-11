@@ -14,12 +14,15 @@
 package org.docma.webapp;
 
 import java.util.Arrays;
+import java.util.ListIterator;
+import java.util.Set;
 import org.docma.app.RuleConfig;
 import org.docma.app.RulesManager;
 import org.zkoss.zul.ListModelList;
 import org.zkoss.zul.Listbox;
 import org.zkoss.zul.Listitem;
 import org.zkoss.zul.ListitemRenderer;
+import org.zkoss.zul.Messagebox;
 import org.zkoss.zul.Window;
 
 /**
@@ -57,15 +60,15 @@ public class GUI_List_Rules implements ListitemRenderer
         if (rm == null) { 
             return;
         }
-        rules_listmodel.addAll(Arrays.asList(rm.listRules()));
+        rules_listmodel.addAll(Arrays.asList(rm.getAllRules()));
     }
 
     public void onNewRule() 
     {
-        Window dialog = (Window) mainWin.getPage().getFellow("ruleConfigDialog");
+        Window dialog = (Window) mainWin.getPage().getFellow("RuleConfigDialog");
         RuleConfigComposer composer = (RuleConfigComposer) dialog.getAttribute("$composer");
         final RuleConfig new_conf = new RuleConfig();
-        composer.showRuleConfigDialog(new_conf, new Callback() {
+        composer.newRule(new_conf, new Callback() {
             public void onEvent(String evt) {
                 if (RuleConfigComposer.EVENT_OKAY.equals(evt)) {
                     // int ins_pos = -(Collections.binarySearch(rules_listmodel, new_conf)) - 1;
@@ -77,10 +80,46 @@ public class GUI_List_Rules implements ListitemRenderer
     
     public void onEditRule() 
     {
+        Set selection = rules_listmodel.getSelection();
+        int sel_cnt = selection.size();
+        if (sel_cnt != 1) {
+            Messagebox.show("Please select one rule from the list!");
+            return;
+        }
+        final RuleConfig selRule = (RuleConfig) selection.iterator().next();
+        // final String oldRuleId = selRule.getId();
         
+        Window dialog = (Window) mainWin.getPage().getFellow("RuleConfigDialog");
+        RuleConfigComposer composer = (RuleConfigComposer) dialog.getAttribute("$composer");
+        composer.editRule(selRule, new Callback() {
+            public void onEvent(String evt) {
+                if (RuleConfigComposer.EVENT_OKAY.equals(evt)) {
+                    
+                    // Persist changes
+                    DocmaWebApplication webapp = GUIUtil.getDocmaWebApplication(mainWin);
+                    RulesManager rm = webapp.getRulesManager();
+                    try {
+                        rm.saveRule(selRule);
+                    } catch (Exception ex) {
+                        MessageUtil.showError(mainWin, ex.getLocalizedMessage());
+                    }
+                    
+                    // Update UI
+                    int pos = getRuleListPos(selRule);
+                    if (pos >= 0) {
+                        rules_listmodel.set(pos, selRule);
+                    }
+                }
+            }
+        });
     }
     
     public void onDeleteRule() 
+    {
+        
+    }
+    
+    public void onCopyRule() 
     {
         
     }
@@ -99,4 +138,14 @@ public class GUI_List_Rules implements ListitemRenderer
     {
     }
     
+    private int getRuleListPos(RuleConfig ruleConf)
+    {
+        for (int i = 0; i < rules_listmodel.size(); i++) {
+            RuleConfig rc = (RuleConfig) rules_listmodel.get(i);
+            if (rc == ruleConf) {
+                return i;
+            }
+        }
+        return -1;
+    }
 }

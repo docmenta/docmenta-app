@@ -1,70 +1,73 @@
-<window id="UserDialog" title="User Dialog" border="normal" width="320px" visible="false"
-        closable="true" onClose="self.visible = false; event.stopPropagation();"
-        use="org.docma.webapp.UserDialog">
+<window id="UserDialog" title="User Dialog" border="normal" width="584px" visible="false"
+        sizable="false" closable="true" 
+        contentStyle="padding:2px 6px 2px 6px;"
+        apply="org.docma.webapp.UserDialogComposer">
   <caption>
-    <toolbarbutton label="Help" onClick='mainWin.onHelp("help/create_user.html")'/>
+    <toolbarbutton label="${c:l('label.help')}" onClick='mainWin.onHelp("help/create_user.html")'/>
   </caption>
-  <vbox spacing="0px" width="100%" height="100%" align="stretch" pack="stretch">
-    <tabbox id="UserDialogTabbox" width="100%" vflex="1" tabscroll="true">
+  <vbox spacing="0px" hflex="1" height="100%" align="stretch" pack="stretch">
+    <tabbox id="UserDialogTabbox" hflex="1" vflex="1" tabscroll="true">
       <tabs>
-        <tab id="UserDialogGeneralTab" label="${c:l('tab.user.general')}" />
+        <tab id="UserDialogGeneralTab" label="${c:l('tab.user.general')}" onSelect='UserDialog.width="584px"; UserDialog.invalidate();'/>
         <tab id="UserDialogGroupsTab" label="${c:l('tab.user.groups')}" />
       </tabs>
       <tabpanels style="background-color:#FFFFFF;" height="100%">
         <tabpanel id="UserDialogGeneralTabpanel" height="100%">
-          <vbox spacing="3px" width="100%">
-            <separator spacing="0px"/>
-            <label>${c:l('label.user.loginname')}:</label>
-            <textbox id="UserLoginNameTextbox" maxlength="40" width="96%" />
-            <separator spacing="1px"/>
-            <label>${c:l('label.user.lastname')}:</label>
-            <textbox id="UserLastNameTextbox" maxlength="40" width="96%" />
-            <separator spacing="1px"/>
-            <label>${c:l('label.user.firstname')}:</label>
-            <textbox id="UserFirstNameTextbox" maxlength="40" width="96%" />
-            <separator spacing="1px"/>
-            <label>${c:l('label.user.email')}:</label>
-            <textbox id="UserEmailTextbox" maxlength="80" width="96%" />
-            <separator spacing="1px"/>
-            <hbox width="99%" spacing="4px">
-              <cell width="55%">
-                <vbox spacing="3px" width="100%" align="stretch">
-                    <label>${c:l('label.user.guilanguage')}:</label>
-                    <listbox id="UserGUILangListbox" mold="select" rows="1"></listbox>
-                </vbox>
-              </cell>
-              <cell width="45%">
-                <vbox spacing="3px" width="100%"  align="stretch">
-                    <label>${c:l('label.user.dateformat')}:</label>
-                    <textbox id="UserDateFormatTextbox" maxlength="20" width="96%" />
-                </vbox>
-              </cell>
-            </hbox>
-            <separator spacing="1px"/>
-            <hbox width="100%" spacing="4px" align="center" pack="start">
-              <label hflex="min">${c:l('label.user.editorid')}:</label>
-              <checkbox hflex="min" id="UserQuickLinksCheckbox"/>
-              <label hflex="1" value="${c:l('label.user.quicklinks')}" />
-            </hbox>
-            <listbox id="UserEditorIdListbox" mold="select" rows="1" width="96%"></listbox>
-            <groupbox width="270px">
-                <caption label=" ${c:l('label.user.setpassword')} " />
-                <hbox width="260px" spacing="4px">
-                  <cell width="50%">
-                    <vbox spacing="3px" width="100%">
+         <hbox pack="stretch" hflex="1" spacing="8px">
+          <vbox hflex="1" spacing="3px">
+            <groupbox hflex="1">
+              <caption label=" ${c:l('label.user.userinfo')} "  style="font-weight:bold;"/>
+              <vbox hflex="1" spacing="3px">
+                <label>${c:l('label.user.loginname')}:</label>
+                <textbox id="UserLoginNameTextbox" maxlength="40" hflex="1" />
+                <separator spacing="1px"/>
+                <label>${c:l('label.user.lastname')}:</label>
+                <textbox id="UserLastNameTextbox" maxlength="40" hflex="1" />
+                <separator spacing="1px"/>
+                <label>${c:l('label.user.firstname')}:</label>
+                <textbox id="UserFirstNameTextbox" maxlength="40" hflex="1" />
+                <separator spacing="1px"/>
+                <label>${c:l('label.user.email')}:</label>
+                <textbox id="UserEmailTextbox" maxlength="80" hflex="1" />
+                <separator spacing="1px"/>
+              </vbox>
+            </groupbox>
+            <groupbox hflex="1">
+                <caption label=" ${c:l('label.user.setpassword')} "  style="font-weight:bold;"/>
+                <hbox hflex="1">
+                    <vbox spacing="3px" hflex="1">
                       <label>${c:l('label.user.newpassword')}:</label>
-                      <textbox id="UserPasswordTextbox1" type="password" maxlength="20" width="96%" />
+                      <textbox id="UserPasswordTextbox1" type="password" maxlength="20" hflex="1" />
                     </vbox>
-                  </cell>
-                  <cell width="50%">
-                    <vbox spacing="3px" width="100%">
+                    <space spacing="4px" />
+                    <vbox spacing="3px" hflex="1">
                       <label>${c:l('label.user.repeatpassword')}:</label>
-                      <textbox id="UserPasswordTextbox2" type="password" maxlength="20" width="96%" />
+                      <textbox id="UserPasswordTextbox2" type="password" maxlength="20" hflex="1" />
                     </vbox>
-                  </cell>
                 </hbox>
             </groupbox>
           </vbox>
+          <groupbox hflex="1">
+              <caption label=" ${c:l('label.user.preferences')} "  style="font-weight:bold;"/>
+              <vbox hflex="1" spacing="3px">
+                <label>${c:l('label.user.guilanguage')}:</label>
+                <listbox id="UserGUILangListbox" mold="select" rows="1" hflex="1"></listbox>
+                <separator spacing="1px"/>
+                <label>${c:l('label.user.dateformat')}:</label>
+                <textbox id="UserDateFormatTextbox" maxlength="20" hflex="1" />
+                <separator spacing="1px"/>
+                <label>${c:l('label.user.editorid')}:</label>
+                <listbox id="UserEditorIdListbox" mold="select" rows="1" hflex="1"></listbox>
+                <hbox width="100%" spacing="4px" align="center" pack="start">
+                  <checkbox hflex="min" id="UserQuickLinksCheckbox"/>
+                  <label hflex="1" value="${c:l('label.user.quicklinks')}" />
+                </hbox>
+                <separator spacing="1px"/>
+                <label>${c:l('label.user.texteditorid')}:</label>
+                <listbox id="UserTxtEditorIdListbox" mold="select" rows="1" hflex="1"></listbox>
+              </vbox>
+          </groupbox>
+         </hbox>
         </tabpanel>
         <tabpanel id="UserDialogGroupsTabpanel" height="100%">
           <vbox spacing="3px" width="100%" height="100%" pack="stretch" align="stretch">
@@ -78,8 +81,8 @@
     </tabbox>
     <separator spacing="2px"/>
     <hbox width="100%" pack="stretch">
-        <button label="${c:l('label.okay.btn')}" hflex="1" onClick="UserDialog.onOkayClick()"/>
-        <button label="${c:l('label.cancel.btn')}" hflex="1" onClick="UserDialog.onCancelClick()"/>
+        <button id="UserDialogOkayBtn" label="${c:l('label.okay.btn')}" hflex="1" />
+        <button id="UserDialogCancelBtn" label="${c:l('label.cancel.btn')}" hflex="1" />
     </hbox>
     <separator spacing="2px"/>
   </vbox>

@@ -14,6 +14,7 @@
 package org.docma.plugin.implementation;
 
 import org.docma.app.*;
+import org.docma.plugin.DocmaException;
 import org.docma.plugin.User;
 import org.docma.userapi.UserManager;
 
@@ -70,14 +71,22 @@ public class UserImpl implements User
         return usrManager.getUserProperty(id, name);
     }
 
-    public void setProperty(String name, String value) throws Exception
+    public void setProperty(String name, String value) throws DocmaException
     {
-        usrManager.setUserProperty(id, name, value);
+        try {
+            usrManager.setUserProperty(id, name, value);
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
     }
 
-    public void setProperties(String[] names, String[] values) throws Exception 
+    public void setProperties(String[] names, String[] values) throws DocmaException 
     {
-        usrManager.setUserProperties(id, names, values);
+        try {
+            usrManager.setUserProperties(id, names, values);
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
     }
 
 }

@@ -1,6 +1,6 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"
         session="true"
-        import="org.docma.plugin.*,org.docma.plugin.web.*,org.docma.plugin.internaleditor.*"
+        import="java.net.*,org.docma.plugin.*,org.docma.plugin.web.*,org.docma.plugin.internals.*"
 %><html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
@@ -10,80 +10,84 @@
 <title>Text File Content</title>
 <style type="text/css">
 pre { font-size:medium }
-.savemsg { font-size:12px; padding-top:2px; }
+.errormsg { font-size:12px; font-weight:bold; color:red; }
 </style>
 <%
     request.setCharacterEncoding("UTF-8");
     String sessid = request.getParameter("docsess");
     String nodeid = request.getParameter("nodeid");
-    String file_content = request.getParameter("file_content");
-    String charset_name = request.getParameter("charset_name");
-    boolean doSave = (file_content != null);
-
-    String onload_str = doSave ? "onload=\"parent.saveFinished();\"" : "onload=\"plugInit();\"";
+    // String charset_name = request.getParameter("charset_name");
 
     WebUserSession webSess = WebPluginUtil.getUserSession(application, sessid);
     StoreConnection storeConn = webSess.getOpenedStore();
+    if (storeConn == null) {
+        throw new Exception("Store connection is closed!");
+    }
     Node node = storeConn.getNodeById(nodeid);
     String storeId = storeConn.getStoreId();
     VersionId versionId = storeConn.getVersionId();
     String lang = storeConn.getCurrentLanguage().getCode();
 
-    String url = "viewEditTxtArea.jsp?docsess=" + sessid + "&nodeid=" + nodeid +
-                 "&stamp=" + System.currentTimeMillis();
-    String self_url = response.encodeURL(url);
+    String save_url = response.encodeURL("saveTxtArea.jsp?docsess=" + URLEncoder.encode(sessid, "UTF-8") + 
+                                         "&nodeid=" + URLEncoder.encode(nodeid, "UTF-8") +
+                                         "&stamp=" + System.currentTimeMillis());
 
     boolean isCont = node instanceof Content;
     boolean isFile = node instanceof FileContent;
-    String error_msg = isCont ? "" : "No valid content node";
-    if (doSave && isCont) {
-        try {
-            Content cont = (Content) node;
-            String old_storeId = request.getParameter("store_id");
-            String old_verId = request.getParameter("version_id");
-            String old_lang = request.getParameter("lang");
-            if (old_storeId.equals(storeId) &&
-                (versionId != null) && old_verId.equals(versionId.toString()) &&
-                old_lang.equals(lang)) {
-                if (isFile && (charset_name != null) && !charset_name.equals("")) {
-                    String old_charset = cont.getCharset();
-                    if ((old_charset == null) || !charset_name.equals(old_charset)) {
-                        ((FileContent) cont).setCharset(charset_name);
-                    }
-                }
-                cont.setContentString(file_content);
-            } else {
-                error_msg = "Product has been closed!";
-            }
-        } catch (Exception ex) {
-            error_msg = ex.getLocalizedMessage();
-        }
-    }
+    String ext = isFile ? ((FileContent) node).getFileExtension() : "content";
+    String error_msg = isCont ? "" : "Node type is not supported.";
+    boolean hasError = (error_msg != null) && !error_msg.equals("");
 %>
 <script type="text/javascript">
-    function getErrorMsg() {
-        return '<%= error_msg.replace("'", " ") %>';
+    function docmaInit() {
+        <%= hasError ? "" : "parent.initAfterLoad(); " + TextFileHandler.getJSOnLoad(webSess, ext) %>
     }
-    
-    function plugInit() {
-        <%= TextFileHandler.getHTMLOnLoadStatement() %>
+
+    function docmaBeforeSave() {
+        try {
+            <%= TextFileHandler.getJSBeforeSave(webSess, ext) %>
+        } catch (err) {
+            alert(err.message);
+            return false;
+        }
+        return true;
+    }
+
+    function docmaEnterEdit() {
+        var ef = document.forms["editform"];
+        ef.file_content.readOnly = false;
+        ef.file_content.style.backgroundColor = "#FFFFFF";
+        ef.file_content.focus();
+        try {
+            <%= TextFileHandler.getJSEnterEdit(webSess, ext) %>
+        } catch (err) {}
+    }
+
+    function docmaEnterView() {
+        var ef = document.forms["editform"];
+        ef.file_content.readOnly = true;
+        ef.file_content.style.backgroundColor = "#F4F4F4";
+        try {
+            <%= TextFileHandler.getJSEnterView(webSess, ext) %>
+        } catch (err) {}
     }
 </script>
-<%= TextFileHandler.getHTMLHead() %>
+<%= TextFileHandler.getHTMLHead(webSess, ext) %>
 </head>
-<body <%= onload_str %> style="background:#E0E0E0; font-family:Arial,sans-serif; margin:0; padding:0; overflow:hidden;">
+<body onload="docmaInit();" style="background:#E0E0E0; font-family:Arial,sans-serif; margin:0; padding:0; overflow:hidden;">
 <%
-    if (doSave) {
-        // is shown in the iframe filesave_frm of the parent window
-        out.println("<div class=\"savemsg\"></div>");
-    } else if (isCont) {
-        out.println(TextFileHandler.getHTMLBodyStart());
+    if (hasError) {
+        out.print("<div class=\"errormsg\">");
+        out.print(error_msg);
+        out.println("</div>");
+    } else {
+        out.println(TextFileHandler.getHTMLBodyStart(webSess, ext));
 %>
-<form name="editform" action="<%= self_url %>" method="post" target="filesave_frm" style="padding:0; margin:0; width:100%; height:100%;">
+<form name="editform" action="<%= save_url %>" method="post" target="filesave_frm" style="padding:0; margin:0; width:100%; height:100%;">
 <textarea id="file_content" name="file_content" wrap="off" style="width:100%; height:100%; background-color:#F4F4F4; border-width:0px;" readonly><%
     String str = ((Content) node).getContentString();
     if (str != null) {
-        out.print(str.replace("<", "&lt;").replace(">", "&gt;"));
+        out.print(str.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;"));
     }
 %></textarea>
 <input type="hidden" name="charset_name" value="" />
@@ -92,8 +96,8 @@ pre { font-size:medium }
 <input type="hidden" name="lang" value="<%= lang %>" />
 </form>
 <%
+        out.println(TextFileHandler.getHTMLBodyEnd(webSess, ext));
     }
-    out.println(TextFileHandler.getHTMLBodyEnd());
 %>
 </body>
 </html>

@@ -18,6 +18,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import org.docma.app.DocmaAppUtil;
 import org.docma.app.DocmaExportJob;
@@ -28,8 +29,9 @@ import org.docma.app.DocmaPublicationConfig;
 import org.docma.app.DocmaSession;
 import org.docma.app.DocmaStyle;
 import org.docma.app.ImageUtil;
-import org.docma.coreapi.DocVersionId;
+import org.docma.coreapi.DocI18n;
 import org.docma.coreapi.DocImageRendition;
+import org.docma.coreapi.DocVersionId;
 import org.docma.coreapi.DocmaExportLog;
 import org.docma.plugin.CharEntity;
 import org.docma.plugin.Content;
@@ -66,7 +68,7 @@ import org.docma.webapp.ImageRenditions;
  */
 public class StoreConnectionImpl implements StoreConnection
 {
-    private final UserSessionImpl userSess;
+    private final UserSession userSess;
     private DocmaSession docmaSess = null;
     private String connectionId = null;
     private final String storeId;
@@ -74,11 +76,11 @@ public class StoreConnectionImpl implements StoreConnection
     private final VersionId verId;        // the plugin interface wrapper of the version id
     private final boolean isUIConnection;
 
-    StoreConnectionImpl(UserSessionImpl userSess, 
-                        DocmaSession docmaSess, 
-                        String storeId, 
-                        DocVersionId docVerId, 
-                        boolean isUI)
+    public StoreConnectionImpl(UserSession userSess, 
+                               DocmaSession docmaSess, 
+                               String storeId, 
+                               DocVersionId docVerId, 
+                               boolean isUI)
     {
         this.userSess = userSess;
         this.docmaSess = docmaSess;
@@ -109,6 +111,18 @@ public class StoreConnectionImpl implements StoreConnection
         return userSess;
     }
 
+    public void close() throws DocmaException
+    {
+        if (docmaSess != null) {
+            if (isUIConnection) {
+                throw new DocmaException("Closing of UI store connection is not allowed.");
+            }
+            docmaSess.closeSession();
+            docmaSess = null;
+        }
+    }
+
+
     public boolean isClosed() 
     {
         // There are two cases:
@@ -123,13 +137,9 @@ public class StoreConnectionImpl implements StoreConnection
         // to be checked whether docmaSess is still connected to the same store 
         // as when this StoreConnection object has been created.
 
-        if (isUIConnection) {
-            return (docmaSess == null) || 
-                   (! storeId.equals(docmaSess.getStoreId())) || 
-                   (! docVerId.equals(docmaSess.getVersionId()));
-        } else {
-            return (docmaSess == null);
-        }
+        return (docmaSess == null) || 
+               (! storeId.equals(docmaSess.getStoreId())) || 
+               (! docVerId.equals(docmaSess.getVersionId()));
     }
 
     public String getStoreId() 
@@ -1103,19 +1113,34 @@ public class StoreConnectionImpl implements StoreConnection
         return (rend == null) ? null : new ImageRenditionInfoImpl(rend);
     }
     
-    public String prepareXHTML(String content, Properties props) throws DocmaException
+    public LogEntries prepareHTMLForSave(StringBuilder content, String nodeId, Map<Object, Object> props) throws DocmaException
     {
         try {
-            return EditContentTransformer.prepareContentForSave(docmaSess, content, props);
+            return EditContentTransformer.prepareHTMLForSave(content, nodeId, props, docmaSess);
         } catch (Exception ex) {
             throw new DocmaException(ex);
         }
+    }
+
+    public LogEntries consistencyCheck(String nodeId, boolean recursive, boolean autoCorrect, Map<Object, Object> props) throws DocmaException
+    {
+        throw new DocmaException("Not implemented");
     }
 
     // ********************************************************************
     // ********* Other methods (not directly visible by plugins) **********
     // ********************************************************************
 
+    DocmaSession getDocmaSession()
+    {
+        return docmaSess;
+    }
+    
+    DocI18n getI18n()
+    {
+        return docmaSess.getI18n();
+    }
+    
     private void checkClosed()
     {
         if (isClosed()) { 
@@ -1134,12 +1159,6 @@ public class StoreConnectionImpl implements StoreConnection
     DocVersionId getDocVersionId()
     {
         return docVerId;
-    }
-
-    void close() 
-    {
-        docmaSess.closeSession();
-        docmaSess = null;
     }
 
 }

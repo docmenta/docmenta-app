@@ -42,7 +42,7 @@ public class PluginMenuitemListener implements EventListener
                      ((comp != null) ? comp.getId() : "null"));
         }
         if ("onClick".equalsIgnoreCase(name) && (comp instanceof Menuitem)) {
-            webSess.sendMenuClickEventToPlugin((Menuitem) comp);
+            webSess.propagateMenuClickEventToPlugin((Menuitem) comp);
         }
     }
     

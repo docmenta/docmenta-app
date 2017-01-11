@@ -233,6 +233,92 @@ public class DocmaApplication
         return rulesManager;
     }
     
+    public String[] getAutoFormatClassNames()
+    {
+        String pval = getApplicationProperty(DocmaConstants.PROP_AUTOFORMAT_CLASSES);
+        if ((pval == null) || pval.trim().equals("")) {
+            return new String[0];
+        } else {
+            return pval.split(" ");
+        }
+    }
+    
+    public void registerAutoFormatClasses(String... clsNames) throws Exception
+    {
+        String pval = getApplicationProperty(DocmaConstants.PROP_AUTOFORMAT_CLASSES);
+        pval = (pval == null) ? "" : pval.trim();
+        List clsList = Arrays.asList(pval.split(" "));
+        StringBuilder sb = new StringBuilder(pval);
+        for (String cn : clsNames) {
+            if ((cn != null) && (cn.length() > 0) && !clsList.contains(cn)) {
+                if (sb.length() > 0) {
+                    sb.append(" ");
+                }
+                sb.append(cn);
+            }
+        }
+        setApplicationProperty(DocmaConstants.PROP_AUTOFORMAT_CLASSES, sb.toString());
+    }
+    
+    public void unregisterAutoFormatClasses(String... clsNames) throws Exception
+    {
+        String[] oldNames = getAutoFormatClassNames();
+        List removeList = Arrays.asList(clsNames);
+        StringBuilder sb = new StringBuilder();
+        for (String old : oldNames) {
+            if (! removeList.contains(old)) {
+                if (sb.length() > 0) {
+                    sb.append(" ");
+                }
+                sb.append(old);
+            }
+        }
+        setApplicationProperty(DocmaConstants.PROP_AUTOFORMAT_CLASSES, sb.toString());
+    }
+
+    public String[] getRuleClassNames()
+    {
+        String pval = getApplicationProperty(DocmaConstants.PROP_RULE_CLASSES);
+        if ((pval == null) || pval.trim().equals("")) {
+            return new String[0];
+        } else {
+            return pval.split(" ");
+        }
+    }
+    
+    public void registerRuleClasses(String... clsNames) throws Exception
+    {
+        String pval = getApplicationProperty(DocmaConstants.PROP_RULE_CLASSES);
+        pval = (pval == null) ? "" : pval.trim();
+        List clsList = Arrays.asList(pval.split(" "));
+        StringBuilder sb = new StringBuilder(pval);
+        for (String cn : clsNames) {
+            if ((cn != null) && (cn.length() > 0) && !clsList.contains(cn)) {
+                if (sb.length() > 0) {
+                    sb.append(" ");
+                }
+                sb.append(cn);
+            }
+        }
+        setApplicationProperty(DocmaConstants.PROP_RULE_CLASSES, sb.toString());
+    }
+    
+    public void unregisterRuleClasses(String... clsNames) throws Exception
+    {
+        String[] oldNames = getRuleClassNames();
+        List removeList = Arrays.asList(clsNames);
+        StringBuilder sb = new StringBuilder();
+        for (String old : oldNames) {
+            if (! removeList.contains(old)) {
+                if (sb.length() > 0) {
+                    sb.append(" ");
+                }
+                sb.append(old);
+            }
+        }
+        setApplicationProperty(DocmaConstants.PROP_RULE_CLASSES, sb.toString());
+    }
+
     /* --------------  Package local methods  ---------------------- */
 
     DocmaSession connect(String userId) throws Exception

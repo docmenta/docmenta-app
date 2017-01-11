@@ -525,7 +525,12 @@ public class UserManagerImpl implements UserManager
             throw new DocException("Cannot set property: User with ID '" + userId + "' does not exist.");
         }
         for (int i=0; i < propNames.length; i++) {
-            props.setProperty(propNames[i], propValues[i]);
+            String val = propValues[i];
+            if (val == null) {
+                props.remove(propNames[i]);
+            } else {
+                props.setProperty(propNames[i], val);
+            }
         }
         saveUserProperties(userId, props);
     }

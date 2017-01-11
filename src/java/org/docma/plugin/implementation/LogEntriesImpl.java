@@ -13,7 +13,7 @@
  */
 package org.docma.plugin.implementation;
 
-import org.docma.coreapi.DocmaExportLog;
+import org.docma.coreapi.implementation.DefaultLog;
 import org.docma.plugin.LogEntry;
 import org.docma.plugin.LogEntries;
 
@@ -23,9 +23,9 @@ import org.docma.plugin.LogEntries;
  */
 public class LogEntriesImpl implements LogEntries
 {
-    private final DocmaExportLog docmaLog;
+    private final DefaultLog docmaLog;
 
-    public LogEntriesImpl(DocmaExportLog docmaLog) 
+    public LogEntriesImpl(DefaultLog docmaLog) 
     {
         this.docmaLog = docmaLog;
     }

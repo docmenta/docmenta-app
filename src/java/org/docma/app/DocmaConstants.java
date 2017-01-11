@@ -62,6 +62,7 @@ public class DocmaConstants
     public static final String PROP_TEXT_FILE_EXTENSIONS = "text.file.extensions";
     public static final String PROP_FOP_CUSTOM_CONFIG_FILE = "fop.custom.config.file";
     public static final String PROP_AUTOFORMAT_CLASSES = "autoformat.classes";
+    public static final String PROP_RULE_CLASSES = "rule.classes";
     public static final String PROP_DISABLED_STORES = "docstores.disabled";
     public static final String PROP_PREVIEW_MAX_NODES = "preview.max.nodes";
     public static final String PROP_PREVIEW_MAX_NODES_PRINT = "preview.max.nodes.print";
@@ -157,6 +158,7 @@ public class DocmaConstants
     public static final String REGEXP_STYLE_BASE_ID = "[A-Za-z][0-9A-Za-z_]*";
     public static final String REGEXP_STYLE_NAME = "[0-9A-Za-z_,;. -]+";
     public static final String REGEXP_PRODUCT_ID = "[0-9A-Za-z_-]+";
+    public static final String REGEXP_RULE_ID = "[A-Za-z_][0-9A-Za-z_-]{1,79}";
 
     // Default styles
     public static final String STYLE_DEFAULT_CSS = "color:#000000; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:1em; border-color:#000000;";

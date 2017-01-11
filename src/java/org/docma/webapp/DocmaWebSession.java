@@ -18,6 +18,7 @@ import java.util.*;
 import javax.servlet.http.HttpSession;
 import org.docma.coreapi.*;
 import org.docma.app.*;
+import org.docma.app.ui.UserModel;
 import org.docma.plugin.web.WebUserSession;
 import org.docma.plugin.web.ContentAppHandler;
 import org.docma.plugin.web.DefaultContentAppHandler;
@@ -54,6 +55,7 @@ public class DocmaWebSession
         this.docmaApp = docmaApp;
         this.docmaSess = docmaSess;
         this.pluginWebSess = new WebUserSessionImpl(docmaSess, this, docmaApp.getPluginManager());
+        docmaSess.initUISession(this.pluginWebSess);
     }
 
     public DocmaWebApplication getDocmaWebApplication()
@@ -86,6 +88,11 @@ public class DocmaWebSession
         this.mainWin = mainWin;
     }
 
+    public UserModel getUserModel()
+    {
+        return getMainWindow().getUser(docmaSess.getUserId());
+    }
+    
     public DocmaExportLog getPreviewLog()
     {
         return previewLog;
@@ -265,11 +272,6 @@ public class DocmaWebSession
     public void closeSession()
     {
         if (docmaSess != null) {
-            try {
-                pluginWebSess.onSessionClose();  // e.g. close temporary store connections opened by plugins
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
             docmaApp.releaseSession(docmaSess.getSessionId());
             docmaSess.closeSession();
             docmaSess = null;
@@ -290,7 +292,19 @@ public class DocmaWebSession
     public String getFileEditorId(String ext)
     {
         // To do: consider file extension assignments defined by the user
-        return docmaApp.getFileEditorId(ext);
+        String edId = docmaApp.getFileEditorId(ext);
+        if ((edId != null) && edId.equals(docmaApp.getSystemDefaultTextEditor())) {
+            // If user has defined a custom text editor, then use this editor
+            // instead of the system's default text editor.
+            String customId = getUserModel().getTxtEditorId();
+            // String otherId = docmaSess.getUserProperty(GUIConstants.PROP_USER_TXT_EDITOR_ID);
+            if ((customId != null) && !customId.equals("")) {
+                if (docmaApp.getContentAppHandler(customId) != null) {
+                    edId = customId;
+                }
+            }
+        }
+        return edId;
     }
     
     public String getFileViewerId(String ext)
@@ -385,17 +399,17 @@ public class DocmaWebSession
 
     /* --------------  Package local methods  ---------------------- */
     
-    void sendMenuClickEventToPlugin(Menuitem item)
+    void propagateMenuClickEventToPlugin(Menuitem item)
     {
         if (pluginWebSess != null) {
-            pluginWebSess.sendMenuClickEventToPlugin(item);
+            pluginWebSess.propagateMenuClickEventToPlugin(item);
         } 
     }
 
-    void sendMenuOpenEventToPlugins(Menupopup menu)
+    void propagateMenuOpenEventToPlugins(Menupopup menu)
     {
         if (pluginWebSess != null) {
-            pluginWebSess.sendMenuOpenEventToPlugins(menu);
+            pluginWebSess.propagateMenuOpenEventToPlugins(menu);
         }
     }
     
