@@ -15,7 +15,6 @@ package org.docma.plugin.tinymce;
 
 import org.docma.app.ContentUtil;
 import org.docma.app.DocmaConstants;
-import org.docma.webapp.EditContentTransformer;
 import org.docma.util.CSSUtil;
 import org.docma.util.Log;
 
@@ -56,7 +55,14 @@ public class TinyEditorUtil
 
     public static String roundIndentToHigherInt(String indent)
     {
-        return EditContentTransformer.roundIndentToHigherInt(indent);
+        if (indent.contains(".")) {
+            String unit = CSSUtil.getSizeUnit(indent);
+            float f = CSSUtil.getSizeFloat(indent);
+            int indent_int = (int) Math.ceil(f);
+            return Integer.toString(indent_int) + unit;
+        } else {
+            return indent;
+        }
     }
 
     private static String addEmptyPara(String content)

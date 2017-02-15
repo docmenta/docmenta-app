@@ -104,6 +104,7 @@ public class MenuUtil
         addSeparator(menu);
         Menupopup submenu2 = addSubMenu(menu, "treemenuExtra", i18n.getLabel("label.submenu.extra"), null);
         menuMap.put(submenu2.getId(), submenu2);
+        addItem(submenu2, clientMode, "menuitemConsistencyCheck", i18n.getLabel("label.menuitem.consistencycheck"), null, "onConsistencyCheck");
         addItem(submenu2, clientMode, "menuitemSortByFilename", i18n.getLabel("label.menuitem.sortbyfilename"), null, "onSortByFilename");
         addItem(submenu2, clientMode, "menuitemExportNodes", i18n.getLabel("label.menuitem.exportnodes"), "img/export_icon.gif", "onExportNodes");
         addItem(submenu2, clientMode, "menuitemImportSubNodes", i18n.getLabel("label.menuitem.importsubnodes"), "img/import_icon.gif", "onImportSubNodes");

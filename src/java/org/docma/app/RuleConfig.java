@@ -16,10 +16,15 @@ package org.docma.app;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Properties;
+import java.util.Set;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.StringTokenizer;
 import org.docma.coreapi.DocException;
 import org.docma.plugin.LogLevel;
+import org.docma.plugin.implementation.HTMLRuleConfigImpl;
 import org.docma.plugin.rules.HTMLRule;
+import org.docma.plugin.rules.HTMLRuleConfig;
 import org.docma.util.DocmaUtil;
 import org.docma.util.Log;
 
@@ -27,7 +32,7 @@ import org.docma.util.Log;
  *
  * @author MP
  */
-public class RuleConfig implements Comparable
+public class RuleConfig implements Comparable, Cloneable
 {
     private static final String PROP_TITLE = "title";
     private static final String PROP_RULE_CLASS = "rule_class";
@@ -46,20 +51,33 @@ public class RuleConfig implements Comparable
     private String ruleId = "";
     private Properties props = null;
     private Class ruleClass = null;
-    private Object ruleInstance = null;
     private String[] args = null;
     private String[] scopeArr = null;
+    
+    private final Set instancePool = new HashSet();
+    private final Set acquiredInstances = new HashSet();
+    private final Set reConfigInstances = new HashSet(); // If rule-id, arguments or log-level changed, then
+                                                         // the configure(...) method of the rule instances
+                                                         // has to be invoked again.
 
     public RuleConfig()
     {
         props = new Properties();
+        ruleClass = null;
+        args = null;
         setScopeAll();   // default scope for newly created rules
     }
     
-    RuleConfig(String ruleId, Properties props)
+    RuleConfig(String ruleId, Properties p)
     {
         this.ruleId = ruleId;
-        this.props = props;
+        setProperties((p != null) ? p : new Properties());
+    }
+
+    public Object clone() throws CloneNotSupportedException
+    {
+        Properties p = (props == null) ? null : (Properties) props.clone();
+        return new RuleConfig(ruleId, p);
     }
     
     public String getId() 
@@ -70,6 +88,7 @@ public class RuleConfig implements Comparable
     public void setId(String ruleId)
     {
         this.ruleId = ruleId;
+        invalidateInstances();
     }
 
     public String getTitle() 
@@ -91,23 +110,41 @@ public class RuleConfig implements Comparable
     {
         props.setProperty(PROP_RULE_CLASS, cls_name);
         ruleClass = null;
-        ruleInstance = null;
+        instancePool.clear();
+        acquiredInstances.clear();
+        reConfigInstances.clear();
     }
 
     public Class getRuleClass() 
     {
-        if (ruleClass == null) {
-            initRuleInstance();
-        }
+        initRuleClass();
         return ruleClass;
     }
 
-    public Object getRuleInstance() 
+    public synchronized Object acquireRuleInstance() 
     {
-        if (ruleInstance == null) {
-            initRuleInstance();
+        reconfigureInstances();
+        Object obj;
+        if (instancePool.isEmpty()) {
+            obj = createAndConfigureRuleInstance();
+        } else {
+            Iterator it = instancePool.iterator();
+            obj = it.next();
+            it.remove();
         }
-        return ruleInstance;
+        if (obj != null) {
+            acquiredInstances.add(obj);
+        }
+        return obj;
+    }
+    
+    public synchronized void releaseRuleInstance(Object instance)
+    {
+        if (instance != null) {
+            if (acquiredInstances.remove(instance)) {
+                instancePool.add(instance);
+            }
+        }
     }
 
     public String getArgsLine() 
@@ -123,6 +160,7 @@ public class RuleConfig implements Comparable
             throw new DocException(ex);
         }
         props.setProperty(PROP_RULE_ARGS, argsLine);
+        invalidateInstances();
     }
 
     public String[] getArgs() 
@@ -139,32 +177,44 @@ public class RuleConfig implements Comparable
 
     public String getShortInfo(String languageCode)
     {
-        Object obj = getRuleInstance();
-        if (obj instanceof HTMLRule) {
-            return ((HTMLRule) obj).getShortInfo(languageCode);
-        } else {
-            return "";
+        String info = "";
+        Object obj = acquireRuleInstance();
+        try {
+            if (obj instanceof HTMLRule) {
+                info = ((HTMLRule) obj).getShortInfo(languageCode);
+            }
+        } finally {
+            if (obj != null) releaseRuleInstance(obj);
         }
+        return info;
     }
     
     public String getLongInfo(String languageCode)
     {
-        Object obj = getRuleInstance();
-        if (obj instanceof HTMLRule) {
-            return ((HTMLRule) obj).getLongInfo(languageCode);
-        } else {
-            return "";
+        String info = "";
+        Object obj = acquireRuleInstance();
+        try {
+            if (obj instanceof HTMLRule) {
+                info = ((HTMLRule) obj).getLongInfo(languageCode);
+            }
+        } finally {
+            if (obj != null) releaseRuleInstance(obj);
         }
+        return info;
     }
     
     public String[] getCheckIds()
     {
-        Object obj = getRuleInstance();
-        if (obj instanceof HTMLRule) {
-            return ((HTMLRule) obj).getCheckIds();
-        } else {
-            return null;
+        String[] res = null;
+        Object obj = acquireRuleInstance();
+        try {
+            if (obj instanceof HTMLRule) {
+                res = ((HTMLRule) obj).getCheckIds();
+            }
+        } finally {
+            if (obj != null) releaseRuleInstance(obj);
         }
+        return res;
     }
     
     public String getQualifiedCheckId(String checkId) 
@@ -178,22 +228,30 @@ public class RuleConfig implements Comparable
 
     public boolean supportsAutoCorrection(String checkId)
     {
-        Object obj = getRuleInstance();
-        if (obj instanceof HTMLRule) {
-            return ((HTMLRule) obj).supportsAutoCorrection(checkId);
-        } else {
-            return false;
+        boolean res = false;
+        Object obj = acquireRuleInstance();
+        try {
+            if (obj instanceof HTMLRule) {
+                res = ((HTMLRule) obj).supportsAutoCorrection(checkId);
+            }
+        } finally {
+            if (obj != null) releaseRuleInstance(obj);
         }
+        return res;
     }
     
     private LogLevel getDefaultLogLevel(String checkId) 
     {
-        Object obj = getRuleInstance();
-        if (obj instanceof HTMLRule) {
-            return ((HTMLRule) obj).getDefaultLogLevel(checkId);
-        } else {
-            return null;
+        LogLevel lev = null;
+        Object obj = acquireRuleInstance();
+        try {
+            if (obj instanceof HTMLRule) {
+                lev = ((HTMLRule) obj).getDefaultLogLevel(checkId);
+            }
+        } finally {
+            if (obj != null) releaseRuleInstance(obj);
         }
+        return lev;
     }
     
     public LogLevel getLogLevel(String checkId) 
@@ -219,6 +277,7 @@ public class RuleConfig implements Comparable
     public void setLogLevel(String checkId, LogLevel lev) 
     {
         props.setProperty(PROP_LOG_LEVEL + "." + checkId, lev.name());
+        invalidateInstances();
     }
 
     public boolean isRuleEnabled()
@@ -330,29 +389,97 @@ public class RuleConfig implements Comparable
         return props;
     }
     
-    /* ------------ Private methods ---------------- */
-    
-
-    synchronized void initRuleInstance()
+    final void setProperties(Properties p)
     {
-        String cls_name = getRuleClassName();
-        if (cls_name.equals("")) {
-            ruleClass = null;
-        } else {
-            try {
-                ruleClass = Class.forName(cls_name);
-            } catch (Exception ex) {
-                ruleClass = null;
+        this.props = p;
+        ruleClass = null;
+        args = null;
+        scopeArr = null;
+        
+        instancePool.clear();
+        acquiredInstances.clear();
+        reConfigInstances.clear();
+    }
+    
+    /* ------------ Private methods ---------------- */
+
+    private synchronized void invalidateInstances()
+    {
+        // Mark all existing instances to be reconfigured on next invocation
+        // of acquireInstance(). 
+        reConfigInstances.addAll(instancePool);
+        reConfigInstances.addAll(acquiredInstances);
+    }
+    
+    private void reconfigureInstances()
+    {
+        if (reConfigInstances.isEmpty()) {
+            return;
+        } 
+        HTMLRuleConfig ruleConf = new HTMLRuleConfigImpl(this);
+        Iterator it = reConfigInstances.iterator();
+        while (it.hasNext()) {
+            Object obj = it.next();
+            // Do not reconfigure instance while it is acquired!
+            if (! acquiredInstances.contains(obj)) {
+                it.remove();
+                configureInstance(obj, ruleConf);
             }
         }
+    }
+    
+    private void initRuleClass()
+    {
         if (ruleClass == null) {
-            ruleInstance = null;
+            String cls_name = getRuleClassName();
+            if (cls_name.equals("")) {
+                ruleClass = null;
+            } else {
+                try {
+                    Class cls = Class.forName(cls_name);
+                    
+                    // Check if it's a supported rule class.
+                    // Currently only rules of type HTMLRule are supported.
+                    if (HTMLRule.class.isAssignableFrom(cls)) {
+                        ruleClass = cls;
+                    } else {
+                        ruleClass = null;
+                    }
+                } catch (Exception ex) {
+                    ruleClass = null;
+                    Log.error("Failed to get class with name '" + cls_name + "': " + ex.getMessage());
+                }
+            }
+        }
+    }
+
+    private Object createAndConfigureRuleInstance()
+    {
+        initRuleClass();
+        if (ruleClass == null) {
+            return null;
         } else {
+            Object obj;
             try {
-                ruleInstance = ruleClass.newInstance();
+                obj = ruleClass.newInstance();
             } catch (Exception ex) {
-                Log.error("Instantiation of rule class '" + cls_name + "' failed: " + ex.getMessage());
-                ruleInstance = null;
+                Log.error("Instantiation of rule class '" + getRuleClassName() + 
+                          "' failed: " + ex.getMessage());
+                return null;
+            }
+            configureInstance(obj, new HTMLRuleConfigImpl(this));
+            return obj;
+        }
+    }
+    
+    private void configureInstance(Object obj, HTMLRuleConfig ruleConf) 
+    {
+        if (obj instanceof HTMLRule) {
+            try {
+                ((HTMLRule) obj).configure(ruleConf);
+            } catch (Exception ex) {
+                Log.error("Method configure() of rule '" + getId() + 
+                          "' has thrown exception: " + ex.getMessage());
             }
         }
     }

@@ -224,9 +224,11 @@ public class DocmaWebApplication extends DocmaApplication implements WebAppPlugI
     public String getFileEditorId(String ext)
     {
         String app_id = getEditorAssignments().getAssignedApplication(ext);
-        if ((app_id == null) && !ext.equalsIgnoreCase("txt")) {
+        if (app_id == null) {
             if (isTextFileExtension(ext)) {
-                app_id = getEditorAssignments().getAssignedApplication("txt");
+                if (! ext.equalsIgnoreCase("txt")) {
+                    app_id = getEditorAssignments().getAssignedApplication("txt");
+                }
                 if (app_id == null) {
                     app_id = getSystemDefaultTextEditor();
                 }
@@ -245,9 +247,11 @@ public class DocmaWebApplication extends DocmaApplication implements WebAppPlugI
     public String getFileViewerId(String ext)
     {
         String app_id = getViewerAssignments().getAssignedApplication(ext);
-        if ((app_id == null) && !ext.equalsIgnoreCase("txt")) {
+        if (app_id == null) {
             if (isTextFileExtension(ext)) {
-                app_id = getViewerAssignments().getAssignedApplication("txt");
+                if (! ext.equalsIgnoreCase("txt")) {
+                    app_id = getViewerAssignments().getAssignedApplication("txt");
+                }
                 if (app_id == null) {
                     // use the default text editor for viewing the file
                     app_id = getSystemDefaultTextEditor();
@@ -362,6 +366,16 @@ public class DocmaWebApplication extends DocmaApplication implements WebAppPlugI
         return viewerAssignments;
     }
     
+    public void saveAssignments() throws Exception
+    {
+        String edit_str = getEditorAssignments().writeAssignmentsToString();
+        String view_str = getViewerAssignments().writeAssignmentsToString();
+        String[] nms = { GUIConstants.PROP_APP_ASSIGNMENT_EDITORS, GUIConstants.PROP_APP_ASSIGNMENT_VIEWERS };
+        String[] vals = { edit_str, view_str };
+        ApplicationProperties appProps = getApplicationProperties();
+        appProps.setProperties(nms, vals);
+    }
+
     public void saveEditorAssignments() throws Exception
     {
         String assign_str = getEditorAssignments().writeAssignmentsToString();

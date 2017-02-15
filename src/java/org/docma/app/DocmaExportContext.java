@@ -182,6 +182,12 @@ public class DocmaExportContext implements ExportContext
         return af_instance;
     }
     
+    String getNodeTitleEntityEncoded(String nodeAlias)
+    {
+        DocmaNode nd = docmaSess.getNodeByAlias(nodeAlias);
+        return (nd == null) ? null : nd.getTitleEntityEncoded();
+    }
+    
     String getNodeTitleInReferencedPub(String nodeAlias) 
     {
         try {

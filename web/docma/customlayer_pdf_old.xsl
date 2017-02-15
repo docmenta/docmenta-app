@@ -6,13 +6,13 @@
     <xsl:variable name="role_val" select="concat(' ', @role, ' ')" />
     <xsl:choose>
       ###when_block_style###
+      <xsl:when test="contains($role_val, ' normal-para ')">
+        <xsl:if test="not((count(preceding-sibling::*)=0) and boolean(parent::para))">
+          ###para_spacing###
+        </xsl:if>
+      </xsl:when>
       <!-- <xsl:when test="@role = 'docma-table-cell')"></xsl:when> -->
     </xsl:choose>
-    <xsl:if test="contains($role_val, ' normal-para ')">
-      <xsl:if test="not((count(preceding-sibling::*)=0) and boolean(parent::para))">
-        ###para_spacing###
-      </xsl:if>
-    </xsl:if>
     <xsl:if test="contains(@role, 'indent-level')">
       <xsl:variable name="level_str" select="substring-after($role_val, 'indent-level')" />
       <xsl:variable name="level_num" select="normalize-space(substring-before($level_str, ' '))" />

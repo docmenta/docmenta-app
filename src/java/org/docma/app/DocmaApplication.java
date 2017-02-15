@@ -65,7 +65,7 @@ public class DocmaApplication
         File activitiesDir = new File(getTempDirectory(), "activities");
         this.activities = new Activities(activitiesDir, i18);
         File rulesDir = new File(getBaseDirectory(), "rules");
-        this.rulesManager = new RulesManager(rulesDir);
+        this.rulesManager = new RulesManager(this, rulesDir);
         
         this.applicationCtx = new ApplicationContextImpl(this);
     }

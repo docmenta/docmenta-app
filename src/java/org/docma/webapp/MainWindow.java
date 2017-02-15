@@ -1825,7 +1825,7 @@ public class MainWindow extends Window implements EventListener
 
     public void onSelectRulesTab() throws Exception
     {
-        guilist_rules.loadAll();  // load list if not already loaded
+        guilist_rules.onShowList();  // load list if not already loaded
     }
     
     public void onSelectPluginsTab() throws Exception
@@ -1846,6 +1846,11 @@ public class MainWindow extends Window implements EventListener
     public void onDeleteRule() 
     {
         guilist_rules.onDeleteRule();
+    }
+    
+    public void onCopyRule() throws Exception
+    {
+        guilist_rules.onCopyRule();
     }
     
     public void onEnableRule() 
@@ -3578,9 +3583,20 @@ public class MainWindow extends Window implements EventListener
     }
 
 
+    public void onConsistencyCheck() throws Exception
+    {
+        DocmaSession docmaSess = getDocmaSession();
+        Window dialog = (Window) getPage().getFellow("ConsistencyCheckDialog");
+        ConsistencyCheckComposer composer = (ConsistencyCheckComposer) dialog.getAttribute("$composer");
+        composer.showDialog();
+    }
+
+
     public void onSaveApplicationSettings() throws Exception
     {
         DocmaSession docmaSess = getDocmaSession();
+
+        List<String> old_txt_exts = Arrays.asList(docmaSess.getTextFileExtensions());
 
         boolean is_rel = pubonline_relpath_radio.isSelected();
         // boolean is_abs = ! is_rel;
@@ -3628,9 +3644,40 @@ public class MainWindow extends Window implements EventListener
         values[8] = (max_print == null) ? "0" : max_print.toString();
 
         docmaSess.setApplicationProperties(names, values);
+
+        // Initialize editor and viewer assignments for new text file extensions.
+        boolean ext_added = false;
+        DocmaWebApplication webApp = GUIUtil.getDocmaWebApplication(this);
+        ExtAssignments editAssigns = webApp.getEditorAssignments();
+        ExtAssignments viewAssigns = webApp.getViewerAssignments();
+        for (String ext : docmaSess.getTextFileExtensions()) {
+            if (! old_txt_exts.contains(ext)) {
+                initExtAssignment(editAssigns, ext);
+                initExtAssignment(viewAssigns, ext);
+                ext_added = true;
+            }
+        }
+        if (ext_added) {
+            webApp.saveAssignments();
+            guilist_edit_extensions.markRefresh();  // make sure the extension list is refreshed
+            guilist_view_extensions.markRefresh();  // make sure the extension list is refreshed
+        }
+        
         Messagebox.show("Settings saved. \n" + 
                         "Note: For some changes to take effect, \n" +
                         "a restart of the Web-Server is required!");
+    }
+    
+    private void initExtAssignment(ExtAssignments assigns, String ext)
+    {
+        String appid = assigns.getAssignedApplication(ext);
+        if (appid == null) {  // No assignment or default application
+            appid = assigns.getApplicationForExtension(ext);
+            // Call setAssignment(...) to be sure an assignment entry exists.
+            // Otherwise the extension may not be listed by the method 
+            // assigns.listAssignments().
+            assigns.setAssignment(ext, appid);  // appid may be null; null means default application
+        }
     }
 
     public void onSaveBaseDir() throws Exception

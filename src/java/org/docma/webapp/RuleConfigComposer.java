@@ -23,6 +23,7 @@ import org.docma.app.DocmaConstants;
 
 import org.docma.app.DocmaSession;
 import org.docma.app.RuleConfig;
+import org.docma.app.RulesManager;
 import org.docma.plugin.LogLevel;
 import org.docma.util.Log;
 import org.zkoss.zk.ui.Component;
@@ -40,6 +41,7 @@ import org.zkoss.zul.Hbox;
 import org.zkoss.zul.Label;
 import org.zkoss.zul.Listbox;
 import org.zkoss.zul.Listitem;
+import org.zkoss.zul.Messagebox;
 import org.zkoss.zul.Row;
 import org.zkoss.zul.Rows;
 import org.zkoss.zul.Space;
@@ -115,6 +117,12 @@ public class RuleConfigComposer extends SelectorComposer<Component> implements E
             return;
         }
         updateModel();
+        
+        // Notify caller that model has been updated
+        if (callback != null) {
+            callback.onEvent(EVENT_OKAY);
+        }
+        
         ruleDialog.setVisible(false);
     }
    
@@ -238,17 +246,30 @@ public class RuleConfigComposer extends SelectorComposer<Component> implements E
     private boolean hasInvalidInput()
     {
         String ruleId = idBox.getValue().trim();
+        if (ruleId.equals("")) {
+            MessageUtil.showError(ruleDialog, "rule.config.empty_id");
+            return true;
+        }
         if (! ruleId.matches(DocmaConstants.REGEXP_RULE_ID)) {
             MessageUtil.showError(ruleDialog, "rule.config.invalid_id");
             return true;
         }
+
+        boolean isNewRule = (mode == MODE_NEW) || !ruleId.equals(ruleConfig.getId());
+        DocmaWebApplication webapp = GUIUtil.getDocmaWebApplication(ruleDialog);
+        RulesManager rm = webapp.getRulesManager();
+        if (isNewRule && (rm.getRule(ruleId) != null)) {
+            MessageUtil.showError(ruleDialog, "rule.config.id_exists", ruleId);
+            return true;
+        }
+        
         String clsName = clsBox.getValue().trim();
         if (clsName.equals("")) {
             MessageUtil.showError(ruleDialog, "rule.config.empty_rule_cls");
             return true;
         }
         updateTempConfig();
-        if (tempConfig.getRuleInstance() == null) {
+        if (tempConfig.getRuleClass() == null) {
             MessageUtil.showError(ruleDialog, "rule.config.invalid_rule_cls");
             return true;
         }
@@ -273,7 +294,10 @@ public class RuleConfigComposer extends SelectorComposer<Component> implements E
         }
         
         updateGUI();
-        idBox.setReadonly(mode == MODE_EDIT);
+        
+        RulesManager rm = docmaApp.getRulesManager();
+        String rid = ruleConfig.getId();
+        idBox.setReadonly((rid != null) && rm.isDefaultRule(rid));
         ruleDialog.doHighlighted();
     }
     
@@ -301,7 +325,11 @@ public class RuleConfigComposer extends SelectorComposer<Component> implements E
     
     private void updateModel() 
     {
-        ruleConfig.setId(idBox.getValue().trim());
+        String newId = idBox.getValue().trim();
+        if (! newId.equals(ruleConfig.getId())) {  // avoid unnecessary id assignment (performance)
+            ruleConfig.setId(newId);
+        }
+
         ruleConfig.setTitle(titleBox.getValue().trim());
         String clsName = clsBox.getValue().trim();
         if (! clsName.equals(ruleConfig.getRuleClassName())) {
@@ -310,7 +338,6 @@ public class RuleConfigComposer extends SelectorComposer<Component> implements E
         try {
             ruleConfig.setArgsLine(argsBox.getValue().trim());
         } catch (Exception ex) {}  // is caught in hasInvalidInput()
-        ruleConfig.setRuleEnabled(enabledBox.isChecked());
         ruleConfig.setDefaultOn(getSelectedValue(defStateBox).equals("on"));
         if (scopeAllBox.isChecked()) {
             ruleConfig.setScopeAll();
@@ -323,6 +350,8 @@ public class RuleConfigComposer extends SelectorComposer<Component> implements E
             }
             ruleConfig.setScope(storeIds.toArray(new String[storeIds.size()]));
         }
+        
+        boolean all_off = true;  // set to false if at least one check is turned on
         for (String checkId : ruleConfig.getCheckIds()) {
             Integer rowNum = mapCheckToRow.get(checkId);
             if (rowNum == null) {
@@ -341,16 +370,21 @@ public class RuleConfigComposer extends SelectorComposer<Component> implements E
                 lev = LogLevel.ERROR;
             }
             ruleConfig.setLogLevel(checkId, lev);
-            ruleConfig.setExecuteOnCheck(checkId, execCheck.isChecked());
-            ruleConfig.setExecuteOnSave(checkId, execSave.isChecked());
-            if (ruleConfig.supportsAutoCorrection(checkId)) {
-                if (correctCheck != null) {
-                    ruleConfig.setCorrectOnCheck(checkId, correctCheck.isChecked());
-                }
-                if (correctSave != null) {
-                    ruleConfig.setCorrectOnSave(checkId, correctSave.isChecked());
-                }
+            boolean isCheck = execCheck.isChecked();
+            boolean isSave = execSave.isChecked();
+            if (isCheck || isSave) {
+                all_off = false;
             }
+            boolean supportsAC = ruleConfig.supportsAutoCorrection(checkId);
+            ruleConfig.setExecuteOnCheck(checkId, isCheck);
+            ruleConfig.setExecuteOnSave(checkId, isSave);
+            ruleConfig.setCorrectOnCheck(checkId, supportsAC && (correctCheck != null) && correctCheck.isChecked());
+            ruleConfig.setCorrectOnSave(checkId, supportsAC && (correctSave != null) && correctSave.isChecked());
+        }
+        
+        ruleConfig.setRuleEnabled(enabledBox.isChecked() && !all_off);
+        if (all_off) {
+            Messagebox.show(label("rule.config.disabled_because_all_off"));
         }
     }
     
@@ -360,7 +394,7 @@ public class RuleConfigComposer extends SelectorComposer<Component> implements E
         titleBox.setValue(tempConfig.getTitle());
         clsBox.setValue(tempConfig.getRuleClassName());
         argsBox.setValue(tempConfig.getArgsLine());
-        clsHelpBtn.setDisabled(tempConfig.getRuleInstance() == null);
+        clsHelpBtn.setDisabled(tempConfig.getRuleClass() == null);
         enabledBox.setChecked(tempConfig.isRuleEnabled());
         selectListItem(defStateBox, tempConfig.isDefaultOn() ? "on" : "off");
         boolean isScopeAll = tempConfig.isScopeAll();

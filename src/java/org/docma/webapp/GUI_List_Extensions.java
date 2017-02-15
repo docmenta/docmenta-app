@@ -83,13 +83,6 @@ public abstract class GUI_List_Extensions implements RowRenderer
         extensionsGrid.setRowRenderer(this);
     }
 
-    abstract void changeAssignment(String[] exts, String app_id) throws Exception;
-    abstract ExtAssignment[] getExtAssignments();
-    abstract String getAssignedContentEditor();
-    abstract String getDefaultContentEditor();
-    abstract String[] getAvailableApps(String[] exts);
-    abstract String getDefaultApp(String[] exts);
-
     /**
      * This method is called every time the tab containing the list/grid is selected.
      */
@@ -202,6 +195,20 @@ public abstract class GUI_List_Extensions implements RowRenderer
         row.appendChild(apps_box);
     }
 
+    /* --------------  Package local methods  --------------- */
+    
+    abstract void changeAssignment(String[] exts, String app_id) throws Exception;
+    abstract ExtAssignment[] getExtAssignments();
+    abstract String getAssignedContentEditor();
+    abstract String getDefaultContentEditor();
+    abstract String[] getAvailableApps(String[] exts);
+    abstract String getDefaultApp(String[] exts);
+
+    void markRefresh()
+    {
+        loadTimestamp = 0;
+    }
+
     /* --------------  Private methods  --------------- */
 
     /**
@@ -216,11 +223,6 @@ public abstract class GUI_List_Extensions implements RowRenderer
         if (! extensionsModel.isEmpty()) {   // already loaded
             extensionsModel.clear();
         }
-    }
-
-    private void markRefresh()
-    {
-        loadTimestamp = 0;
     }
 
     private void fillExtensionsModelList()

@@ -599,10 +599,8 @@ div.z-listheader-cnt { height:16px; max-height:16px; color:#000000; font-weight:
             <listhead sizable="true">
               <listheader label="${c:l('rule.id')}" width="10%" />
               <listheader label="${c:l('rule.title')}" width="15%" />
-              <listheader label="${c:l('rule.rulecls')}" width="13%" />
-              <listheader label="${c:l('rule.args')}" width="12%" />
-              <listheader label="${c:l('rule.status')}" width="15%" />
-              <listheader label="${c:l('rule.autocorrect')}" width="10%" />
+              <listheader label="${c:l('rule.state')}" width="10%" />
+              <listheader label="${c:l('rule.settings')}" width="35%" />
               <listheader label="${c:l('rule.scope')}"  />
             </listhead>
         </listbox>
@@ -612,6 +610,7 @@ div.z-listheader-cnt { height:16px; max-height:16px; color:#000000; font-weight:
             <button id="NewRuleBtn" label="${c:l('rule.new.btn')}" hflex="1" forward="mainWin.onNewRule"/>
             <button id="EditRuleBtn" label="${c:l('rule.edit.btn')}" hflex="1" forward="mainWin.onEditRule" />
             <button id="DeleteRuleBtn" label="${c:l('rule.delete.btn')}" hflex="1" forward="mainWin.onDeleteRule" />
+            <button id="CopyRuleBtn" label="${c:l('rule.copy.btn')}" hflex="1" forward="mainWin.onCopyRule" />
             <separator spacing="18px"/>
             <button id="EnableRuleBtn" label="${c:l('rule.enable.btn')}" hflex="1" forward="mainWin.onEnableRule"/>
             <button id="DisableRuleBtn" label="${c:l('rule.disable.btn')}" hflex="1" forward="mainWin.onDisableRule" />
@@ -619,6 +618,7 @@ div.z-listheader-cnt { height:16px; max-height:16px; color:#000000; font-weight:
               <menuitem id="NewRuleMenuitem" label="${c:l('rule.new.btn')}" forward="mainWin.onNewRule" />
               <menuitem id="EditRuleMenuitem" label="${c:l('rule.edit.btn')}" forward="mainWin.onEditRule" />
               <menuitem id="DeleteRuleMenuitem" label="${c:l('rule.delete.btn')}" forward="mainWin.onDeleteRule" />
+              <menuitem id="CopyRuleMenuitem" label="${c:l('rule.copy.btn')}" forward="mainWin.onCopyRule" />
               <menuseparator/>
               <menuitem id="EnableRuleMenuitem" label="${c:l('rule.enable.btn')}" forward="mainWin.onEnableRule"/>
               <menuitem id="DisableRuleMenuitem" label="${c:l('rule.disable.btn')}" forward="mainWin.onDisableRule" />
@@ -1051,5 +1051,11 @@ div.z-listheader-cnt { height:16px; max-height:16px; color:#000000; font-weight:
 
 <?component name="RuleConfigDialog" inline="true" macroURI="RuleConfigDialog.zul"?>
 <RuleConfigDialog />
+
+<?component name="ConsistencyCheckDialog" inline="true" macroURI="ConsistencyCheckDialog.zul"?>
+<ConsistencyCheckDialog />
+
+<?component name="ConsistencyTaskDialog" inline="true" macroURI="ConsistencyTaskDialog.zul"?>
+<ConsistencyTaskDialog />
 
 </zk>

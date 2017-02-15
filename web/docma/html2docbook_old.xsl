@@ -35,7 +35,11 @@
       <xsl:when test="not(starts-with(@class, 'doc-'))">
         <para role="{@class}">
           <xsl:if test="boolean(@id)"><xsl:attribute name="id"><xsl:value-of select="@id" /></xsl:attribute></xsl:if>
-          <xsl:call-template name="docma_keep_together" />
+          <xsl:if test="contains(concat(' ', @class, ' '), ' keep_together ') or (contains(@style, 'keep-together') and starts-with(normalize-space(substring-after(substring-after(@style, 'keep-together'), ':')), 'always'))">
+            <xsl:processing-instruction name="dbfo" >
+              <xsl:text>keep-together="always"</xsl:text>
+            </xsl:processing-instruction>
+          </xsl:if>
           <xsl:apply-templates />
         </para>
       </xsl:when>
@@ -149,7 +153,6 @@
           <xsl:attribute name="role">normal-para</xsl:attribute>
         </xsl:otherwise>
       </xsl:choose>
-      <xsl:call-template name="docma_keep_together" />
       <xsl:apply-templates />
     </para>
     <xsl:call-template name="docma_pagebreak_after" />
@@ -165,7 +168,6 @@
           <xsl:otherwise><xsl:text>pre</xsl:text></xsl:otherwise>
         </xsl:choose>
       </xsl:attribute>
-      <xsl:call-template name="docma_keep_together" />
       <xsl:apply-templates />
     </para>
     <xsl:call-template name="docma_pagebreak_after" />
@@ -1063,24 +1065,11 @@
   </xsl:template>
 
   <xsl:template name="docma_keep_together">
-    <xsl:choose>
-      <xsl:when test="contains(@class, 'keep_together_auto')">
-        <xsl:processing-instruction name="dbfo" ><xsl:text>keep-together="auto"</xsl:text></xsl:processing-instruction>
-      </xsl:when>
-      <xsl:when test="contains(concat(' ', @class, ' '), ' keep_together ')">
-        <xsl:processing-instruction name="dbfo" ><xsl:text>keep-together="always"</xsl:text></xsl:processing-instruction>
-      </xsl:when>
-      <xsl:when test="contains(@style, 'keep-together')">
-        <xsl:choose>
-          <xsl:when test="starts-with(normalize-space(substring-after(substring-after(@style, 'keep-together'), ':')), 'auto')">
-            <xsl:processing-instruction name="dbfo" ><xsl:text>keep-together="auto"</xsl:text></xsl:processing-instruction>
-          </xsl:when>
-          <xsl:when test="starts-with(normalize-space(substring-after(substring-after(@style, 'keep-together'), ':')), 'always')">
-            <xsl:processing-instruction name="dbfo" ><xsl:text>keep-together="always"</xsl:text></xsl:processing-instruction>
-          </xsl:when>
-        </xsl:choose>
-      </xsl:when>
-    </xsl:choose>
+    <xsl:if test="contains(@class, 'keep_together_auto') or (contains(@style, 'keep-together') and starts-with(normalize-space(substring-after(substring-after(@style, 'keep-together'), ':')), 'auto'))">
+      <xsl:processing-instruction name="dbfo" >
+        <xsl:text>keep-together="auto"</xsl:text>
+      </xsl:processing-instruction>
+    </xsl:if>
   </xsl:template>
 
   <xsl:template name="docma_get_css_value">

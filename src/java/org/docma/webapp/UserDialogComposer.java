@@ -61,6 +61,7 @@ public class UserDialogComposer extends SelectorComposer<Component>
     @Wire("#UserEditorIdListbox") Listbox editorIdBox;
     @Wire("#UserTxtEditorIdListbox") Listbox txtEditorIdBox;
     @Wire("#UserDateFormatTextbox") Textbox dateformatBox;
+    @Wire("#UserQuickLinksArea") Component quickLinksArea;
     @Wire("#UserQuickLinksCheckbox") Checkbox quickLinksBox;
     @Wire("#UserPasswordTextbox1") Textbox password1Box;
     @Wire("#UserPasswordTextbox2") Textbox password2Box;
@@ -309,7 +310,13 @@ public class UserDialogComposer extends SelectorComposer<Component>
         int idx = getListIndex(editorIdBox, editorId);
         if (idx < 0) idx = 0;
         editorIdBox.setSelectedIndex(idx);
+
+        RulesManager rm = docmaSess.getRulesManager(); 
+        RuleConfig qlr = (rm != null) ? rm.getRule(RulesManager.QUICK_LINKS_ID) : null;
+        boolean qlSupported = (qlr != null) && qlr.isRuleEnabled();
         quickLinksBox.setChecked(usr.isQuickLinksEnabled());
+        quickLinksBox.setDisabled(! qlSupported);
+        quickLinksArea.setVisible(qlSupported);
 
         String txtEditorId = usr.getTxtEditorId();
         if (txtEditorId == null) txtEditorId = "";

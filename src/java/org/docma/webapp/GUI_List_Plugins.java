@@ -489,7 +489,7 @@ public class GUI_List_Plugins implements ListitemRenderer
 
     private String label(String key) 
     {
-        return mainWin.i18(key);
+        return mainWin.i18n(key);
     }
     
 //    private void initGuiLanguage()

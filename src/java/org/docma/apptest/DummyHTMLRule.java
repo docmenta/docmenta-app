@@ -28,6 +28,14 @@ public class DummyHTMLRule implements HTMLRule
     {
     }
 
+    public void startBatch() 
+    {
+    }
+
+    public void finishBatch() 
+    {
+    }
+    
     public void apply(StringBuilder content, HTMLRuleContext context) 
     {
         if (context.isEnabled("checkLength")) {
@@ -75,5 +83,5 @@ public class DummyHTMLRule implements HTMLRule
         }
         return LogLevel.ERROR;
     }
-    
+
 }

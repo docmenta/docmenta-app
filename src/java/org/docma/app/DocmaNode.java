@@ -524,12 +524,19 @@ public class DocmaNode
 
     public boolean hasContentAnchor(String anchorAlias)
     {
+        return (getContentAnchorByAlias(anchorAlias) != null);
+    }
+    
+    public DocmaAnchor getContentAnchorByAlias(String anchorAlias)
+    {
         getContentAnchors();  // set anchors field if not already set
-        if (anchors == null) return false;
-        for (int i=0; i < anchors.length; i++) {
-            if (anchorAlias.equalsIgnoreCase(anchors[i].getAlias())) return true;
+        if (anchors == null) { 
+            return null;
         }
-        return false;
+        for (DocmaAnchor ai : anchors) {
+            if (anchorAlias.equalsIgnoreCase(ai.getAlias())) return ai;
+        }
+        return null;
     }
 
     public String getReferenceTarget()

@@ -626,6 +626,10 @@ public class WebUserSessionImpl extends UserSessionImpl implements WebUserSessio
 
     public void propagateUserDialogEventToPlugins(String evtName, Component target)
     {
+        if (userTabs == null) {
+            return;
+        }
+        
         // Find all plugins that have added a user dialog tab
         HashSet<String> plugIds = new HashSet();
         for (PluginTab utab : userTabs) {
@@ -652,6 +656,10 @@ public class WebUserSessionImpl extends UserSessionImpl implements WebUserSessio
     
     public void propagateUserDialogEventToPlugins(Event sourceEvt)
     {
+        if (userTabs == null) {
+            return;
+        }
+
         // Find all plugins that have added a user dialog tab
         HashSet<String> plugIds = new HashSet();
         for (PluginTab utab : userTabs) {

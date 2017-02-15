@@ -14,7 +14,12 @@
 package org.docma.webapp;
 
 import org.docma.coreapi.DocI18n;
+import org.docma.plugin.implementation.UIEventImpl;
+import org.docma.plugin.web.UIListener;
+
 import org.zkoss.zk.ui.Component;
+import org.zkoss.zk.ui.event.Event;
+import org.zkoss.zk.ui.event.EventListener;
 import org.zkoss.zul.Messagebox;
 
 /**
@@ -28,6 +33,12 @@ public class MessageUtil
     public static int OK  = Messagebox.OK;
     public static int CANCEL  = Messagebox.CANCEL;
     
+    
+    public static void showInfo(Component comp, String msg_key, Object... args) 
+    {
+        String msg = GUIUtil.getI18n(comp).getLabel(msg_key, args);
+        Messagebox.show(msg);
+    }
     
     public static void showError(Component comp, String msg_key, Object... args) 
     {
@@ -63,6 +74,22 @@ public class MessageUtil
         String title = i18n.getLabel(title_key);
         String msg = i18n.getLabel(msg_key, args);
         return Messagebox.show(msg, title, Messagebox.YES | Messagebox.NO, Messagebox.QUESTION);
+    }
+    
+    public static void showYesNoQuestion(Component comp, String title_key, String msg_key, Object[] args, final UIListener listener) 
+    {
+        final DocmaWebSession webSess = GUIUtil.getDocmaWebSession(comp);
+        DocI18n i18n = webSess.getDocmaSession().getI18n();
+        String title = i18n.getLabel(title_key);
+        String msg = i18n.getLabel(msg_key, args);
+        Messagebox.show(msg, title, 
+                        Messagebox.YES | Messagebox.NO, 
+                        Messagebox.QUESTION, 
+                        new EventListener() {
+                            public void onEvent(Event t) throws Exception {
+                                listener.onEvent(new UIEventImpl(t, webSess.getPluginInterface()));
+                            }
+                        });
     }
     
     public static int showOkCancelExclamation(Component comp, String title_key, String msg_key, Object... args) 

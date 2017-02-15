@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+  <entry key="shortInfo">QuickLinks HTML Rule</entry>
+  <entry key="transform_quicklinks.title">Transforms QuickLinks to HTML links</entry>
+  <entry key="msgQuickLinkExists">Found unresolved QuickLink.</entry>
+  <entry key="msgQuickLinkTransformed">Transformed QuickLink to HTML link.</entry>
+  <entry key="longInfo"><![CDATA[
+<p>
+A user can enable <em>Quick-Links</em> to allow easier creation of HTML 
+links. Instead of creating an HTML link using the 
+<span class="code">&lt>a href="#<em>node_alias</em>" &gt>...&lt>/a&gt></span> 
+markup, the plain text pattern 
+<span class="code">[[<em>node_alias</em>]]</span> can be used to create a link 
+to the section with alias <em><span class="code">node_alias</span></em>.
+</p>
+<p>
+If the <span class="code"><b>org.docma.app.QuickLinkRule</b></span> is applied to HTML 
+content, then the pattern 
+<span class="code">[[</span>...<span class="code">]]</span> 
+is automatically transformed to an HTML link as shown in the table below.
+For an introduction on how to use Quick-Links in Docmenta see 'Referencing 
+Sections' in the tutorial. 
+</p>
+<p>
+Following table shows the supported Quick-Link patterns that can be used to 
+create different types of links:
+</p>
+<table style="border-color:#000000; border-width:2px; width:100%; border-style:solid;" border="2" rules="rows" cellspacing="0" cellpadding="4">
+<tbody>
+<tr>
+<th>Pattern</th>
+<th>Description</th>
+</tr>
+<tr>
+<td valign="top">
+<p><span class="code">[[#</span><em>alias</em><span class="code">]]<br />[[</span><em>alias</em><span class="code">]]<br /></span><span class="code">&#160;</span></p>
+</td>
+<td>
+<p>Creates a link to the content node identified by <em>alias</em>. The&#160;<span class="code">#</span> character preceding the alias name is optional. The title of 
+the referenced node is used as link text.</p>
+<p><span class="underline">Example</span>:</p>
+<p style="margin-left: 24pt;"><span class="code">[[#intro]]</span><br />Creates a link to the node identified by alias name <span class="code">intro</span>.</p>
+</td>
+</tr>
+<tr>
+<td valign="top">
+<p><span class="code">[[</span><em>alias&#160;link&#160;text</em><span class="code">]]</span></p>
+</td>
+<td>
+<p>Creates a link to the content node identified by <em>alias</em>. The text following the alias name is used as link text.</p>
+<p><span class="underline">Example</span>:</p>
+<p style="margin-left: 24pt;"><span class="code">[[intro see here]]</span> <br />Creates a link to the node identified by alias name <span class="code">intro</span> 
+using the link text "<span class="code">see here</span>".</p>
+</td>
+</tr>
+<tr>
+<td valign="top">
+<p><span class="code">[[</span><em>alias&#160;</em><span class="code">|</span>&#160;<em>alternative&#160;text</em><span class="code">]]&#160;</span></p>
+</td>
+<td>
+<p>Creates a link to the content node identified by <em>alias</em>. The text following the '|' character is used as alternative link text. The alternative link text is 
+only displayed, if the node identified by <em>alias</em> does not exist or is not included in the exported publication or in any referenced publication. Otherwise the 
+title of the referenced node is used as link text.</p>
+<p><span class="underline">Example</span>:</p>
+<p style="margin-left: 24pt;"><span class="code">[[#intro | Introduction]]</span><br />Creates a link to the node identified by alias name <span class="code">intro</span>. 
+If the referenced node does not exist (within the exported publication or in any referenced publication), then the link is replaced by the fixed text 
+"<span class="code">Introduction</span>".</p>
+</td>
+</tr>
+<tr>
+<td valign="top">
+<p><span class="code">[[file/</span><em>alias</em><span class="code">]]<br />[[file/</span><em>alias link text</em><span class="code">]][[file/</span><em>alias&#160;|&#160;alternative&#160;text</em><span class="code">]] <br /></span></p>
+</td>
+<td>
+<p>Creates a link to the file node identified by <em>alias</em>. The text following the alias name is used as link text. If no link text is provided, then the name of the 
+referenced file is used as link text. If the link text is preceded by a '|' character, then the link text is only displayed, if the node identified by <em>alias</em> does 
+not exist or is not included in the exported publication or in any referenced publication.</p>
+</td>
+</tr>
+<tr>
+<td valign="top">
+<p><span class="code"><span class="code">[[image/</span></span><em>alias</em><span class="code"><span class="code">]]<br />[[image/</span></span><em>alias link text</em><span class="code"><span class="code">]][[image/</span></span><em>alias&#160;|&#160;alternative&#160;text</em><span class="code"><span class="code">]]</span>&#160;</span></p>
+</td>
+<td>Creates a link to the image identified by <em>alias</em>. The text following the alias name is used as link text. If no link text is provided, then the image title is 
+used as link text. If the link text is preceded by a '|' character, then the link text is only displayed, if the image identified by alias does not exist or is not 
+included in the exported publication or in any referenced publication.</td>
+</tr>
+<tr>
+<td valign="top">
+<p><span class="code">[[</span><em>url</em><span class="code">]]<br />[[</span><em>url link text</em><span class="code">]]<br />&#160;</span></p>
+</td>
+<td>
+<p>&#160;Creates an external link to the given URL. The text following the URL is used as link text. If no link text is provided, then URL is used as link text.</p>
+<p><span class="underline">Example</span>:</p>
+<p style="margin-left: 24pt;"><span class="code">[[http://www.docmenta.org Homepage]]</span></p>
+</td>
+</tr>
+</tbody>
+</table>
+  ]]>
+  </entry>
+</properties>

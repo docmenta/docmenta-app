@@ -84,14 +84,21 @@ public class AutoFormatParser
                 xmlParser.getAttributes(nextAttNames, nextAttValues);
                 int cls_idx = nextAttNames.indexOf("class");
                 // boolean is_formal = false;
-                boolean is_autoformat_style = false;
-                if (cls_idx >= 0) {  // element has class attribute
-                    String clsValue = nextAttValues.get(cls_idx);
-                    DocmaStyle style = exportCtx.getStyle(clsValue);
-                    if (style != null) {
-                        boolean skip = (skipStyles != null) && skipStyles.contains(clsValue);
-                        is_autoformat_style = (!skip) && style.hasAutoFormatCall();
-                        // is_formal = style.isFormal();
+                boolean isLink = elemName.equalsIgnoreCase("a") && nextAttNames.contains("href");
+                boolean is_autoformat_style = isLink;  // links have to be auto formatted
+                if ((! isLink) && (cls_idx >= 0)) {    // if element is no link but has class attribute
+                    StringTokenizer st = new StringTokenizer(nextAttValues.get(cls_idx), " ");
+                    while (st.hasMoreTokens()) {
+                        String clsName = st.nextToken();
+                        DocmaStyle style = exportCtx.getStyle(clsName);
+                        if (style != null) {
+                            boolean skip = (skipStyles != null) && skipStyles.contains(clsName);
+                            if ((!skip) && style.hasAutoFormatCall()) {
+                                is_autoformat_style = true;
+                                break;
+                            }
+                            // is_formal = style.isFormal();
+                        }
                     }
                 }
                 boolean is_af;

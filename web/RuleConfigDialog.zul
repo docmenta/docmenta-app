@@ -35,8 +35,8 @@
             <space spacing="9px" />
             <label value="${c:l('rule.config.dialog.default_state')}:" style="font-weight:bold;"/>
             <listbox id="RuleConfigDefStateListbox" mold="select" rows="1">
-              <listitem label="${c:l('rule.config.dialog.state_on')}" value="on" />
-              <listitem label="${c:l('rule.config.dialog.state_off')}" value="off" />
+              <listitem label="${c:l('rule.state_on')}" value="on" />
+              <listitem label="${c:l('rule.state_off')}" value="off" />
             </listbox>
           </hbox>
           <grid id="RuleConfigChecksGrid" hflex="1" vflex="1" sizedByContent="false">

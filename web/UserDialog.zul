@@ -58,8 +58,8 @@
                 <separator spacing="1px"/>
                 <label>${c:l('label.user.editorid')}:</label>
                 <listbox id="UserEditorIdListbox" mold="select" rows="1" hflex="1"></listbox>
-                <hbox width="100%" spacing="4px" align="center" pack="start">
-                  <checkbox hflex="min" id="UserQuickLinksCheckbox"/>
+                <hbox id="UserQuickLinksArea" width="100%" spacing="4px" align="center" pack="start">
+                  <checkbox id="UserQuickLinksCheckbox" hflex="min" />
                   <label hflex="1" value="${c:l('label.user.quicklinks')}" />
                 </hbox>
                 <separator spacing="1px"/>

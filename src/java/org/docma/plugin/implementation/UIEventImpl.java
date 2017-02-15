@@ -13,9 +13,11 @@
  */
 package org.docma.plugin.implementation;
 
+import org.docma.app.DocmaConstants;
 import org.docma.plugin.web.ButtonType;
 import org.docma.plugin.web.UIEvent;
 import org.docma.plugin.web.WebUserSession;
+import org.docma.util.Log;
 
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.Component;
@@ -24,6 +26,7 @@ import org.zkoss.zul.Menuitem;
 import org.zkoss.zul.Menupopup;
 import org.zkoss.zul.Messagebox;
 import org.zkoss.zul.Tab;
+import org.zkoss.zul.impl.MessageboxDlg;
 
 /**
  *
@@ -46,12 +49,21 @@ public class UIEventImpl implements UIEvent
         this.name = eventName;
         this.target = target;
         this.session = sess;
+        if (DocmaConstants.DEBUG) {
+            Log.info("Creating UIEvent with event name: '" + name + "'. Target class: " + 
+                    ((target == null) ? target : target.getClass().getName()));
+        }
     }
     
-    UIEventImpl(Event zkEvent, WebUserSession sess)
+    public UIEventImpl(Event zkEvent, WebUserSession sess)
     {
         initFieldsFromZkEvent(zkEvent);
         this.session = sess;
+        if (DocmaConstants.DEBUG) {
+            Log.info("Creating UIEvent from zk event. Event name: '" + name + 
+                     "'. Target class: " +
+                    ((target == null) ? target : target.getClass().getName()));
+        }
     }
 
     // ***************** Interface UIEvent *********************
@@ -129,8 +141,10 @@ public class UIEventImpl implements UIEvent
     
     public ButtonType getButtonType() 
     {
-        if (isMessageboxClick) {
+        if (isMessageboxClick && (messageboxBtnType != null)) {
             return messageboxBtnType;
+        } else if (target instanceof Button) {
+            return ButtonType.USER_DEFINED;
         } else {
             return null;
         }
@@ -138,36 +152,35 @@ public class UIEventImpl implements UIEvent
     
     // ***************** Private methods *********************
     
-    private ButtonType zkButtonToButtonType(Messagebox.Button zkBtn)
+    private ButtonType zkMsgboxEventToButtonType(String evt)
     {
-        if (zkBtn == null) {
-            return ButtonType.CLOSE;
+        if (evt == null) {
+            return null;
         }
         
-        if (zkBtn.equals(Messagebox.Button.ABORT)) {
+        if (evt.equals(Messagebox.ON_ABORT)) {
             return ButtonType.ABORT;
         }
-        if (zkBtn.equals(Messagebox.Button.CANCEL)) {
+        if (evt.equals(Messagebox.ON_CANCEL)) {
             return ButtonType.CANCEL;
         }
-        if (zkBtn.equals(Messagebox.Button.IGNORE)) {
+        if (evt.equals(Messagebox.ON_IGNORE)) {
             return ButtonType.IGNORE;
         }
-        if (zkBtn.equals(Messagebox.Button.NO)) {
+        if (evt.equals(Messagebox.ON_NO)) {
             return ButtonType.NO;
         }
-        if (zkBtn.equals(Messagebox.Button.OK)) {
+        if (evt.equals(Messagebox.ON_OK)) {
             return ButtonType.OK;
         }
-        if (zkBtn.equals(Messagebox.Button.RETRY)) {
+        if (evt.equals(Messagebox.ON_RETRY)) {
             return ButtonType.RETRY;
         }
-        if (zkBtn.equals(Messagebox.Button.YES)) {
+        if (evt.equals(Messagebox.ON_YES)) {
             return ButtonType.YES;
         }
         
-        // Map any unknown zk button to the button type CLOSE.
-        return ButtonType.CLOSE;
+        return null;
     }
 
     
@@ -175,9 +188,9 @@ public class UIEventImpl implements UIEvent
     {
         this.name = zkEvent.getName();
         this.target = zkEvent.getTarget();
-        this.isMessageboxClick = zkEvent instanceof Messagebox.ClickEvent;
+        this.isMessageboxClick = target instanceof MessageboxDlg;
         if (this.isMessageboxClick) {
-            messageboxBtnType = zkButtonToButtonType(((Messagebox.ClickEvent) zkEvent).getButton());
+            messageboxBtnType = zkMsgboxEventToButtonType(name);
         }
     }
 }

@@ -1,0 +1,36 @@
+<?component name="textbutton" extends="toolbarbutton" style="font-size:11px;color:blue;" ?>
+<window id="ConsistencyCheckDialog" title="${c:l('consistency.check.dialog.title')}"
+        border="normal" width="380px" height="400px" visible="false" contentStyle="padding:7px;"
+        sizable="true" closable="true" onClose="self.visible = false; event.stopPropagation();"
+        apply="org.docma.webapp.ConsistencyCheckComposer">
+  <caption>
+    <toolbarbutton id="ConsistencyCheckHelpBtn" label="${c:l('label.help')}" />
+  </caption>
+  <vbox spacing="8px" hflex="1" vflex="1" align="stretch">
+    <label id="ConsistencyCheckHeadLabel" style="font-weight:bold;">Check:</label>
+    <tree id="ConsistencyCheckSelectTree" hflex="1" vflex="1" checkmark="true" multiple="true" zclass="z-dottree">
+        <treechildren></treechildren>
+        <!-- <treefoot>
+            <treefooter id="ConsistencyCheckSelectFooter" label="" style="font-weight:normal;" />
+        </treefoot> -->
+    </tree>
+    <hbox pack="start" align="center" hflex="1" spacing="4px">
+      <label value="${c:l('consistency.check.count_on')}" />
+      <label value=" " id="ConsistencyCheckCountOnLabel" style="font-weight:bold;" />
+      <space spacing="16px" />
+      <label value="${c:l('consistency.check.count_correct')}" />
+      <label value=" " id="ConsistencyCheckCountCorrectLabel" style="font-weight:bold;" />
+      <space spacing="16px" />
+      <label value="${c:l('consistency.check.count_off')}" />
+      <label value=" " id="ConsistencyCheckCountOffLabel" style="font-weight:bold;" />
+    </hbox>
+    <hbox pack="start" align="center" hflex="1" spacing="3px">
+      <checkbox id="ConsistencyCheckCorrectCheckbox" hflex="min" />
+      <label value="${c:l('consistency.check.allow_autocorrect')}" style="font-weight:bold;"/>
+    </hbox>
+    <hbox pack="stretch" hflex="1" spacing="6px">
+      <button id="ConsistencyCheckStartBtn" label="${c:l('consistency.check.start')}" hflex="1" />
+      <button id="ConsistencyCheckCancelBtn" label="${c:l('label.cancel.btn')}" hflex="1" />
+    </hbox>
+  </vbox>
+</window>

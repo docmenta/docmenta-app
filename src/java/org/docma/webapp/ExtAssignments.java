@@ -124,10 +124,36 @@ public class ExtAssignments
         }
     }
 
+    /**
+     * Returns the application that is assigned to the given file extension.
+     * 
+     * @param ext  the file extension
+     * @return  the application identifier
+     */    
     public String getAssignedApplication(String ext)
     {
         ext = ExtAssignment.normalizeExt(ext);
         ExtAssignment ea = extMap.get(ext);
+        return (ea == null) ? null : ea.getAssignedApplication();
+    }
+
+    /**
+     * Returns the application that is assigned to the given file extension,
+     * or to another file extension with same MIME type.
+     * 
+     * @param ext  the file extension
+     * @return  the application identifier
+     */    
+    public String getApplicationForExtension(String ext)
+    {
+        ext = ExtAssignment.normalizeExt(ext);
+        ExtAssignment ea = extMap.get(ext);
+        if (ea == null) { 
+            String mime = getMimeTypeForExt(ext);
+            if (mime != null) {
+                ea = mimeMap.get(mime);
+            }
+        }
         return (ea == null) ? null : ea.getAssignedApplication();
     }
     

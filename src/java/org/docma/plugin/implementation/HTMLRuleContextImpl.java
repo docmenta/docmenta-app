@@ -79,13 +79,27 @@ public class HTMLRuleContextImpl implements HTMLRuleContext
     public void log(String checkId, int contentPosition, String msg, Object... args)
     {
         LogLevel level = ruleConfig.getLogLevel(checkId);
-        String generator = getCheckName(checkId);
-        final int CTX_SIZE = 16;
-        int start_pos = (contentPosition > CTX_SIZE) ? contentPosition - CTX_SIZE : 0;
-        // int rel_pos = contentPosition - start_pos;
-        String content_extract = extract(content, start_pos, 2 * CTX_SIZE);
-        
-        log.add(level, generator, content_extract, msg, args);
+        logPos(level, checkId, contentPosition, msg, args);
+    }
+
+    public void logInfo(String checkId, String msg, Object... args) 
+    {
+        log.add(LogLevel.INFO, getCheckName(checkId), msg, args);
+    }
+
+    public void logInfo(String checkId, int contentPosition, String msg, Object... args) 
+    {
+        logPos(LogLevel.INFO, checkId, contentPosition, msg, args);
+    }
+    
+    public void log(LogLevel level, String msg, Object... args) 
+    {
+        log.add(level, getCheckName(null), msg, args);
+    }
+
+    public void log(LogLevel level, int contentPosition, String msg, Object... args) 
+    {
+        logPos(level, null, contentPosition, msg, args);
     }
     
     public String getNodeId() 
@@ -147,6 +161,17 @@ public class HTMLRuleContextImpl implements HTMLRuleContext
     
     /* ------- Private methods --------- */
 
+    private void logPos(LogLevel level, String checkId, int contentPosition, String msg, Object... args)
+    {
+        String generator = getCheckName(checkId);
+        final int CTX_SIZE = 16;
+        int start_pos = (contentPosition > CTX_SIZE) ? contentPosition - CTX_SIZE : 0;
+        // int rel_pos = contentPosition - start_pos;
+        String content_extract = extract(content, start_pos, 2 * CTX_SIZE);
+        
+        log.add(level, generator, content_extract, msg, args);
+    }
+            
     private String extract(CharSequence content, int startPos, int count)
     {
         int endPos = Math.min(content.length(), startPos + count);
@@ -175,5 +200,5 @@ public class HTMLRuleContextImpl implements HTMLRuleContext
             }
         }
     }
-    
+
 }

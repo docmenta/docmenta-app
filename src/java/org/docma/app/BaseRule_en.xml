@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+  <entry key="shortInfo">Basic Docmenta HTML Checks</entry>
+  <entry key="trim_empty_paras.title">Checks if content node ends with an empty paragraph</entry>
+  <entry key="trim_figure_spaces.title">Checks for whitespace around figures</entry>
+  <entry key="msgEmptyParaExists">Found an empty paragraph at the end of the content node.</entry>
+  <entry key="msgEmptyParaRemoved">Removed empty paragraph from the end of the content node.</entry>
+  <entry key="msgFigureSpacesExist">Found whitespace around figure.</entry>
+  <entry key="msgFigureSpacesRemoved">Removed whitespace around figure.</entry>
+  <entry key="longInfo"><![CDATA[
+  <p>
+  This class provides basic Docmenta HTML checks. Following a detailed description of the 
+  supported arguments and checks.  
+  check:
+  </p>
+  <big><b>Arguments:</b></big>
+  <p><em>none</em></p>
+  <big><b>Checks:</b></big>
+  <dl>
+    <dt><b>trim_empty_paras</b></dt>
+    <dd>
+        <p>
+        This check searches for an empty paragraph at the end of content nodes. 
+        If auto-correction is enabled, then an empty paragraph at the end of a content
+        node is removed.
+        </p>
+        <p>
+        This check can be useful, because some WYSIWYG editors append an empty 
+        paragraph, if the cursor is placed at the end of the content.
+        </p>
+        <p>
+        Following HTML fragments are recognized as empty paragraphs:
+        </p>
+        <pre>
+        &lt;p&gt;&lt;/p&gt;
+        &lt;p&gt;&amp;nbsp;&lt;/p&gt;
+        &lt;p&gt;&amp;#160;&lt;/p&gt;</pre>
+        </p>
+    </dd>
+
+    <dt><b>trim_figure_spaces</b></dt>
+    <dd>
+        <p>
+        This check searches for whitespace around figures.
+        If auto-correction is enabled, then the whitespace is removed.
+        </p>
+        <p>
+        A figure is cosidered to be an HTML <tt>img</tt> element that has
+        a <tt>title</tt> attribute assigned. In Docmenta, figures should be
+        placed as a single element inside of paragraphs, 
+        as shown by the following HTML fragment: 
+        <pre>
+          &lt;p&gt;<lt;img title="..." ... /&gt;&lt;/p&gt;</pre>
+        <p>
+        No whitespace should exist between the <tt>img</tt> and the 
+        <tt>p</tt> tags.
+        However, if the content is created by a WYSIWYG editor, then
+        whitespace is not visible and may be inserted by mistake.
+        This check can be used to automatically remove such whitespace.
+        </p>
+        <p>
+        Note that besides spaces, tabs and line breaks, this check also
+        recognizes the character entities &amp;nbsp; and &amp;#160; as 
+        whitespace.
+        </p>
+    </dd>
+
+  </dl>
+
+  ]]>
+  </entry>    
+</properties>

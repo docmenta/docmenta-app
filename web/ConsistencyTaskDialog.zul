@@ -1,0 +1,22 @@
+<?component name="textbutton" extends="toolbarbutton" style="font-size:11px;color:blue;" ?>
+<window id="ConsistencyTaskDialog" title="${c:l('consistency.task.dialog.title')}"
+        border="normal" width="540px" visible="false" contentStyle="padding:7px;"
+        sizable="false" closable="true" onClose="self.visible = false; event.stopPropagation();"
+        apply="org.docma.webapp.ConsistencyTaskComposer">
+  <caption>
+    <toolbarbutton id="ConsistencyTaskHelpBtn" label="${c:l('label.help')}" />
+  </caption>
+  <vbox spacing="8px" hflex="1" vflex="1" align="stretch">
+    <hbox pack="stretch" align="start" hflex="1" vflex="1" spacing="6px">
+    </hbox>
+    <separator spacing="2px"/>
+    <hbox pack="stretch" hflex="1" spacing="4px">
+      <cell width="50%">
+        <button id="ConsistencyTaskOkayBtn" label="${c:l('label.okay.btn')}" hflex="1" />
+      </cell>
+      <cell width="50%">
+        <button id="ConsistencyTaskCancelBtn" label="${c:l('label.cancel.btn')}" hflex="1" />
+      </cell>
+    </hbox>
+  </vbox>
+</window>

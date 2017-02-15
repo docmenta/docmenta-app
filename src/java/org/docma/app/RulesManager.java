@@ -17,11 +17,13 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Properties;
 import java.util.SortedMap;
 import java.util.TreeMap;
+
 import org.docma.coreapi.DocException;
 import org.docma.util.Log;
 
@@ -33,16 +35,25 @@ public class RulesManager
 {
     private static final String RULE_FILE_EXTENSION = ".properties";
     
+    public static final String BASE_RULE_ID = "base";
+    public static final String QUICK_LINKS_ID = "quicklinks";
+    
+    private static final List<String> DEFAULT_RULES = 
+                                        Arrays.asList(new String[] { BASE_RULE_ID, QUICK_LINKS_ID, });
+    
+    private final DocmaApplication docmaApp;
     private final File rulesDir;
     private final SortedMap<String, RuleConfig> rules = new TreeMap();
 
-    public RulesManager(File dir) 
+    public RulesManager(DocmaApplication docmaApp, File dir) 
     {
+        this.docmaApp = docmaApp;
         this.rulesDir = dir;
         if (! rulesDir.exists()) {
             rulesDir.mkdirs();
         }
         readRulesFromDir();
+        createDefaultRules();
     }
     
     public synchronized void saveRule(RuleConfig rule) throws DocException
@@ -58,6 +69,29 @@ public class RulesManager
             throw new DocException("Could not delete rule file: " + f);
         }
         removeRuleFromList(ruleId);
+    }
+    
+    public synchronized boolean loadRule(String ruleId) throws DocException
+    {
+        File f = getRuleFile(ruleId);
+        if (f.exists()) {
+            Properties p;
+            try {
+                p = loadRuleProps(f);
+            } catch (Exception ex) {
+                throw new DocException(ex);
+            }
+            RuleConfig rc = getRule(ruleId);
+            if (rc == null) {
+                rc = new RuleConfig(ruleId, p);
+                addRuleToList(rc);
+            } else {
+                rc.setProperties(p);
+            }
+            return true;
+        } else {
+            return false;
+        }
     }
     
     public synchronized RuleConfig getRule(String ruleId) 
@@ -77,11 +111,16 @@ public class RulesManager
         for (RuleConfig rc : rules.values()) {
             if (rc.isRuleEnabled() && 
                 rc.isApplicableForStore(storeId) && 
-                (rc.getRuleInstance() != null)) {
+                (rc.getRuleClass() != null)) {
                 res.add(rc);
             }
         }
         return res.toArray(new RuleConfig[res.size()]);
+    }
+    
+    public boolean isDefaultRule(String ruleId)
+    {
+        return DEFAULT_RULES.contains(ruleId);
     }
     
     /* ------------ Private methods ---------------- */
@@ -113,6 +152,74 @@ public class RulesManager
                 } catch (Exception ex) {
                     Log.error("Could not load rule properties " + f.getName() + ": " + ex.getMessage());
                 }
+            }
+        }
+    }
+    
+    private synchronized void createDefaultRules()
+    {
+        boolean create_quicklinks = (getRule(QUICK_LINKS_ID) == null);
+        boolean create_baserule = (getRule(BASE_RULE_ID) == null);
+
+        String quicklinks_cls = QuickLinkRule.class.getName();
+        String baserule_cls = BaseRule.class.getName();
+        
+        if (create_quicklinks || create_baserule) {
+            try {
+                docmaApp.registerRuleClasses(baserule_cls, quicklinks_cls);
+            } catch (Exception ex) {
+                Log.error("Could not register default rule classes: " + ex.getMessage());
+            }
+        }
+        
+        // Create Quick-Link rule if not existent
+        if (create_quicklinks) {
+            RuleConfig rc = new RuleConfig();
+            rc.setId(QUICK_LINKS_ID);
+            rc.setRuleClassName(quicklinks_cls);
+            rc.setRuleEnabled(true);
+            rc.setDefaultOn(true);
+            rc.setScopeAll();
+            
+            String chk = QuickLinkRule.CHECK_ID_TRANSFORM;
+            rc.setExecuteOnCheck(chk, false);
+            rc.setCorrectOnCheck(chk, false);
+            rc.setExecuteOnSave(chk,  true);
+            rc.setCorrectOnSave(chk,  true);
+            try {
+                saveRule(rc);
+            } catch (Exception ex) {
+                Log.error("Could not save rule " + QUICK_LINKS_ID + ": " + ex.getMessage());
+            }
+        }
+        
+        // Create base rule if not existent
+        if (create_baserule) {
+            RuleConfig rc = new RuleConfig();
+            rc.setId(BASE_RULE_ID);
+            rc.setRuleClassName(baserule_cls);
+            rc.setRuleEnabled(true);
+            rc.setDefaultOn(true);
+            rc.setScopeAll();
+            
+            // Trim empty paras setting
+            String chk = BaseRule.CHECK_ID_TRIM_EMPTY_PARAS;
+            rc.setExecuteOnCheck(chk, false);
+            rc.setCorrectOnCheck(chk, false);
+            rc.setExecuteOnSave(chk,  true);
+            rc.setCorrectOnSave(chk,  true);
+            
+            // Trim figure spaces
+            chk = BaseRule.CHECK_ID_TRIM_FIGURE_SPACES;
+            rc.setExecuteOnCheck(chk, false);
+            rc.setCorrectOnCheck(chk, false);
+            rc.setExecuteOnSave(chk,  true);
+            rc.setCorrectOnSave(chk,  true);
+            
+            try {
+                saveRule(rc);
+            } catch (Exception ex) {
+                Log.error("Could not save rule " + BASE_RULE_ID + ": " + ex.getMessage());
             }
         }
     }

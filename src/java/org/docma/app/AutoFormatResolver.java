@@ -87,8 +87,27 @@ public class AutoFormatResolver
                                        int recursionDepth,
                                        Set<String> skipStyles) throws Exception
     {
-        String styleID = block.getStyleID();  // may be null, e.g. if img is transformed for preview
-        DocmaStyle blockStyle = (styleID == null) ? null : exportCtx.getStyle(styleID);
+        String clsVal = block.getClassValue();  // may be null, e.g. if img is transformed for preview
+        String styleID = null;
+        DocmaStyle blockStyle = null;
+        if (clsVal != null) {
+            if (! clsVal.contains(" ")) {  // class attribute contains only a single style
+                styleID = clsVal;
+                blockStyle = exportCtx.getStyle(styleID);
+            } else {
+                // If multiple style names are given, determine the first auto-format style
+                StringTokenizer st = new StringTokenizer(clsVal, " ");
+                while (st.hasMoreTokens()) {
+                    String nm = st.nextToken();
+                    DocmaStyle dstyle = exportCtx.getStyle(nm);
+                    if ((dstyle != null) && dstyle.hasAutoFormatCall()) {
+                        styleID = nm;
+                        blockStyle = dstyle;
+                        break;
+                    }
+                }
+            }
+        }
 
         // HTML preview specific formattings
         if (doPreviewFormatting) {
@@ -115,14 +134,13 @@ public class AutoFormatResolver
             }
         }
 
+        // If block is a link with link text replacement, replace link text by target title
+        block.transformTargetTitleLink(exportCtx);
+        
         // Get user defined auto-format calls
         AutoFormatCall[] calls = (blockStyle != null) ? blockStyle.getAutoFormatCalls(false) : null;
         if ((calls == null) || (calls.length == 0)) {  // no user-defined calls exists
             resultBuf.append(block.getOuterString());  // do not transform content
-            if (DocmaConstants.DEBUG) {
-                Log.info("No auto-format transformation found for element " +
-                         block.getTagName() + " with class " + styleID);
-            }
             return;
         }
 
