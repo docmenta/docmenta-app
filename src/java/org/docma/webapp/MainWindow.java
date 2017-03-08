@@ -822,8 +822,50 @@ public class MainWindow extends Window implements EventListener
         }
         return defaultHTMLConfig;
     }
+    
+    /**
+     * Close all non-modal dialogs that are still opened.
+     */    
+    private void closeOpenedDialogs()
+    {
+        SearchReplaceDialog search_dialog = getSearchReplaceDialog();
+        FindNodesDialog find_dialog = getFindNodesDialog();
+        ActivityWinComposer act_comp = getActivityWinComposer();
+        
+        if (search_dialog.isDialogOpened()) {
+            search_dialog.closeDialog();
+        }
+        if (find_dialog.isDialogOpened()) {
+            find_dialog.closeDialog();
+        }
+        if (act_comp.isWindowOpened()) {
+            act_comp.closeWindow();
+        }
+    }
 
     /* --------------  Package local methods  --------------- */
+
+    SearchReplaceDialog getSearchReplaceDialog()
+    {
+        return (SearchReplaceDialog) getPage().getFellow("SearchReplaceDialog");
+    }
+    
+    FindNodesDialog getFindNodesDialog()
+    {
+        return (FindNodesDialog) getPage().getFellow("FindNodesDialog");
+    }
+    
+    ConsistencyCheckComposer getConsistencyCheckComposer() 
+    {
+        Window dialog = (Window) getPage().getFellow("ConsistencyCheckDialog");
+        return (ConsistencyCheckComposer) dialog.getAttribute("$composer");
+    }
+
+    ActivityWinComposer getActivityWinComposer() 
+    {
+        Window actWin = (Window) getPage().getFellow("ActivityWindow");
+        return (ActivityWinComposer) actWin.getAttribute("$composer");
+    }
 
     DocmaWebTree getDocTree()
     {
@@ -937,6 +979,7 @@ public class MainWindow extends Window implements EventListener
         // Close previously opened store
         String old_store = docmaSess.getStoreId();
         if (old_store != null) {
+            closeOpenedDialogs();
             try {
                 docmaSess.closeDocStore();
             } catch (Throwable ex) {
@@ -994,7 +1037,8 @@ public class MainWindow extends Window implements EventListener
             versions_select_list.getItems().clear();
         }
         try {
-            if (docmaSess.getStoreId() == null) {  // could not open store
+            boolean is_opened = (docmaSess.getStoreId() != null);
+            if (! is_opened) {  // could not open store
                 products_select_list.setSelectedIndex(0);  // select first entry -> no store selected
                 products_select_list.invalidate();  // workaround for zk bug
             }
@@ -1002,6 +1046,13 @@ public class MainWindow extends Window implements EventListener
             reinitTabs();
             disableButtons(docmaSess);
             clearPreview();
+            if (is_opened) {
+                // Show running / finished user activity
+                Activity[] acts = docmaSess.getOpenedStoreUserActivities();
+                if ((acts != null) && acts.length > 0) {
+                    getActivityWinComposer().openWindow(acts[0]);
+                }
+            }
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -1036,6 +1087,7 @@ public class MainWindow extends Window implements EventListener
             products_select_list.invalidate();  // workaround for zk bug
         }
         if (! reopen) {
+            closeOpenedDialogs();
             setTabVisibility(docmaSess);
             reinitTabs();  // onSelectAdminTab();
         }
@@ -1606,6 +1658,7 @@ public class MainWindow extends Window implements EventListener
         } else {
             docmaSess.enterTranslationMode(lang_code);
             lang_col.setVisible(true);
+            lang_col.setWidth(lang_col.getWidth());  // required due to ZK bug
         }
         // rerenderDocTree();
         // if (versioningInitialized) {
@@ -2781,7 +2834,7 @@ public class MainWindow extends Window implements EventListener
     public void onSearchAndReplace() throws Exception
     {
         DocmaSession docmaSess = getDocmaSession();
-        SearchReplaceDialog dialog = (SearchReplaceDialog) getPage().getFellow("SearchReplaceDialog");
+        SearchReplaceDialog dialog = getSearchReplaceDialog();
         dialog.doSearchReplace(docmaSess);
     }
 
@@ -2789,7 +2842,7 @@ public class MainWindow extends Window implements EventListener
     public void onFindByAliasAll() throws Exception
     {
         DocmaSession docmaSess = getDocmaSession();
-        FindNodesDialog dialog = (FindNodesDialog) getPage().getFellow("FindNodesDialog");
+        FindNodesDialog dialog = getFindNodesDialog();
         dialog.doFindByAlias(docmaSess);
     }
 
@@ -2797,7 +2850,7 @@ public class MainWindow extends Window implements EventListener
     public void onFindByAlias() throws Exception
     {
         DocmaSession docmaSess = getDocmaSession();
-        FindNodesDialog dialog = (FindNodesDialog) getPage().getFellow("FindNodesDialog");
+        FindNodesDialog dialog = getFindNodesDialog();
 
         Treeitem item = docTree.getSelectedItem();
         if (item == null) {
@@ -2818,7 +2871,7 @@ public class MainWindow extends Window implements EventListener
     public void onFindReferencingThis() throws Exception
     {
         DocmaSession docmaSess = getDocmaSession();
-        FindNodesDialog dialog = (FindNodesDialog) getPage().getFellow("FindNodesDialog");
+        FindNodesDialog dialog = getFindNodesDialog();
 
         Treeitem item = docTree.getSelectedItem();
         if (item == null) {
@@ -3585,10 +3638,7 @@ public class MainWindow extends Window implements EventListener
 
     public void onConsistencyCheck() throws Exception
     {
-        DocmaSession docmaSess = getDocmaSession();
-        Window dialog = (Window) getPage().getFellow("ConsistencyCheckDialog");
-        ConsistencyCheckComposer composer = (ConsistencyCheckComposer) dialog.getAttribute("$composer");
-        composer.showDialog();
+        getConsistencyCheckComposer().showDialog();
     }
 
 

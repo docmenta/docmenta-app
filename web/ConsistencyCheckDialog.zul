@@ -1,4 +1,3 @@
-<?component name="textbutton" extends="toolbarbutton" style="font-size:11px;color:blue;" ?>
 <window id="ConsistencyCheckDialog" title="${c:l('consistency.check.dialog.title')}"
         border="normal" width="380px" height="400px" visible="false" contentStyle="padding:7px;"
         sizable="true" closable="true" onClose="self.visible = false; event.stopPropagation();"
@@ -10,9 +9,6 @@
     <label id="ConsistencyCheckHeadLabel" style="font-weight:bold;">Check:</label>
     <tree id="ConsistencyCheckSelectTree" hflex="1" vflex="1" checkmark="true" multiple="true" zclass="z-dottree">
         <treechildren></treechildren>
-        <!-- <treefoot>
-            <treefooter id="ConsistencyCheckSelectFooter" label="" style="font-weight:normal;" />
-        </treefoot> -->
     </tree>
     <hbox pack="start" align="center" hflex="1" spacing="4px">
       <label value="${c:l('consistency.check.count_on')}" />

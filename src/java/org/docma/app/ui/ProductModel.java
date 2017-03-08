@@ -14,11 +14,12 @@
 
 package org.docma.app.ui;
 
-import org.docma.coreapi.LogMessage;
-import org.docma.coreapi.DocI18n;
 import org.docma.app.*;
-import java.util.*;
+import org.docma.coreapi.DocI18n;
+import org.docma.plugin.LogEntry;
 import org.docma.util.Log;
+
+import java.util.*;
 
 /**
  *
@@ -188,7 +189,7 @@ public class ProductModel implements Comparable, Cloneable
                 activityErrorCount = act.getErrorCount();
                 activityError = (activityErrorCount > 0);
                 if (activityError) {
-                    LogMessage[] msgarr = act.getLog(false, false, true);  // get only error messages
+                    LogEntry[] msgarr = act.getLog(false, false, true);  // get only error messages
                     if ((msgarr != null) && (msgarr.length > 0)) {
                         activityErrorMsg = msgarr[0].getMessage();
                     } else {  // Should never occur

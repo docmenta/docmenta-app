@@ -65,13 +65,9 @@
       </groupbox>
     </hbox>
     <separator spacing="2px"/>
-    <hbox pack="stretch" hflex="1" spacing="4px">
-      <cell width="50%">
+    <hbox pack="stretch" hflex="1" spacing="8px">
         <button id="RuleConfigOkayBtn" label="${c:l('label.okay.btn')}" hflex="1" />
-      </cell>
-      <cell width="50%">
         <button id="RuleConfigCancelBtn" label="${c:l('label.cancel.btn')}" hflex="1" />
-      </cell>
     </hbox>
   </vbox>
 </window>

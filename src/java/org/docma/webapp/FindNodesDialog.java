@@ -69,6 +69,16 @@ public class FindNodesDialog extends Window implements ListitemRenderer
         mode = MODE_REFERENCING_ALIAS;
         doFind(docmaSess, alias);
     }
+    
+    public void closeDialog()
+    {
+        setVisible(false);
+    }
+    
+    public boolean isDialogOpened()
+    {
+        return isVisible();
+    }
 
     public void render(Listitem item, Object model, int index) throws Exception
     {
@@ -130,7 +140,7 @@ public class FindNodesDialog extends Window implements ListitemRenderer
 
     public void onCloseClick() throws Exception
     {
-        setVisible(false);
+        closeDialog();
     }
 
     public void onSearchTermChange() throws Exception

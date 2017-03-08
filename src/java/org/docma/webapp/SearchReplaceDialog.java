@@ -87,6 +87,16 @@ public class SearchReplaceDialog extends Window
         setFocus(true);
         searchTermBox.setFocus(true);
     }
+    
+    public void closeDialog()
+    {
+        setVisible(false);
+    }
+    
+    public boolean isDialogOpened()
+    {
+        return isVisible();
+    }
 
     public void onFindNextClick() throws Exception
     {
@@ -243,6 +253,9 @@ public class SearchReplaceDialog extends Window
 
     public void onReplaceAll() throws Exception
     {
+        if (! isDialogOpened()) {
+            return;  // Stop replacing the matches if dialog has been closed by user
+        }
         if (replace_all_idx < searchResult.size()) {
             String node_id = searchResult.getSearchMatch(replace_all_idx).getNodeId();
             int next_idx = replace_all_idx + 1;
@@ -268,7 +281,7 @@ public class SearchReplaceDialog extends Window
 
     public void onCloseClick()
     {
-        setVisible(false);
+        closeDialog();
     }
 
     public void onSearchChange()

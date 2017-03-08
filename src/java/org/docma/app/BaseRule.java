@@ -78,7 +78,7 @@ public class BaseRule implements HTMLRule
         debug("BaseRule.finishBatch()");
     }
 
-    public void apply(StringBuilder content, HTMLRuleContext context) 
+    public String apply(String content, HTMLRuleContext context) 
     {
         debug("BaseRule.apply()");
         init(context);
@@ -88,24 +88,18 @@ public class BaseRule implements HTMLRule
         boolean correct_fig_spaces = context.isAutoCorrect(CHECK_ID_TRIM_FIGURE_SPACES);
         
         if (check_empty_p || check_fig_spaces) {
-            String fixcontent = content.toString();
+            String fixcontent = content;
             if (check_empty_p) {
-                String s = removeEmptyParaFromEnd(fixcontent, correct_empty_p, context);
-                if (correct_empty_p) {
-                    fixcontent = s;
-                }
+                fixcontent = removeEmptyParaFromEnd(fixcontent, correct_empty_p, context);
             }
             if (check_fig_spaces) {
-                String s = removeSpacesBeforeAfterFigure(fixcontent, correct_fig_spaces, context);
-                if (correct_fig_spaces) {
-                    fixcontent = s;
-                }
+                fixcontent = removeSpacesBeforeAfterFigure(fixcontent, correct_fig_spaces, context);
             }
             if (correct_empty_p || correct_fig_spaces) {
-                // Replace old content by new content
-                content.replace(0, content.length(), fixcontent);
+                return fixcontent;  // Replace old content by fixed content
             }
         }
+        return null;  // content is unchanged
     }
 
     public String[] getCheckIds() 
@@ -227,10 +221,14 @@ public class BaseRule implements HTMLRule
         if (buf == null) {   // no whitespace removed
             return content;
         } else {
-            if (copypos < len) {
-                buf.append(content, copypos, len); // copy remaining content
+            if (correct) {
+                if (copypos < len) {
+                    buf.append(content, copypos, len); // copy remaining content
+                }
+                return buf.toString();
+            } else {
+                return content;  // content is unchanged
             }
-            return buf.toString();
         }
     }
     
@@ -297,11 +295,11 @@ public class BaseRule implements HTMLRule
             // Write log message
             if (correct) {
                 context.logInfo(CHECK_ID_TRIM_EMPTY_PARAS, endpos, msgEmptyParaRemoved);
+                return str.substring(0, endpos);  // trim empty para
             } else {
                 context.log(CHECK_ID_TRIM_EMPTY_PARAS, endpos, msgEmptyParaExists);
+                return content;
             }
-            
-            return str.substring(0, endpos);  // trim empty para
         } else {
             return content;
         }

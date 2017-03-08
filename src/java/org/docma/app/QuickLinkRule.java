@@ -60,12 +60,14 @@ public class QuickLinkRule implements HTMLRule
     {
     }
 
-    public void apply(StringBuilder content, HTMLRuleContext context) 
+    public String apply(String content, HTMLRuleContext context) 
     {
         if (context.isEnabled(CHECK_ID_TRANSFORM)) {
             init(context);
             boolean autoCorrect = context.isAutoCorrect(CHECK_ID_TRANSFORM);
-            transform(content, context, autoCorrect);
+            return transform(content, context, autoCorrect);
+        } else {
+            return null;  // content is unchanged
         }
     }
 
@@ -109,14 +111,14 @@ public class QuickLinkRule implements HTMLRule
         return PluginUtil.getResourceString(this.getClass(), lang, msgKey);
     }
     
-    private void transform(StringBuilder content, HTMLRuleContext ctx, boolean autoCorrect)
+    private String transform(String content, HTMLRuleContext ctx, boolean autoCorrect)
     {
         StoreConnection storeConn = ctx.getStoreConnection();
         
         // find first quick link
         int quick_start = content.indexOf(QUICK_LINK_START);
         if (quick_start < 0) {  // no quick link found
-            return;
+            return null;
         }
         
         StringBuilder buf = new StringBuilder();
@@ -171,9 +173,7 @@ public class QuickLinkRule implements HTMLRule
 
         // Return transformed content.
         // If buf is empty then no valid quick links have been found (content is unchanged).
-        if (autoCorrect && (buf.length() > 0)) {
-            content.replace(0, copypos, buf.toString());
-        }
+        return (autoCorrect && (buf.length() > 0)) ? buf.toString() : null;
     }
     
     private static String transformQuickLinkToAnchor(StoreConnection storeConn, String quicklink)

@@ -14,9 +14,13 @@
 package org.docma.webapp;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import org.docma.app.Activity;
+import org.docma.app.ConsistencyCheckRunnable;
 import org.docma.app.DocmaNode;
 import org.docma.app.DocmaSession;
 import org.docma.app.RuleConfig;
@@ -34,7 +38,6 @@ import org.zkoss.zul.DefaultTreeNode;
 import org.zkoss.zul.Label;
 import org.zkoss.zul.Tree;
 import org.zkoss.zul.TreeNode;
-import org.zkoss.zul.Treefooter;
 import org.zkoss.zul.Treeitem;
 import org.zkoss.zul.Window;
 
@@ -55,16 +58,45 @@ public class ConsistencyCheckComposer extends SelectorComposer<Component>
     
     private DocmaWebSession webSess;
     private MainWindow mainWin;
+    private final List<String> selectedNodeIds = new ArrayList<String>();
+    private final List<String> rulesOn = new ArrayList<String>();
+    private final List<String> rulesOff = new ArrayList<String>();
     private final List<String> checksOn = new ArrayList<String>();
     private final List<String> checksOff = new ArrayList<String>();
     private int cntAutoCorrect = 0;
     
     public void showDialog()
     {
+        selectedNodeIds.clear();
         webSess = GUIUtil.getDocmaWebSession(checkDialog);
         mainWin = webSess.getMainWindow();
-        if (mainWin.getSelectedNodeCount() > 0) {
-            updateGUI();
+        if (mainWin.getSelectedNodeCount() <= 0) {
+            return;
+        }
+        
+        // Check if a previously started activity is still running. 
+        // Only one activity can run at the same time.
+        ActivityWinComposer actComp = mainWin.getActivityWinComposer();
+        if (actComp.isWindowOpened()) {
+            if (actComp.isActivityRunning()) {
+                MessageUtil.showError(mainWin, "activity.window.user_activity_exists");
+                return;
+            } else {
+                actComp.closeWindow();
+            }
+        }
+        DocmaSession docmaSess = webSess.getDocmaSession();
+        if (! clearFinishedUserActivities(docmaSess)) {  // Clear finished activities.
+            // Should never occur because of isActivityRunning() above.
+            MessageUtil.showError(mainWin, "activity.window.user_activity_exists");
+            return;
+        }
+        List<DocmaNode> selNodes = mainWin.getSelectedDocmaNodes(true, true);
+        if (selNodes != null) {   // if no selection error
+            for (DocmaNode nd : selNodes) {
+                selectedNodeIds.add(nd.getId());
+            }
+            updateGUI(selNodes);
             checkDialog.doHighlighted();
         }
     }
@@ -73,6 +105,39 @@ public class ConsistencyCheckComposer extends SelectorComposer<Component>
     public void onStartClick()
     {
         checkDialog.setVisible(false);   // close dialog
+
+        // Clear finished activities (just to be sure).
+        DocmaSession docmaSess = webSess.getDocmaSession();
+        if (! clearFinishedUserActivities(docmaSess)) {  
+            // Should never occur because finished activities have been cleared in showDialog().
+            MessageUtil.showError(mainWin, "activity.window.user_activity_exists");
+            return;
+        }
+        
+        try {
+            // Start activity thread
+            Activity act = docmaSess.createDocStoreActivity(docmaSess.getStoreId(), docmaSess.getVersionId());
+            act.setTitle("consistency.check.activity_title");
+            String[] nIds = selectedNodeIds.toArray(new String[selectedNodeIds.size()]);
+            Map props = new HashMap();
+            for (String rId : rulesOn) {
+                props.put(rId, "on");
+            }
+            for (String rId : rulesOff) {
+                props.put(rId, "off");
+            }
+            for (String chkId : checksOff) {
+                props.put(chkId, "off");
+            }
+            Runnable thread_obj = new ConsistencyCheckRunnable(act, docmaSess, nIds, correctBox.isChecked(), props);
+            act.start(thread_obj);
+
+            // Open activity window
+            ActivityWinComposer actComp = mainWin.getActivityWinComposer();
+            actComp.openWindow(act);
+        } catch (Exception ex) {
+            MessageUtil.showException(mainWin, ex);
+        }
     }
     
     @Listen("onClick = #ConsistencyCheckCancelBtn")
@@ -119,7 +184,7 @@ public class ConsistencyCheckComposer extends SelectorComposer<Component>
         }
         
         updateCounters();
-        updateFooter();
+        updateCountLabels();
         correctBox.setDisabled(cntAutoCorrect == 0);
         startBtn.setDisabled(checksOn.isEmpty());
     }
@@ -142,9 +207,31 @@ public class ConsistencyCheckComposer extends SelectorComposer<Component>
         }
     }
     
-    private void updateGUI()
+    private boolean clearFinishedUserActivities(DocmaSession sess)
     {
-        List<DocmaNode> selNodes = mainWin.getSelectedDocmaNodes(true, true);
+        try {
+            Activity[] acts = sess.getOpenedStoreUserActivities();
+            boolean cleared = true;
+            for (Activity a : acts) {
+                if (a.isFinished()) {
+                    if (! sess.removeDocStoreActivity(sess.getStoreId(), 
+                                                      sess.getVersionId(), 
+                                                      a.getActivityId())) {
+                        cleared = false;  // finished activity could not be removed
+                    }
+                } else {
+                    cleared = false;  // running activity exists
+                }
+            }
+            return cleared;
+        } catch (Exception ex) {  // should never occur
+            ex.printStackTrace();
+            return false;
+        }
+    }
+    
+    private void updateGUI(List<DocmaNode> selNodes)
+    {
         int selCnt = (selNodes != null) ? selNodes.size() : 0;
 
         String headTxt;
@@ -167,12 +254,14 @@ public class ConsistencyCheckComposer extends SelectorComposer<Component>
         
         correctBox.setChecked(false);
         correctBox.setDisabled(cntAutoCorrect == 0);
-        updateFooter();
+        updateCountLabels();
         startBtn.setDisabled(checksOn.isEmpty());
     }
     
     private void updateCounters()
     {
+        rulesOn.clear();
+        rulesOff.clear();
         checksOn.clear();
         checksOff.clear();
         cntAutoCorrect = 0;
@@ -181,10 +270,13 @@ public class ConsistencyCheckComposer extends SelectorComposer<Component>
         DefaultTreeNode root = (DefaultTreeNode) mod.getRoot();
         for (Object obj1 : root.getChildren()) {
             DefaultTreeNode ruleNode = (DefaultTreeNode) obj1;
+            RuleData rd = (RuleData) ruleNode.getData();
+            boolean isRuleOn = false;
             for (Object obj2 : ruleNode.getChildren()) {
                 DefaultTreeNode checkNode = (DefaultTreeNode) obj2;
                 CheckData cd = (CheckData) checkNode.getData();
                 if (mod.isSelected(checkNode)) {
+                    isRuleOn = true;
                     checksOn.add(cd.getQualifiedId());
                     if (cd.isAutoCorrect()) {
                         cntAutoCorrect++;
@@ -193,10 +285,15 @@ public class ConsistencyCheckComposer extends SelectorComposer<Component>
                     checksOff.add(cd.getQualifiedId());
                 }
             }
+            if (isRuleOn) {
+                rulesOn.add(rd.getId());
+            } else {
+                rulesOff.add(rd.getId());
+            }
         }
     }
     
-    private void updateFooter()
+    private void updateCountLabels()
     {
         countOnLabel.setValue("" + checksOn.size());
         countOffLabel.setValue("" + checksOff.size());
@@ -207,6 +304,8 @@ public class ConsistencyCheckComposer extends SelectorComposer<Component>
     {
         final String LABEL_AUTO_CORRECT = " (" + mainWin.i18n("rule.config.dialog.auto_correct") + ")";
         
+        rulesOn.clear();
+        rulesOff.clear();
         checksOn.clear();
         checksOff.clear();
         cntAutoCorrect = 0;
@@ -246,7 +345,10 @@ public class ConsistencyCheckComposer extends SelectorComposer<Component>
                 RuleData rd = new RuleData(rc.getId(), title);
                 TreeNode ruleNode = new DefaultTreeNode(rd, level2);
                 if (select) {
+                    rulesOn.add(rc.getId());
                     selectedNodes.add(ruleNode);
+                } else {
+                    rulesOff.add(rc.getId());
                 }
                 level1.add(ruleNode);
             }

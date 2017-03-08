@@ -59,7 +59,7 @@ import org.docma.plugin.StoreConnection;
 import org.docma.plugin.StoreClosedException;
 import org.docma.plugin.UserSession;
 import org.docma.plugin.VersionState;
-import org.docma.webapp.EditContentTransformer;
+import org.docma.app.EditContentTransformer;
 import org.docma.webapp.ImageRenditions;
 
 /**
@@ -1122,9 +1122,13 @@ public class StoreConnectionImpl implements StoreConnection
         }
     }
 
-    public LogEntries consistencyCheck(String nodeId, boolean recursive, boolean autoCorrect, Map<Object, Object> props) throws DocmaException
+    public LogEntries checkHTML(StringBuilder content, String nodeId, boolean autoCorrect, Map<Object, Object> props) throws DocmaException
     {
-        throw new DocmaException("Not implemented");
+        try {
+            return EditContentTransformer.checkHTML(content, nodeId, props, autoCorrect, docmaSess);
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
     }
 
     // ********************************************************************

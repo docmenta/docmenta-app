@@ -13,11 +13,13 @@
  */
 package org.docma.plugin.implementation;
 
+import java.util.Locale;
 import java.util.Map;
 import org.docma.app.RuleConfig;
 import org.docma.coreapi.implementation.DefaultLog;
 import org.docma.plugin.LogLevel;
 import org.docma.plugin.StoreConnection;
+import org.docma.plugin.UserSession;
 import org.docma.plugin.rules.HTMLRuleContext;
 
 /**
@@ -26,6 +28,8 @@ import org.docma.plugin.rules.HTMLRuleContext;
  */
 public class HTMLRuleContextImpl implements HTMLRuleContext
 {
+    private static final Locale DEFAULT_LOCALE = new Locale("en");
+    
     private final StoreConnectionImpl conn;
     private final StringBuilder content;
     private final DefaultLog log;
@@ -110,6 +114,13 @@ public class HTMLRuleContextImpl implements HTMLRuleContext
     public StoreConnection getStoreConnection()
     {
         return conn;
+    }
+    
+    public Locale getUILocale()
+    {
+        UserSession sess = (conn == null) ? null : conn.getUserSession();
+        Locale loc = (sess == null) ? null : sess.getCurrentLocale();
+        return (loc == null) ? DEFAULT_LOCALE : loc;
     }
     
     /* ------- Other public methods --------- */

@@ -116,6 +116,7 @@ public class DocmaConstants
     public static final String PROP_USER_LAST_LOGIN = "lastlogin";
     public static final String PROP_USER_GUI_LANGUAGE = "guilanguage";
     public static final String PROP_USER_DATE_FORMAT = "dateformat";
+    public static final String PROP_USER_QUICKLINKS_ENABLED = "quicklinks.enabled";
 
     // User group properties
     public static final String PROP_USERGROUP_RIGHTS = "accessrights";

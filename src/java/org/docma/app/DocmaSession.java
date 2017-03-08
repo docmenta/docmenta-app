@@ -2855,6 +2855,11 @@ public class DocmaSession
         return docmaApp.isTextFileExtension(ext);
     }
 
+    public Activity getActivityById(long activityId)
+    {
+        return docmaApp.getActivities().getActivityById(activityId);
+    }
+    
     public Activity getDocStoreActivity(String storeId)
     {
         UUID store_uuid = docSess.getDocStoreUUID(storeId);
@@ -2865,17 +2870,48 @@ public class DocmaSession
         }
     }
     
+    public Activity[] getDocStoreActivities(String storeId, DocVersionId verId, String userId)
+    {
+        UUID ver_uuid = docSess.getVersionUUID(storeId, verId);
+        if (ver_uuid != null) {
+            return docmaApp.getActivities().getVersionActivities(ver_uuid, userId);
+        } else {
+            return new Activity[0];
+        }
+    }
+
+    public Activity[] getOpenedStoreUserActivities()
+    {
+        String sid = getStoreId();
+        DocVersionId vid = getVersionId();
+        if ((sid != null) && (vid != null)) {
+            return getDocStoreActivities(sid, vid, getUserId());
+        }
+        return new Activity[0];
+    }
+    
     public Activity createDocStoreActivity(String storeId) throws DocException
     {
         UUID store_uuid = docSess.getDocStoreUUID(storeId);
         if (store_uuid != null) {
-            return docmaApp.getActivities().createStoreActivity(store_uuid);
+            return docmaApp.getActivities().createStoreActivity(store_uuid, getUserId());
         } else {
             throw new DocException("Cannot create store activity. Store with ID '" + 
                                    storeId + "' not found!");
         }
     }
 
+    public Activity createDocStoreActivity(String storeId, DocVersionId verId) throws DocException
+    {
+        UUID ver_uuid = docSess.getVersionUUID(storeId, verId);
+        if (ver_uuid != null) {
+            return docmaApp.getActivities().createVersionActivity(ver_uuid, getUserId());
+        } else {
+            throw new DocException("Cannot create activity. Store with ID '" + 
+                                   storeId + "' version '" + verId + "' not found!");
+        }
+    }
+    
     public boolean removeDocStoreActivity(String storeId)
     {
         UUID store_uuid = docSess.getDocStoreUUID(storeId);
@@ -2886,6 +2922,11 @@ public class DocmaSession
         }
     }
 
+    public boolean removeDocStoreActivity(String storeId, DocVersionId verId, long activityId)
+    {
+        return docmaApp.getActivities().removeVersionActivity(activityId);
+    }
+    
     public boolean isStoreDisabled(String storeId) 
     {
         return docmaApp.isStoreDisabled(storeId);

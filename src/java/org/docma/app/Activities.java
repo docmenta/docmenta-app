@@ -33,6 +33,7 @@ class Activities
     private DocI18n i18n;
     private long last_id = 0;
     private Map<UUID, Activity> storeActivities = new HashMap<UUID, Activity>();
+    private List<ActivityImpl> versionActivities = new ArrayList<ActivityImpl>();
     
     Activities(File activitiesDir, DocI18n i18n)
     {
@@ -49,28 +50,37 @@ class Activities
         readPersistedActivities();
     }
     
+    Activity getActivityById(long activityId)
+    {
+        Activity res = getVersionActivity(activityId);
+        if (res == null) {
+            for (Activity act : storeActivities.values()) {
+                if (act.getActivityId() == activityId) {
+                    return act;
+                }
+            }
+        }
+        return res;
+    }
+    
     Activity getStoreActivity(UUID storeUUID)
     {
         return storeActivities.get(storeUUID);
     }
     
-    synchronized Activity createStoreActivity(UUID storeUUID) throws DocException 
+    synchronized Activity createStoreActivity(UUID storeUUID, String userId) throws DocException 
     {
-        
         Activity act = getStoreActivity(storeUUID);
         if (act != null) {
             throw new DocException("Cannot create activity. Activity for store with UUID '" + 
                                    storeUUID + "' already exists!");
         }
-        long act_id = System.currentTimeMillis();
-        if (act_id == last_id) {
-            act_id++;
-        }
-        last_id = act_id;
+        long act_id = createNewActivityId();
         File act_file = propFile(act_id);
         File log_file = logFile(act_id);
         ActivityImpl act_new = new ActivityImpl(act_id, act_file, log_file, i18n);
         act_new.setStoreUUID(storeUUID);
+        act_new.setUserId(userId);
         storeActivities.put(storeUUID, act_new);
         return act_new;
     }
@@ -85,8 +95,78 @@ class Activities
             return false;  // cannot remove running activity
         }
         act = storeActivities.remove(storeUUID);
-        
-        // Delete activity files:
+        deleteActivityFiles(act);
+        return true;  // activity no longer contained in map
+    }
+    
+    Activity getVersionActivity(long actId)
+    {
+        for (ActivityImpl act : versionActivities) {
+            if (actId == act.getActivityId()) {
+                return act;
+            }
+        }
+        return null;
+    }
+    
+    Activity[] getVersionActivities(UUID versionUUID, String userId)
+    {
+        List<Activity> res = new ArrayList<Activity>();
+        for (ActivityImpl act : versionActivities) {
+            if (versionUUID.equals(act.getVersionUUID()) && 
+                ((userId == null) || userId.equals(act.getUserId()))) {
+                res.add(act);
+            }
+        }
+        return res.toArray(new Activity[res.size()]);
+    }
+    
+    synchronized Activity createVersionActivity(UUID versionUUID, String userId) throws DocException 
+    {
+        long act_id = createNewActivityId();
+        File act_file = propFile(act_id);
+        File log_file = logFile(act_id);
+        ActivityImpl act_new = new ActivityImpl(act_id, act_file, log_file, i18n);
+        act_new.setVersionUUID(versionUUID);
+        act_new.setUserId(userId);
+        versionActivities.add(act_new);
+        return act_new;
+    }
+
+    synchronized boolean removeVersionActivity(long actId) 
+    {
+        Iterator<ActivityImpl> it = versionActivities.iterator();
+        ActivityImpl removedAct = null;
+        while (it.hasNext()) {
+            ActivityImpl act = it.next();
+            if (actId == act.getActivityId()) {
+                if (act.isRunning()) {
+                    return false;  // cannot remove running activity
+                }
+                it.remove();
+                removedAct = act;
+                break;
+            }
+        }
+        if (removedAct == null) {   // no activity with given id found
+            return false;
+        }
+        deleteActivityFiles(removedAct);
+        return true;  // activity no longer contained in map
+    }
+    
+    private long createNewActivityId()
+    {
+        long act_id = System.currentTimeMillis();
+        if (act_id == last_id) {
+            act_id++;
+        }
+        last_id = act_id;
+        return act_id;
+    }
+    
+    private void deleteActivityFiles(Activity act)
+    {
         if ((act != null) && (act instanceof ActivityImpl)) {
             ActivityImpl removed_act = (ActivityImpl) act;
             File act_file = removed_act.getActivityFile();
@@ -102,7 +182,6 @@ class Activities
                 }
             }
         }
-        return true;  // activity no longer contained in map
     }
     
     private File propFile(long id)
@@ -128,7 +207,10 @@ class Activities
                     File log_file = new File(activitiesDir, act_name + EXT_LOG);
                     ActivityImpl act = new ActivityImpl(act_id, prop_file, log_file, i18n);
                     UUID store_id = act.getStoreUUID();
-                    if (store_id != null) {
+                    UUID ver_id = act.getVersionUUID();
+                    if (ver_id != null) {
+                        versionActivities.add(act);
+                    } else if (store_id != null) {
                         storeActivities.put(store_id, act);
                     } else {
                         Log.warning("Missing store UUID in activity file: " + fn);

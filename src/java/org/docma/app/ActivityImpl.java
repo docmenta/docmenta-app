@@ -35,18 +35,19 @@ public class ActivityImpl extends DefaultProgressCallback implements Activity
     private static final String PROP_MESSAGE_KEY = "msg";
     private static final String PROP_MESSAGE_ARG = "msg_arg";
     private static final String PROP_STATE = "state";
+    private static final String PROP_USER_ID = "user_id";
     private static final String PROP_STORE_UUID = "store_uuid";
+    private static final String PROP_VERSION_UUID = "version_uuid";
     
     private static final String STATE_NEW = "new";
     private static final String STATE_RUNNING = "running";
     private static final String STATE_FINISHED_OK = "finished";
     private static final String STATE_FINISHED_ERROR = "error";
-    
 
-    private long activityId;
-    private File activityFile = null;     // activity properties file
-    private File activityLogFile = null;  // activity log file
-    private Properties props = new Properties();
+    private final long activityId;
+    private final File activityFile;     // activity properties file
+    private final File activityLogFile;  // activity log file
+    private final Properties props = new Properties();
     
     private String titleKey = null;
     private Object[] titleArgs = {};
@@ -54,6 +55,8 @@ public class ActivityImpl extends DefaultProgressCallback implements Activity
     private Thread activityThread = null;
 
     private UUID storeUUID = null;
+    private UUID versionUUID = null;
+    private String userId = null;
     
 
     ActivityImpl(long actId, File activityFile, File logFile, DocI18n i18n) 
@@ -89,9 +92,29 @@ public class ActivityImpl extends DefaultProgressCallback implements Activity
         this.storeUUID = storeUUID;
     }
 
+    UUID getVersionUUID()
+    {
+        return versionUUID;
+    }
+    
+    void setVersionUUID(UUID verUUID) 
+    {
+        this.versionUUID = verUUID;
+    }
+
     public long getActivityId()
     {
         return activityId;
+    }
+    
+    public String getUserId()
+    {
+        return userId;
+    }
+    
+    public void setUserId(String uId)
+    {
+        this.userId = uId;
     }
     
     public void setTitle(String labelKey, Object... args) 
@@ -222,6 +245,16 @@ public class ActivityImpl extends DefaultProgressCallback implements Activity
             props.setProperty(PROP_STORE_UUID, this.storeUUID.toString());
         }
         
+        // Version UUID
+        if (this.versionUUID != null) {
+            props.setProperty(PROP_VERSION_UUID, this.versionUUID.toString());
+        }
+        
+        // User Id
+        if (this.userId != null) {
+            props.setProperty(PROP_USER_ID, this.userId);
+        }
+        
         // Save updated properties
         savePropFile();
     }
@@ -289,6 +322,17 @@ public class ActivityImpl extends DefaultProgressCallback implements Activity
         } else {
             this.storeUUID = null;
         }
+        
+        // Restore version UUID
+        uuid = props.getProperty(PROP_VERSION_UUID);
+        if ((uuid != null) && (uuid.trim().length() > 0)) {
+            this.versionUUID = UUID.fromString(uuid.trim());
+        } else {
+            this.versionUUID = null;
+        }
+        
+        // Restore user id
+        this.userId = props.getProperty(PROP_USER_ID);
     }
 
     private void writeLog()

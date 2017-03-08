@@ -36,17 +36,18 @@ public class DummyHTMLRule implements HTMLRule
     {
     }
     
-    public void apply(StringBuilder content, HTMLRuleContext context) 
+    public String apply(String content, HTMLRuleContext context) 
     {
         if (context.isEnabled("checkLength")) {
             if (content.length() > 40) {
                 context.log("checkLength", "The content exceeds maximum length of 40 characters: " + content.length());
                 if (context.isAutoCorrect("checkLength")) {
-                    content.setLength(40);
                     context.log("checkLength", "Content has been stripped to 40 characters.");
+                    return content.substring(0, 40);
                 }
             }
         }
+        return null;  // content is unchanged
     }
 
     public String[] getCheckIds() 

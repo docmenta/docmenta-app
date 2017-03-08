@@ -83,7 +83,8 @@ public class GUI_List_Rules implements ListitemRenderer
 
     public void onNewRule() 
     {
-        showNewRuleDialog(new RuleConfig());
+        DocmaWebApplication webApp = GUIUtil.getDocmaWebApplication(mainWin);
+        showNewRuleDialog(webApp.getRulesManager().createTransientRule());
     }
     
     public void onEditRule() 

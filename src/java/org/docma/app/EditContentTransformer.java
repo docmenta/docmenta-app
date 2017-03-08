@@ -12,11 +12,10 @@
  *  along with Docmenta.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.docma.webapp;
+package org.docma.app;
 
 import java.util.*;
 
-import org.docma.app.*;
 import org.docma.plugin.DocmaException;
 import org.docma.plugin.LogEntries;
 import org.docma.plugin.LogLevel;
@@ -42,12 +41,23 @@ public class EditContentTransformer
                                                 Map<Object, Object> props,
                                                 DocmaSession docmaSess)
     {
-        return applyHTMLRules(content, nodeId, props, docmaSess);
+        return applyHTMLRules(content, nodeId, props, true, true, docmaSess);
+    }
+
+    public static LogEntries checkHTML(StringBuilder content,
+                                       String nodeId,
+                                       Map<Object, Object> props,
+                                       boolean allowAutoCorrect,
+                                       DocmaSession docmaSess)
+    {
+        return applyHTMLRules(content, nodeId, props, allowAutoCorrect, false, docmaSess);
     }
 
     private static LogEntries applyHTMLRules(StringBuilder content,
                                              String nodeId, 
                                              Map<Object, Object> props, 
+                                             boolean allowAutoCorrect,
+                                             boolean isModeSave,
                                              DocmaSession docmaSess) throws DocmaException
     {
         RulesManager rm = docmaSess.getRulesManager();
@@ -57,10 +67,15 @@ public class EditContentTransformer
         if (props != null) {
             ctx.setProperties(props);
         }
-        ctx.setModeSave();
-        ctx.setAllowAutoCorrect(true);
+        if (isModeSave) {
+            ctx.setModeSave();
+        } else {
+            ctx.setModeCheck();
+        }
+        ctx.setAllowAutoCorrect(allowAutoCorrect);
         ctx.setNodeId(nodeId);
-        
+
+        String contentStr = null;
         for (RuleConfig rc : rules) {
             if (rc.isRuleEnabled() && rc.isApplicableForStore(docmaSess.getStoreId())) {
                 String ruleId = rc.getId();
@@ -70,7 +85,7 @@ public class EditContentTransformer
                 // SPECIAL CASE: If this is the quick-links rule and no property 
                 // has been set, then set property based on user's profile setting.
                 if (v.equals("") && RulesManager.QUICK_LINKS_ID.equals(ruleId)) {
-                    v = docmaSess.getUserProperty(GUIConstants.PROP_USER_QUICKLINKS_ENABLED);
+                    v = docmaSess.getUserProperty(DocmaConstants.PROP_USER_QUICKLINKS_ENABLED);
                     if ((v == null) || v.equals("")) {
                         v = "false";  // by default quick-links are disabled if no user property has been set
                     }
@@ -100,7 +115,14 @@ public class EditContentTransformer
                             ctx.log(LogLevel.ERROR, "Exception in startBatch() of rule " + rc.getId() + ": " + ex.getMessage());
                         }
                         try {
-                            hr.apply(content, ctx);
+                            if (contentStr == null) {  // initialize on first rule to be applied
+                                contentStr = content.toString();
+                            }
+                            String res = hr.apply(contentStr, ctx);
+                            if (allowAutoCorrect && (res != null)) {
+                                contentStr = res;
+                                content.replace(0, content.length(), res);
+                            }
                         } catch (Exception ex) {
                             ctx.log(LogLevel.ERROR, "Exception in applying rule " + rc.getId() + ": " + ex.getMessage());
                         }

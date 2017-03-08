@@ -52,6 +52,11 @@ public class MessageUtil
         Messagebox.show(msg, null, Messagebox.OK, Messagebox.ERROR);
     }
     
+    public static void showException(Component comp, Throwable ex) 
+    {
+        showError(comp, "error.exception", ex.getMessage());
+    }
+    
     public static void showWarning(Component comp, String msg_key, Object... args) 
     {
         String msg = GUIUtil.getI18n(comp).getLabel(msg_key, args);

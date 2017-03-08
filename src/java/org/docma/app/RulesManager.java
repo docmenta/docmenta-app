@@ -56,6 +56,11 @@ public class RulesManager
         createDefaultRules();
     }
     
+    public RuleConfig createTransientRule()
+    {
+        return new RuleConfig(this);
+    }
+    
     public synchronized void saveRule(RuleConfig rule) throws DocException
     {
         saveRuleProps(rule.getId(), rule.getProperties());
@@ -83,7 +88,7 @@ public class RulesManager
             }
             RuleConfig rc = getRule(ruleId);
             if (rc == null) {
-                rc = new RuleConfig(ruleId, p);
+                rc = new RuleConfig(this, ruleId, p);
                 addRuleToList(rc);
             } else {
                 rc.setProperties(p);
@@ -122,6 +127,11 @@ public class RulesManager
     {
         return DEFAULT_RULES.contains(ruleId);
     }
+
+    public DocmaApplication getDocmaApplication()
+    {
+        return docmaApp;
+    }
     
     /* ------------ Private methods ---------------- */
 
@@ -148,7 +158,7 @@ public class RulesManager
                 try {
                     Properties props = loadRuleProps(f);
                     String ruleId = fn.substring(0, fn.lastIndexOf('.'));
-                    addRuleToList(new RuleConfig(ruleId, props));
+                    addRuleToList(new RuleConfig(this, ruleId, props));
                 } catch (Exception ex) {
                     Log.error("Could not load rule properties " + f.getName() + ": " + ex.getMessage());
                 }
@@ -174,7 +184,7 @@ public class RulesManager
         
         // Create Quick-Link rule if not existent
         if (create_quicklinks) {
-            RuleConfig rc = new RuleConfig();
+            RuleConfig rc = createTransientRule();
             rc.setId(QUICK_LINKS_ID);
             rc.setRuleClassName(quicklinks_cls);
             rc.setRuleEnabled(true);
@@ -195,7 +205,7 @@ public class RulesManager
         
         // Create base rule if not existent
         if (create_baserule) {
-            RuleConfig rc = new RuleConfig();
+            RuleConfig rc = createTransientRule();
             rc.setId(BASE_RULE_ID);
             rc.setRuleClassName(baserule_cls);
             rc.setRuleEnabled(true);

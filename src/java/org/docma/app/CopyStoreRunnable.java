@@ -18,7 +18,6 @@ import java.io.*;
 import org.docma.coreapi.*;
 import org.docma.util.DocmaUtil;
 import org.docma.app.fsimplementation.PublicationArchiveImpl;
-import org.docma.util.Log;
 
 /**
  *
@@ -26,16 +25,16 @@ import org.docma.util.Log;
  */
 public class CopyStoreRunnable implements Runnable
 {
-    private DocmaSession userSess = null;  // The session of the user that starts the activity.
-    private String sourceStoreId = null;
-    private String targetStoreId = null;
-    private DocVersionId[] versionIds = null;  // null means all versions
-    private String[] langCodes = null;        // null means all languages
-    private boolean verify;
-    private boolean copyExports;
-    private boolean copyRevisions;
+    private final DocmaSession userSess;  // The session of the user that starts the activity.
+    private final String sourceStoreId;
+    private final String targetStoreId;
+    private final DocVersionId[] versionIds;  // null means all versions
+    private String[] langCodes;               // null means all languages
+    private final boolean verify;
+    private final boolean copyExports;
+    private final boolean copyRevisions;
 
-    private ProgressCallback progress;
+    private final ProgressCallback progress;
     
     public CopyStoreRunnable(ProgressCallback progress,
                              DocmaSession userSess,

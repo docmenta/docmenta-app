@@ -235,7 +235,8 @@ public class RuleConfigComposer extends SelectorComposer<Component> implements E
     {
         RuleConfig rc = tmpConfigs.get(clsName);
         if (rc == null) {
-            rc = new RuleConfig();
+            DocmaWebApplication webApp = GUIUtil.getDocmaWebApplication(ruleDialog);
+            rc = webApp.getRulesManager().createTransientRule();
             rc.setRuleClassName(clsName);
             rc.setTitle(rc.getShortInfo(guiLanguage));
             tmpConfigs.put(clsName, rc);

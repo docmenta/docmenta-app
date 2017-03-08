@@ -113,6 +113,14 @@ public class NodePropertiesDialog extends Window implements EventListener
         setVisible(false);
     }
 
+    public void onFindReferences() throws Exception
+    {
+        DocmaWebSession webSess = GUIUtil.getDocmaWebSession(this);
+        MainWindow mainWin = webSess.getMainWindow();
+        FindNodesDialog findDialog = mainWin.getFindNodesDialog();
+        findDialog.doFindReferencingAlias(webSess.getDocmaSession(), aliasBox.getValue().trim());
+    }
+
     public boolean doEdit_SectionProps(DocmaNode docmaNode, DocmaSession docmaSess) throws Exception
     {
         mode = MODE_SECTION;

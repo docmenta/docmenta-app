@@ -48,6 +48,8 @@ public class RuleConfig implements Comparable, Cloneable
 
     private static final String SCOPE_ALL_VALUE = "[ALL]";
 
+    private final RulesManager rulesManager;
+    
     private String ruleId = "";
     private Properties props = null;
     private Class ruleClass = null;
@@ -60,16 +62,18 @@ public class RuleConfig implements Comparable, Cloneable
                                                          // the configure(...) method of the rule instances
                                                          // has to be invoked again.
 
-    public RuleConfig()
+    RuleConfig(RulesManager rm)
     {
-        props = new Properties();
-        ruleClass = null;
-        args = null;
+        this.rulesManager = rm;
+        this.props = new Properties();
+        this.ruleClass = null;
+        this.args = null;
         setScopeAll();   // default scope for newly created rules
     }
     
-    RuleConfig(String ruleId, Properties p)
+    RuleConfig(RulesManager rm, String ruleId, Properties p)
     {
+        this.rulesManager = rm;
         this.ruleId = ruleId;
         setProperties((p != null) ? p : new Properties());
     }
@@ -77,7 +81,7 @@ public class RuleConfig implements Comparable, Cloneable
     public Object clone() throws CloneNotSupportedException
     {
         Properties p = (props == null) ? null : (Properties) props.clone();
-        return new RuleConfig(ruleId, p);
+        return new RuleConfig(rulesManager, ruleId, p);
     }
     
     public String getId() 
@@ -380,6 +384,11 @@ public class RuleConfig implements Comparable, Cloneable
     {
         String otherId = ((RuleConfig) other).getId();
         return ruleId.compareToIgnoreCase(otherId);
+    }
+    
+    public RulesManager getRulesManager()
+    {
+        return rulesManager;
     }
     
     /* ------------ Package local methods ---------------- */

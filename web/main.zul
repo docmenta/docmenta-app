@@ -1055,7 +1055,7 @@ div.z-listheader-cnt { height:16px; max-height:16px; color:#000000; font-weight:
 <?component name="ConsistencyCheckDialog" inline="true" macroURI="ConsistencyCheckDialog.zul"?>
 <ConsistencyCheckDialog />
 
-<?component name="ConsistencyTaskDialog" inline="true" macroURI="ConsistencyTaskDialog.zul"?>
-<ConsistencyTaskDialog />
+<?component name="ActivityWindow" inline="true" macroURI="ActivityWindow.zul"?>
+<ActivityWindow />
 
 </zk>

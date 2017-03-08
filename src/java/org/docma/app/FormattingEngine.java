@@ -109,7 +109,7 @@ public class FormattingEngine
     private static final String TEMPFILE_PREFIX = "temp";
 
     private final File configBaseDir;
-    private final File html2DocbookXSLFile;
+    // private final File html2DocbookXSLFile;
     private final File tempDir;
     private int  tempDeleteCounter = 0;
 
@@ -178,26 +178,18 @@ public class FormattingEngine
     throws Exception
     {
         this.configBaseDir = configDir;
-        this.html2DocbookXSLFile = new File(configDir, "html2docbook.xsl");
         this.docbookXSLDir = docbookXSLDir;
         this.tempDir = tempDir;
 
-        if (! html2DocbookXSLFile.exists()) {
-            throw new DocException("File does not exist: " + html2DocbookXSLFile.getPath());
+        File[] html2DocbookFiles = getHtml2DocbookFiles();
+        if (html2DocbookFiles.length == 0) {
+            throw new DocException("HTML to Docbook XSL file does not exist.");
         }
-        File customLayerIncFile = new File(configDir, "customlayer.xsl");
-        File customLayerIncFile_PDF = new File(configDir, "customlayer_pdf.xsl");
-        File customLayerIncFile_HTML = new File(configDir, "customlayer_html.xsl");
+        customLayerIncludes = readCustomLayer();
+        customLayerIncludes_PDF = readCustomLayer_PDF();
+        customLayerIncludes_HTML = readCustomLayer_HTML();
+        
         File coverpageXSLFile = new File(configDir, "coverpage_pdf.xsl");
-        if (customLayerIncFile.exists()) {
-            customLayerIncludes = DocmaUtil.readFileToString(customLayerIncFile);
-        }
-        if (customLayerIncFile_PDF.exists()) {
-            customLayerIncludes_PDF = DocmaUtil.readFileToString(customLayerIncFile_PDF);
-        }
-        if (customLayerIncFile_HTML.exists()) {
-            customLayerIncludes_HTML = DocmaUtil.readFileToString(customLayerIncFile_HTML);
-        }
         if (coverpageXSLFile.exists()) {
             coverPage_XSL_FO = DocmaUtil.readFileToString(coverpageXSLFile);
         }
@@ -207,7 +199,13 @@ public class FormattingEngine
         tFactory = TransformerFactory.newInstance();
         Log.info("Transformer factory class: " + tFactory.getClass().getName());
 
-        html2DocbookTransformer = tFactory.newTransformer(new StreamSource(html2DocbookXSLFile));
+        StreamSource streamSrc;
+        if (html2DocbookFiles.length == 1) {
+            streamSrc = new StreamSource(html2DocbookFiles[0]);
+        } else {
+            streamSrc = new StreamSource(new StringReader(DocmaUtil.readFilesToString(html2DocbookFiles, null)));
+        }
+        html2DocbookTransformer = tFactory.newTransformer(streamSrc);
 
         File fo_xsl = new File(docbookXSLDir, "fo" + File.separator + "docbook.xsl");
         File htmlSingle_xsl = new File(docbookXSLDir, "html" + File.separator + "onechunk.xsl");
@@ -230,6 +228,58 @@ public class FormattingEngine
         this.webFormatter = new WebFormatter(docbookXSLDir, tempDir);
     }
 
+    private File[] getHtml2DocbookFiles() throws IOException
+    {
+        File[] arr = configBaseDir.listFiles(new FilenameFilter() {
+            public boolean accept(File dir, String name) 
+            {
+                return name.equals("html2docbook.xsl") || 
+                       (name.startsWith("plug_html2docbook_") && name.endsWith(".xsl"));
+            }
+        });
+        Arrays.sort(arr);
+        return arr;
+    }
+    
+    private String readCustomLayer() throws IOException
+    {
+        File[] arr = configBaseDir.listFiles(new FilenameFilter() {
+            public boolean accept(File dir, String name) 
+            {
+                return name.equals("customlayer.xsl") || 
+                       (name.startsWith("plug_custom_all_") && name.endsWith(".xsl"));
+            }
+        });
+        Arrays.sort(arr);
+        return DocmaUtil.readFilesToString(arr, null);
+    }
+    
+    private String readCustomLayer_PDF() throws IOException
+    {
+        File[] arr = configBaseDir.listFiles(new FilenameFilter() {
+            public boolean accept(File dir, String name) 
+            {
+                return name.equals("customlayer_pdf.xsl") || 
+                       (name.startsWith("plug_custom_pdf_") && name.endsWith(".xsl"));
+            }
+        });
+        Arrays.sort(arr);
+        return DocmaUtil.readFilesToString(arr, null);
+    }
+    
+    private String readCustomLayer_HTML() throws IOException
+    {
+        File[] arr = configBaseDir.listFiles(new FilenameFilter() {
+            public boolean accept(File dir, String name) 
+            {
+                return name.equals("customlayer_html.xsl") || 
+                       (name.startsWith("plug_custom_html_") && name.endsWith(".xsl"));
+            }
+        });
+        Arrays.sort(arr);
+        return DocmaUtil.readFilesToString(arr, null);
+    }
+    
     /* --------------  Public methods  --------------- */
 
     public DocmaPublicationConfig getDefaultPublicationConfig()

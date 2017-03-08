@@ -14,6 +14,7 @@
 
 package org.docma.webapp;
 
+import org.docma.app.DocmaConstants;
 import org.docma.plugin.web.DefaultContentAppHandler;
 
 /**
@@ -52,7 +53,7 @@ public class GUIConstants
     public static final String PROP_USER_IMAGE_PREVIEW_MODE = "imagepreviewmode";
     public static final String PROP_USER_EDITOR_ID = "editor.id";
     public static final String PROP_USER_TXT_EDITOR_ID = "txteditor.id";
-    public static final String PROP_USER_QUICKLINKS_ENABLED = "quicklinks.enabled";
+    public static final String PROP_USER_QUICKLINKS_ENABLED = DocmaConstants.PROP_USER_QUICKLINKS_ENABLED;
 
     // User property values
     public static final String CONTENT_WIN_LAYOUT_HORIZONTAL = "horizontal";
