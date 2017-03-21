@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
 <properties>
-  <entry key="shortInfo">QuickLinks HTML Rule</entry>
-  <entry key="transform_quicklinks.title">Transforms QuickLinks to HTML links</entry>
-  <entry key="msgQuickLinkExists">Found unresolved QuickLink.</entry>
-  <entry key="msgQuickLinkTransformed">Transformed QuickLink to HTML link.</entry>
+  <entry key="shortInfo">Quick-Links Transformation</entry>
+  <entry key="transform_quicklinks.title">Transforms Quick-Links to HTML links</entry>
+  <entry key="msgQuickLinkExists">Found unresolved Quick-Link.</entry>
+  <entry key="msgQuickLinkTransformed">Transformed Quick-Link to HTML link.</entry>
   <entry key="longInfo"><![CDATA[
 <p>
 A user can enable <em>Quick-Links</em> to allow easier creation of HTML 

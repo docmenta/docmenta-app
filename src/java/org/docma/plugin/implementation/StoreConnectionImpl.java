@@ -15,6 +15,7 @@ package org.docma.plugin.implementation;
 
 import java.io.File;
 import java.io.OutputStream;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -671,7 +672,7 @@ public class StoreConnectionImpl implements StoreConnection
         }
     }
 
-    public String getCSS() throws DocmaException 
+    public String getStylesCSS() throws DocmaException 
     {
         checkClosed();
         try {
@@ -681,7 +682,7 @@ public class StoreConnectionImpl implements StoreConnection
         }
     }
 
-    public String getCSS(String variant) throws DocmaException 
+    public String getStylesCSS(String variant) throws DocmaException 
     {
         checkClosed();
         try {
@@ -691,6 +692,21 @@ public class StoreConnectionImpl implements StoreConnection
         }
     }
 
+    public String getCSSForPreview(OutputConfig conf) throws DocmaException 
+    {
+        return getCSSComplete(conf, false, false);
+    }
+    
+    public String getCSSForEdit(OutputConfig conf) throws DocmaException 
+    {
+        return getCSSComplete(conf, false, true);
+    }
+    
+    public String getCSSForExport(OutputConfig conf) throws DocmaException 
+    {
+        return getCSSComplete(conf, true, false);
+    }
+    
     //
     // ***************  Applicability methods  *****************
     //
@@ -1163,6 +1179,19 @@ public class StoreConnectionImpl implements StoreConnection
     DocVersionId getDocVersionId()
     {
         return docVerId;
+    }
+
+    private String getCSSComplete(OutputConfig conf, boolean exportMode, boolean editMode) throws DocmaException 
+    {
+        checkClosed();
+        try {
+            StringWriter sw = new StringWriter();
+            DocmaOutputConfig outConf = ((OutputConfigImpl) conf).getDocmaOutputConfig();
+            DocmaAppUtil.writeContentCSS(docmaSess, outConf, exportMode, editMode, sw);
+            return sw.toString();
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
     }
 
 }

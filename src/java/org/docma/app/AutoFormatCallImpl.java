@@ -1,5 +1,5 @@
 /*
- * AutoFormatCall.java
+ * AutoFormatCallImpl.java
  * 
  *  Copyright (C) 2013  Manfred Paula, http://www.docmenta.org
  *   
@@ -19,13 +19,13 @@ package org.docma.app;
  *
  * @author MP
  */
-public class AutoFormatCall
+public class AutoFormatCallImpl implements org.docma.plugin.AutoFormatCall
 {
-    private String clsName;
-    private String argLine;
-    private String[] arguments;
+    private final String clsName;
+    private final String argLine;
+    private final String[] arguments;
 
-    public AutoFormatCall(String clsName, String argLine)
+    public AutoFormatCallImpl(String clsName, String argLine)
     {
         this.clsName = clsName;
         argLine = (argLine != null) ? argLine.trim() : "";

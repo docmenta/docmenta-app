@@ -25,8 +25,8 @@ import java.util.*;
 public class AutoFormatResolver
 {
     private static final int MAX_RECURSION_DEPTH = 5;
-    private static final AutoFormatCall AF_CALL_IMAGE_PREVIEW = new AutoFormatCall("org.docma.app.AutoImagePreview", "");
-    private static final AutoFormatCall AF_CALL_FORMAL_PREVIEW = new AutoFormatCall("org.docma.app.AutoFormalPreview", "");
+    private static final AutoFormatCall AF_CALL_IMAGE_PREVIEW = new AutoFormatCallImpl("org.docma.app.AutoImagePreview", "");
+    private static final AutoFormatCall AF_CALL_FORMAL_PREVIEW = new AutoFormatCallImpl("org.docma.app.AutoFormalPreview", "");
 
     /**
      * This method is thread safe.

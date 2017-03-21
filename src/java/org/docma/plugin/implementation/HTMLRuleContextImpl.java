@@ -77,23 +77,31 @@ public class HTMLRuleContextImpl implements HTMLRuleContext
     
     public void log(String checkId, String msg, Object... args)
     {
-        log.add(ruleConfig.getLogLevel(checkId), getCheckName(checkId), msg, args);
+        if (isEnabled(checkId)) {
+            log.add(ruleConfig.getLogLevel(checkId), getCheckName(checkId), msg, args);
+        }
     }
     
     public void log(String checkId, int contentPosition, String msg, Object... args)
     {
-        LogLevel level = ruleConfig.getLogLevel(checkId);
-        logPos(level, checkId, contentPosition, msg, args);
+        if (isEnabled(checkId)) {
+            LogLevel level = ruleConfig.getLogLevel(checkId);
+            logPos(level, checkId, contentPosition, msg, args);
+        }
     }
 
     public void logInfo(String checkId, String msg, Object... args) 
     {
-        log.add(LogLevel.INFO, getCheckName(checkId), msg, args);
+        if (isEnabled(checkId)) {
+            log.add(LogLevel.INFO, getCheckName(checkId), msg, args);
+        }
     }
 
     public void logInfo(String checkId, int contentPosition, String msg, Object... args) 
     {
-        logPos(LogLevel.INFO, checkId, contentPosition, msg, args);
+        if (isEnabled(checkId)) {
+            logPos(LogLevel.INFO, checkId, contentPosition, msg, args);
+        }
     }
     
     public void log(LogLevel level, String msg, Object... args) 

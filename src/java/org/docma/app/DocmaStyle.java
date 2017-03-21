@@ -14,8 +14,9 @@
 
 package org.docma.app;
 
-import org.docma.plugin.Style;
 import org.docma.coreapi.DocException;
+import org.docma.plugin.AutoFormatCall;
+import org.docma.plugin.Style;
 import org.docma.util.Log;
 import java.util.*;
 
@@ -311,9 +312,8 @@ public class DocmaStyle implements Style, Comparable, Cloneable
 
     public static String getCSS(DocmaStyle[] arr, boolean includeMetadata, boolean includeVariantId)
     {
-        StringBuffer buf = new StringBuffer(8*1024);
-        for (int i=0; i < arr.length; i++) {
-            DocmaStyle style = arr[i];
+        StringBuilder buf = new StringBuilder(8*1024);
+        for (DocmaStyle style : arr) {
             if (includeMetadata) {
                 buf.append("/* Name:\"").append(style.getName()).append("\"");
                 if (style.isHidden()) {
@@ -327,7 +327,7 @@ public class DocmaStyle implements Style, Comparable, Cloneable
             }
             String s_id = includeVariantId ? style.getId() : style.getBaseId();
             buf.append('.').append(s_id).append(" { ")
-               .append(style.getCSS()).append(" }\n");
+                    .append(style.getCSS()).append(" }\n");
         }
         return buf.toString();
     }
@@ -465,7 +465,7 @@ public class DocmaStyle implements Style, Comparable, Cloneable
                 Log.warning("Skipping invalid auto-format-call: Missing class name.");
                 return;
             }
-            autoformat_calls.add(new AutoFormatCall(clsname, args));
+            autoformat_calls.add(new AutoFormatCallImpl(clsname, args));
 
             pos = arg_end + 1;
         }

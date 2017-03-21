@@ -10,25 +10,6 @@
     <hbox pack="stretch" align="start" hflex="1" vflex="1" spacing="6px">
       <cell width="70%">
         <vbox hflex="1" pack="start" align="stretch" spacing="4px" >
-          <hbox pack="stretch" align="start" hflex="1" spacing="6px">
-            <vbox spacing="3px" hflex="3" align="stretch">
-              <label style="font-weight:bold;">${c:l('rule.config.dialog.rule_id')}:</label>
-              <textbox id="RuleConfigIdTextbox" maxlength="80" hflex="1" />
-              <separator spacing="2px"/>
-              <label hflex="1" style="font-weight:bold;">${c:l('rule.config.dialog.rule_cls')}:</label>
-              <combobox id="RuleConfigClsCombobox" hflex="1" maxlength="500" />
-            </vbox>
-            <vbox spacing="3px" hflex="2" align="stretch">
-              <label style="font-weight:bold;">${c:l('rule.config.dialog.rule_title')}:</label>
-              <textbox id="RuleConfigTitleTextbox" maxlength="100" hflex="1" />
-              <separator spacing="2px"/>
-              <hbox width="100%" align="center">
-                <label style="font-weight:bold;">${c:l('rule.config.dialog.rule_args')}:</label>
-                <textbutton id="RuleConfigClsHelpBtn" label="${c:l('rule.config.dialog.cls_help')}" />
-              </hbox>
-              <textbox id="RuleConfigArgsTextbox" maxlength="100" hflex="1" />
-            </vbox>
-          </hbox>
           <hbox pack="start" align="center" hflex="1" spacing="3px">
             <checkbox id="RuleConfigEnabledCheckbox" hflex="min" />
             <label value="${c:l('rule.config.dialog.enabled')}." style="font-weight:bold;"/>
@@ -39,6 +20,24 @@
               <listitem label="${c:l('rule.state_off')}" value="off" />
             </listbox>
           </hbox>
+          <hbox pack="stretch" align="start" hflex="1" spacing="6px">
+            <vbox spacing="3px" hflex="1" align="stretch">
+              <label style="font-weight:bold;">${c:l('rule.config.dialog.rule_id')}:</label>
+              <textbox id="RuleConfigIdTextbox" maxlength="80" hflex="1" />
+            </vbox>
+            <vbox spacing="3px" hflex="1" align="stretch">
+              <label style="font-weight:bold;">${c:l('rule.config.dialog.rule_title')}:</label>
+              <textbox id="RuleConfigTitleTextbox" maxlength="255" hflex="1" />
+            </vbox>
+          </hbox>
+          <hbox width="100%" align="center">
+            <label hflex="1" style="font-weight:bold;">${c:l('rule.config.dialog.rule_cls')}:</label>
+            <textbutton id="RuleConfigClsHelpBtn" label="${c:l('rule.config.dialog.cls_help')}" />
+          </hbox>
+          <combobox id="RuleConfigClsCombobox" hflex="1" maxlength="500" />
+          <label style="font-weight:bold;">${c:l('rule.config.dialog.rule_args')}:</label>
+          <textbox id="RuleConfigArgsTextbox" maxlength="16000" hflex="1" />
+          <separator spacing="2px"/>
           <grid id="RuleConfigChecksGrid" hflex="1" vflex="1" sizedByContent="false">
             <columns sizable="true">
               <column label="${c:l('rule.config.dialog.check_id')}" width="30%" />

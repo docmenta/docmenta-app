@@ -2,71 +2,277 @@
 <!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
 <properties>
   <entry key="shortInfo">Basic Docmenta HTML Checks</entry>
+  <entry key="attribute_required.title">Logs, corrects or removes elements with missing attributes.</entry>
+  <entry key="broken_link.title">Logs broken links.</entry>
+  <entry key="content_required.title">Logs or removes empty elements</entry>
+  <entry key="image_src.title">Logs image elements with invalid src attribute.</entry>
+  <entry key="target_type.title">Logs links with wrong target type.</entry>
   <entry key="trim_empty_paras.title">Checks if content node ends with an empty paragraph</entry>
   <entry key="trim_figure_spaces.title">Checks for whitespace around figures</entry>
+  <entry key="msgMissingAliasInHref">Missing alias in href attribute: ''{0}''.</entry>
+  <entry key="msgAliasInHrefNotFound">Referenced node with alias ''{0}'' not found.</entry>
+  <entry key="msgContentLinkToNonContent">Referenced node with alias ''{0}'' is not a content-node.</entry>
+  <entry key="msgImageLinkToNonSupportedImage">Image link to non-image node with alias ''{0}''.</entry>
+  <entry key="msgFileLinkToNonFile">File link to non-file node with alias ''{0}''.</entry>
+  <entry key="msgMissingImageSrcAttribute">Image has no src attribute.</entry>
+  <entry key="msgMissingAliasInImageSrc">Missing alias in image src: ''{0}''.</entry>
+  <entry key="msgAliasInImageSrcNotFound">Referenced image with alias ''{0}'' not found.</entry>
+  <entry key="msgImageSrcToNonSupportedImage">Image src references non-image node with alias ''{0}''.</entry>
+  <entry key="msgInvalidImageSrc">Invalid image src attribute: ''{0}''.</entry>
   <entry key="msgEmptyParaExists">Found an empty paragraph at the end of the content node.</entry>
   <entry key="msgEmptyParaRemoved">Removed empty paragraph from the end of the content node.</entry>
   <entry key="msgFigureSpacesExist">Found whitespace around figure.</entry>
   <entry key="msgFigureSpacesRemoved">Removed whitespace around figure.</entry>
+  <entry key="msgEmptyElementRemoved">Removed empty ''{0}'' element.</entry>
+  <entry key="msgEmptyElementExists">Found empty ''{0}'' element.</entry>
+  <entry key="msgTagRemoved">Removed ''{0}'' tag.</entry>
+  <entry key="msgTagExists">Found ''{0}'' tag.</entry>
+  <entry key="msgTagWithoutAttribRemoved">Removed ''{0}'' without attribute.</entry>
+  <entry key="msgMissingAttribAddedDefault">Added default value for attribute ''{1}'' of element ''{0}''.</entry>
+  <entry key="msgTagWithoutAttrib">Found ''{0}'' without attribute.</entry>
+  <entry key="msgTagWithMissingAttribRemoved">Removed ''{0}'' tag with missing ''{1}'' attribute.</entry>
+  <entry key="msgTagAttribMissing">Found ''{0}'' with missing ''{1}'' attribute.</entry>
+  <entry key="msgTagAttribMissingDefault">Found ''{0}'' with missing ''{1}'' attribute. Enable auto-correct to set default.</entry>
   <entry key="longInfo"><![CDATA[
   <p>
-  This class provides basic Docmenta HTML checks. Following a detailed description of the 
-  supported arguments and checks.  
-  check:
+  This class provides basic Docmenta HTML checks. 
+  The details for each check are given below:
   </p>
-  <big><b>Arguments:</b></big>
-  <p><em>none</em></p>
-  <big><b>Checks:</b></big>
-  <dl>
-    <dt><b>trim_empty_paras</b></dt>
-    <dd>
-        <p>
-        This check searches for an empty paragraph at the end of content nodes. 
-        If auto-correction is enabled, then an empty paragraph at the end of a content
-        node is removed.
-        </p>
-        <p>
-        This check can be useful, because some WYSIWYG editors append an empty 
-        paragraph, if the cursor is placed at the end of the content.
-        </p>
-        <p>
-        Following HTML fragments are recognized as empty paragraphs:
-        </p>
-        <pre>
-        &lt;p&gt;&lt;/p&gt;
-        &lt;p&gt;&amp;nbsp;&lt;/p&gt;
-        &lt;p&gt;&amp;#160;&lt;/p&gt;</pre>
-        </p>
-    </dd>
+  <ul>
+    <li><a href="#attribute_required">attribute_required</a></li>
+    <li><a href="#broken_link">broken_link</a></li>
+    <li><a href="#content_required">content_required</a></li>
+    <li><a href="#image_src">image_src</a></li>
+    <li><a href="#target_type">target_type</a></li>
+    <li><a href="#trim_empty_paras">trim_empty_paras</a></li>
+    <li><a href="#trim_figure_spaces">trim_figure_spaces</a></li>
+  </ul>
+      
+  <a name="attribute_required" />
+  <big><strong>attribute_required</strong></big>
+  <div style="margin-left:16pt;">
+    <p>
+      <b>Arguments:</b>
+      <dl>
+        <dt><b><tt>attribute_required=<i>tag1,tag2</i>[<i>att1</i>|<i>att3</i>+<i>att4</i>=<i>default</i>+...|...],...</tt></b></dt>
+        <dd>A comma separated list of element expressions (no whitespace allowed). 
+            An element expression is an element name that is optionally  
+            followed by an attributes definition in square brackets.
+            The attributes definition is a list of attribute names separated 
+            by the <tt>+</tt> or <tt>|</tt> operators. The <tt>+</tt> operator
+            has the meaning of logical "and", whereas the  <tt>|</tt> operator
+            has the meaning of logical "or". The attribute name can optionally
+            be followed by a <tt>=</tt> character, followed by a default value.
+            See the example below.<br/> 
+            &nbsp;&nbsp;Be aware that whitespace  
+            is <em>not</em> allowed in the argument value. Furthermore, the 
+            characters <tt>+</tt> and <tt>|</tt> and comma (<tt>,</tt>) cannot 
+            be used within the definition of the default value, because these 
+            characters are used as attribute operators and element separators.
+            However, these characters can be given in Unicode escape sequence
+            <tt>\u<i>nnnn</i></tt> where <tt><i>nnnn</i></tt> is a decimal 
+            Unicode number.
+        </dd>
+      </dl>
+    </p>
+    <p>
+      <b>Description:</b><br/>
+      Each element expression given in the argument checks the existance 
+      of required attributes. If a required attribute is missing
+      then the expression results to false and the element is logged. 
+      If auto-correction is enabled, then missing attributes are set 
+      to a configured default value, or in case no default value is configured, 
+      the tag is removed (though, the content between the opening and 
+      closing tag is preserved).
+    </p>
+    <p>
+      If the expression is an element name without attributes definition,
+      then the expression results to true, if an element with the given name
+      has at least one arbitrary attribute. In other words, the check can be used 
+      to log or remove elements that have <em>no</em> attributes at all.
+    </p>
+    <p>
+      If the element expression includes an attributes definition, then the    
+      expression is true, if at least one of the sub-expressions concatenated 
+      with the <tt>|</tt> operator results to true. A sub-expression can  
+      either be a single attribute name or multiple attributes concatenated by 
+      the <tt>+</tt> operator. A single attribute name results to true if the
+      element has an attribute with the given name. Multiple attributes
+      concatenated by the <tt>+</tt> operator result to true if 
+      <em>all</em> of the listed attributes exist. Optionally, an attribute 
+      name can be followed by a <tt>=</tt> character, which defines a default
+      value for this attribute. The default value is set, in case the attribute
+      is missing and auto-correction is enabled. 
+    </p>
+    <p>
+      <b>Example:</b>
+    </p>
+    <p>
+        &nbsp;&nbsp;<tt>attribute_required=div,span[class|id+title],table[border=0]</tt>
+    </p>
+    <p>
+      Given the argument value above, <tt>div</tt> elements must have at least  
+      one attribute.
+      Furthermore, <tt>span</tt> elements must have either a <tt>class</tt> 
+      attribute or an <tt>id</tt> attribute in combination with a <tt>title</tt>
+      attribute. Finally, the <tt>border</tt> attribute is required for  
+      <tt>table</tt> elements. 
+      If a <tt>div</tt>, <tt>span</tt> or <tt>table</tt> element does not comply
+      to this rule, then the element is logged. If auto-correction is enabled,  
+      then non-complying <tt>div</tt> and <tt>span</tt> tags are removed 
+      (though, the content of the tags is preserved).
+      If a <tt>table</tt> element has no <tt>border</tt> attribute and 
+      auto-correction is enabled, then the <tt>border</tt> attribute is 
+      set to the default value <tt>"0"</tt>.
+    </p>
+  </div>
 
-    <dt><b>trim_figure_spaces</b></dt>
-    <dd>
-        <p>
-        This check searches for whitespace around figures.
-        If auto-correction is enabled, then the whitespace is removed.
-        </p>
-        <p>
-        A figure is cosidered to be an HTML <tt>img</tt> element that has
-        a <tt>title</tt> attribute assigned. In Docmenta, figures should be
-        placed as a single element inside of paragraphs, 
-        as shown by the following HTML fragment: 
-        <pre>
-          &lt;p&gt;<lt;img title="..." ... /&gt;&lt;/p&gt;</pre>
-        <p>
-        No whitespace should exist between the <tt>img</tt> and the 
-        <tt>p</tt> tags.
-        However, if the content is created by a WYSIWYG editor, then
-        whitespace is not visible and may be inserted by mistake.
-        This check can be used to automatically remove such whitespace.
-        </p>
-        <p>
-        Note that besides spaces, tabs and line breaks, this check also
-        recognizes the character entities &amp;nbsp; and &amp;#160; as 
-        whitespace.
-        </p>
-    </dd>
+  <a name="broken_link" />
+  <big><strong>broken_link</strong></big>
+  <div style="margin-left:16pt;">
+    <p>
+      <b>Arguments:</b> <em>none</em>
+    </p>
+    <p>
+      <b>Description:</b><br/>
+      This check logs broken links, which are defined by <tt>a</tt> elements
+      that specify the target through the <tt>href</tt> attribute. This check
+      only validates internal links, where the <tt>href</tt> attribute starts 
+      with <tt>"#"</tt>, <tt>"image/"</tt> or <tt>"file/"</tt>. A link is
+      broken if a node with the specified target alias does not exist in the 
+      store.
+    </p>
+  </div>
 
-  </dl>
+  <a name="content_required" />
+  <big><strong>content_required</strong></big>
+  <div style="margin-left:16pt;">
+    <p>
+      <b>Arguments:</b>
+      <dl>
+        <dt><b><tt>content_required=<i>tag1,tag2,...</i></tt></b></dt>
+        <dd>The tag names for which empty elements shall be logged or removed. 
+            Multiple names have to be separated by comma (without space in between)
+        </dd>
+      </dl>
+    </p>
+    <p>
+      <b>Description:</b><br/>
+      For each element <tt><i>tagX</i></tt> listed in the argument, 
+      empty <tt><i>tagX</i></tt> elements are logged.
+      If auto-correction is enabled, then empty <tt><i>tagX</i></tt> elements  
+      are removed.
+    </p>
+    <p>
+      <b>Example:</b>
+    </p>
+    <p>
+        &nbsp;&nbsp;<tt>content_required=div,span</tt>
+    </p>
+    <p>
+      Given the argument value above, empty <tt>div</tt> and <tt>span</tt> 
+      elements are logged.
+      If auto-correction is enabled, then empty <tt>div</tt> and/or <tt>span</tt> 
+      elements are removed.
+    </p>
+  </div>
+
+  <a name="image_src" />
+  <big><strong>image_src</strong></big>
+  <div style="margin-left:16pt;">
+    <p>
+      <b>Arguments:</b> <em>none</em>
+    </p>
+    <p>
+      <b>Description:</b><br/>
+      This check logs broken image references, which are defined by <tt>img</tt> 
+      elements. The inserted image is specified through the <tt>src</tt>
+      attribute. An image reference is broken if the <tt>src</tt> attribute
+      does not exist, or does not start with <tt>"image/"</tt>, or does not 
+      specify a valid image alias.
+    </p>
+  </div>
+
+  <a name="target_type" />
+  <big><strong>target_type</strong></big>
+  <div style="margin-left:16pt;">
+    <p>
+      <b>Arguments:</b> <em>none</em>
+    </p>
+    <p>
+      <b>Description:</b><br/>
+      This check logs references with invalid target type. A reference is either 
+      a link defined by the <tt>a</tt> element or an inserted image defined
+      by an <tt>img</tt> element. If the <tt>href</tt> attribute of an
+      <tt>a</tt> element starts with <tt>"#"</tt>, then the referenced node
+      has to be a content-node. If the <tt>href</tt> attribute starts with
+      <tt>"image/"</tt>, then the referenced node has to be an image-node. 
+      If the <tt>href</tt> attribute starts with <tt>"file/"</tt>, 
+      then the referenced node has to be a file-node. Otherwise an invalid
+      target type is logged by this check.
+      Accordingly, an <tt>img</tt> element is logged as invalid, if the 
+      referenced node has <em>no</em> supported image type.
+    </p>
+  </div>
+
+  <a name="trim_empty_paras" />
+  <big><strong>trim_empty_paras</strong></big>
+  <div style="margin-left:16pt;">
+    <p>
+      <b>Arguments:</b> <em>none</em>
+    </p>
+    <p>
+      <b>Description:</b><br/>
+      This check searches for an empty paragraph at the end of content nodes. 
+      If auto-correction is enabled, then an empty paragraph at the end of 
+      content nodes is removed.
+    </p>
+    <p>
+      Following HTML fragments are recognized as empty paragraphs:
+    </p>
+    <pre>
+    &lt;p&gt;&lt;/p&gt;
+    &lt;p&gt;&amp;nbsp;&lt;/p&gt;
+    &lt;p&gt;&amp;#160;&lt;/p&gt;</pre>
+    <p>
+      Some WYSIWYG editors append an empty paragraph, if the cursor is placed 
+      at the end of the content. Therefore, this check can be useful to remove
+      such empty paragraphs.
+    </p>
+  </div>
+
+  <a name="trim_figure_spaces" />
+  <big><strong>trim_figure_spaces</strong></big>
+  <div style="margin-left:16pt;">
+    <p>
+      <b>Arguments:</b> <em>none</em>
+    </p>
+    <p>
+      <b>Description:</b><br/>
+      This check searches for whitespace around figures.
+      If auto-correction is enabled, then the whitespace is removed.
+    </p>
+    <p>
+      A figure is cosidered to be an HTML <tt>img</tt> element that has
+      a <tt>title</tt> attribute assigned. In Docmenta, figures should be
+      placed as a single element inside of paragraphs, 
+      as shown by the following HTML fragment: 
+    </p>
+    <pre>
+    &lt;p&gt;&lt;img title="..." ... /&gt;&lt;/p&gt;</pre>
+    <p>
+      No whitespace should exist between the <tt>img</tt> and the 
+      <tt>p</tt> tags.
+      However, if the content is created by a WYSIWYG editor, then
+      whitespace is not visible and may be inserted by mistake.
+      This check can be used to automatically remove such whitespace.
+    </p>
+    <p>
+      Note that besides spaces, tabs and line breaks, this check also
+      recognizes the character entities <tt>&amp;nbsp;</tt> and 
+      <tt>&amp;#160;</tt> as whitespace.
+    </p>
+  </div>
 
   ]]>
   </entry>    

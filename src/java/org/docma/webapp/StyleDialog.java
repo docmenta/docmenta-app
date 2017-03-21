@@ -16,6 +16,7 @@ package org.docma.webapp;
 
 import java.util.*;
 import org.docma.app.*;
+import org.docma.plugin.AutoFormatCall;
 import org.docma.util.CSSParser;
 import org.docma.util.Log;
 
@@ -646,7 +647,7 @@ public class StyleDialog extends Window
             int offset = 0;
             if (is_formal) {
                 String label_id = labelid_box.getValue().trim();
-                afc_arr[0] = new AutoFormatCall(DocmaStyle.AUTO_FORMAT_CLASS_FORMAL, label_id);
+                afc_arr[0] = new AutoFormatCallImpl(DocmaStyle.AUTO_FORMAT_CLASS_FORMAL, label_id);
                 ++offset;
             }
             for (int i=0; i < autoformat_listmodel.size(); i++) {

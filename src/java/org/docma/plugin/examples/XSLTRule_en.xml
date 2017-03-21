@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+  <entry key="shortInfo">Generic XSL transformation</entry>
+  <entry key="apply_xsl.title">Applies the configured XSL script</entry>
+  <entry key="msgContentUpdated">Content updated.</entry>
+  <entry key="longInfo"><![CDATA[
+    <p>
+      <b>Arguments:</b>
+      <dl>
+        <dt><b><tt>script=<i>alias</i></tt></b></dt>
+        <dd>The alias of the file-node that contains the XSL script.
+            The <tt>script</tt> argument is mandatory.</dd>
+        <dt><b><tt>factory=<i>classname</i></tt></b></dt>
+        <dd>The fully qualified factory class name that provides implementation 
+            of <tt>javax.xml.transform.TransformerFactory</tt>.
+            This argument is optional. If no class name is provided, then
+            the static method 
+            <tt>javax.xml.transform.TransformerFactory.newInstance()</tt> is
+            used to create the factory object.
+        </dd>
+      </dl>
+    </p>
+    <p>
+      <b>Description:</b><br/>
+      Applies the XSL script that is specified by the <tt>script</tt> argument
+      to the content node.
+    </p>
+  ]]>
+  </entry>    
+</properties>

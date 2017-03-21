@@ -14,8 +14,9 @@
 
 package org.docma.webapp;
 
-import org.docma.app.*;
+import org.docma.app.AutoFormatCallImpl;
 import org.docma.app.ui.*;
+import org.docma.plugin.AutoFormatCall;
 import org.zkoss.zul.*;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.ForwardEvent;
@@ -180,7 +181,7 @@ public class AutoFormatCallDialog extends Window
 
     private AutoFormatCall getAutoFormatCall()
     {
-        return new AutoFormatCall(clsNameBox.getValue().trim(), argumentsBox.getValue().trim());
+        return new AutoFormatCallImpl(clsNameBox.getValue().trim(), argumentsBox.getValue().trim());
     }
 
     private void showClassInfo(AutoFormatConfigModel model)

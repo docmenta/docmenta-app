@@ -227,7 +227,7 @@ public class GUI_List_Rules implements ListitemRenderer
             hb1.setHflex("1");
             Label lab1 = new Label(checkid + ":");
             lab1.setStyle("font-weight:bold;");
-            lab1.setHflex("1");
+            
             LogLevel lev = conf.getLogLevel(checkid);
             Label lab2 = new Label("[ " + lev + " ]");
             String css;
@@ -239,33 +239,44 @@ public class GUI_List_Rules implements ListitemRenderer
                 css = "color:#000000;";
             }
             lab2.setStyle(css);
-            lab2.setHflex("min");
-            hb1.appendChild(lab1);
-            hb1.appendChild(lab2);
-            vb.appendChild(hb1);
             
             boolean supportsAC = conf.supportsAutoCorrection(checkid);
             String setting = "";
             if (isCheck) {
                 setting = i18n("rule.config.dialog.exec_on_check");
                 if (supportsAC) {
-                    String ac = conf.isCorrectOnCheck(checkid) ? "rule.state_on" : "rule.state_off";
-                    setting += " (" + i18n("rule.config.dialog.auto_correct") + ": " + i18n(ac) + ")";
+                    // String ac = conf.isCorrectOnCheck(checkid) ? "rule.state_on" : "rule.state_off";
+                    if (conf.isCorrectOnCheck(checkid)) {
+                        setting += " (" + i18n("rule.config.dialog.auto_correct") + ")";  // + ": " + i18n(ac) 
+                    }
                 }
             }
             if (isSave) {
                 setting += (isCheck ? ", " : "") + i18n("rule.config.dialog.exec_on_save");
                 if (supportsAC) {
-                    String ac = conf.isCorrectOnSave(checkid) ? "rule.state_on" : "rule.state_off";
-                    setting += " (" + i18n("rule.config.dialog.auto_correct") + ": " + i18n(ac) + ")";
+                    // String ac = conf.isCorrectOnSave(checkid) ? "rule.state_on" : "rule.state_off";
+                    if (conf.isCorrectOnSave(checkid)) {
+                        setting += " (" + i18n("rule.config.dialog.auto_correct") + ")";  // + ": " + i18n(ac) 
+                    }
                 }
             }
-            Hbox hb2 = new Hbox();
-            Space spc = new Space();
-            spc.setSpacing("12px");
-            hb2.appendChild(spc);
-            hb2.appendChild(new Label(setting));
-            vb.appendChild(hb2);
+            Label labSetting = new Label(setting);
+            
+            lab1.setHflex("min");
+            labSetting.setHflex("1");
+            lab2.setHflex("min");
+            
+            hb1.appendChild(lab1);
+            hb1.appendChild(labSetting);
+            hb1.appendChild(lab2);
+            vb.appendChild(hb1);
+            
+            // Hbox hb2 = new Hbox();
+            // Space spc = new Space();
+            // spc.setSpacing("12px");
+            // hb2.appendChild(spc);
+            // hb2.appendChild(labSetting);
+            // vb.appendChild(hb2);
         }
         c4.appendChild(vb);
         

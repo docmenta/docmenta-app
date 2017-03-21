@@ -184,52 +184,85 @@ public class RulesManager
         
         // Create Quick-Link rule if not existent
         if (create_quicklinks) {
-            RuleConfig rc = createTransientRule();
-            rc.setId(QUICK_LINKS_ID);
-            rc.setRuleClassName(quicklinks_cls);
-            rc.setRuleEnabled(true);
-            rc.setDefaultOn(true);
-            rc.setScopeAll();
-            
-            String chk = QuickLinkRule.CHECK_ID_TRANSFORM;
-            rc.setExecuteOnCheck(chk, false);
-            rc.setCorrectOnCheck(chk, false);
-            rc.setExecuteOnSave(chk,  true);
-            rc.setCorrectOnSave(chk,  true);
             try {
+                RuleConfig rc = createTransientRule();
+                rc.setId(QUICK_LINKS_ID);
+                rc.setRuleClassName(quicklinks_cls);
+                rc.setTitle(rc.getShortInfo("en"));
+                rc.setRuleEnabled(true);
+                rc.setDefaultOn(true);
+                rc.setScopeAll();
+
+                String chk = QuickLinkRule.CHECK_ID_TRANSFORM;
+                rc.setExecuteOnCheck(chk, false);
+                rc.setCorrectOnCheck(chk, false);
+                rc.setExecuteOnSave(chk,  true);
+                rc.setCorrectOnSave(chk,  true);
+                
                 saveRule(rc);
             } catch (Exception ex) {
-                Log.error("Could not save rule " + QUICK_LINKS_ID + ": " + ex.getMessage());
+                Log.error("Could not create rule " + QUICK_LINKS_ID + ": " + ex.getMessage());
             }
         }
         
         // Create base rule if not existent
         if (create_baserule) {
-            RuleConfig rc = createTransientRule();
-            rc.setId(BASE_RULE_ID);
-            rc.setRuleClassName(baserule_cls);
-            rc.setRuleEnabled(true);
-            rc.setDefaultOn(true);
-            rc.setScopeAll();
-            
-            // Trim empty paras setting
-            String chk = BaseRule.CHECK_ID_TRIM_EMPTY_PARAS;
-            rc.setExecuteOnCheck(chk, false);
-            rc.setCorrectOnCheck(chk, false);
-            rc.setExecuteOnSave(chk,  true);
-            rc.setCorrectOnSave(chk,  true);
-            
-            // Trim figure spaces
-            chk = BaseRule.CHECK_ID_TRIM_FIGURE_SPACES;
-            rc.setExecuteOnCheck(chk, false);
-            rc.setCorrectOnCheck(chk, false);
-            rc.setExecuteOnSave(chk,  true);
-            rc.setCorrectOnSave(chk,  true);
-            
             try {
+                RuleConfig rc = createTransientRule();
+                rc.setId(BASE_RULE_ID);
+                rc.setRuleClassName(baserule_cls);
+                rc.setArgsLine("attribute_required=div,span content_required=span");
+                rc.setTitle(rc.getShortInfo("en"));
+                rc.setRuleEnabled(true);
+                rc.setDefaultOn(true);
+                rc.setScopeAll();
+
+                // Attribute required setting
+                String chk = BaseRule.CHECK_ID_ATTRIBUTE_REQUIRED;
+                rc.setExecuteOnCheck(chk, true);
+                rc.setCorrectOnCheck(chk, false);
+                rc.setExecuteOnSave(chk,  true);
+                rc.setCorrectOnSave(chk,  true);
+                
+                // Broken link setting
+                chk = BaseRule.CHECK_ID_BROKEN_LINK;
+                rc.setExecuteOnCheck(chk, true);
+                rc.setExecuteOnSave(chk,  false);
+                
+                // Content required setting
+                chk = BaseRule.CHECK_ID_CONTENT_REQUIRED;
+                rc.setExecuteOnCheck(chk, true);
+                rc.setCorrectOnCheck(chk, false);
+                rc.setExecuteOnSave(chk,  true);
+                rc.setCorrectOnSave(chk,  true);
+                
+                // Check image src setting 
+                chk = BaseRule.CHECK_ID_IMAGE_SRC;
+                rc.setExecuteOnCheck(chk, true);
+                rc.setExecuteOnSave(chk,  false);
+                
+                // Check target type setting
+                chk = BaseRule.CHECK_ID_TARGET_TYPE;
+                rc.setExecuteOnCheck(chk, true);
+                rc.setExecuteOnSave(chk,  false);
+                
+                // Trim empty paras setting
+                chk = BaseRule.CHECK_ID_TRIM_EMPTY_PARAS;
+                rc.setExecuteOnCheck(chk, false);
+                rc.setCorrectOnCheck(chk, false);
+                rc.setExecuteOnSave(chk,  true);
+                rc.setCorrectOnSave(chk,  true);
+
+                // Trim figure spaces
+                chk = BaseRule.CHECK_ID_TRIM_FIGURE_SPACES;
+                rc.setExecuteOnCheck(chk, false);
+                rc.setCorrectOnCheck(chk, false);
+                rc.setExecuteOnSave(chk,  true);
+                rc.setCorrectOnSave(chk,  true);
+
                 saveRule(rc);
             } catch (Exception ex) {
-                Log.error("Could not save rule " + BASE_RULE_ID + ": " + ex.getMessage());
+                Log.error("Could not create rule " + BASE_RULE_ID + ": " + ex.getMessage());
             }
         }
     }
