@@ -240,6 +240,46 @@ public class DocmaStyle implements Style, Comparable, Cloneable
         return arr;
     }
 
+    public int countAutoFormatCalls()
+    {
+        initAutoFormat();
+        return autoformat_calls.size();
+    }
+
+    public AutoFormatCall getAutoFormatCall(int idx)
+    {
+        initAutoFormat();
+        return autoformat_calls.get(idx);
+    }
+
+    public void addAutoFormatCall(String clsname, String args)
+    {
+        initAutoFormat();
+        autoformat_calls.add(new AutoFormatCallImpl(clsname, args));
+        updateAutoFormatString();
+    }
+
+    public void addAutoFormatCall(int pos, String clsname, String args)
+    {
+        initAutoFormat();
+        autoformat_calls.add(pos, new AutoFormatCallImpl(clsname, args));
+        updateAutoFormatString();
+    }
+   
+    public void removeAutoFormatCall(int pos)
+    {
+        initAutoFormat();
+        autoformat_calls.remove(pos);
+        updateAutoFormatString();
+    }
+
+    public void clearAutoFormatCalls()
+    {
+        initAutoFormat();
+        autoformat_calls.clear();
+        updateAutoFormatString();
+    }
+
     public boolean isFormal()
     {
         if ((style_autoformat == null) || style_autoformat.equals("")) {
