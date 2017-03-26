@@ -49,10 +49,10 @@ public class ContentUtil
     {
         if (content == null) return false;
         // String linkAlias = DocmaAppUtil.getLinkAlias(thisAlias);
-
-        // Find paragraphs
-        int startpos = 0;
         int len = content.length();
+
+        // Find a and img tags
+        int startpos = 0;
         while (startpos < len) {
             int tag_start = content.indexOf("<", startpos);
             if (tag_start < 0) break;
@@ -101,6 +101,29 @@ public class ContentUtil
                 if (src_alias.equals(thisAlias)) {
                     return true;
                 }
+            }
+        }
+        
+        // Find inclusions
+        startpos = 0;
+        while (startpos < len) {
+            int p1 = content.indexOf("[#", startpos);
+            if (p1 < 0) {  // no inclusion found
+                break;
+            }
+            p1 += 2;                // p1 is position after [#
+            if (p1 >= len) break;   // end of content string reached
+            startpos = p1;          // in next loop continue search at p1
+            int p2 = content.indexOf("]", startpos);
+            if ((p2 < 0) || (p2 - p1 > DocmaConstants.ALIAS_MAX_LENGTH + 1)) {
+                continue;
+            }
+            if (content.charAt(p1) == '#') {  // content inclusion: [##
+                p1++;
+            }
+            String refAlias = content.substring(p1, p2);
+            if (refAlias.equals(thisAlias)) {
+                return true;
             }
         }
         return false;

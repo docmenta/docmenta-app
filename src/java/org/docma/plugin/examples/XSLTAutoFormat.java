@@ -14,12 +14,13 @@
 
 package org.docma.plugin.examples;
 
+import java.io.*;
+import java.util.*;
+import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.transform.stream.StreamResult;
-import java.io.*;
-import java.util.*;
 
 import org.docma.plugin.*;
 
@@ -103,6 +104,8 @@ public class XSLTAutoFormat implements AutoFormat
                 }
             }
             transformer = fact.newTransformer(new StreamSource(new StringReader(xslt_script)));
+            // transformer.setOutputProperty(OutputKeys.METHOD, "xml");
+            transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
             transformerMap.put(trans_key, transformer);
         }
 

@@ -136,7 +136,7 @@ public class RuleConfigComposer extends SelectorComposer<Component> implements E
     public void onChangeRuleClass()
     {
         updateTempConfig();
-        updateGUI();
+        ruleClassUpdated(); // updateGUI();
     }
 
     @Listen("onCheck = #RuleConfigScopeAllCheckbox")
@@ -392,10 +392,6 @@ public class RuleConfigComposer extends SelectorComposer<Component> implements E
     private void updateGUI()
     {
         idBox.setValue(tempConfig.getId());
-        titleBox.setValue(tempConfig.getTitle());
-        clsBox.setValue(tempConfig.getRuleClassName());
-        argsBox.setValue(tempConfig.getArgsLine());
-        clsHelpBtn.setDisabled(tempConfig.getRuleClass() == null);
         enabledBox.setChecked(tempConfig.isRuleEnabled());
         selectListItem(defStateBox, tempConfig.isDefaultOn() ? "on" : "off");
         boolean isScopeAll = tempConfig.isScopeAll();
@@ -407,6 +403,16 @@ public class RuleConfigComposer extends SelectorComposer<Component> implements E
             fillScopeList();
         }
         scopeBox.setDisabled(isScopeAll);
+        
+        ruleClassUpdated();
+    }
+    
+    private void ruleClassUpdated()
+    {
+        clsBox.setValue(tempConfig.getRuleClassName());
+        titleBox.setValue(tempConfig.getTitle());
+        argsBox.setValue(tempConfig.getArgsLine());
+        clsHelpBtn.setDisabled(tempConfig.getRuleClass() == null);
         
         updateChecksGrid();
     }

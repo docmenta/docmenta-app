@@ -16,6 +16,7 @@ package org.docma.app;
 
 import java.util.*;
 import org.docma.coreapi.*;
+import org.docma.util.XMLParser;
 
 /**
  *
@@ -138,13 +139,19 @@ public class ContentResolver
                 start_pos = alias_start;
 
                 int p2 = cont.indexOf("]", alias_start);
-                if ((p2 < 0) || (p2 - alias_start > DocmaConstants.ALIAS_MAX_LENGTH + 1)) continue;
+                if ((p2 < 0) || (p2 - alias_start > DocmaConstants.ALIAS_MAX_LENGTH + 1)) {
+                    continue;
+                }
 
                 String ref_alias = cont.substring(alias_start, p2);
-                if (ref_alias.length() == 0) continue;
                 boolean is_content_inc = ref_alias.startsWith("#");
-                if (is_content_inc) ref_alias = ref_alias.substring(1);  // remove leading #
-                if (! ref_alias.matches(DocmaConstants.REGEXP_ALIAS_LINK)) continue;
+                if (is_content_inc) { 
+                    ref_alias = ref_alias.substring(1);  // remove leading #
+                }
+                if ((ref_alias.length() == 0) || 
+                    !ref_alias.matches(DocmaConstants.REGEXP_ALIAS_LINK)) { 
+                    continue;  // no valid alias
+                }
 
                 DocmaSession docmaSess = node.getDocmaSession();
                 // DocmaNode ref_node = docmaSess.getNodeByAlias(ref_alias);
@@ -160,27 +167,84 @@ public class ContentResolver
                         replace_str = replace_str.replace("\r\n", "<br/>").replace("\n", "<br/>").replace("\r", "<br/>");
                     } else {
                         replace_str = getContentRecursive(ref_node, idSet, exportCtx,
-                                                          resolveInlineInclude, level+1,
+                                                          resolveInlineInclude, true, level+1,
                                                           searchTerm, ignoreCase, matches);
                         if (replace_str == null) continue;
-
-                        // remove enclosing p element
                         replace_str = replace_str.trim();
-                        if (replace_str.startsWith("<p")) {
-                            int p3 = replace_str.indexOf('>') + 1;
-                            if (p3 > 0) {
-                                if (replace_str.endsWith("</p>")) {
-                                    int p4 = replace_str.length();
-                                    replace_str = replace_str.substring(p3, p4 - 4);
+
+                        // If inclusion is inside of <p > ... </p>, then
+                        // avoid nested <p> elements.
+                        int h1 = cont.lastIndexOf('<', p1);
+                        if (h1 >= 0) {
+                            int h2 = h1 + 1;
+                            while (h2 < p1) {
+                                char ch = cont.charAt(h2);
+                                if (ch == '>' || Character.isWhitespace(ch)) {
+                                    break;
                                 }
+                                h2++;
+                            }
+                            String outerTagName = cont.substring(h1 + 1, h2);
+                            int h3 = cont.indexOf('>', h2);
+                            if (outerTagName.equals("p") && (h3 > 0) && 
+                                (h3 < p1) && (cont.charAt(h3 - 1) != '/')) {
+                                // Found open p tag in front of inclusion.
+                                final String P_END_TAG = "</p>";
+                                int h4 = cont.indexOf(P_END_TAG, p2);
+                                if (h4 > 0) {
+                                    // Found closing p tag after inclusion.
+                                    String before = cont.substring(h3 + 1, p1).trim();
+                                    String after = cont.substring(p2 + 1, h4).trim();
+                                    boolean onlySpace = before.equals("") && after.equals("");
+                                    try {
+                                        XMLParser parser = new XMLParser(replace_str);
+                                        int evt = parser.next();
+                                        if (evt == XMLParser.START_ELEMENT) {
+                                            String insTag = parser.getElementName().toLowerCase();
+                                            List<String> an = new ArrayList<String>();
+                                            List<String> av = new ArrayList<String>();
+                                            parser.getAttributes(an, av);
+                                            int innerStart = parser.getEndOffset();
+                                            parser.readUntilCorrespondingClosingTag();
+                                            int innerEnd = parser.isEmptyElement() ? 
+                                                  innerStart : parser.getStartOffset();
+                                            boolean insertSingle = (parser.next() == XMLParser.FINISHED);
+                                            if (insertSingle && insTag.equals("p")) {
+                                                // Remove enclosing p element
+                                                replace_str = 
+                                                  replace_str.substring(innerStart, innerEnd);
+                                                if (onlySpace) {
+                                                    // Insert attributes of removed p
+                                                    // into enclosing <p ...>
+                                                    replace_str = 
+                                                      mergeParas(cont, h2, an, av, replace_str);
+                                                    p1 = h3;   // position of > of opening p tag
+                                                }
+                                            } else if (onlySpace && forbiddenInP(insTag)) {
+                                                // Remove outer p element
+                                                p1 = h1;  // start of outer <p ...>
+                                                p2 = h4 + P_END_TAG.length() - 1;
+                                            }
+                                        }
+                                    } catch (Exception ex) {}
+                                }
+                            } else if (outerTagName.startsWith("!--")) {  // start of comment
+                                // Skip inclusion if inside of comment
+                                if (cont.indexOf("-->", h2) > p2) continue;
+                            } else if (h3 > p2) {  
+                                // Content inclusion is inside attribute value
+                                replace_str = removeTagsAndLineBreaks(replace_str);
                             }
                         }
                     }
-                } else {
+                } else {  // no content inclusion; then it is title inclusion
                     replace_str = ref_node.getTitleEntityEncoded();
                     if (replace_str == null) replace_str = "";
                 }
 
+                // p1 is position of first character to be replaced.
+                // p2 is position of last character to be replaced.
+                // replace_str is the replacement string.
                 cont = cont.substring(0, p1) + replace_str + cont.substring(p2+1);
                 start_pos = p1 + replace_str.length();
             } else 
@@ -262,7 +326,7 @@ public class ContentResolver
         } else {
             searchStr = str;
         }
-        if (searchStr.indexOf(searchTerm) < 0) return str; // no match
+        if (!searchStr.contains(searchTerm)) return str; // no match
 
         StringBuilder buf = new StringBuilder(2 * str.length());
         int copyPos = 0;
@@ -329,6 +393,60 @@ public class ContentResolver
         return -1;
     }
 
+    private static String mergeParas(String cont, 
+                                     int attStart, // start of <p ...> attributes in cont
+                                     List<String> insAtts,  // attribute names to be inserted
+                                     List<String> insVals,  // attribute values to be inserted
+                                     String replace_str) 
+    {
+        List<String> nms = new ArrayList<String>();
+        List<String> vals = new ArrayList<String>();
+        XMLParser.parseTagAttributes(cont, attStart, nms, vals);
+        StringBuilder res = new StringBuilder();
+        for (int i = 0; i < insAtts.size(); i++) {
+            String insNm = insAtts.get(i);
+            if (! nms.contains(insNm)) {
+                String v = insVals.get(i).replace("\"", "&quot;");
+                res.append(" ").append(insNm).append("=\"").append(v).append("\"");
+            }
+        }
+        res.append(">").append(replace_str);
+        return res.toString();
+    }
+    
+    private static String removeTagsAndLineBreaks(String str)
+    {
+        StringBuilder sb = new StringBuilder();
+        int len = str.length();
+        int copy_pos = 0;
+        int pos = 0;
+        while (pos < len) {
+            pos = str.indexOf('<', pos);  // find next start of tag
+            if (pos < 0) {
+                break;   // no more tags found
+            }
+            int p2 = str.indexOf('>', pos);
+            if (p2 < 0) {
+                break;   // no more valid tags found
+            }
+            sb.append(str, copy_pos, pos);  // copy up to start of tag
+            pos = p2 + 1;      // continue search after the tag
+            copy_pos = pos;    // skip the tag (continue copying after the tag)
+        }
+        if (copy_pos < len) {   // copy remaining string
+            sb.append(str, copy_pos, len);
+        }
+        return sb.toString().replace('<', ' ').replace('>', ' ')
+                 .replace('\n', ' ').replace('\r', ' ').replace('\f', ' ');
+    }
+    
+    private static boolean forbiddenInP(String tag) 
+    {
+        return tag.equals("p") || tag.equals("div") || tag.equals("table") || 
+               tag.equals("ul") || tag.equals("ol") || tag.equals("dl") ||
+               tag.equals("figure") || tag.equals("pre") || 
+               tag.equals("blockquote");
+    }
 //    private static void eliminateXMLComments(StringBuffer buf)
 //    {
 //        int startPos = 0;

@@ -3,12 +3,16 @@
 <properties>
   <entry key="shortInfo">Basic Docmenta HTML Checks</entry>
   <entry key="attribute_required.title">Logs, corrects or removes elements with missing attributes.</entry>
+  <entry key="broken_inline_inclusion.title">Logs broken inline inclusions.</entry>
   <entry key="broken_link.title">Logs broken links.</entry>
   <entry key="content_required.title">Logs or removes empty elements</entry>
   <entry key="image_src.title">Logs image elements with invalid src attribute.</entry>
   <entry key="target_type.title">Logs links with wrong target type.</entry>
   <entry key="trim_empty_paras.title">Checks if content node ends with an empty paragraph</entry>
   <entry key="trim_figure_spaces.title">Checks for whitespace around figures</entry>
+  <entry key="msgReferencedAliasTooLong">Referenced alias exceeds maximum length of {0} characters.</entry>
+  <entry key="msgInlineInclusionAliasNotFound">Referenced node with alias ''{0}'' not found.</entry>
+  <entry key="msgContentInclusionToNonContent">Content inclusion to node with alias ''{0}'' which is not a content-node.</entry>
   <entry key="msgMissingAliasInHref">Missing alias in href attribute: ''{0}''.</entry>
   <entry key="msgAliasInHrefNotFound">Referenced node with alias ''{0}'' not found.</entry>
   <entry key="msgContentLinkToNonContent">Referenced node with alias ''{0}'' is not a content-node.</entry>
@@ -28,11 +32,13 @@
   <entry key="msgTagRemoved">Removed ''{0}'' tag.</entry>
   <entry key="msgTagExists">Found ''{0}'' tag.</entry>
   <entry key="msgTagWithoutAttribRemoved">Removed ''{0}'' without attribute.</entry>
-  <entry key="msgMissingAttribAddedDefault">Added default value for attribute ''{1}'' of element ''{0}''.</entry>
+  <entry key="msgMissingAttribAddedDefault">Added default value for ''{1}'' attribute to ''{0}'' element.</entry>
   <entry key="msgTagWithoutAttrib">Found ''{0}'' without attribute.</entry>
   <entry key="msgTagWithMissingAttribRemoved">Removed ''{0}'' tag with missing ''{1}'' attribute.</entry>
   <entry key="msgTagAttribMissing">Found ''{0}'' with missing ''{1}'' attribute.</entry>
   <entry key="msgTagAttribMissingDefault">Found ''{0}'' with missing ''{1}'' attribute. Enable auto-correct to set default.</entry>
+  <entry key="msgForbiddenAttribRemoved">Removed forbidden ''{1}'' attribute from ''{0}'' element.</entry>
+  <entry key="msgTagWithForbiddenAttrib">Found ''{0}'' with forbidden attribute ''{1}''.</entry>
   <entry key="longInfo"><![CDATA[
   <p>
   This class provides basic Docmenta HTML checks. 
@@ -40,6 +46,7 @@
   </p>
   <ul>
     <li><a href="#attribute_required">attribute_required</a></li>
+    <li><a href="#broken_inline_inclusion">broken_inline_inclusion</a></li>
     <li><a href="#broken_link">broken_link</a></li>
     <li><a href="#content_required">content_required</a></li>
     <li><a href="#image_src">image_src</a></li>
@@ -54,17 +61,35 @@
     <p>
       <b>Arguments:</b>
       <dl>
-        <dt><b><tt>attribute_required=<i>tag1,tag2</i>[<i>att1</i>|<i>att3</i>+<i>att4</i>=<i>default</i>+...|...],...</tt></b></dt>
-        <dd>A comma separated list of element expressions (no whitespace allowed). 
+        <dt><b><tt>attribute_required=<i>tag1,tag2</i>[<i>att1</i>|<i>att2</i>+<i>att3</i>=<i>default</i>+!<i>att4</i>...|...],...</tt></b></dt>
+        <dd>
+          <p>
+            A comma separated list of element expressions (no whitespace allowed). 
             An element expression is an element name that is optionally  
             followed by an attributes definition in square brackets.
             The attributes definition is a list of attribute names separated 
             by the <tt>+</tt> or <tt>|</tt> operators. The <tt>+</tt> operator
             has the meaning of logical "and", whereas the  <tt>|</tt> operator
-            has the meaning of logical "or". The attribute name can optionally
+            has the meaning of logical "or".
+          </p>
+          <p><em>Forbidden Attributes</em><br/> 
+            If the attribute name is preceded
+            by an exclamation mark (<tt>!</tt>), then the attribute is a 
+            forbidden attribute (instead of a required attribute). In other  
+            words, the exclamation mark has the meaning of logical "not". 
+            If required and forbidden attributes are concatenated
+            by the <tt>+</tt> operator, then the forbidden attributes are not
+            allowed only in combination with the required attributes.
+          </p>
+          <p><em>Default Values</em><br/> 
+            The attribute name of a required attribute can optionally
             be followed by a <tt>=</tt> character, followed by a default value.
-            See the example below.<br/> 
-            &nbsp;&nbsp;Be aware that whitespace  
+            If a required attribute does not exist, but has a default value 
+            assigned, then in case of auto-correction the attribute is added
+            with the default value. See the example below.
+          </p>
+          <p><em>Character escapes</em><br/>
+            Be aware that whitespace  
             is <em>not</em> allowed in the argument value. Furthermore, the 
             characters <tt>+</tt> and <tt>|</tt> and comma (<tt>,</tt>) cannot 
             be used within the definition of the default value, because these 
@@ -77,19 +102,30 @@
     </p>
     <p>
       <b>Description:</b><br/>
-      Each element expression given in the argument checks the existance 
-      of required attributes. If a required attribute is missing
+      Each element expression in the argument checks the existance 
+      of required and forbidden attributes. If a required attribute is missing
       then the expression results to false and the element is logged. 
-      If auto-correction is enabled, then missing attributes are set 
-      to a configured default value, or in case no default value is configured, 
-      the tag is removed (though, the content between the opening and 
-      closing tag is preserved).
+      If auto-correction is enabled and a default value is given for a missing  
+      attribute, then the attribute is added with the default value. In case no 
+      default value is defined, the complete tag is removed (though, the content 
+      between the opening and closing tag is preserved).
+    </p>
+    <p>
+      If auto-correction is enabled and forbidden attributes exists in 
+      combination with required attributes, and all the required attributes 
+      exist, then the forbidden attributes are automatically removed. If 
+      auto-correction is disabled, then the forbidden attributes are logged as
+      invalid. If only forbidden attributes are defined, but no required
+      attributes, then the forbidden attributes are removed or logged as invalid
+      in any case.
     </p>
     <p>
       If the expression is an element name without attributes definition,
       then the expression results to true, if an element with the given name
-      has at least one arbitrary attribute. In other words, the check can be used 
-      to log or remove elements that have <em>no</em> attributes at all.
+      has at least one arbitrary attribute. In other words, defining an element 
+      name without attributes definition can be used to log or remove elements
+      <em>without</em> attributes (for example, to remove <tt>span</tt> 
+      elements without attribute).
     </p>
     <p>
       If the element expression includes an attributes definition, then the    
@@ -108,7 +144,7 @@
       <b>Example:</b>
     </p>
     <p>
-        &nbsp;&nbsp;<tt>attribute_required=div,span[class|id+title],table[border=0]</tt>
+        &nbsp;&nbsp;<tt>attribute_required=div,span[class|id+title],table[border=0+!style]</tt>
     </p>
     <p>
       Given the argument value above, <tt>div</tt> elements must have at least  
@@ -116,14 +152,36 @@
       Furthermore, <tt>span</tt> elements must have either a <tt>class</tt> 
       attribute or an <tt>id</tt> attribute in combination with a <tt>title</tt>
       attribute. Finally, the <tt>border</tt> attribute is required for  
-      <tt>table</tt> elements. 
+      <tt>table</tt> elements, whereas the <tt>style</tt> attribute is forbidden 
+      (in combination with the <tt>border</tt> attribute). 
+      If no <tt>border</tt> attribute exists, then the 
+      <tt>border</tt> attribute is added with the default value <tt>"0"</tt>.
+    </p>
+    <p><em>Auto-correction in the example above</em><br/>
       If a <tt>div</tt>, <tt>span</tt> or <tt>table</tt> element does not comply
-      to this rule, then the element is logged. If auto-correction is enabled,  
-      then non-complying <tt>div</tt> and <tt>span</tt> tags are removed 
-      (though, the content of the tags is preserved).
+      to the rule in the example above, then the element is logged. 
+      If auto-correction is enabled, then non-complying <tt>div</tt> and 
+      <tt>span</tt> tags are removed (though, the content of the tags is preserved).
       If a <tt>table</tt> element has no <tt>border</tt> attribute and 
       auto-correction is enabled, then the <tt>border</tt> attribute is 
-      set to the default value <tt>"0"</tt>.
+      set to the default value <tt>"0"</tt>. Furthermore, if a <tt>table</tt> 
+      element has <tt>style</tt> attribute and auto-correction is enabled, then
+      the <tt>style</tt> attribute is removed.
+    </p>
+  </div>
+
+  <a name="broken_inline_inclusion" />
+  <big><strong>broken_inline_inclusion</strong></big>
+  <div style="margin-left:16pt;">
+    <p>
+      <b>Arguments:</b> <em>none</em>
+    </p>
+    <p>
+      <b>Description:</b><br/>
+      This check logs broken inline inclusions. An inline inclusion is a 
+      text pattern in the format <tt>[#<i>alias</i>]</tt> (title-inclusion) or 
+      <tt>[##<i>alias</i>]</tt> (content-inclusion), where 
+      <tt><i>alias</i></tt> is the alias of the target node.
     </p>
   </div>
 

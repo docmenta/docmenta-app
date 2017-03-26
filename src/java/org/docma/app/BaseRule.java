@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.SortedSet;
 import java.util.StringTokenizer;
 import java.util.TreeSet;
+import org.docma.plugin.Content;
 import org.docma.plugin.FileContent;
 import org.docma.plugin.ImageFile;
 
@@ -52,6 +53,7 @@ public class BaseRule implements HTMLRule, XMLElementHandler
     public static final String CHECK_ID_TRIM_EMPTY_PARAS = "trim_empty_paras";
     public static final String CHECK_ID_TRIM_FIGURE_SPACES = "trim_figure_spaces";
     // Link checks
+    public static final String CHECK_ID_BROKEN_INLINE_INCLUSION = "broken_inline_inclusion";
     public static final String CHECK_ID_BROKEN_LINK = "broken_link";
     public static final String CHECK_ID_TARGET_TYPE = "target_type";
     public static final String CHECK_ID_IMAGE_SRC = "image_src";
@@ -99,6 +101,7 @@ public class BaseRule implements HTMLRule, XMLElementHandler
         debug("BaseRule.getCheckIds()");
         return new String[] { 
           CHECK_ID_ATTRIBUTE_REQUIRED, 
+          CHECK_ID_BROKEN_INLINE_INCLUSION,
           CHECK_ID_BROKEN_LINK,
           CHECK_ID_CONTENT_REQUIRED, 
           CHECK_ID_IMAGE_SRC,
@@ -126,7 +129,8 @@ public class BaseRule implements HTMLRule, XMLElementHandler
     public LogLevel getDefaultLogLevel(String checkId) 
     {
         debug("BaseRule.getDefaultLogLevel()");
-        if (checkId.equals(CHECK_ID_BROKEN_LINK) || 
+        if (checkId.equals(CHECK_ID_BROKEN_INLINE_INCLUSION) ||
+            checkId.equals(CHECK_ID_BROKEN_LINK) || 
             checkId.equals(CHECK_ID_IMAGE_SRC) || 
             checkId.equals(CHECK_ID_TARGET_TYPE)) {
             return LogLevel.WARNING;
@@ -222,6 +226,13 @@ public class BaseRule implements HTMLRule, XMLElementHandler
         initOnStart(ctx);
 
         String result = null;
+        
+        //
+        // Check broken inline inclusions
+        //
+        if (ctx.isEnabled(CHECK_ID_BROKEN_INLINE_INCLUSION)) {
+            checkInlineInclusions(content);
+        }
 
         //
         // Checks realized by usage of XMLProcessor.
@@ -356,7 +367,8 @@ public class BaseRule implements HTMLRule, XMLElementHandler
                 remove = true;
                 for (List<AttribConf> andList : orList) {
                     boolean is_valid = true;
-                    boolean has_forbidden = false;
+                    boolean add_default = false;
+                    boolean remove_forbidden = false;
                     for (AttribConf ac : andList) {
                         String aName = ac.getName();
                         boolean attMissing = elemCtx.getAttributeIndex(aName) < 0;
@@ -364,31 +376,51 @@ public class BaseRule implements HTMLRule, XMLElementHandler
                         if (attMissing && !attForbidden) {
                             // Attribute is missing, but is defined as required 
                             if (correctAttRequired && (ac.getDefaultValue() != null)) {
-                                elemCtx.setAttribute(aName, ac.getDefaultValue());
-                                String msg = label("msgMissingAttribAddedDefault", ename, aName);
-                                ruleCtx.logInfo(CHECK_ID_ATTRIBUTE_REQUIRED, pos, msg);
+                                add_default = true;
                             } else {
                                 missingName = aName;
                                 missingDefault = ac.getDefaultValue();
+                                forbidden = null;
                                 is_valid = false;
-                                break;
+                                break; // stop evaluating andList, continue with next andList
                             }
                         }
-                        if (attForbidden && !attMissing) {  
-                            has_forbidden = true;  // forbidden attribute exists
-                            if (! correctAttRequired) {
+                        if (attForbidden && !attMissing) {
+                            if (correctAttRequired) {
+                                remove_forbidden = true;  // forbidden attribute exists
+                            } else {
                                 forbidden = aName;
+                                missingName = null;
+                                missingDefault = null;
                                 is_valid = false;
                                 break;
                             }
                         }
                     }
                     if (is_valid) {
-                        remove = false;
-                        if (has_forbidden && correctAttRequired) {
-                            // to do
+                        remove = false;  // Do not remove tag if its valid.
+                        
+                        // Element is valid -> no change, except setting
+                        // default attributes and removing forbidden attributes (if any).
+                        if (add_default || remove_forbidden) {
+                            for (AttribConf ac : andList) {
+                                String aName = ac.getName();
+                                boolean attMissing = elemCtx.getAttributeIndex(aName) < 0;
+                                boolean attForbidden = ac.isForbidden();
+                                if (attMissing && (ac.getDefaultValue() != null) && !attForbidden) {
+                                    elemCtx.setAttribute(aName, ac.getDefaultValue());
+                                    String msg = label("msgMissingAttribAddedDefault", ename, aName);
+                                    ruleCtx.logInfo(CHECK_ID_ATTRIBUTE_REQUIRED, pos, msg);
+                                } else if (attForbidden && !attMissing) {
+                                    elemCtx.setAttribute(aName, null);  // remove attribute
+                                    String msg = label("msgForbiddenAttribRemoved", ename, aName);
+                                    ruleCtx.logInfo(CHECK_ID_ATTRIBUTE_REQUIRED, pos, msg);
+                                }
+                            }
+                            corrected = true;
                         }
-                        break;
+                        
+                        break;  // stop at the first valid and-list 
                     }
                 }
             }
@@ -404,7 +436,9 @@ public class BaseRule implements HTMLRule, XMLElementHandler
                 } else {
                     String msg;
                     if (missingName == null) { 
-                        msg = label("msgTagWithoutAttrib", ename); 
+                        msg = (forbidden == null) 
+                                ? label("msgTagWithoutAttrib", ename)
+                                : label("msgTagWithForbiddenAttrib", ename, forbidden); 
                     } else {
                         msg = (missingDefault == null) 
                                 ? label("msgTagAttribMissing", ename, missingName)
@@ -430,6 +464,45 @@ public class BaseRule implements HTMLRule, XMLElementHandler
 
     /* --------------  Private methods  ---------------------- */
 
+    private void checkInlineInclusions(String content)
+    {
+        // Find inclusions
+        int len = content.length();
+        int startpos = 0;
+        while (startpos < len) {
+            int p1 = content.indexOf("[#", startpos);
+            if (p1 < 0) {  // no inclusion found
+                break;
+            }
+            p1 += 2;                // p1 is position after [#
+            if (p1 >= len) break;   // end of content string reached
+            startpos = p1;          // in next loop continue search at p1
+            int p2 = content.indexOf("]", startpos);
+            if (p2 < 0) {
+                continue;
+            }
+            boolean isContentInclusion = content.charAt(p1) == '#';  // content inclusion: [##
+            if (isContentInclusion) {
+                p1++;
+            }
+            if ((p2 - p1) > DocmaConstants.ALIAS_MAX_LENGTH) {
+                ruleCtx.log(CHECK_ID_BROKEN_INLINE_INCLUSION, p1, label("msgReferencedAliasTooLong", DocmaConstants.ALIAS_MAX_LENGTH));
+            } else {
+                String ref_alias = content.substring(p1, p2);
+                if (ref_alias.equals("")) {
+                    continue;
+                }
+                StoreConnection conn = ruleCtx.getStoreConnection();
+                Node nd = conn.getNodeByAlias(ref_alias);
+                if (nd == null) {
+                    ruleCtx.log(CHECK_ID_BROKEN_INLINE_INCLUSION, p1, label("msgInlineInclusionAliasNotFound", ref_alias));
+                } else if (isContentInclusion && !(nd instanceof Content)) {
+                    ruleCtx.log(CHECK_ID_BROKEN_INLINE_INCLUSION, p1, label("msgContentInclusionToNonContent", ref_alias));
+                }
+            }
+        }
+    }
+    
     private void checkBrokenLink(XMLElementContext elemCtx, int pos)
     {
         String href = elemCtx.getAttributeValue("href");
