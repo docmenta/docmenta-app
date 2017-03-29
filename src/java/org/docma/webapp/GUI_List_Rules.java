@@ -217,66 +217,74 @@ public class GUI_List_Rules implements ListitemRenderer
         Vbox vb = new Vbox();
         vb.setHflex("1");
         vb.setAlign("stretch");
-        for (String checkid : conf.getCheckIds()) {
-            boolean isCheck = conf.isExecuteOnCheck(checkid);
-            boolean isSave = conf.isExecuteOnSave(checkid);
-            if (! (isCheck || isSave)) {
-                continue;
+        String[] chkIds = conf.getCheckIds();
+        if ((chkIds == null) || (chkIds.length == 0)) {
+            if (conf.getRuleClass() == null) {
+                String clsnm = conf.getRuleClassName();
+                vb.appendChild(new Label(i18n("rule.config.rule_cls_not_loaded", clsnm)));
             }
-            Hbox hb1 = new Hbox();
-            hb1.setHflex("1");
-            Label lab1 = new Label(checkid + ":");
-            lab1.setStyle("font-weight:bold;");
-            
-            LogLevel lev = conf.getLogLevel(checkid);
-            Label lab2 = new Label("[ " + lev + " ]");
-            String css;
-            if (lev == LogLevel.ERROR) {
-                css = "color:#AA0000;";   // red color
-            } else if (lev == LogLevel.WARNING) {
-                css = "color:#0000AA;";   // blue color
-            } else {
-                css = "color:#000000;";
-            }
-            lab2.setStyle(css);
-            
-            boolean supportsAC = conf.supportsAutoCorrection(checkid);
-            String setting = "";
-            if (isCheck) {
-                setting = i18n("rule.config.dialog.exec_on_check");
-                if (supportsAC) {
-                    // String ac = conf.isCorrectOnCheck(checkid) ? "rule.state_on" : "rule.state_off";
-                    if (conf.isCorrectOnCheck(checkid)) {
-                        setting += " (" + i18n("rule.config.dialog.auto_correct") + ")";  // + ": " + i18n(ac) 
+        } else {
+            for (String checkid : chkIds) {
+                boolean isCheck = conf.isExecuteOnCheck(checkid);
+                boolean isSave = conf.isExecuteOnSave(checkid);
+                if (! (isCheck || isSave)) {
+                    continue;
+                }
+                Hbox hb1 = new Hbox();
+                hb1.setHflex("1");
+                Label lab1 = new Label(checkid + ":");
+                lab1.setStyle("font-weight:bold;");
+
+                LogLevel lev = conf.getLogLevel(checkid);
+                Label lab2 = new Label("[ " + lev + " ]");
+                String css;
+                if (lev == LogLevel.ERROR) {
+                    css = "color:#AA0000;";   // red color
+                } else if (lev == LogLevel.WARNING) {
+                    css = "color:#0000AA;";   // blue color
+                } else {
+                    css = "color:#000000;";
+                }
+                lab2.setStyle(css);
+
+                boolean supportsAC = conf.supportsAutoCorrection(checkid);
+                String setting = "";
+                if (isCheck) {
+                    setting = i18n("rule.config.dialog.exec_on_check");
+                    if (supportsAC) {
+                        // String ac = conf.isCorrectOnCheck(checkid) ? "rule.state_on" : "rule.state_off";
+                        if (conf.isCorrectOnCheck(checkid)) {
+                            setting += " (" + i18n("rule.config.dialog.auto_correct") + ")";  // + ": " + i18n(ac) 
+                        }
                     }
                 }
-            }
-            if (isSave) {
-                setting += (isCheck ? ", " : "") + i18n("rule.config.dialog.exec_on_save");
-                if (supportsAC) {
-                    // String ac = conf.isCorrectOnSave(checkid) ? "rule.state_on" : "rule.state_off";
-                    if (conf.isCorrectOnSave(checkid)) {
-                        setting += " (" + i18n("rule.config.dialog.auto_correct") + ")";  // + ": " + i18n(ac) 
+                if (isSave) {
+                    setting += (isCheck ? ", " : "") + i18n("rule.config.dialog.exec_on_save");
+                    if (supportsAC) {
+                        // String ac = conf.isCorrectOnSave(checkid) ? "rule.state_on" : "rule.state_off";
+                        if (conf.isCorrectOnSave(checkid)) {
+                            setting += " (" + i18n("rule.config.dialog.auto_correct") + ")";  // + ": " + i18n(ac) 
+                        }
                     }
                 }
+                Label labSetting = new Label(setting);
+
+                lab1.setHflex("min");
+                labSetting.setHflex("1");
+                lab2.setHflex("min");
+
+                hb1.appendChild(lab1);
+                hb1.appendChild(labSetting);
+                hb1.appendChild(lab2);
+                vb.appendChild(hb1);
+
+                // Hbox hb2 = new Hbox();
+                // Space spc = new Space();
+                // spc.setSpacing("12px");
+                // hb2.appendChild(spc);
+                // hb2.appendChild(labSetting);
+                // vb.appendChild(hb2);
             }
-            Label labSetting = new Label(setting);
-            
-            lab1.setHflex("min");
-            labSetting.setHflex("1");
-            lab2.setHflex("min");
-            
-            hb1.appendChild(lab1);
-            hb1.appendChild(labSetting);
-            hb1.appendChild(lab2);
-            vb.appendChild(hb1);
-            
-            // Hbox hb2 = new Hbox();
-            // Space spc = new Space();
-            // spc.setSpacing("12px");
-            // hb2.appendChild(spc);
-            // hb2.appendChild(labSetting);
-            // vb.appendChild(hb2);
         }
         c4.appendChild(vb);
         
@@ -452,9 +460,9 @@ public class GUI_List_Rules implements ListitemRenderer
         return -1;
     }
     
-    private String i18n(String key) 
+    private String i18n(String key, Object... args) 
     {
-        return mainWin.i18n(key);
+        return mainWin.i18n(key, args);
     }
 
 }

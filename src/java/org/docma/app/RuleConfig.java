@@ -218,7 +218,7 @@ public class RuleConfig implements Comparable, Cloneable
         } finally {
             if (obj != null) releaseRuleInstance(obj);
         }
-        return res;
+        return (res != null) ? res : new String[0];
     }
     
     public String getQualifiedCheckId(String checkId) 
