@@ -162,11 +162,11 @@ public class XSLTRule implements HTMLRule, ErrorListener
         }
     }
 
-    public void startBatch() 
+    public void startBatch(HTMLRuleContext ctx) 
     {
     }
 
-    public void finishBatch() 
+    public void finishBatch(HTMLRuleContext ctx) 
     {
     }
 

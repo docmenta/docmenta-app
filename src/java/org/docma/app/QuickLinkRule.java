@@ -51,12 +51,12 @@ public class QuickLinkRule implements HTMLRule
     {
     }
 
-    public void startBatch() 
+    public void startBatch(HTMLRuleContext context) 
     {
         uiLanguage = null;
     }
 
-    public void finishBatch() 
+    public void finishBatch(HTMLRuleContext context) 
     {
     }
 

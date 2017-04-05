@@ -19,14 +19,14 @@
             argument is given, then the XSL script is applied to all elements.
           </p>
           <p>
-            The <tt>tags</tt> argument allows to define a comma separated 
+            The value of the <tt>tags</tt> argument has to be a comma separated
             list of element expressions. Note that space is used as 
             argument separator. Therefore, no space is allowed within the
             list of element expressions. 
-            An element expression is an element name optionally  
+            An element expression is an element name, optionally  
             followed by an attributes expression in square brackets.
-            The attributes expression is a list of attribute conditions 
-            separated by the <tt>+</tt> or <tt>|</tt> operators. 
+            An attributes expression is one or more attribute conditions 
+            concatenated by the <tt>+</tt> or <tt>|</tt> operators. 
             The <tt>+</tt> operator has the meaning of logical "and", whereas 
             the  <tt>|</tt> operator has the meaning of logical "or". 
             Note that explicit grouping of attribute conditions by round 

@@ -31,8 +31,8 @@ public class HTMLRuleContextImpl implements HTMLRuleContext
     private static final Locale DEFAULT_LOCALE = new Locale("en");
     
     private final StoreConnectionImpl conn;
-    private final StringBuilder content;
     private final DefaultLog log;
+    private StringBuilder content = null;
     private String nodeId = null;
     private RuleConfig ruleConfig = null;
     private Map<Object, Object> props = null;
@@ -41,10 +41,9 @@ public class HTMLRuleContextImpl implements HTMLRuleContext
     
     /* ------- Constructor --------- */
     
-    public HTMLRuleContextImpl(StoreConnectionImpl conn, StringBuilder content)
+    public HTMLRuleContextImpl(StoreConnectionImpl conn)
     {
         this.conn = conn;
-        this.content = content;
         this.log = new DefaultLog(conn.getI18n());
     }
     
@@ -162,7 +161,12 @@ public class HTMLRuleContextImpl implements HTMLRuleContext
     {
         this.isModeSave = false;
     }
-    
+
+    public void setContent(StringBuilder content)
+    {
+        this.content = content;
+    }
+
     public void setNodeId(String nId) 
     {
         this.nodeId = nId;
@@ -178,6 +182,11 @@ public class HTMLRuleContextImpl implements HTMLRuleContext
         return this.log;
     }
     
+    public void clearLog()
+    {
+        this.log.clear();
+    }
+
     /* ------- Private methods --------- */
 
     private void logPos(LogLevel level, String checkId, int contentPosition, String msg, Object... args)
@@ -186,8 +195,8 @@ public class HTMLRuleContextImpl implements HTMLRuleContext
         final int CTX_SIZE = 16;
         int start_pos = (contentPosition > CTX_SIZE) ? contentPosition - CTX_SIZE : 0;
         // int rel_pos = contentPosition - start_pos;
-        String content_extract = extract(content, start_pos, 2 * CTX_SIZE);
-        
+        String content_extract = (content != null) ? 
+                extract(content, start_pos, 2 * CTX_SIZE) : null;
         log.add(level, generator, content_extract, msg, args);
     }
             

@@ -219,21 +219,21 @@ public class BaseRule implements HTMLRule, XMLElementHandler
         }
     }
     
-    public void startBatch() 
+    public void startBatch(HTMLRuleContext ctx) 
     {
         debug("BaseRule.startBatch()");
         initialized = false;
         styleInfos.clear();
     }
 
-    public void finishBatch() 
+    public void finishBatch(HTMLRuleContext ctx) 
     {
         debug("BaseRule.finishBatch()");
 
         //
         // Write style statistics        
         //
-        if ((ruleCtx != null) && ruleCtx.isEnabled(CHECK_ID_INVALID_STYLE)) {
+        if ((ctx != null) && ctx.isEnabled(CHECK_ID_INVALID_STYLE)) {
             StringBuilder statsHead = new StringBuilder(label("headStyleStatistics"));
             char[] headLine = new char[statsHead.length()];
             Arrays.fill(headLine, '=');
@@ -260,10 +260,10 @@ public class BaseRule implements HTMLRule, XMLElementHandler
                 stats.append(sinfo.getCSSName()).append(": ")
                      .append(sinfo.getCount()).append("\n");
             }
-            ruleCtx.log(LogLevel.INFO, 
-                        "\n" + statsHead + "\n\n" +
-                        statsValid + "\n" + statsInvalid + "\n\n" + 
-                        label("msgTotalInvalidStyleCount", totalInvalid));
+            ctx.log(LogLevel.INFO, 
+                    "\n" + statsHead + "\n\n" +
+                    statsValid + "\n" + statsInvalid + "\n\n" + 
+                    label("msgTotalInvalidStyleCount", totalInvalid));
         }
         styleInfos.clear();
     }

@@ -28,11 +28,11 @@ public class DummyHTMLRule implements HTMLRule
     {
     }
 
-    public void startBatch() 
+    public void startBatch(HTMLRuleContext context) 
     {
     }
 
-    public void finishBatch() 
+    public void finishBatch(HTMLRuleContext context) 
     {
     }
     
