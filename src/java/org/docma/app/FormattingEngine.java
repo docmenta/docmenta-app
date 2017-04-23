@@ -125,8 +125,12 @@ public class FormattingEngine
     private String customLayerIncludes_HTML = "";
     private String coverPage_XSL_FO = "";
 
-    private TransformerFactory tFactory;
-    private Transformer html2DocbookTransformer;
+    private final String html2DbXsl_PDF;
+    private final String html2DbXsl_HTML;
+
+    private final TransformerFactory tFactory;
+    private final List<Transformer> html2DbTransformers_PDF = new ArrayList<Transformer>();
+    private final List<Transformer> html2DbTransformers_HTML = new ArrayList<Transformer>();
     
     private WebFormatter webFormatter;
 
@@ -181,12 +185,22 @@ public class FormattingEngine
         this.docbookXSLDir = docbookXSLDir;
         this.tempDir = tempDir;
 
-        File[] html2DocbookFiles = getHtml2DocbookFiles();
-        if (html2DocbookFiles.length == 0) {
+        File html2DocbookFile = new File(configDir, "html2docbook.xsl");
+        if (! html2DocbookFile.exists()) {
             throw new DocException("HTML to Docbook XSL file does not exist.");
         }
+        String html2Db_all = getHtml2DbPlugs_all();
+        String html2Db_print = getHtml2DbPlugs_print();
+        String html2Db_PDF = html2Db_all + html2Db_print + getHtml2DbPlugs_PDF();
+        String html2Db_HTML = html2Db_all + getHtml2DbPlugs_HTML();
+        
+        String html2dbXsl = DocmaUtil.readFileToString(html2DocbookFile);
+        html2DbXsl_PDF  = html2dbXsl.replace("<!--plugins_xsl-->", html2Db_PDF);
+        html2DbXsl_HTML = html2dbXsl.replace("<!--plugins_xsl-->", html2Db_HTML);
+        
         customLayerIncludes = readCustomLayer();
-        customLayerIncludes_PDF = readCustomLayer_PDF();
+        String customLayer_Print = readCustomLayer_Print();
+        customLayerIncludes_PDF = customLayer_Print + readCustomLayer_PDF();
         customLayerIncludes_HTML = readCustomLayer_HTML();
         
         File coverpageXSLFile = new File(configDir, "coverpage_pdf.xsl");
@@ -198,14 +212,6 @@ public class FormattingEngine
 
         tFactory = TransformerFactory.newInstance();
         Log.info("Transformer factory class: " + tFactory.getClass().getName());
-
-        StreamSource streamSrc;
-        if (html2DocbookFiles.length == 1) {
-            streamSrc = new StreamSource(html2DocbookFiles[0]);
-        } else {
-            streamSrc = new StreamSource(new StringReader(DocmaUtil.readFilesToString(html2DocbookFiles, null)));
-        }
-        html2DocbookTransformer = tFactory.newTransformer(streamSrc);
 
         File fo_xsl = new File(docbookXSLDir, "fo" + File.separator + "docbook.xsl");
         File htmlSingle_xsl = new File(docbookXSLDir, "html" + File.separator + "onechunk.xsl");
@@ -228,26 +234,77 @@ public class FormattingEngine
         this.webFormatter = new WebFormatter(docbookXSLDir, tempDir);
     }
 
-    private File[] getHtml2DocbookFiles() throws IOException
+    private String getHtml2DbPlugs_all() throws IOException
     {
         File[] arr = configBaseDir.listFiles(new FilenameFilter() {
             public boolean accept(File dir, String name) 
             {
-                return name.equals("html2docbook.xsl") || 
-                       (name.startsWith("plug_html2docbook_") && name.endsWith(".xsl"));
+                return name.startsWith("html2db-") && name.endsWith(".xsl");
             }
         });
         Arrays.sort(arr);
-        return arr;
+        return DocmaUtil.readFilesToString(arr, null);
+    }
+
+    private String getHtml2DbPlugs_print() throws IOException
+    {
+        File[] arr = configBaseDir.listFiles(new FilenameFilter() {
+            public boolean accept(File dir, String name) 
+            {
+                return name.startsWith("html2db_print-") && name.endsWith(".xsl");
+            }
+        });
+        Arrays.sort(arr);
+        return DocmaUtil.readFilesToString(arr, null);
+    }
+    
+    private String getHtml2DbPlugs_PDF() throws IOException
+    {
+        File[] arr = configBaseDir.listFiles(new FilenameFilter() {
+            public boolean accept(File dir, String name) 
+            {
+                return name.startsWith("html2db_pdf-") && name.endsWith(".xsl");
+            }
+        });
+        Arrays.sort(arr);
+        return DocmaUtil.readFilesToString(arr, null);
+    }
+    
+    private String getHtml2DbPlugs_HTML() throws IOException
+    {
+        File[] arr = configBaseDir.listFiles(new FilenameFilter() {
+            public boolean accept(File dir, String name) 
+            {
+                return name.startsWith("html2db_html-") && name.endsWith(".xsl");
+            }
+        });
+        Arrays.sort(arr);
+        return DocmaUtil.readFilesToString(arr, null);
     }
     
     private String readCustomLayer() throws IOException
     {
+        File f = new File(configBaseDir, "customlayer.xsl");
+        String clay = f.exists() ? DocmaUtil.readFileToString(f) : "";
         File[] arr = configBaseDir.listFiles(new FilenameFilter() {
             public boolean accept(File dir, String name) 
             {
-                return name.equals("customlayer.xsl") || 
-                       (name.startsWith("plug_custom_all_") && name.endsWith(".xsl"));
+                return name.startsWith("custom-") && name.endsWith(".xsl");
+            }
+        });
+        if ((arr != null) && (arr.length > 0)) {
+            Arrays.sort(arr);
+            clay += DocmaUtil.readFilesToString(arr, null);
+        }
+        return clay;
+    }
+    
+    private String readCustomLayer_Print() throws IOException
+    {
+        File[] arr = configBaseDir.listFiles(new FilenameFilter() {
+            public boolean accept(File dir, String name) 
+            {
+                return (name.startsWith("custom_print-") && name.endsWith(".xsl"));
             }
         });
         Arrays.sort(arr);
@@ -256,28 +313,36 @@ public class FormattingEngine
     
     private String readCustomLayer_PDF() throws IOException
     {
+        File f = new File(configBaseDir, "customlayer_pdf.xsl");
+        String clay = f.exists() ? DocmaUtil.readFileToString(f) : "";
         File[] arr = configBaseDir.listFiles(new FilenameFilter() {
             public boolean accept(File dir, String name) 
             {
-                return name.equals("customlayer_pdf.xsl") || 
-                       (name.startsWith("plug_custom_pdf_") && name.endsWith(".xsl"));
+                return name.startsWith("custom_pdf-") && name.endsWith(".xsl");
             }
         });
-        Arrays.sort(arr);
-        return DocmaUtil.readFilesToString(arr, null);
+        if ((arr != null) && (arr.length > 0)) {
+            Arrays.sort(arr);
+            clay += DocmaUtil.readFilesToString(arr, null);
+        }
+        return clay;
     }
     
     private String readCustomLayer_HTML() throws IOException
     {
+        File f = new File(configBaseDir, "customlayer_html.xsl");
+        String clay = f.exists() ? DocmaUtil.readFileToString(f) : "";
         File[] arr = configBaseDir.listFiles(new FilenameFilter() {
             public boolean accept(File dir, String name) 
             {
-                return name.equals("customlayer_html.xsl") || 
-                       (name.startsWith("plug_custom_html_") && name.endsWith(".xsl"));
+                return name.startsWith("custom_html-") && name.endsWith(".xsl");
             }
         });
-        Arrays.sort(arr);
-        return DocmaUtil.readFilesToString(arr, null);
+        if ((arr != null) && (arr.length > 0)) {
+            Arrays.sort(arr);
+            clay += DocmaUtil.readFilesToString(arr, null);
+        }
+        return clay;
     }
     
     /* --------------  Public methods  --------------- */
@@ -482,12 +547,41 @@ public class FormattingEngine
                               StreamResult output) throws Exception
     {
         String out_format = outConfig.getFormat();
-        if (DocmaConstants.DEBUG) System.out.println("Output configuration format: " + out_format);
-        String out_type = outConfig.getFormat().equalsIgnoreCase("pdf") ? "print" : "interactive";
+        if (DocmaConstants.DEBUG) {
+            System.out.println("Output configuration format: " + out_format);
+        }
+        boolean is_pdf = outConfig.getFormat().equalsIgnoreCase("pdf");
+        String out_type = is_pdf ? "print" : "interactive";
         boolean fit_images = out_type.equals("print") && outConfig.isPdfFitImages();
-        html2DocbookTransformer.setParameter("docma_output_type", out_type);
-        html2DocbookTransformer.setParameter("docma_fit_images", fit_images ? "true" : "false");
-        html2DocbookTransformer.transform(htmlPrintInstance, output);
+        
+        Transformer htmlTransformer = acquireHtml2DocbookTransformer(is_pdf);
+        try {
+            htmlTransformer.setParameter("docma_output_type", out_type);
+            htmlTransformer.setParameter("docma_fit_images", fit_images ? "true" : "false");
+            htmlTransformer.transform(htmlPrintInstance, output);
+        } finally {
+            releaseHtml2DocbookTransformer(is_pdf, htmlTransformer);
+        }
+    }
+    
+    private synchronized Transformer acquireHtml2DocbookTransformer(boolean is_pdf) throws Exception
+    {
+        Transformer transfo;
+        List<Transformer> list = is_pdf ? html2DbTransformers_PDF : html2DbTransformers_HTML;
+        String xsl = is_pdf ? html2DbXsl_PDF : html2DbXsl_HTML;
+        if (list.isEmpty()) {
+            StreamSource streamSrc = new StreamSource(new StringReader(xsl));
+            transfo = tFactory.newTransformer(streamSrc);
+        } else {
+            transfo = list.remove(list.size() - 1);
+        }
+        return transfo;
+    }
+    
+    private synchronized void releaseHtml2DocbookTransformer(boolean is_pdf, Transformer transformer)
+    {
+        List<Transformer> list = is_pdf ? html2DbTransformers_PDF : html2DbTransformers_HTML;
+        list.add(transformer);
     }
 
     private void docbook2html(StreamSource src,
@@ -702,7 +796,7 @@ public class FormattingEngine
         buf.append(" version=\"1.0\">\n");
         buf.append("<xsl:import href=\"" + xsl_file + "\" />\n");
 
-        buf.append(customLayerIncludes);
+        buf.append(replaceStylePlaceholders(customLayerIncludes, styles));
 
         // Set gentext template
         if (gentext != null) {
@@ -834,8 +928,10 @@ public class FormattingEngine
             if ((crumb_sep == null) || crumb_sep.equals("")) {
                 crumb_sep = "&gt;";
             }
-            buf.append(customLayerIncludes_HTML.replace("###is_epub###", is_epub_str) 
-                                               .replace("###bread_separator###", crumb_sep));
+            String custIncHTML = customLayerIncludes_HTML.replace("###is_epub###", is_epub_str) 
+                                                         .replace("###bread_separator###", crumb_sep);
+            custIncHTML = replaceStylePlaceholders(custIncHTML, styles);
+            buf.append(custIncHTML);
 
             String out_dir = outputDir.getAbsolutePath();
             if (! out_dir.endsWith(File.separator)) {
@@ -1058,6 +1154,7 @@ public class FormattingEngine
                                                        .replace("###table_classes###", props_by_class)
                                                        .replace("###table_row_classes###", props_by_class)
                                                        .replace("###table_cell_classes###", props_by_class);
+            custIncPDF = replaceStylePlaceholders(custIncPDF, styles);
             buf.append(custIncPDF);
 
             // Set link style
@@ -1224,6 +1321,55 @@ public class FormattingEngine
         }
 
         return buf_str;
+    }
+
+    private static String replaceStylePlaceholders(String xsl, DocmaStyle[] styles)
+    {
+        final String START_PATTERN = "<!--style:";
+        final String END_PATTERN = "-->";
+        int pos = xsl.indexOf(START_PATTERN);
+        if (pos < 0) {
+            return xsl;
+        }
+        
+        StringBuilder buf = new StringBuilder();
+        int copy_pos = 0;
+        do {
+            // Copy up to start of placeholder
+            buf.append(xsl, copy_pos, pos);
+            copy_pos = pos;
+            pos += START_PATTERN.length();
+            
+            int pos2 = xsl.indexOf(END_PATTERN, pos);
+            if (pos2 < 0) {
+                break;
+            }
+            String style_id = xsl.substring(pos, pos2).trim();
+            DocmaStyle sty = getStyleById(styles, style_id);
+            if (sty != null) {  // valid placeholder
+                String css = sty.getCSS();
+                getFOFromCSS(buf, css, true);
+                pos = pos2 + END_PATTERN.length();  // continue after placeholder
+                copy_pos = pos;  // do not copy placeholder
+            }
+            pos = xsl.indexOf(START_PATTERN, pos); // search next placeholder
+        } while (pos >= 0);
+        
+        // Copy remaining string after the last placeholder
+        if (copy_pos < xsl.length()) {
+            buf.append(xsl, copy_pos, xsl.length());
+        }
+        return buf.toString();
+    }
+    
+    private static DocmaStyle getStyleById(DocmaStyle[] styles, String style_id)
+    {
+        for (DocmaStyle s : styles) {
+            if (style_id.equals(s.getBaseId())) {
+                return s;
+            }
+        }
+        return null;
     }
 
     static DocmaStyle getStyle(DocmaStyle[] styles, String style_base_id, DocmaOutputConfig out_config)

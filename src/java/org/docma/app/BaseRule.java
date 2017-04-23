@@ -331,6 +331,7 @@ public class BaseRule implements HTMLRule, XMLElementHandler
                     xmlproc.process(fixcontent);
                 }
             } catch (Exception ex) {
+                ex.printStackTrace();
                 ctx.log(LogLevel.ERROR, ex.getMessage());
             }
         }
@@ -531,6 +532,9 @@ public class BaseRule implements HTMLRule, XMLElementHandler
     private void checkElementClassNames(XMLElementContext elemCtx, int pos)
     {
         String cls_val = elemCtx.getAttributeValue("class");
+        if (cls_val == null) {
+            return;
+        }
         StringTokenizer st = new StringTokenizer(cls_val);
         while (st.hasMoreTokens()) {
             String css_cls = st.nextToken();

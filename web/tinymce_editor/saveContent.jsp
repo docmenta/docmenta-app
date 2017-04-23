@@ -43,7 +43,7 @@
         StringBuilder cont_buf = new StringBuilder(cont);
         // Transform quick links, trim empty paragraphs, apply HTML rules, ... 
         LogEntries res = storeConn.prepareHTMLForSave(cont_buf, nodeid, null);
-        if (res.getErrorCount() > 0) {
+        if (isSave && (res.getErrorCount() > 0)) {
             throw new Exception(res.getErrors()[0].getMessage());
         }
         cont = cont_buf.toString();

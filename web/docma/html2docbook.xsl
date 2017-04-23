@@ -1193,5 +1193,5 @@
       </xsl:when>
     </xsl:choose>
   </xsl:template>
-
+<!--plugins_xsl-->
 </xsl:stylesheet>

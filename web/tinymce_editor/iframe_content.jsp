@@ -48,11 +48,19 @@
     para_indent = TinyEditorUtil.roundIndentToHigherInt(para_indent);
 
     String lists_plugin = editorId.startsWith("tinymce_3_3") ? "" : ",lists";
+    String doc_plugins = TinyInitInsertion.getPlugins(webSess);
+    String doc_options = TinyInitInsertion.getOptions(webSess);
+    String doc_buttons3 = TinyInitInsertion.getButtons3(webSess);
+    String doc_buttons4 = TinyInitInsertion.getButtons4(webSess);
+    if (doc_buttons4.startsWith(",")) {
+        doc_buttons4 = doc_buttons4.substring(1).trim();
+    }
+
     ContentAppHandler apphandler = webSess.getContentAppHandler(editorId);
     String entity_conf = (apphandler instanceof OldTinymceHandler) ?
         ((OldTinymceHandler) apphandler).getCharEntitiesConfigString() : "";
 %>
-<html xmlns="http://www.w3.org/1999/xhtml"  style="margin:0;padding:0;height:100%;overflow:hidden;">
+<html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="expires" content="0">
 <meta http-equiv="cache-control" content="no-cache">
@@ -78,13 +86,13 @@
     save_enablewhendirty : false, // plugin: save; disabled because does not work
     save_onsavecallback : "onEditorSaveClick",
     // dialog_type : "modal",     // plugin: inlinepopups
-    plugins : "pagebreak,style,table,save,advimage,advlist<%= lists_plugin %>,iespell,preview,media,searchreplace,print,contextmenu,paste,directionality,fullscreen,noneditable,visualchars,nonbreaking,xhtmlxtras,template,wordcount",
+    plugins : "pagebreak,style,table,save,advimage,advlist<%= lists_plugin %>,iespell,preview,media,searchreplace,print,contextmenu,paste,directionality,fullscreen,noneditable,visualchars,nonbreaking,xhtmlxtras,template,wordcount<%= doc_plugins %>",
 
     // Theme options
     theme_advanced_buttons1 : "save,bold,italic,underline,strikethrough,|,sub,sup,|,justifyleft,justifycenter,justifyright,justifyfull,|,bullist,numlist,|,outdent,indent,|,removeformat,attribs,visualchars,|,styleselect",
     theme_advanced_buttons2 : "cut,copy,paste,pastetext,|,search,replace,|,undo,redo,|,link,unlink,cite,image,charmap,nonbreaking,template,|,code,|,print",
-    theme_advanced_buttons3 : "tablecontrols,|,visualaid,|,del,ins,|,iespell,|,ltr,rtl",
-    theme_advanced_buttons4 : "",
+    theme_advanced_buttons3 : "tablecontrols,|,visualaid,|,del,ins,|,iespell,|,ltr,rtl<%= doc_buttons3 %>",
+    theme_advanced_buttons4 : "<%= doc_buttons4 %>",
     theme_advanced_toolbar_location : "top",
     theme_advanced_toolbar_align : "left",
     theme_advanced_statusbar_location : "bottom",
@@ -154,9 +162,8 @@
 
     // Replace values for the template plugin
     template_replace_values : {}
-<%--
-    , oninit : doFullScreen 
---%>
+    <%= doc_options %>
+    <%-- , oninit : doFullScreen --%>
   });
 
   function doFullScreen() {
