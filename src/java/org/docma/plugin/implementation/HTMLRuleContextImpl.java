@@ -103,6 +103,16 @@ public class HTMLRuleContextImpl implements HTMLRuleContext
         }
     }
     
+    public void logHeader(int level, String headline, Object... args)
+    {
+        log.addHeader(level, headline, args);
+    }
+    
+    public void logText(String headline, String txt)
+    {
+        log.addPreformatted(headline, txt);
+    }
+    
     public void log(LogLevel level, String msg, Object... args) 
     {
         log.add(level, getCheckName(null), msg, args);
@@ -192,17 +202,43 @@ public class HTMLRuleContextImpl implements HTMLRuleContext
     private void logPos(LogLevel level, String checkId, int contentPosition, String msg, Object... args)
     {
         String generator = getCheckName(checkId);
-        final int CTX_SIZE = 16;
-        int start_pos = (contentPosition > CTX_SIZE) ? contentPosition - CTX_SIZE : 0;
-        // int rel_pos = contentPosition - start_pos;
-        String content_extract = (content != null) ? 
-                extract(content, start_pos, 2 * CTX_SIZE) : null;
+        String content_extract = extract(content, contentPosition);
         log.add(level, generator, content_extract, msg, args);
     }
-            
-    private String extract(CharSequence content, int startPos, int count)
+
+    private String extract(CharSequence content, int contentPos)
     {
-        int endPos = Math.min(content.length(), startPos + count);
+        if ((content == null) || (contentPos < 0)) {
+            return null;
+        }
+        
+        final int CTX_SIZE = 10;
+        final int len = content.length();
+        int startPos = (contentPos > CTX_SIZE) ? contentPos - CTX_SIZE : 0;
+        int endPos = Math.min(len, contentPos + CTX_SIZE);
+        
+        // Search previous start tag within 40 characters
+        int cnt = 0;
+        char prev = content.charAt(startPos);
+        while ((startPos > 0) && (cnt < 40)) {
+            cnt++;
+            startPos--;
+            char ch = content.charAt(startPos);
+            if ((ch == '<') && prev != '/') {
+                break;
+            }
+        }
+        
+        // Search next end of tag within 40 characters
+        cnt = 0;
+        while ((endPos < len) && (cnt < 40)) {
+            cnt++;
+            char ch = content.charAt(endPos++);
+            if (ch == '>') {
+                break;
+            }
+        }
+        
         CharSequence sub = content.subSequence(startPos, endPos);
         
         // Transform all whitespace to space characters

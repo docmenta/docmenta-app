@@ -468,11 +468,11 @@ public class GUIUtil
         }
     }
 
-    public static boolean isUpdateContentAllowed(DocmaNode node,
-                                                 boolean showMessage)
+    public static boolean isEditContentAllowed(DocmaNode node,
+                                               boolean showMessage)
     {
         try {
-            node.checkUpdateContentAllowed();
+            node.checkEditContentAllowed();
             return true;
         } catch (Exception ex) {
             if (showMessage) {

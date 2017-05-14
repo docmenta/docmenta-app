@@ -74,7 +74,7 @@ div.docma_msg { margin: 1em; }
 
     String readonly_msg = null; 
     try {
-        ((Content) node).checkUpdateContentAllowed();
+        ((Content) node).checkEditContentAllowed();
     } catch (Exception ex) {
         start_edit = false;
         readonly_msg = ex.getLocalizedMessage();
@@ -143,6 +143,14 @@ div.docma_msg { margin: 1em; }
     {
         window.location.replace('<%= self_url %>');
     }
+    
+    function setLabelMsg(msg) {
+        var elem = document.getElementById("saveLabel");
+        while (elem.hasChildNodes()) {
+            elem.removeChild(elem.lastChild);
+        }
+        elem.appendChild(document.createTextNode(msg));
+    }
 
     function saveFinished() {
         var errmsg = window.frames['filesave_frm'].getErrorMsg();
@@ -156,7 +164,12 @@ div.docma_msg { margin: 1em; }
             window.alert(errmsg);
             return;
         }
-        if (! isWin) {
+
+
+        if (isWin) {
+            setLabelMsg(window.frames['filesave_frm'].getSaveMsg());
+            window.setTimeout("setLabelMsg('')", 10000);  // clear after 10 sec
+        } else {
             switchToViewMode();
         }
 
@@ -283,6 +296,8 @@ div.docma_msg { margin: 1em; }
 <%
     }
 %>
+            &nbsp;
+            <span id="saveLabel" class="labeltxt"></span>
             <iframe name="filesave_frm" src="empty_preview.html" width="4" height="20"
                     scrolling="no" marginheight="0" marginwidth="0" frameborder="0"></iframe>
           </td>

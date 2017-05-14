@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<!-- Put your custom HTML head tags here and select this file in the HTML output configuration. -->
+<!-- Note: The content of this file has to be XML (XHTML). -->
+<meta http-equiv="X-UA-Compatible" content="IE=8" />
+<meta http-equiv="expires" content="43200" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="generator" content="Docmenta 1.9.0"/>
+<title>4.5. Rule plug-ins</title>
+<link rel="shortcut icon" href="favicon.ico" type="image/x-icon"/>
+<link rel="home" href="index.html" title="Docmenta Tutorial and Reference"/>
+<link rel="up" href="plugin_developer_guide.html" title="4. Plug-in Developer Guide"/>
+<link rel="prev" href="pt04ch04s03s05.html" title="4.4.3.5. Creating the editor plug-in"/>
+<link rel="prev" href="html_rule_getShortInfo.html" title="4.5.1. getShortInfo"/>
+<link rel="stylesheet" type="text/css" href="styles.css"/>
+<link rel="stylesheet" type="text/css" href="common/jquery/theme-redmond/jquery-ui-1.8.2.custom.css"/>
+<link rel="stylesheet" type="text/css" href="common/jquery/treeview/jquery.treeview.css"/>
+<link rel="stylesheet" type="text/css" href="common/css/positioning.css"/>
+<script type="text/javascript">
+  var treeCookieId = "treeview-1494620492886";
+  var language = "en";
+  var w = new Object();
+  txt_filesfound = "Results";
+  txt_enter_at_least_1_char = "You must enter at least one character.";
+  txt_browser_not_supported = "Your browser is not supported. Use of Mozilla Firefox is recommended.";
+  txt_please_wait = "Please wait. Search in progress...";
+  txt_results_for = "Results for: ";
+</script>
+<script type="text/javascript" src="common/jquery/jquery-1.4.2.min.js"></script>
+<script type="text/javascript" src="common/jquery/jquery-ui-1.8.2.custom.min.js"></script>
+<script type="text/javascript" src="common/jquery/jquery.cookie.js"></script>
+<script type="text/javascript" src="common/jquery/treeview/jquery.treeview.min.js"></script>
+<script type="text/javascript" src="search/htmlFileList.js"></script>
+<script type="text/javascript" src="search/htmlFileInfoList.js"></script>
+<script type="text/javascript" src="search/nwSearchFnt.js"></script>
+<script type="text/javascript" src="search/stemmers/en_stemmer.js"></script>
+<script type="text/javascript" src="search/index-1.js"></script>
+<script type="text/javascript" src="search/index-2.js"></script>
+<script type="text/javascript" src="search/index-3.js"></script>
+<script type="text/javascript" src="custom.js"></script>
+<script type="text/javascript" src="common/main.js"></script>
+</head>
+<body>
+<div id="header"><img id="webhelplogo1" align="left" src='common/images/logo1.png' alt="Logo"/><img id="webhelplogo2" align="right" src='common/images/logo2.png' alt="Logo"/><div class="webhelptitle"><div class="webhelptitle1">Part 4. Plug-in Developer Guide</div><div class="webhelptitle2">Chapter 4.5. Rule plug-ins</div></div><div id="navheader" align="right"><table><tr><td><img src="common/images/highlight-blue.gif" alt="H" onclick="toggleHighlight()" id="showHideHighlight" title="Toggle search result highlighting" /></td><td><a id="navhead-prev" accesskey="p" href="pt04ch04s03s05.html"><span class="navlink-text">Prev</span></a><span class="navhead-separator">&nbsp;|&nbsp;</span><a id="navhead-up" accesskey="u" href="plugin_developer_guide.html"><span class="navlink-text">Up</span></a><span class="navhead-separator">&nbsp;|&nbsp;</span><a id="navhead-next" accesskey="n" href="html_rule_getShortInfo.html"><span class="navlink-text">Next</span></a></td></tr></table></div></div>
+<div id="leftnavigation"><div id="tabs"><ul id="tocsearchnavigation" style="display:none"><li id="tocnavigationtab"><a href="#treeDiv"><em>Contents</em></a></li><li id="searchnavigationtab"><a href="#searchDiv"><em>Search</em></a></li></ul><div id="treeDiv"><img src="common/images/loading.gif" alt="loading table of contents..." id="tocLoading" style="display:block;"/><div id="ulTreeDiv" style="display:none;"><div id="treenavigationtitle" style="display:none;">Contents</div><ul id="tree" class="filetree"><li><span class="file"><a href="pt04ch01.html">Introduction</a></span></li><li><span class="file"><a href="create_plugin_package.html">Creating a plug-in package</a></span></li><li><span class="file"><a href="plugin_api.html">Plug-in API</a></span><ul><li><span class="file"><a href="plugin_lifecycle_methods.html">Lifecycle methods</a></span></li><li><span class="file"><a href="plugin_add_menu.html">Adding menu items</a></span></li><li><span class="file"><a href="plugin_add_dialog.html">Adding a dialog</a></span><ul><li><span class="file"><a href="plugin_plain_js_dialogs.html">Plain JavaScript Dialogs</a></span></li><li><span class="file"><a href="plugin_zk_dialogs.html">ZK Dialogs</a></span></li></ul></li><li><span class="file"><a href="plugin_add_tab.html">Adding a tab</a></span></li><li><span class="file"><a href="plugin_jsp_integration.html">JSP integration</a></span></li><li><span class="file"><a href="pt04ch03s06.html">Accessing content</a></span></li></ul></li><li><span class="file"><a href="content_handler_plugins.html">Editor and viewer plug-ins</a></span><ul><li><span class="file"><a href="pt04ch04s01.html">Content Handlers</a></span></li><li><span class="file"><a href="plug_viewer.html">Viewer Plug-ins</a></span><ul><li><span class="file"><a href="pt04ch04s02s01.html">initialize</a></span></li><li><span class="file"><a href="pt04ch04s02s02.html">getApplicationId</a></span></li><li><span class="file"><a href="pt04ch04s02s03.html">getApplicationName</a></span></li><li><span class="file"><a href="pt04ch04s02s04.html">getSupportedViewExtensions</a></span></li><li><span class="file"><a href="pt04ch04s02s05.html">getSupportedEditExtensions</a></span></li><li><span class="file"><a href="pt04ch04s02s06.html">getPreviewURL</a></span></li><li><span class="file"><a href="pt04ch04s02s07.html">openViewer</a></span></li><li><span class="file"><a href="pt04ch04s02s08.html">openEditor</a></span></li><li><span class="file"><a href="pt04ch04s02s09.html">setCharEntities</a></span></li><li><span class="file"><a href="plug_view_handler_complete.html">The complete viewer class</a></span></li><li><span class="file"><a href="pt04ch04s02s11.html">The view.jsp page</a></span></li><li><span class="file"><a href="plug_viewer_package.html">Creating the viewer plug-in</a></span></li><li><span class="file"><a href="plug_viewer_install.html">Installing the viewer plug-in</a></span></li></ul></li><li><span class="file"><a href="pt04ch04s03.html">Editor Plug-ins</a></span><ul><li><span class="file"><a href="pt04ch04s03s01.html">getSupportedEditExtensions</a></span></li><li><span class="file"><a href="pt04ch04s03s02.html">openEditor</a></span></li><li><span class="file"><a href="plug_edit_handler_complete.html">The complete editor class</a></span></li><li><span class="file"><a href="pt04ch04s03s04.html">The edit.jsp page</a></span></li><li><span class="file"><a href="pt04ch04s03s05.html">Creating the editor plug-in</a></span></li></ul></li></ul></li><li id="webhelp-currentid"><span class="file"><a href="rule_plugins.html">Rule plug-ins</a></span><ul><li><span class="file"><a href="html_rule_getShortInfo.html">getShortInfo</a></span></li><li><span class="file"><a href="pt04ch05s02.html">getLongInfo</a></span></li><li><span class="file"><a href="pt04ch05s03.html">getCheckIds</a></span></li><li><span class="file"><a href="pt04ch05s04.html">getCheckTitle</a></span></li><li><span class="file"><a href="pt04ch05s05.html">supportsAutoCorrection</a></span></li><li><span class="file"><a href="pt04ch05s06.html">getDefaultLogLevel</a></span></li><li><span class="file"><a href="pt04ch05s07.html">configure</a></span></li><li><span class="file"><a href="pt04ch05s08.html">startBatch</a></span></li><li><span class="file"><a href="pt04ch05s09.html">finishBatch</a></span></li><li><span class="file"><a href="html_rule_apply.html">apply</a></span></li><li><span class="file"><a href="my_html_rule_complete.html">The complete example</a></span></li><li><span class="file"><a href="pt04ch05s12.html">Creating the Rule Plug-in</a></span></li></ul></li><li><span class="file"><a href="autoformat_plugins.html">AutoFormat plug-ins</a></span><ul><li><span class="file"><a href="pt04ch06s01.html">AutoFormat Transformations</a></span></li><li><span class="file"><a href="pt04ch06s02.html">AutoFormat Example</a></span></li><li><span class="file"><a href="pt04ch06s03.html">Creating an AutoFormat Plug-in</a></span></li></ul></li><li><span class="file"><a href="output_plugins.html">Output plug-ins</a></span></li><li><span class="file"><a href="customize_pdf_stylesheet.html">PDF stylesheet customization</a></span><ul><li><span class="file"><a href="customize_docbook_transformation.html">Customizing the transformation to DocBook</a></span></li><li><span class="file"><a href="pt04ch08s02.html">Customizing the DocBook stylesheets</a></span></li><li><span class="file"><a href="pt04ch08s03.html">Creating the stylesheet plug-in</a></span></li></ul></li></ul></div></div><div id="searchDiv"><div id="search"><form onsubmit="startWebHelpSearch(ditaSearch_Form);return false" name="ditaSearch_Form" class="searchForm"><fieldset class="searchFieldSet"><legend>Search</legend><div align="center"><input id="textToSearch" name="textToSearch" type="text" class="searchText"/>&nbsp;<input onclick="startWebHelpSearch(ditaSearch_Form)" type="button" class="searchButton" value="Go" id="doSearch"/></div></fieldset></form></div><div id="closeSearchResults" style="display:none"><a href="javascript:closeSearchShowToc();">Contents</a></div><div id="searchResults"><div align="center"></div></div></div></div></div>
+<div id="bookpartsnavigation"><ul><li><a href="tutorial.html">Tutorial</a></li><li><a href="reference_manual.html">User Manual</a></li><li><a href="xhtml_reference.html">XHTML Reference</a></li><li class="book-currentpart"><a href="plugin_developer_guide.html">Plug-in Developer Guide</a></li></ul></div>
+<div id="breadcrumbsnavigation" class="breadcrumbs"><span class="breadcrumb-link"><a class="breadcrumb_node" href="plugin_developer_guide.html">Plug-in Developer Guide</a></span> <span class="breadcrumb_separator">&rarr;</span> <span class="breadcrumb_node breadcrumb_lastnode">Rule plug-ins</span></div>
+<div id="content"><div id="rule_plugins" class="chapter"><h2>Chapter 4.5. Rule plug-ins</h2><div class="toc"><p><strong>Table of Contents</strong></p><dl><dt><span><a href="html_rule_getShortInfo.html">4.5.1. getShortInfo</a></span></dt><dt><span><a href="pt04ch05s02.html">4.5.2. getLongInfo</a></span></dt><dt><span><a href="pt04ch05s03.html">4.5.3. getCheckIds</a></span></dt><dt><span><a href="pt04ch05s04.html">4.5.4. getCheckTitle</a></span></dt><dt><span><a href="pt04ch05s05.html">4.5.5. supportsAutoCorrection</a></span></dt><dt><span><a href="pt04ch05s06.html">4.5.6. getDefaultLogLevel</a></span></dt><dt><span><a href="pt04ch05s07.html">4.5.7. configure</a></span></dt><dt><span><a href="pt04ch05s08.html">4.5.8. startBatch</a></span></dt><dt><span><a href="pt04ch05s09.html">4.5.9. finishBatch</a></span></dt><dt><span><a href="html_rule_apply.html">4.5.10. apply</a></span></dt><dt><span><a href="my_html_rule_complete.html">4.5.11. The complete example</a></span></dt><dt><span><a href="pt04ch05s12.html">4.5.12. Creating the Rule Plug-in</a></span></dt></dl></div>
+<div title="Content" class="doc-content"><div class="normal-para">Content rules can provide one or both of following functionalities:</div>
+<ul>
+<li>Check whether the XHTML stored in content-nodes is conforming to user-defined rules.</li>
+<li>Automatically update the XHTML in content-nodes according to user-defined rules.</li>
+</ul>
+<div class="normal-para">A content rule is applied to a content-node in following situations:</div>
+<ul>
+<li>The user saves the content-node using the content-editor.</li>
+<li>The user calls menu item "Consistency-Check" from the node's context menu.</li>
+</ul>
+<div class="normal-para">A rule consists of one or more checks. For each check, the rule configuration allows to define whether the check is executed on "Consistency-Check" or on "Save" or in both situations. Furthermore, each check allows to define a severity, which can be either "Error", "Warning" or "Info". Be aware that if a check logs an error and the check is executed on save, then saving fails with a corresponding error message.</div>
+<div class="normal-para">After installation of Docmenta, two pre-defined rules exist, namely, "<span class="code">base</span>" and "<span class="code">quicklinks</span>":</div>
+<div class="normal-para"><div title="Pre-defined rules" class="figure"><div class="mediaobject"><img src="images/admin_rules_default_rules.png" alt="" title="Pre-defined rules"     /></div><p class="title">Figure 4.5.1. Pre-defined rules</p></div></div>
+<div class="normal-para">For more information on these pre-defined rules see <a href="rule_config.html" title="2.7.6. Rule configuration">Section 2.7.6, “Rule configuration”</a>.</div>
+<div class="normal-para">Additional content rules can be added through plug-ins. To create a new content rule, the <span class="code">org.docma.plugin.rules.HTMLRule</span> interface needs to be implemented. Note that content rules are also named (X)HTML rules, because content-nodes contain XHTML. As a simple example, we'll create a content rule that provides two checks:</div>
+<table border="2" cellpadding="4" cellspacing="0" style="border-color: #000000; border-width: 2px; width: 100%; border-style: solid;" rules="rows"><caption>Table 4.5.1. Example checks</caption>
+<tbody>
+<tr><th style="width: 180px;">Check ID</th><th>Description</th></tr>
+<tr>
+<td><span class="code">check_length</span></td>
+<td>Create a warning if the XHTML content stored in a single node exceeds a configurable length (number of characters).</td>
+</tr>
+<tr>
+<td><span class="code">check_empty_span</span></td>
+<td>Create an error if the XHTML content contains empty span elements, namely "<span class="code">&lt;span&gt;&lt;/span&gt;</span>". If auto-correction is turned on, removes empty span elements.</td>
+</tr>
+</tbody>
+</table>
+<div class="normal-para">To provide an implementation of these two checks, we create a new class, for example <span class="code">myexample.MyHTMLRule</span>, which implements the <span class="code">HTMLRule</span> interface:</div>
+<div class="normal-para java_no_line_nums"><span class="code_keyword">public class</span> MyHTMLRule <span class="code_keyword">implements</span> org.docma.plugin.rules.HTMLRule<br    />{<br    />    <span class="code_keyword">private static final</span> String CHECK_LENGTH = <span class="code_char">"check_length"</span>;<br    />    <span class="code_keyword">private static final</span> String CHECK_EMPTY_SPAN = <span class="code_char">"check_empty_span"</span>;<br    />    <br    />    <span class="code_keyword">private int</span> maxLength = Integer.MAX_VALUE;<br    /><br    />    <span class="code_comment">// To do: implement the interface methods</span><br    />}</div>
+<div class="normal-para">Note that in the class fragment given above, two constants (<span class="code">CHECK_LENGTH</span> and <span class="code">CHECK_EMPTY_SPAN</span>) are defined, which contain the check identifiers. It is always a good idea to declare constants for the check identifiers, because the identifiers have to passed as arguments at several positions. By using declared constants typing errors can be avoided.</div>
+<div class="normal-para">Furthermore a field <span class="code">maxLength</span> is defined, which shall store the configured maximum length for the <span class="code">check_length</span> check. This field is initialized in the <span class="code">configure</span> method (see below).</div>
+<div class="normal-para">For the sake of modularity, only checks that are related somehow should be implemented within the same rule class. It would also be possible to create a separate rule class for each single check. However, implementing related checks in the same rule class can have advantages concerning performance, because it allows to execute all checks with only a single parsing step.</div>
+<div class="normal-para">The <span class="code">org.docma.plugin.rules.HTMLRule</span> interface consists of 10 methods that need to be implemented. The complete source of the <span class="code">myexample.MYHTMLRule</span> class is given below. Following a description of all implemented interface methods.</div>
+</div></div><div class="navfooter"><hr/><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="pt04ch04s03s05.html"><span class="navlink-text">Prev</span></a>&#160;</td><td width="20%" align="center"><a accesskey="u" href="plugin_developer_guide.html"><span class="navlink-text">Up</span></a></td><td width="40%" align="right">&#160;<a accesskey="n" href="html_rule_getShortInfo.html"><span class="navlink-text">Next</span></a></td></tr><tr><td width="40%" align="left" valign="top">4.4.3.5. Creating the editor plug-in&#160;</td><td width="20%" align="center"><a accesskey="h" href="index.html"><span class="navlink-text">Home</span></a></td><td width="40%" align="right" valign="top">&#160;4.5.1. getShortInfo</td></tr></table></div>
+<div class="web_footer">
+<p class="align-center">&#169; 2017 - www.docmenta.org</p>
+</div>
+</div>
+<a id="showHideButton" onclick="showHideToc();" class="pointLeft" title="Hide TOC tree">&nbsp;</a></body>
+</html>

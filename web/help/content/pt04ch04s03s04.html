@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<!-- Put your custom HTML head tags here and select this file in the HTML output configuration. -->
+<!-- Note: The content of this file has to be XML (XHTML). -->
+<meta http-equiv="X-UA-Compatible" content="IE=8" />
+<meta http-equiv="expires" content="43200" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="generator" content="Docmenta 1.9.0"/>
+<title>4.4.3.4. The edit.jsp page</title>
+<link rel="shortcut icon" href="favicon.ico" type="image/x-icon"/>
+<link rel="home" href="index.html" title="Docmenta Tutorial and Reference"/>
+<link rel="up" href="pt04ch04s03.html" title="4.4.3. Editor Plug-ins"/>
+<link rel="prev" href="plug_edit_handler_complete.html" title="4.4.3.3. The complete editor class"/>
+<link rel="prev" href="pt04ch04s03s05.html" title="4.4.3.5. Creating the editor plug-in"/>
+<link rel="stylesheet" type="text/css" href="styles.css"/>
+<link rel="stylesheet" type="text/css" href="common/jquery/theme-redmond/jquery-ui-1.8.2.custom.css"/>
+<link rel="stylesheet" type="text/css" href="common/jquery/treeview/jquery.treeview.css"/>
+<link rel="stylesheet" type="text/css" href="common/css/positioning.css"/>
+<script type="text/javascript">
+  var treeCookieId = "treeview-1494620492884";
+  var language = "en";
+  var w = new Object();
+  txt_filesfound = "Results";
+  txt_enter_at_least_1_char = "You must enter at least one character.";
+  txt_browser_not_supported = "Your browser is not supported. Use of Mozilla Firefox is recommended.";
+  txt_please_wait = "Please wait. Search in progress...";
+  txt_results_for = "Results for: ";
+</script>
+<script type="text/javascript" src="common/jquery/jquery-1.4.2.min.js"></script>
+<script type="text/javascript" src="common/jquery/jquery-ui-1.8.2.custom.min.js"></script>
+<script type="text/javascript" src="common/jquery/jquery.cookie.js"></script>
+<script type="text/javascript" src="common/jquery/treeview/jquery.treeview.min.js"></script>
+<script type="text/javascript" src="search/htmlFileList.js"></script>
+<script type="text/javascript" src="search/htmlFileInfoList.js"></script>
+<script type="text/javascript" src="search/nwSearchFnt.js"></script>
+<script type="text/javascript" src="search/stemmers/en_stemmer.js"></script>
+<script type="text/javascript" src="search/index-1.js"></script>
+<script type="text/javascript" src="search/index-2.js"></script>
+<script type="text/javascript" src="search/index-3.js"></script>
+<script type="text/javascript" src="custom.js"></script>
+<script type="text/javascript" src="common/main.js"></script>
+</head>
+<body>
+<div id="header"><img id="webhelplogo1" align="left" src='common/images/logo1.png' alt="Logo"/><img id="webhelplogo2" align="right" src='common/images/logo2.png' alt="Logo"/><div class="webhelptitle"><div class="webhelptitle1">4.4.3. Editor Plug-ins</div><div class="webhelptitle2">4.4.3.4. The edit.jsp page</div></div><div id="navheader" align="right"><table><tr><td><img src="common/images/highlight-blue.gif" alt="H" onclick="toggleHighlight()" id="showHideHighlight" title="Toggle search result highlighting" /></td><td><a id="navhead-prev" accesskey="p" href="plug_edit_handler_complete.html"><span class="navlink-text">Prev</span></a><span class="navhead-separator">&nbsp;|&nbsp;</span><a id="navhead-up" accesskey="u" href="pt04ch04s03.html"><span class="navlink-text">Up</span></a><span class="navhead-separator">&nbsp;|&nbsp;</span><a id="navhead-next" accesskey="n" href="pt04ch04s03s05.html"><span class="navlink-text">Next</span></a></td></tr></table></div></div>
+<div id="leftnavigation"><div id="tabs"><ul id="tocsearchnavigation" style="display:none"><li id="tocnavigationtab"><a href="#treeDiv"><em>Contents</em></a></li><li id="searchnavigationtab"><a href="#searchDiv"><em>Search</em></a></li></ul><div id="treeDiv"><img src="common/images/loading.gif" alt="loading table of contents..." id="tocLoading" style="display:block;"/><div id="ulTreeDiv" style="display:none;"><div id="treenavigationtitle" style="display:none;">Contents</div><ul id="tree" class="filetree"><li><span class="file"><a href="pt04ch01.html">Introduction</a></span></li><li><span class="file"><a href="create_plugin_package.html">Creating a plug-in package</a></span></li><li><span class="file"><a href="plugin_api.html">Plug-in API</a></span><ul><li><span class="file"><a href="plugin_lifecycle_methods.html">Lifecycle methods</a></span></li><li><span class="file"><a href="plugin_add_menu.html">Adding menu items</a></span></li><li><span class="file"><a href="plugin_add_dialog.html">Adding a dialog</a></span><ul><li><span class="file"><a href="plugin_plain_js_dialogs.html">Plain JavaScript Dialogs</a></span></li><li><span class="file"><a href="plugin_zk_dialogs.html">ZK Dialogs</a></span></li></ul></li><li><span class="file"><a href="plugin_add_tab.html">Adding a tab</a></span></li><li><span class="file"><a href="plugin_jsp_integration.html">JSP integration</a></span></li><li><span class="file"><a href="pt04ch03s06.html">Accessing content</a></span></li></ul></li><li><span class="file"><a href="content_handler_plugins.html">Editor and viewer plug-ins</a></span><ul><li><span class="file"><a href="pt04ch04s01.html">Content Handlers</a></span></li><li><span class="file"><a href="plug_viewer.html">Viewer Plug-ins</a></span><ul><li><span class="file"><a href="pt04ch04s02s01.html">initialize</a></span></li><li><span class="file"><a href="pt04ch04s02s02.html">getApplicationId</a></span></li><li><span class="file"><a href="pt04ch04s02s03.html">getApplicationName</a></span></li><li><span class="file"><a href="pt04ch04s02s04.html">getSupportedViewExtensions</a></span></li><li><span class="file"><a href="pt04ch04s02s05.html">getSupportedEditExtensions</a></span></li><li><span class="file"><a href="pt04ch04s02s06.html">getPreviewURL</a></span></li><li><span class="file"><a href="pt04ch04s02s07.html">openViewer</a></span></li><li><span class="file"><a href="pt04ch04s02s08.html">openEditor</a></span></li><li><span class="file"><a href="pt04ch04s02s09.html">setCharEntities</a></span></li><li><span class="file"><a href="plug_view_handler_complete.html">The complete viewer class</a></span></li><li><span class="file"><a href="pt04ch04s02s11.html">The view.jsp page</a></span></li><li><span class="file"><a href="plug_viewer_package.html">Creating the viewer plug-in</a></span></li><li><span class="file"><a href="plug_viewer_install.html">Installing the viewer plug-in</a></span></li></ul></li><li><span class="file"><a href="pt04ch04s03.html">Editor Plug-ins</a></span><ul><li><span class="file"><a href="pt04ch04s03s01.html">getSupportedEditExtensions</a></span></li><li><span class="file"><a href="pt04ch04s03s02.html">openEditor</a></span></li><li><span class="file"><a href="plug_edit_handler_complete.html">The complete editor class</a></span></li><li id="webhelp-currentid"><span class="file"><a href="pt04ch04s03s04.html">The edit.jsp page</a></span></li><li><span class="file"><a href="pt04ch04s03s05.html">Creating the editor plug-in</a></span></li></ul></li></ul></li><li><span class="file"><a href="rule_plugins.html">Rule plug-ins</a></span><ul><li><span class="file"><a href="html_rule_getShortInfo.html">getShortInfo</a></span></li><li><span class="file"><a href="pt04ch05s02.html">getLongInfo</a></span></li><li><span class="file"><a href="pt04ch05s03.html">getCheckIds</a></span></li><li><span class="file"><a href="pt04ch05s04.html">getCheckTitle</a></span></li><li><span class="file"><a href="pt04ch05s05.html">supportsAutoCorrection</a></span></li><li><span class="file"><a href="pt04ch05s06.html">getDefaultLogLevel</a></span></li><li><span class="file"><a href="pt04ch05s07.html">configure</a></span></li><li><span class="file"><a href="pt04ch05s08.html">startBatch</a></span></li><li><span class="file"><a href="pt04ch05s09.html">finishBatch</a></span></li><li><span class="file"><a href="html_rule_apply.html">apply</a></span></li><li><span class="file"><a href="my_html_rule_complete.html">The complete example</a></span></li><li><span class="file"><a href="pt04ch05s12.html">Creating the Rule Plug-in</a></span></li></ul></li><li><span class="file"><a href="autoformat_plugins.html">AutoFormat plug-ins</a></span><ul><li><span class="file"><a href="pt04ch06s01.html">AutoFormat Transformations</a></span></li><li><span class="file"><a href="pt04ch06s02.html">AutoFormat Example</a></span></li><li><span class="file"><a href="pt04ch06s03.html">Creating an AutoFormat Plug-in</a></span></li></ul></li><li><span class="file"><a href="output_plugins.html">Output plug-ins</a></span></li><li><span class="file"><a href="customize_pdf_stylesheet.html">PDF stylesheet customization</a></span><ul><li><span class="file"><a href="customize_docbook_transformation.html">Customizing the transformation to DocBook</a></span></li><li><span class="file"><a href="pt04ch08s02.html">Customizing the DocBook stylesheets</a></span></li><li><span class="file"><a href="pt04ch08s03.html">Creating the stylesheet plug-in</a></span></li></ul></li></ul></div></div><div id="searchDiv"><div id="search"><form onsubmit="startWebHelpSearch(ditaSearch_Form);return false" name="ditaSearch_Form" class="searchForm"><fieldset class="searchFieldSet"><legend>Search</legend><div align="center"><input id="textToSearch" name="textToSearch" type="text" class="searchText"/>&nbsp;<input onclick="startWebHelpSearch(ditaSearch_Form)" type="button" class="searchButton" value="Go" id="doSearch"/></div></fieldset></form></div><div id="closeSearchResults" style="display:none"><a href="javascript:closeSearchShowToc();">Contents</a></div><div id="searchResults"><div align="center"></div></div></div></div></div>
+<div id="bookpartsnavigation"><ul><li><a href="tutorial.html">Tutorial</a></li><li><a href="reference_manual.html">User Manual</a></li><li><a href="xhtml_reference.html">XHTML Reference</a></li><li class="book-currentpart"><a href="plugin_developer_guide.html">Plug-in Developer Guide</a></li></ul></div>
+<div id="breadcrumbsnavigation" class="breadcrumbs"><span class="breadcrumb-link"><a class="breadcrumb_node" href="plugin_developer_guide.html">Plug-in Developer Guide</a></span> <span class="breadcrumb_separator">&rarr;</span> <span class="breadcrumb-link"><a class="breadcrumb_node" href="content_handler_plugins.html">Editor and viewer plug-ins</a></span> <span class="breadcrumb_separator">&rarr;</span> <span class="breadcrumb-link"><a class="breadcrumb_node" href="pt04ch04s03.html">Editor Plug-ins</a></span> <span class="breadcrumb_separator">&rarr;</span> <span class="breadcrumb_node breadcrumb_lastnode">The edit.jsp page</span></div>
+<div id="content"><div id="comp00000038" class="section"><h4>4.4.3.4. The edit.jsp page</h4><div title="The edit.jsp page" class="doc-content"><div class="normal-para">Following an example of the <span class="code">edit.jsp</span> page. This implementation shows the content of the node in an HTML textarea field. Furthermore, a "Save" button is shown below the input field:</div>
+<div title="edit.jsp" class="formal-block"><div class="formal-contents"><div title="edit.jsp" class="_formal_code_listing"><table border="0" cellpadding="0" width="100%" cellspacing="0" style="keep-together:auto;"><tr><td valign="top" style="width:22pt;"><div class="listing_line">1 
+</div><div class="listing_line">2 
+</div><div class="listing_line">3 
+</div><div class="listing_line">4 
+</div><div class="listing_line">5 
+</div><div class="listing_line">6 
+</div><div class="listing_line">7 
+</div><div class="listing_line">8 
+</div><div class="listing_line">9 
+</div><div class="listing_line">10 
+</div><div class="listing_line">11 
+</div><div class="listing_line">12 
+</div><div class="listing_line">13 
+</div><div class="listing_line">14 
+</div><div class="listing_line">15 
+</div><div class="listing_line">16 
+</div><div class="listing_line">17 
+</div><div class="listing_line">18 
+</div><div class="listing_line">19 
+</div><div class="listing_line">20 
+</div><div class="listing_line">21 
+</div><div class="listing_line">22 
+</div><div class="listing_line">23 
+</div><div class="listing_line">24 
+</div><div class="listing_line">25 
+</div><div class="listing_line">26 
+</div><div class="listing_line">27 
+</div><div class="listing_line">28 
+</div><div class="listing_line">29 
+</div><div class="listing_line">30 
+</div><div class="listing_line">31 
+</div><div class="listing_line">32 
+</div><div class="listing_line">33 
+</div><div class="listing_line">34 
+</div><div class="listing_line">35 
+</div><div class="listing_line">36 
+</div><div class="listing_line">37 
+</div><div class="listing_line">38 
+</div><div class="listing_line">39 
+</div><div class="listing_line">40 
+</div><div class="listing_line">41 
+</div><div class="listing_line">42 
+</div><div class="listing_line">43 
+</div><div class="listing_line">44 
+</div><div class="listing_line">45 
+</div><div class="listing_line">46 
+</div><div class="listing_line">47 
+</div><div class="listing_line">48 
+</div><div class="listing_line">49 
+</div><div class="listing_line">50 
+</div><div class="listing_line">51 
+</div><div class="listing_line">52 
+</div><div class="listing_line">53 
+</div><div class="listing_line">54 
+</div><div class="listing_line">55 
+</div><div class="listing_line">56 
+</div><div class="listing_line">57 
+</div><div class="listing_line">58 
+</div><div class="listing_line">59 
+</div><div class="listing_line">60 
+</div><div class="listing_line">61 
+</div><div class="listing_line">62 
+</div><div class="listing_line">63 
+</div><div class="listing_line">64 
+</div><div class="listing_line">65 
+</div><div class="listing_line">66 
+</div><div class="listing_line">67 
+</div><div class="listing_line">68 
+</div><div class="listing_line">69 
+</div><div class="listing_line">70 
+</div><div class="listing_line">71 
+</div></td><td valign="top" class="listing_jsp"><div class="listing_line"><span class="code_xmlintro">&lt;%@page contentType="text/html" pageEncoding="UTF-8"</span>
+</div><div class="listing_line"><span class="code_xmlintro">        session="true"</span>
+</div><div class="listing_line"><span class="code_xmlintro">        import="org.docma.plugin.*,org.docma.plugin.web.*"</span>
+</div><div class="listing_line"><span class="code_xmlintro">%&gt;</span><span class="code_tag">&lt;html&gt;</span>
+</div><div class="listing_line"><span class="code_tag">&lt;head&gt;</span>
+</div><div class="listing_line"><span class="code_tag">&lt;meta <span class="code_attrib">http-equiv=<span class="code_attval">"Content-Type"</span></span> <span class="code_attrib">content=<span class="code_attval">"text/html; charset=UTF-8"</span></span>&gt;</span>
+</div><div class="listing_line"><span class="code_tag">&lt;meta <span class="code_attrib">http-equiv=<span class="code_attval">"expires"</span></span> <span class="code_attrib">content=<span class="code_attval">"0"</span></span>&gt;</span>
+</div><div class="listing_line"><span class="code_tag">&lt;meta <span class="code_attrib">http-equiv=<span class="code_attval">"cache-control"</span></span> <span class="code_attrib">content=<span class="code_attval">"no-cache"</span></span>&gt;</span>
+</div><div class="listing_line"><span class="code_tag">&lt;meta <span class="code_attrib">http-equiv=<span class="code_attval">"pragma"</span></span> <span class="code_attrib">content=<span class="code_attval">"no-cache"</span></span>&gt;</span>
+</div><div class="listing_line"><span class="code_tag">&lt;title&gt;</span>Edit File<span class="code_tag">&lt;/title&gt;</span>
+</div><div class="listing_line">&lt;%
+</div><div class="listing_line">    request.<span class="code_method">setCharacterEncoding</span>(<span class="code_char">"UTF-8"</span>);
+</div><div class="listing_line">    String sessId = request.<span class="code_method">getParameter</span>(<span class="code_char">"docsess"</span>);
+</div><div class="listing_line">    String nodeId = request.<span class="code_method">getParameter</span>(<span class="code_char">"nodeid"</span>);
+</div><div class="listing_line">    String store  = request.<span class="code_method">getParameter</span>(<span class="code_char">"store"</span>);
+</div><div class="listing_line">    String ver    = request.<span class="code_method">getParameter</span>(<span class="code_char">"version"</span>);
+</div><div class="listing_line">    String lang   = request.<span class="code_method">getParameter</span>(<span class="code_char">"lang"</span>);
+</div><div class="listing_line">    String save   = request.<span class="code_method">getParameter</span>(<span class="code_char">"edit"</span>);
+</div><div class="listing_line">    
+</div><div class="listing_line">    WebUserSession sess = 
+</div><div class="listing_line">      WebPluginUtil.<span class="code_method">getUserSession</span>(application, sessId);
+</div><div class="listing_line">    StoreConnection conn = (sess != <span class="code_keyword">null</span>) ? sess.<span class="code_method">getOpenedStore</span>() 
+</div><div class="listing_line">                                          : <span class="code_keyword">null</span>;
+</div><div class="listing_line">    <span class="code_keyword">boolean</span> open = (conn != <span class="code_keyword">null</span>) &amp;&amp;
+</div><div class="listing_line">                   store.<span class="code_method">equals</span>(conn.<span class="code_method">getStoreId</span>()) &amp;&amp;
+</div><div class="listing_line">                   ver.<span class="code_method">equals</span>(conn.<span class="code_method">getVersionId</span>().<span class="code_method">toString</span>()) &amp;&amp;
+</div><div class="listing_line">                   lang.<span class="code_method">equals</span>(conn.<span class="code_method">getCurrentLanguage</span>().<span class="code_method">getCode</span>());
+</div><div class="listing_line">    
+</div><div class="listing_line">    String editTxt = <span class="code_keyword">null</span>;
+</div><div class="listing_line">    <span class="code_keyword">if</span> (open) {
+</div><div class="listing_line">        Node node = conn.<span class="code_method">getNodeById</span>(nodeId);
+</div><div class="listing_line">        <span class="code_keyword">if</span> (node <span class="code_keyword">instanceof</span> Content) {
+</div><div class="listing_line">            Content cont = (Content) node;
+</div><div class="listing_line">            editTxt = cont.<span class="code_method">getContentString</span>();
+</div><div class="listing_line">            <span class="code_keyword">if</span> ((save != <span class="code_keyword">null</span>) &amp;&amp; !save.<span class="code_method">equals</span>(editTxt)) {
+</div><div class="listing_line">                <span class="code_comment">// Save changed content</span>
+</div><div class="listing_line">                <span class="code_keyword">if</span> (cont <span class="code_keyword">instanceof</span> PubContent) {
+</div><div class="listing_line">                    cont.<span class="code_method">makeRevision</span>();
+</div><div class="listing_line">                }
+</div><div class="listing_line">                cont.<span class="code_method">setContentString</span>(save);
+</div><div class="listing_line">                editTxt = save;  <span class="code_comment">// show saved content in textarea</span>
+</div><div class="listing_line">            }
+</div><div class="listing_line">        }
+</div><div class="listing_line">    }
+</div><div class="listing_line">%&gt;
+</div><div class="listing_line"><span class="code_tag">&lt;/head&gt;</span>
+</div><div class="listing_line"><span class="code_tag">&lt;body <span class="code_attrib">style=<span class="code_attval">"background-color:E0E0E0; overflow:hidden;"</span></span>&gt;</span>
+</div><div class="listing_line">  <span class="code_tag">&lt;form <span class="code_attrib">name=<span class="code_attval">"editform"</span></span> <span class="code_attrib">action=<span class="code_attval">"edit.jsp"</span></span> <span class="code_attrib">method=<span class="code_attval">"post"</span></span> &gt;</span>
+</div><div class="listing_line">    <span class="code_tag">&lt;table <span class="code_attrib">border=<span class="code_attval">"0"</span></span> <span class="code_attrib">style=<span class="code_attval">"width:100%; height:100%;"</span></span>&gt;</span>
+</div><div class="listing_line">      <span class="code_tag">&lt;tr&gt;</span>
+</div><div class="listing_line">        <span class="code_tag">&lt;td&gt;</span>
+</div><div class="listing_line">          <span class="code_tag">&lt;textarea <span class="code_attrib">name=<span class="code_attval">"edit"</span></span> <span class="code_attrib">style=<span class="code_attval">"width:100%; height:100%;"</span></span>&gt;</span>&lt;%=
+</div><div class="listing_line">            (editTxt != <span class="code_keyword">null</span>) ? 
+</div><div class="listing_line">              editTxt.<span class="code_method">replace</span>(<span class="code_char">"&lt;"</span>, <span class="code_char">"&amp;lt;"</span>).<span class="code_method">replace</span>(<span class="code_char">"&gt;"</span>, <span class="code_char">"&amp;gt;"</span>) : <span class="code_char">""</span>
+</div><div class="listing_line">          %&gt;<span class="code_tag">&lt;/textarea&gt;</span>
+</div><div class="listing_line">        <span class="code_tag">&lt;/td&gt;</span>
+</div><div class="listing_line">      <span class="code_tag">&lt;/tr&gt;</span>
+</div><div class="listing_line">      <span class="code_tag">&lt;tr&gt;</span>
+</div><div class="listing_line">        <span class="code_tag">&lt;td <span class="code_attrib">height=<span class="code_attval">"40"</span></span>&gt;</span>
+</div><div class="listing_line">          <span class="code_tag">&lt;input <span class="code_attrib">type=<span class="code_attval">"submit"</span></span> <span class="code_attrib">value=<span class="code_attval">"Save"</span></span> /&gt;</span>
+</div><div class="listing_line">          <span class="code_tag">&lt;input <span class="code_attrib">type=<span class="code_attval">"hidden"</span></span> <span class="code_attrib">name=<span class="code_attval">"docsess"</span></span> <span class="code_attrib">value=<span class="code_attval">"&lt;%= sessId %&gt;"</span></span> /&gt;</span>
+</div><div class="listing_line">          <span class="code_tag">&lt;input <span class="code_attrib">type=<span class="code_attval">"hidden"</span></span> <span class="code_attrib">name=<span class="code_attval">"nodeid"</span></span> <span class="code_attrib">value=<span class="code_attval">"&lt;%= nodeId %&gt;"</span></span> /&gt;</span>
+</div><div class="listing_line">          <span class="code_tag">&lt;input <span class="code_attrib">type=<span class="code_attval">"hidden"</span></span> <span class="code_attrib">name=<span class="code_attval">"store"</span></span> <span class="code_attrib">value=<span class="code_attval">"&lt;%= store %&gt;"</span></span> /&gt;</span>
+</div><div class="listing_line">          <span class="code_tag">&lt;input <span class="code_attrib">type=<span class="code_attval">"hidden"</span></span> <span class="code_attrib">name=<span class="code_attval">"version"</span></span> <span class="code_attrib">value=<span class="code_attval">"&lt;%= ver %&gt;"</span></span> /&gt;</span>
+</div><div class="listing_line">          <span class="code_tag">&lt;input <span class="code_attrib">type=<span class="code_attval">"hidden"</span></span> <span class="code_attrib">name=<span class="code_attval">"lang"</span></span> <span class="code_attrib">value=<span class="code_attval">"&lt;%= lang %&gt;"</span></span> /&gt;</span>
+</div><div class="listing_line">        <span class="code_tag">&lt;/td&gt;</span>
+</div><div class="listing_line">      <span class="code_tag">&lt;/tr&gt;</span>
+</div><div class="listing_line">    <span class="code_tag">&lt;/table&gt;</span>
+</div><div class="listing_line">  <span class="code_tag">&lt;/form&gt;</span>
+</div><div class="listing_line"><span class="code_tag">&lt;/body&gt;</span>
+</div><div class="listing_line"><span class="code_tag">&lt;/html&gt;</span>
+</div></td></tr></table></div></div><p class="title">Listing 4.4.10. edit.jsp</p></div>
+</div><div title="edit.jsp description" class="doc-content"><div class="normal-para">First of all, the URL parameters are retrieved via the <span class="code">getParameter</span> method of the JSP <span class="code">request</span> object. Then the <span class="code">WebUserSession</span> instance and the currently opened store is retrieved the same way as already described in <a href="plug_viewer.html" title="4.4.2. Viewer Plug-ins">Section 4.4.2, “Viewer Plug-ins”</a> for the <span class="code">view.jsp</span> page.</div>
+<div class="normal-para">The editor is a simple HTML form with a textarea input field and a submit button. An HTML table is used to create a layout with two rows. The first row contains the textarea field and the second row the submit button (Save). Clicking the submit button posts the form to the page itself (<span class="code">edit.jsp</span>). The content of the textarea field is posted as form field with name <span class="code">"edit"</span>. Therefore, if the request contains a parameter with name <span class="code">"edit"</span>, this indicates that the "Save" button has been clicked. The content to be saved is the value of the <span class="code">"edit"</span> parameter.</div>
+<div class="normal-para">The <span class="code">open</span> variable contains the value <span class="code">true</span> only if the user is still connected to the same store and has still selected the same content language as at the time when the editor was opened. For this, the URL parameters <span class="code">store</span>, <span class="code">version</span> and <span class="code">lang</span> need to be supplied in the URL of the <span class="code">edit.jsp</span> page, when the editor is opened. Consider the situation that the user opens the editor, and then logs out from Docmenta, while the editor is still opened. If the user then clicks the "Save" button in the editor, then the store connection of the user session is already closed. Another situation to be handled is, that the user switches to another store or to another content language, while the content is still opened in the editor. In all these cases the <span class="code">open</span> variable evaluates to <span class="code">false</span>. In our example, if the open variable is <span class="code">false</span>, the "Save" request is just ignored. Of course, instead of ignoring the "Save" request an error message like <span class="code">"Store connection has been closed"</span> should be presented to the user. Another possibility is, to allow saving of the content even if the store connection <br    />has been closed or changed meanwhile. To achieve this, the editor has to open a new connection to the original store from which the content was retrieved. This can be achieved by invoking the <span class="code">createTempStoreConnection</span> method on the <br    />user session instance. Here is code fragment that shows the principle of opening a temporary store connection:</div>
+<div class="normal-para java_no_line_nums">    <span class="code_keyword">if</span> (! open) {  <span class="code_comment">// original connection is no longer opened</span><br    />        StoreConnection conn = webSess.createTempStoreConnection(store, ver);<br    />        <span class="code_keyword">try</span> {<br    />            <span class="code_comment">// ... Use conn to save the content.</span><br    />        } <span class="code_keyword">finally</span> {<br    />            conn.close(); <span class="code_comment">// always close temporary connection</span><br    />        }<br    />    }</div>
+<div class="normal-para">However, in our example we only allow saving as long as the connection in the main window is still the same as when the editor was opened.</div>
+<div class="normal-para">After having retrieved a store connection, the submitted content can be assigned to the content-node. Though, before the new content is assigned, we assure that the submitted content actually differs from the currently stored content. This is not required, but it avoids unnecessary write operations on the store. The currently stored content is retrieved by the statement:</div>
+<div class="normal-para java_no_line_nums">    editTxt = cont.getContentString();</div>
+<div class="normal-para">Therefore, the content is only saved if the expression <span class="code">save.equals(editTxt)</span> evaluates to <span class="code">false</span>. Furthermore, in case of an XHTML content-node (nodes of type <span class="code">org.docma.plugin.PubContent</span>), also a new revision is created by invoking the <span class="code">makeRevision</span> method. Although the <span class="code">makeRevision</span> method is available for all content-nodes, it has currently only effect for <span class="code">PubContent</span> nodes. That means, invocations of <span class="code">makeRevision</span> on file-nodes (<span class="code">org.docma.plugin.FileContent</span>) are ignored by the current store implementation.</div>
+<div class="normal-para">Finally, the content is saved by invoking the <span class="code">setContentString</span> method on the node, passing the modified content as argument:</div>
+<div class="normal-para java_no_line_nums">    cont.setContentString(save);</div>
+</div></div><div class="navfooter"><hr/><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="plug_edit_handler_complete.html"><span class="navlink-text">Prev</span></a>&#160;</td><td width="20%" align="center"><a accesskey="u" href="pt04ch04s03.html"><span class="navlink-text">Up</span></a></td><td width="40%" align="right">&#160;<a accesskey="n" href="pt04ch04s03s05.html"><span class="navlink-text">Next</span></a></td></tr><tr><td width="40%" align="left" valign="top">4.4.3.3. The complete editor class&#160;</td><td width="20%" align="center"><a accesskey="h" href="index.html"><span class="navlink-text">Home</span></a></td><td width="40%" align="right" valign="top">&#160;4.4.3.5. Creating the editor plug-in</td></tr></table></div>
+<div class="web_footer">
+<p class="align-center">&#169; 2017 - www.docmenta.org</p>
+</div>
+</div>
+<a id="showHideButton" onclick="showHideToc();" class="pointLeft" title="Hide TOC tree">&nbsp;</a></body>
+</html>

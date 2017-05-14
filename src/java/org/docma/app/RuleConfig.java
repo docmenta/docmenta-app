@@ -454,7 +454,7 @@ public class RuleConfig implements Comparable, Cloneable
                     } else {
                         ruleClass = null;
                     }
-                } catch (Exception ex) {
+                } catch (Throwable ex) {
                     ruleClass = null;
                     Log.error("Failed to get class with name '" + cls_name + "': " + ex.getMessage());
                 }

@@ -8,9 +8,6 @@
 <meta http-equiv="cache-control" content="no-cache">
 <meta http-equiv="pragma" content="no-cache">
 <title>Text File Content</title>
-<style type="text/css">
-.savemsg { font-size:12px; padding-top:2px; }
-</style>
 <%
     //
     // This page is shown in the iframe filesave_frm of the parent window
@@ -27,6 +24,7 @@
 
     String onload_str = doSave ? "onload=\"parent.saveFinished();\"" : "";
 
+    String save_msg = "";
     String error_msg = "";
     Node node = null;
     String storeId = null;
@@ -55,18 +53,37 @@
     } else if (! doSave) {
         error_msg = "Missing content parameter";
     }
-    
+
     if (error_msg.equals("")) {
         try {
             Content cont = (Content) node;
             boolean isFile = cont instanceof FileContent;
+            boolean isPubContent = cont instanceof PubContent;
             if (isFile && (charset_name != null) && !charset_name.equals("")) {
                 String old_charset = cont.getCharset();
                 if ((old_charset == null) || !charset_name.equals(old_charset)) {
                     ((FileContent) cont).setCharset(charset_name);
                 }
             }
-            cont.setContentString(file_content);
+            if (isPubContent) {
+                StringBuilder buf = new StringBuilder(file_content);
+                LogEntries res = storeConn.prepareHTMLForSave(buf, nodeid, null);
+                if (res.getErrorCount() > 0) {
+                    throw new Exception(res.getErrors()[0].getMessage());
+                }
+                file_content = buf.toString();
+                String old_cont = cont.getContentString();
+                if (file_content.equals(old_cont)) {
+                    save_msg = "No changes!";
+                } else {
+                    cont.makeRevision();
+                    cont.setContentString(file_content);
+                    save_msg = "Saving OK!";
+                }
+            } else {
+                cont.setContentString(file_content);
+                save_msg = "Saving OK!";
+            }
         } catch (Exception ex) {
             error_msg = ex.getLocalizedMessage();
         }
@@ -76,9 +93,13 @@
     function getErrorMsg() {
         return '<%= error_msg.replace("'", " ") %>';
     }
+
+    function getSaveMsg() {
+        return '<%= save_msg.replace("'", " ") %>';
+    }
 </script>
 </head>
 <body <%= onload_str %> style="background:#E0E0E0; font-family:Arial,sans-serif; margin:0; padding:0; overflow:hidden;">
-  <div class="savemsg"></div>
+  <div></div>
 </body>
 </html>

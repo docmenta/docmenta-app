@@ -167,6 +167,12 @@ public class RuleConfigComposer extends SelectorComposer<Component> implements E
         }
     }
 
+    @Listen("onClick = #RuleConfigHelpBtn")
+    public void onDialogHelpClick() throws Exception
+    {
+        MainWindow.openHelp("help/rule_config.html");
+    }
+
     @Listen("onClick = #RuleConfigClsHelpBtn")
     public void onHelpClick() throws Exception
     {

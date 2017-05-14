@@ -54,7 +54,11 @@ public class DocmaI18Impl implements DocmaI18, LabelProvider
 
     public String getLabel(String key, Object... args) 
     {
-        return Labels.getLabel(key, key, args);
+        if (args.length == 0) {
+            return Labels.getLabel(key, key);
+        } else {
+            return Labels.getLabel(key, key, args);
+        }
     }
 
     public String getLabel(Locale locale, String key) 
@@ -74,11 +78,19 @@ public class DocmaI18Impl implements DocmaI18, LabelProvider
     public String getLabel(Locale locale, String key, Object[] args) 
     {
         if (locale == null) {
-            return Labels.getLabel(key, key, args);
+            if ((args == null) || (args.length == 0)) {
+                return Labels.getLabel(key, key);
+            } else {
+                return Labels.getLabel(key, key, args);
+            }
         } else {
             Locale old = Locales.setThreadLocal(locale);
             try {
-                return Labels.getLabel(key, key, args);
+                if ((args == null) || (args.length == 0)) {
+                    return Labels.getLabel(key, key);
+                } else {
+                    return Labels.getLabel(key, key, args);
+                }
             } finally {
                 Locales.setThreadLocal(old);
             }

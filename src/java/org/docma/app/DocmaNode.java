@@ -905,6 +905,7 @@ public class DocmaNode
             }
             setContentString(contstr);
         } else if (backendNode instanceof DocContent) {
+            // checkUpdateContentAllowed();
             boolean started = startNodeTransaction();
             try {
                 ((DocContent) backendNode).setContent(cont);
@@ -938,6 +939,7 @@ public class DocmaNode
             }
             setContentString(contstr);
         } else if (backendNode instanceof DocContent) {
+            // checkUpdateContentAllowed();
             boolean started = startNodeTransaction();
             try {
                 ((DocContent) backendNode).setContentStream(cont);
@@ -957,10 +959,16 @@ public class DocmaNode
     public void setContentString(String cont)
     {
         if (backendNode instanceof DocContent) {
+            // checkUpdateContentAllowed();
             boolean started = startNodeTransaction();
             try {
                 boolean is_file = isFileContent();
-                if (! is_file) setContentAnchors(cont);
+                boolean is_html = isHTMLContent();
+                if (is_html) {
+                    // checkValidXML(cont);  // Maybe combine XML check with setContentAnchors().
+                                             // See ContentUtil.getContentAnchors(...)
+                    setContentAnchors(cont);
+                }
                 String charsetName = is_file ? getFileCharset() : null;
                 DocContent backendCont = (DocContent) backendNode;
                 if (charsetName == null) {
@@ -969,7 +977,9 @@ public class DocmaNode
                     backendCont.setContentString(cont, charsetName);
                 }
                 updateLastModifiedAttributes();
-                if (! is_file) updateTranslationState();
+                if (is_html) {
+                    updateTranslationState();
+                }
                 commitNodeTransaction(started);
             } catch (Exception ex) {
                 rollbackNodeTransaction(started);
@@ -981,7 +991,7 @@ public class DocmaNode
                 backendNode.getClass().getName());
         }
     }
-
+    
     /**
      * Called within setContentString, setUnparsedContentStream, setImageContentStream
      * and setTitle. Should be called within a node transaction.
@@ -1523,10 +1533,33 @@ public class DocmaNode
             throw new DocException("Content can only be edited in workflow status 'Work In Progress'!");
         }
     }
-    
+
+    /**
+     * Indicates whether invoking one of the <code>setContent</code> methods is 
+     * allowed. Note that the workflow status is ignored by this method. 
+     * 
+     * @throws DocException  if the store is released or user has not enough 
+     *                       rights to update the content of this node
+     * @see #checkEditContentAllowed() 
+     */    
     public void checkUpdateContentAllowed() throws DocException
     {
-        getDocmaSession().checkUpdateVersionAllowed();
+        DocmaSession sess = getDocmaSession();
+        sess.checkUpdateVersionAllowed();
+    }
+
+    /**
+     * Same as {@link #checkUpdateContentAllowed() } but also consideres the
+     * workflow status.
+     * 
+     * @throws DocException  if the store is released or user has not enough 
+     *                       rights, or the workflow status does not allow to 
+     *                       update the content of this node
+     * @see #checkUpdateContentAllowed() 
+     */
+    public void checkEditContentAllowed() throws DocException
+    {
+        checkUpdateContentAllowed();
         checkUpdateContentAllowedByWorkflow();
     }
 

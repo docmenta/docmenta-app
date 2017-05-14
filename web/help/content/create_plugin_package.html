@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<!-- Put your custom HTML head tags here and select this file in the HTML output configuration. -->
+<!-- Note: The content of this file has to be XML (XHTML). -->
+<meta http-equiv="X-UA-Compatible" content="IE=8" />
+<meta http-equiv="expires" content="43200" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="generator" content="Docmenta 1.9.0"/>
+<title>4.2. Creating a plug-in package</title>
+<link rel="shortcut icon" href="favicon.ico" type="image/x-icon"/>
+<link rel="home" href="index.html" title="Docmenta Tutorial and Reference"/>
+<link rel="up" href="plugin_developer_guide.html" title="4. Plug-in Developer Guide"/>
+<link rel="prev" href="pt04ch01.html" title="4.1. Introduction"/>
+<link rel="prev" href="plugin_api.html" title="4.3. Plug-in API"/>
+<link rel="stylesheet" type="text/css" href="styles.css"/>
+<link rel="stylesheet" type="text/css" href="common/jquery/theme-redmond/jquery-ui-1.8.2.custom.css"/>
+<link rel="stylesheet" type="text/css" href="common/jquery/treeview/jquery.treeview.css"/>
+<link rel="stylesheet" type="text/css" href="common/css/positioning.css"/>
+<script type="text/javascript">
+  var treeCookieId = "treeview-1494620492854";
+  var language = "en";
+  var w = new Object();
+  txt_filesfound = "Results";
+  txt_enter_at_least_1_char = "You must enter at least one character.";
+  txt_browser_not_supported = "Your browser is not supported. Use of Mozilla Firefox is recommended.";
+  txt_please_wait = "Please wait. Search in progress...";
+  txt_results_for = "Results for: ";
+</script>
+<script type="text/javascript" src="common/jquery/jquery-1.4.2.min.js"></script>
+<script type="text/javascript" src="common/jquery/jquery-ui-1.8.2.custom.min.js"></script>
+<script type="text/javascript" src="common/jquery/jquery.cookie.js"></script>
+<script type="text/javascript" src="common/jquery/treeview/jquery.treeview.min.js"></script>
+<script type="text/javascript" src="search/htmlFileList.js"></script>
+<script type="text/javascript" src="search/htmlFileInfoList.js"></script>
+<script type="text/javascript" src="search/nwSearchFnt.js"></script>
+<script type="text/javascript" src="search/stemmers/en_stemmer.js"></script>
+<script type="text/javascript" src="search/index-1.js"></script>
+<script type="text/javascript" src="search/index-2.js"></script>
+<script type="text/javascript" src="search/index-3.js"></script>
+<script type="text/javascript" src="custom.js"></script>
+<script type="text/javascript" src="common/main.js"></script>
+</head>
+<body>
+<div id="header"><img id="webhelplogo1" align="left" src='common/images/logo1.png' alt="Logo"/><img id="webhelplogo2" align="right" src='common/images/logo2.png' alt="Logo"/><div class="webhelptitle"><div class="webhelptitle1">Part 4. Plug-in Developer Guide</div><div class="webhelptitle2">Chapter 4.2. Creating a plug-in package</div></div><div id="navheader" align="right"><table><tr><td><img src="common/images/highlight-blue.gif" alt="H" onclick="toggleHighlight()" id="showHideHighlight" title="Toggle search result highlighting" /></td><td><a id="navhead-prev" accesskey="p" href="pt04ch01.html"><span class="navlink-text">Prev</span></a><span class="navhead-separator">&nbsp;|&nbsp;</span><a id="navhead-up" accesskey="u" href="plugin_developer_guide.html"><span class="navlink-text">Up</span></a><span class="navhead-separator">&nbsp;|&nbsp;</span><a id="navhead-next" accesskey="n" href="plugin_api.html"><span class="navlink-text">Next</span></a></td></tr></table></div></div>
+<div id="leftnavigation"><div id="tabs"><ul id="tocsearchnavigation" style="display:none"><li id="tocnavigationtab"><a href="#treeDiv"><em>Contents</em></a></li><li id="searchnavigationtab"><a href="#searchDiv"><em>Search</em></a></li></ul><div id="treeDiv"><img src="common/images/loading.gif" alt="loading table of contents..." id="tocLoading" style="display:block;"/><div id="ulTreeDiv" style="display:none;"><div id="treenavigationtitle" style="display:none;">Contents</div><ul id="tree" class="filetree"><li><span class="file"><a href="pt04ch01.html">Introduction</a></span></li><li id="webhelp-currentid"><span class="file"><a href="create_plugin_package.html">Creating a plug-in package</a></span></li><li><span class="file"><a href="plugin_api.html">Plug-in API</a></span><ul><li><span class="file"><a href="plugin_lifecycle_methods.html">Lifecycle methods</a></span></li><li><span class="file"><a href="plugin_add_menu.html">Adding menu items</a></span></li><li><span class="file"><a href="plugin_add_dialog.html">Adding a dialog</a></span><ul><li><span class="file"><a href="plugin_plain_js_dialogs.html">Plain JavaScript Dialogs</a></span></li><li><span class="file"><a href="plugin_zk_dialogs.html">ZK Dialogs</a></span></li></ul></li><li><span class="file"><a href="plugin_add_tab.html">Adding a tab</a></span></li><li><span class="file"><a href="plugin_jsp_integration.html">JSP integration</a></span></li><li><span class="file"><a href="pt04ch03s06.html">Accessing content</a></span></li></ul></li><li><span class="file"><a href="content_handler_plugins.html">Editor and viewer plug-ins</a></span><ul><li><span class="file"><a href="pt04ch04s01.html">Content Handlers</a></span></li><li><span class="file"><a href="plug_viewer.html">Viewer Plug-ins</a></span><ul><li><span class="file"><a href="pt04ch04s02s01.html">initialize</a></span></li><li><span class="file"><a href="pt04ch04s02s02.html">getApplicationId</a></span></li><li><span class="file"><a href="pt04ch04s02s03.html">getApplicationName</a></span></li><li><span class="file"><a href="pt04ch04s02s04.html">getSupportedViewExtensions</a></span></li><li><span class="file"><a href="pt04ch04s02s05.html">getSupportedEditExtensions</a></span></li><li><span class="file"><a href="pt04ch04s02s06.html">getPreviewURL</a></span></li><li><span class="file"><a href="pt04ch04s02s07.html">openViewer</a></span></li><li><span class="file"><a href="pt04ch04s02s08.html">openEditor</a></span></li><li><span class="file"><a href="pt04ch04s02s09.html">setCharEntities</a></span></li><li><span class="file"><a href="plug_view_handler_complete.html">The complete viewer class</a></span></li><li><span class="file"><a href="pt04ch04s02s11.html">The view.jsp page</a></span></li><li><span class="file"><a href="plug_viewer_package.html">Creating the viewer plug-in</a></span></li><li><span class="file"><a href="plug_viewer_install.html">Installing the viewer plug-in</a></span></li></ul></li><li><span class="file"><a href="pt04ch04s03.html">Editor Plug-ins</a></span><ul><li><span class="file"><a href="pt04ch04s03s01.html">getSupportedEditExtensions</a></span></li><li><span class="file"><a href="pt04ch04s03s02.html">openEditor</a></span></li><li><span class="file"><a href="plug_edit_handler_complete.html">The complete editor class</a></span></li><li><span class="file"><a href="pt04ch04s03s04.html">The edit.jsp page</a></span></li><li><span class="file"><a href="pt04ch04s03s05.html">Creating the editor plug-in</a></span></li></ul></li></ul></li><li><span class="file"><a href="rule_plugins.html">Rule plug-ins</a></span><ul><li><span class="file"><a href="html_rule_getShortInfo.html">getShortInfo</a></span></li><li><span class="file"><a href="pt04ch05s02.html">getLongInfo</a></span></li><li><span class="file"><a href="pt04ch05s03.html">getCheckIds</a></span></li><li><span class="file"><a href="pt04ch05s04.html">getCheckTitle</a></span></li><li><span class="file"><a href="pt04ch05s05.html">supportsAutoCorrection</a></span></li><li><span class="file"><a href="pt04ch05s06.html">getDefaultLogLevel</a></span></li><li><span class="file"><a href="pt04ch05s07.html">configure</a></span></li><li><span class="file"><a href="pt04ch05s08.html">startBatch</a></span></li><li><span class="file"><a href="pt04ch05s09.html">finishBatch</a></span></li><li><span class="file"><a href="html_rule_apply.html">apply</a></span></li><li><span class="file"><a href="my_html_rule_complete.html">The complete example</a></span></li><li><span class="file"><a href="pt04ch05s12.html">Creating the Rule Plug-in</a></span></li></ul></li><li><span class="file"><a href="autoformat_plugins.html">AutoFormat plug-ins</a></span><ul><li><span class="file"><a href="pt04ch06s01.html">AutoFormat Transformations</a></span></li><li><span class="file"><a href="pt04ch06s02.html">AutoFormat Example</a></span></li><li><span class="file"><a href="pt04ch06s03.html">Creating an AutoFormat Plug-in</a></span></li></ul></li><li><span class="file"><a href="output_plugins.html">Output plug-ins</a></span></li><li><span class="file"><a href="customize_pdf_stylesheet.html">PDF stylesheet customization</a></span><ul><li><span class="file"><a href="customize_docbook_transformation.html">Customizing the transformation to DocBook</a></span></li><li><span class="file"><a href="pt04ch08s02.html">Customizing the DocBook stylesheets</a></span></li><li><span class="file"><a href="pt04ch08s03.html">Creating the stylesheet plug-in</a></span></li></ul></li></ul></div></div><div id="searchDiv"><div id="search"><form onsubmit="startWebHelpSearch(ditaSearch_Form);return false" name="ditaSearch_Form" class="searchForm"><fieldset class="searchFieldSet"><legend>Search</legend><div align="center"><input id="textToSearch" name="textToSearch" type="text" class="searchText"/>&nbsp;<input onclick="startWebHelpSearch(ditaSearch_Form)" type="button" class="searchButton" value="Go" id="doSearch"/></div></fieldset></form></div><div id="closeSearchResults" style="display:none"><a href="javascript:closeSearchShowToc();">Contents</a></div><div id="searchResults"><div align="center"></div></div></div></div></div>
+<div id="bookpartsnavigation"><ul><li><a href="tutorial.html">Tutorial</a></li><li><a href="reference_manual.html">User Manual</a></li><li><a href="xhtml_reference.html">XHTML Reference</a></li><li class="book-currentpart"><a href="plugin_developer_guide.html">Plug-in Developer Guide</a></li></ul></div>
+<div id="breadcrumbsnavigation" class="breadcrumbs"><span class="breadcrumb-link"><a class="breadcrumb_node" href="plugin_developer_guide.html">Plug-in Developer Guide</a></span> <span class="breadcrumb_separator">&rarr;</span> <span class="breadcrumb_node breadcrumb_lastnode">Creating a plug-in package</span></div>
+<div id="content"><div id="create_plugin_package" class="chapter"><h2>Chapter 4.2. Creating a plug-in package</h2><div title="Creating a plug-in" class="doc-content"><div class="normal-para">The simplest kind of Docmenta plug-in just adds some library- or HTML/JSP-files to the web application directory. A plug-in package is a zip-file that contains a specifc sub-directory structure and two property-files. The property files define the meta-data of the plug-in.</div>
+<div class="normal-para">As a first example, we create a plug-in that adds following files to the Docmenta web-application directory:</div>
+<ul>
+<li><span class="code">my_help.html</span></li>
+<li><span class="code">my_page.jsp</span></li>
+<li><span class="code">my_lib.jar</span></li>
+</ul>
+<div class="normal-para">The html and jsp files shall be placed in the sub-folder <span class="code">plugins/my_plugin</span>. The jar file shall be placed in the sub-folder <span class="code">WEB-INF/lib</span>.</div>
+<div class="normal-para">We start by creating a new directory, e.g. named "<span class="code">plugin-files</span>". In this directory we place the content of our plug-in package. First we create two text files within this directory, one with name "<span class="code">plugin.properties</span>" and one with name "<span class="code">locale.properties</span>". These two files are required for every Docmenta plug-in package. The file "<span class="code">plugin.properties</span>" contains the plugin-metadata. The file "<span class="code">locale.properties</span>" contains language dependent data. Both files have to obey the rules of the Java properties file format.</div>
+<div class="normal-para">In our example, the content of the <span class="code">plugin.properties</span> file could be as follows:</div>
+<div title="plugin.properties" class="formal-block"><div class="formal-contents"><div title="plugin.properties" class="_formal_code_listing"><p class="listing_properties">id = my_plugin<br    />version = 1.0<br    />required_app_version = 1.9<br    />show_license = false<br    />load_type = immediate<br    /></p></div></div><p class="title">Listing 4.2.1. plugin.properties</p></div>
+<div class="normal-para">Following table describes the properties that can be specified in the <span class="code">plugin.properties</span> file:</div>
+<table border="2" cellpadding="4" cellspacing="0" style="border-color: #000000; border-width: 2px; width: 100%; border-style: solid;" rules="rows" class="keep_together_auto"><caption>Table 4.2.1. Plug-in properties</caption>
+<tbody>
+<tr><th style="width: 33%;">Property</th><th>Description</th></tr>
+<tr>
+<td><span class="code">id</span></td>
+<td>An identifier that uniquely identifies the plug-in.</td>
+</tr>
+<tr>
+<td><span class="code">version</span></td>
+<td>The version number of the plug-in, e.g. "2.0".</td>
+</tr>
+<tr>
+<td><span class="code">required_app_version</span></td>
+<td>The minimum Docmenta version that is required.</td>
+</tr>
+<tr>
+<td><span class="code">show_license</span></td>
+<td>Whether to show a license agreement on installation of the plug-in or not. If this is set to "<span class="code">true</span>", then a sub-folder named "<span class="code">license</span>" has to exist in the plugin-package. The folder has to contain the agreement as an XHTML file named <span class="code">license.xhtml</span>. Localized versions of the license agreement can be provided by using the filename <span class="code">license_<em>xx</em>.xhtml</span>, where <em><span class="code">xx</span></em> denotes a two-letter language code.</td>
+</tr>
+<tr>
+<td><span class="code">load_type</span></td>
+<td>This property defines whether the plug-in shall be loaded immediately (after the plug-in has been installed), or the loading shall be deferred to the next server startup. Possible values are "<span class="code">immediate</span>" and "<span class="code">next_startup</span>". If the plug-in depends on jar files that are part of the plug-in package, then the load-type has to be set to "<span class="code">next_startup</span>", because libraries that are added to the <span class="code">WEB-INF/lib</span> folder during installation are not loaded until next server startup.</td>
+</tr>
+<tr>
+<td><span class="code">plugin_class</span></td>
+<td>The fully qualified Java classname of a custom plug-in class. See <a href="plugin_lifecycle_methods.html" title="4.3.1. Lifecycle methods">Section 4.3.1, “Lifecycle methods”</a> for an example.</td>
+</tr>
+<tr>
+<td><span class="code">config_dialog</span></td>
+<td>Whether to show a configuration button, after the plug-in has been loaded. Possible values: <span class="code">true</span>/<span class="code">false</span>. Default is <span class="code">false</span>. See <a href="plugin_zk_dialogs.html" title="4.3.3.2. ZK Dialogs">Section 4.3.3.2, “ZK Dialogs”</a> for an example.</td>
+</tr>
+<tr>
+<td><span class="code">keep_files</span></td>
+<td>A list of files to keep in the plug-in directory, in case a newer version of the plug-in is installed. That means, these files are <em>not</em> overwritten by a newer version of the plug-in. For example, if a newer version of a plug-in is installed, this property allows to keep the configuration files of the old version. The property value has to be a space- or comma-separated list of relative file paths. The file paths are relative to the plug-in directory. See <a href="plugin_zk_dialogs.html" title="4.3.3.2. ZK Dialogs">Section 4.3.3.2, “ZK Dialogs”</a> for an example.</td>
+</tr>
+<tr>
+<td><span class="code">remove_webfiles</span></td>
+<td>Whether to remove the plug-in files from the web-application directory, if the plug-in is disabled. Possible values: <span class="code">true</span>/<span class="code">false</span>. Default is <span class="code">true</span>.</td>
+</tr>
+</tbody>
+</table>
+<div class="normal-para">Following an example of the <span class="code">locale.properties</span> file:</div>
+<div title="locale.properties" class="formal-block"><div class="formal-contents"><div title="locale.properties" class="_formal_code_listing"><p class="listing_properties">my_plugin.description = My example plug-in.<br    />my_plugin.help_url = plugins/my_plugin/my_help.html<br    /></p></div></div><p class="title">Listing 4.2.2. locale.properties</p></div>
+<div class="normal-para">At least the property with name <span class="code"><em>plugin_id</em>.description</span> has to be provided, where <em><span class="code">plugin_id</span></em> is the id of the plug-in as defined in the <span class="code">plugin.properties</span> file (here: "<span class="code">my_plugin</span>"). This property defines a descriptive name of the plug-in. This name is displayed in the user-interface. Optionally, a property named <span class="code"><em>plugin_id</em>.help_url</span> can be used to provide a link to online-help for the plug-in.</div>
+<div class="normal-para">The content of the <span class="code">locale.properties</span> file can be localized by creating files with name <span class="code">locale_<em>xx</em>.properties</span>, where <em><span class="code">xx</span></em> is a two-letter language code. For example, if the user has set its GUI language to Spanish (language code "es"), then the values from the file <span class="code">locale_es.properties</span> are used. If such a file does not exist, then the default values from <span class="code">locale.properties</span> are used. Note, that currently only English is supported as GUI language.</div>
+<div class="normal-para">Now that we have created the metadata files, we can place the actual plug-in files into the package directory. First we create a sub-folder named "<span class="code">web</span>". On installation of a plug-in, all content in the "<span class="code">web</span>" folder is copied into the Docmenta web-application directory. Therefore, to get the directory structure as mentioned above, we create a sub-folder named "<span class="code">plugins</span>" inside of the "<span class="code">web</span>" folder. In the created "<span class="code">plugins</span>" folder we create a sub-folder named "<span class="code">my_plugin</span>". Next we copy the jsp and html files into this folder.</div>
+<div class="normal-para">Finally, we create a sub-folder named "<span class="code">lib</span>" on the same level as the "<span class="code">web</span>" folder. Next we copy the <span class="code">my_lib.jar</span> file into this folder. As you may already guess, on installation of a plug-in, all content in the "<span class="code">lib</span>" folder is copied into the "<span class="code">WEB-INF/lib</span>" folder of the Docmenta web-application.</div>
+<div class="normal-para">To summarize, the content of our plug-in package is as follows:</div>
+<div class="normal-para"><div title="Example plug-in structure" class="figure"><div class="mediaobject"><img src="images/plugin_example_folder_structure.gif" alt="" title="Example plug-in structure"     /></div><p class="title">Figure 4.2.1. Example plug-in structure</p></div></div>
+<div class="normal-para">Instead of creating a "<span class="code">lib</span>" folder on the same level as the "<span class="code">web</span>" folder, you could also create a sub-folder named "<span class="code">WEB-INF</span>" inside of the "<span class="code">web</span>" folder and place the "<span class="code">lib</span>" folder therein.</div>
+<div class="normal-para">The last step is to package the content of our "<span class="code">plugin-files</span>" directory using a zip-tool. By convention, the name of the zip-file should at least include the id of the plug-in as well as the version number, e.g. "<span class="code">my_plugin_1_0.zip</span>". The zip-file can then be installed as described in <a href="manage_plugins.html" title="2.7.5. Installing Plug-ins">Section 2.7.5, “Installing Plug-ins”</a>.</div>
+<div class="normal-para">Note that on installation of a plug-in, a copy of the plug-in package is stored in the document-store directory. When a new version of Docmenta is installed, then on restart of the web-server, all plug-ins that were installed in the old version of Docmenta will be restored from the document-store directory. However, this may require a further restart of the web-server, to load libraries that have been installed as part of the restored plug-ins.</div>
+</div></div><div class="navfooter"><hr/><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="pt04ch01.html"><span class="navlink-text">Prev</span></a>&#160;</td><td width="20%" align="center"><a accesskey="u" href="plugin_developer_guide.html"><span class="navlink-text">Up</span></a></td><td width="40%" align="right">&#160;<a accesskey="n" href="plugin_api.html"><span class="navlink-text">Next</span></a></td></tr><tr><td width="40%" align="left" valign="top">4.1. Introduction&#160;</td><td width="20%" align="center"><a accesskey="h" href="index.html"><span class="navlink-text">Home</span></a></td><td width="40%" align="right" valign="top">&#160;4.3. Plug-in API</td></tr></table></div>
+<div class="web_footer">
+<p class="align-center">&#169; 2017 - www.docmenta.org</p>
+</div>
+</div>
+<a id="showHideButton" onclick="showHideToc();" class="pointLeft" title="Hide TOC tree">&nbsp;</a></body>
+</html>

@@ -38,20 +38,24 @@
 <style type="text/css">
   body, pre { font-family:Arial,sans-serif; }
   .log_msg { margin-top:10pt; }
-  .log_header0 { font-size:1.4em; font-weight:bold; }
-  .log_header1 { font-size:1.3em; font-weight:bold; font-style:italic; }
-  .log_header2 { font-size:1.2em; font-weight:bold; }
-  .log_header3 { font-size:1.1em; font-weight:bold; font-style:italic; }
-  .msg_head_error   { font-weight:bold; color:red; margin-left:15pt; }
-  .msg_head_warning { font-weight:bold; color:blue; margin-left:15pt; }
-  .msg_head_info    { font-weight:bold; color:black; margin-left:15pt; }
-  .msg_content { margin-top:0px; margin-left:15pt; padding:3pt; }
+  .log_header0 { font-size:1.6em; font-weight:bold; font-style:normal; margin:12pt 0 8pt 0; }
+  .log_header1 { font-size:1.5em; font-weight:bold; font-style:italic; margin:8pt 0 6pt 8pt; }
+  .log_header2 { font-size:1.4em; font-weight:bold; font-style:normal; margin:6pt 0 6pt 16pt; }
+  .log_header3 { font-size:1.3em; font-weight:bold; font-style:italic; margin:6pt 0 6pt 16pt; }
+  .log_header4 { font-size:1.2em; font-weight:bold; font-style:normal; margin:6pt 0 4pt 16pt; }
+  .log_header5 { font-size:1.1em; font-weight:bold; font-style:italic; margin:6pt 0 4pt 16pt; }
+  .log_header6 { font-size:1.0em; font-weight:bold; font-style:normal; margin:6pt 0 4pt 16pt; }
+  .msg_head_error   { font-weight:bold; color:red; margin-left:16pt; }
+  .msg_head_warning { font-weight:bold; color:blue; margin-left:16pt; }
+  .msg_head_info    { font-weight:bold; color:black; margin-left:16pt; }
+  .msg_content { margin-top:0px; margin-left:16pt; padding:3pt; }
+  .msg_pre { margin-top:0px; margin-left:16pt; padding:3pt; font-family:monospace; }
   .msg_head_error + .msg_content { color:red; }
   .msg_head_warning + .msg_content { color:blue; }
 </style>
 </head>
 <body>
-  <h2><%= act_title %></h2>
+  <h1><%= act_title %></h1>
 <%
     if (act == null) {
         out.println("<p><b>" + err_msg + "</b></p>");

@@ -150,8 +150,8 @@ public class ActivityWinComposer extends SelectorComposer<Component>
         String win_name = "activity_log" + activity.getActivityId();
         String client_action = 
             "window.open('" + url + "', '" + win_name +
-            "', 'width=400,height=400,left=50,top=50" +
-            ",resizable=yes,location=no,menubar=yes,scrollbars=yes');";
+            "', 'width=600,height=500,left=50,top=50" +
+            ",resizable=yes,menubar=yes,toolbar=yes,location=no,scrollbars=yes');"; 
         Clients.evalJavaScript(client_action);
     }
     

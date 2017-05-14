@@ -57,17 +57,24 @@ public class DocmaWebTreeModel extends AbstractTreeModel implements DocListener,
 
     public boolean isLeaf(Object item) {
         if (item instanceof DocmaNode) {
-            DocmaNode node = (DocmaNode) item;
-            if (node.isChildable()) {
-                return (node.getChildCount() == 0);
-            } else {
-                if (node.isHTMLContent() && node.hasContentAnchor()) {
-                    return false;  // html content is not a leaf if it has anchors
+            try {
+                DocmaNode node = (DocmaNode) item;
+                if (node.isChildable()) {
+                    return (node.getChildCount() == 0);
                 } else {
-                    return true;  // html without anchors or any other content is a leaf
+                    if (node.isHTMLContent() && node.hasContentAnchor()) {
+                        return false;  // html content is not a leaf if it has anchors
+                    } else {
+                        return true;  // html without anchors or any other content is a leaf
+                    }
                 }
+                // return !itemModel.isChildable();
+            } catch (Exception ex) {
+                // If content cannot be parsed or some other error occurs, 
+                // then show node as leaf node.
+                if (DocmaConstants.DEBUG) ex.printStackTrace();
+                return true;
             }
-            // return !itemModel.isChildable();
         } else {
             // if (item instanceof DocmaAnchor)
             return true;  // an anchor is always a leaf

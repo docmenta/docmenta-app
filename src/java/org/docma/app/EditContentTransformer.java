@@ -15,6 +15,7 @@
 package org.docma.app;
 
 import java.util.*;
+import org.docma.coreapi.DocI18n;
 
 import org.docma.coreapi.ProgressCallback;
 import org.docma.plugin.DocmaException;
@@ -103,6 +104,7 @@ public class EditContentTransformer
         try {
             ruleObjs = acquireRuleInstances(ruleConfs);
             callStartBatch(ctx, ruleConfs, ruleObjs);
+            transferLogEntries(ctx, progress, logStats);
 
             StringBuilder contentBuffer = new StringBuilder(); // temporary working buffer  
             int skipped = 0;  // number of skipped nodes
@@ -122,6 +124,7 @@ public class EditContentTransformer
             }
             
             callFinishBatch(ctx, ruleConfs, ruleObjs);
+            transferLogEntries(ctx, progress, logStats);
         } catch (CanceledByUserException cbu) { // Canceled by user; do nothing
         } catch (Exception ex) {  // Runtime exceptions
             progress.logError("consistency_check.exception", ex.getMessage());
@@ -130,14 +133,15 @@ public class EditContentTransformer
         }
         
         // Write Statistics per generator
-        String stats = getSummaryPerGenerator(logStats, docmaSess);
-        if (stats.length() > 0) {
-            progress.logInfo(stats);
-        }
+        progress.logHeader(1, "log_statistics.summary_header");
+        writeSummaryPerGenerator(logStats, LogLevel.WARNING, docmaSess, progress);
+        writeSummaryPerGenerator(logStats, LogLevel.ERROR, docmaSess, progress);
         
         Integer err_cnt = progress.getErrorCount();
         Integer warn_cnt = progress.getWarningCount();
-        progress.logHeader(1, "consistency_check.finished_summary", err_cnt, warn_cnt);
+        String finished = docmaSess.getI18n().getLabel("consistency_check.finished_summary", err_cnt, warn_cnt);
+        progress.logText(finished, null);
+        // progress.logHeader(2, "consistency_check.finished_summary", err_cnt, warn_cnt);
     }
 
     /* -------------  Private Methods ------------------ */
@@ -159,9 +163,11 @@ public class EditContentTransformer
     {
         progress.startWork(nodes.length);
         try {
+            DocI18n i18n = docmaSess.getI18n();
             for (DocmaNode nd : nodes) {
                 if (progress.getCancelFlag()) {
-                    progress.logHeader(1, "consistency_check.canceled_by_user");
+                    String cancelMsg = i18n.getLabel("consistency_check.canceled_by_user");
+                    progress.logText(cancelMsg, null);
                     throw new CanceledByUserException("Consistency check canceled by user.");
                 }
                 try {
@@ -182,7 +188,8 @@ public class EditContentTransformer
                                                      ctx, ruleConfs, ruleObjs);
                         }
                     } else if (nd.isHTMLContent()) {
-                        progress.logHeader(1, "consistency_check.entering_html_node", nodePath);
+                        String pathMsg = i18n.getLabel("consistency_check.entering_html_node", nodePath);
+                        progress.logText(pathMsg, null);
                         String cont = nd.getContentString();
                         contentBuffer.setLength(0);   // clear buffer
                         contentBuffer.append(cont);
@@ -245,45 +252,78 @@ public class EditContentTransformer
         }
     }
 
-    private static String getSummaryPerGenerator(SortedMap<String, LogCounts> logStats, 
-                                                 DocmaSession docmaSess)
+    private static void writeSummaryPerGenerator(SortedMap<String, LogCounts> logStats, 
+                                                 LogLevel level,
+                                                 DocmaSession docmaSess, 
+                                                 ProgressCallback progress)
     {
-        StringBuilder statsWarnings = new StringBuilder();
-        StringBuilder statsErrors = new StringBuilder();
-        LogCounts otherCnts = null;
-        for (LogCounts cnts : logStats.values()) {
-            String gen = cnts.getGenerator();
-            if (gen.equals("")) {
-                otherCnts = cnts;
-            } else {
-                statsWarnings.append(gen).append(": ").append(cnts.getWarningCount()).append("\n");
-                statsErrors.append(gen).append(": ").append(cnts.getErrorCount()).append("\n");
-            }
+        final String dots  = "........................................";
+        final String space = "                                        ";
+        
+        DocI18n i18n = docmaSess.getI18n();
+        // String countLabel = i18n.getLabel("log_statistics.count");
+        String totalLabel = i18n.getLabel("log_statistics.total");
+        
+        String headkey;
+        switch (level) {
+            case ERROR:   headkey = "log_statistics.errors_per_generator.header"; break;
+            case WARNING: headkey = "log_statistics.warnings_per_generator.header"; break;
+            case INFO:    headkey = "log_statistics.infos_per_generator.header"; break;
+            default:      headkey = null;
         }
-        if (otherCnts != null) {
-            String gen_warn = docmaSess.getI18n().getLabel("log_statistics.other_warnings");
-            String gen_err = docmaSess.getI18n().getLabel("log_statistics.other_errors");
-            statsWarnings.append(gen_warn).append(": ").append(otherCnts.getWarningCount()).append("\n");
-            statsErrors.append(gen_err).append(": ").append(otherCnts.getErrorCount()).append("\n");
+        if (headkey == null) {
+            return;
         }
         
         StringBuilder stats = new StringBuilder();
-        if (statsWarnings.length() > 0) {
-            String head_warn = docmaSess.getI18n().getLabel("log_statistics.warnings_per_generator.header");
-            char[] line = new char[head_warn.length()];
-            Arrays.fill(line, '=');
-            stats.append(head_warn).append("\n").append(line).append("\n").append(statsWarnings);
-        }
-        if (statsErrors.length() > 0) {
-            if (stats.length() > 0) {
-                stats.append("\n");
+        StringBuilder other = new StringBuilder();
+        int totalCnt = 0;
+        for (LogCounts cnts : logStats.values()) {
+            String gen = cnts.getGenerator();
+            int cnt;
+            switch (level) {
+                case ERROR:   cnt = cnts.getErrorCount(); break;
+                case WARNING: cnt = cnts.getWarningCount(); break;
+                case INFO:    cnt = cnts.getInfoCount(); break;
+                default:      cnt = 0;
             }
-            String head_err = docmaSess.getI18n().getLabel("log_statistics.errors_per_generator.header");
-            char[] line = new char[head_err.length()];
-            Arrays.fill(line, '=');
-            stats.append(head_err).append("\n").append(line).append("\n").append(statsErrors);
+            if (cnt > 0) {
+                totalCnt += cnt;
+                String cntStr = " " + cnt;
+                boolean is_other = gen.equals("");
+                String gen_str;
+                if (is_other) {
+                    String key;
+                    switch (level) {
+                        case ERROR:   key = "log_statistics.other_errors"; break;
+                        case WARNING: key = "log_statistics.other_warnings"; break;
+                        default:      key = "log_statistics.other";
+                    }
+                    gen_str = i18n.getLabel(key) + " ";
+                } else {
+                    gen_str = gen + " ";
+                }
+                int len = gen_str.length() + cntStr.length();
+                StringBuilder sb = is_other ? other : stats;
+                sb.append(gen_str);
+                if (len < dots.length() - 3) {
+                    sb.append(dots.substring(len));
+                } else {
+                    sb.append("...");
+                }
+                sb.append(cntStr).append("\n");
+            }
         }
-        return stats.toString();
+        stats.append(other);
+        
+        String total = totalLabel + ": " + totalCnt;
+        stats.append(space.substring(total.length())).append(total).append("\n");
+        
+        if (stats.length() > 0) {
+            String headline = i18n.getLabel(headkey);
+            // progress.logHeader(2, headkey);
+            progress.logText(headline, stats.toString());
+        }
     }
     
     private static String getNodePath(String parentPath, DocmaNode node)
@@ -301,7 +341,7 @@ public class EditContentTransformer
                 prefix = parentPath + " / ";
             } else {
                 int pos = parent.getChildPos(node);
-                prefix = parentPath + " /[" + pos + "] "; 
+                prefix = parentPath + " / [" + pos + "] "; 
             }
         } else {
             prefix = "";

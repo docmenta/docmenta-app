@@ -1,0 +1,341 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<!-- Put your custom HTML head tags here and select this file in the HTML output configuration. -->
+<!-- Note: The content of this file has to be XML (XHTML). -->
+<meta http-equiv="X-UA-Compatible" content="IE=8" />
+<meta http-equiv="expires" content="43200" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="generator" content="Docmenta 1.9.0"/>
+<title>4.6.2. AutoFormat Example</title>
+<link rel="shortcut icon" href="favicon.ico" type="image/x-icon"/>
+<link rel="home" href="index.html" title="Docmenta Tutorial and Reference"/>
+<link rel="up" href="autoformat_plugins.html" title="4.6. AutoFormat plug-ins"/>
+<link rel="prev" href="pt04ch06s01.html" title="4.6.1. AutoFormat Transformations"/>
+<link rel="prev" href="pt04ch06s03.html" title="4.6.3. Creating an AutoFormat Plug-in"/>
+<link rel="stylesheet" type="text/css" href="styles.css"/>
+<link rel="stylesheet" type="text/css" href="common/jquery/theme-redmond/jquery-ui-1.8.2.custom.css"/>
+<link rel="stylesheet" type="text/css" href="common/jquery/treeview/jquery.treeview.css"/>
+<link rel="stylesheet" type="text/css" href="common/css/positioning.css"/>
+<script type="text/javascript">
+  var treeCookieId = "treeview-1494620492903";
+  var language = "en";
+  var w = new Object();
+  txt_filesfound = "Results";
+  txt_enter_at_least_1_char = "You must enter at least one character.";
+  txt_browser_not_supported = "Your browser is not supported. Use of Mozilla Firefox is recommended.";
+  txt_please_wait = "Please wait. Search in progress...";
+  txt_results_for = "Results for: ";
+</script>
+<script type="text/javascript" src="common/jquery/jquery-1.4.2.min.js"></script>
+<script type="text/javascript" src="common/jquery/jquery-ui-1.8.2.custom.min.js"></script>
+<script type="text/javascript" src="common/jquery/jquery.cookie.js"></script>
+<script type="text/javascript" src="common/jquery/treeview/jquery.treeview.min.js"></script>
+<script type="text/javascript" src="search/htmlFileList.js"></script>
+<script type="text/javascript" src="search/htmlFileInfoList.js"></script>
+<script type="text/javascript" src="search/nwSearchFnt.js"></script>
+<script type="text/javascript" src="search/stemmers/en_stemmer.js"></script>
+<script type="text/javascript" src="search/index-1.js"></script>
+<script type="text/javascript" src="search/index-2.js"></script>
+<script type="text/javascript" src="search/index-3.js"></script>
+<script type="text/javascript" src="custom.js"></script>
+<script type="text/javascript" src="common/main.js"></script>
+</head>
+<body>
+<div id="header"><img id="webhelplogo1" align="left" src='common/images/logo1.png' alt="Logo"/><img id="webhelplogo2" align="right" src='common/images/logo2.png' alt="Logo"/><div class="webhelptitle"><div class="webhelptitle1">Chapter 4.6. AutoFormat plug-ins</div><div class="webhelptitle2">4.6.2. AutoFormat Example</div></div><div id="navheader" align="right"><table><tr><td><img src="common/images/highlight-blue.gif" alt="H" onclick="toggleHighlight()" id="showHideHighlight" title="Toggle search result highlighting" /></td><td><a id="navhead-prev" accesskey="p" href="pt04ch06s01.html"><span class="navlink-text">Prev</span></a><span class="navhead-separator">&nbsp;|&nbsp;</span><a id="navhead-up" accesskey="u" href="autoformat_plugins.html"><span class="navlink-text">Up</span></a><span class="navhead-separator">&nbsp;|&nbsp;</span><a id="navhead-next" accesskey="n" href="pt04ch06s03.html"><span class="navlink-text">Next</span></a></td></tr></table></div></div>
+<div id="leftnavigation"><div id="tabs"><ul id="tocsearchnavigation" style="display:none"><li id="tocnavigationtab"><a href="#treeDiv"><em>Contents</em></a></li><li id="searchnavigationtab"><a href="#searchDiv"><em>Search</em></a></li></ul><div id="treeDiv"><img src="common/images/loading.gif" alt="loading table of contents..." id="tocLoading" style="display:block;"/><div id="ulTreeDiv" style="display:none;"><div id="treenavigationtitle" style="display:none;">Contents</div><ul id="tree" class="filetree"><li><span class="file"><a href="pt04ch01.html">Introduction</a></span></li><li><span class="file"><a href="create_plugin_package.html">Creating a plug-in package</a></span></li><li><span class="file"><a href="plugin_api.html">Plug-in API</a></span><ul><li><span class="file"><a href="plugin_lifecycle_methods.html">Lifecycle methods</a></span></li><li><span class="file"><a href="plugin_add_menu.html">Adding menu items</a></span></li><li><span class="file"><a href="plugin_add_dialog.html">Adding a dialog</a></span><ul><li><span class="file"><a href="plugin_plain_js_dialogs.html">Plain JavaScript Dialogs</a></span></li><li><span class="file"><a href="plugin_zk_dialogs.html">ZK Dialogs</a></span></li></ul></li><li><span class="file"><a href="plugin_add_tab.html">Adding a tab</a></span></li><li><span class="file"><a href="plugin_jsp_integration.html">JSP integration</a></span></li><li><span class="file"><a href="pt04ch03s06.html">Accessing content</a></span></li></ul></li><li><span class="file"><a href="content_handler_plugins.html">Editor and viewer plug-ins</a></span><ul><li><span class="file"><a href="pt04ch04s01.html">Content Handlers</a></span></li><li><span class="file"><a href="plug_viewer.html">Viewer Plug-ins</a></span><ul><li><span class="file"><a href="pt04ch04s02s01.html">initialize</a></span></li><li><span class="file"><a href="pt04ch04s02s02.html">getApplicationId</a></span></li><li><span class="file"><a href="pt04ch04s02s03.html">getApplicationName</a></span></li><li><span class="file"><a href="pt04ch04s02s04.html">getSupportedViewExtensions</a></span></li><li><span class="file"><a href="pt04ch04s02s05.html">getSupportedEditExtensions</a></span></li><li><span class="file"><a href="pt04ch04s02s06.html">getPreviewURL</a></span></li><li><span class="file"><a href="pt04ch04s02s07.html">openViewer</a></span></li><li><span class="file"><a href="pt04ch04s02s08.html">openEditor</a></span></li><li><span class="file"><a href="pt04ch04s02s09.html">setCharEntities</a></span></li><li><span class="file"><a href="plug_view_handler_complete.html">The complete viewer class</a></span></li><li><span class="file"><a href="pt04ch04s02s11.html">The view.jsp page</a></span></li><li><span class="file"><a href="plug_viewer_package.html">Creating the viewer plug-in</a></span></li><li><span class="file"><a href="plug_viewer_install.html">Installing the viewer plug-in</a></span></li></ul></li><li><span class="file"><a href="pt04ch04s03.html">Editor Plug-ins</a></span><ul><li><span class="file"><a href="pt04ch04s03s01.html">getSupportedEditExtensions</a></span></li><li><span class="file"><a href="pt04ch04s03s02.html">openEditor</a></span></li><li><span class="file"><a href="plug_edit_handler_complete.html">The complete editor class</a></span></li><li><span class="file"><a href="pt04ch04s03s04.html">The edit.jsp page</a></span></li><li><span class="file"><a href="pt04ch04s03s05.html">Creating the editor plug-in</a></span></li></ul></li></ul></li><li><span class="file"><a href="rule_plugins.html">Rule plug-ins</a></span><ul><li><span class="file"><a href="html_rule_getShortInfo.html">getShortInfo</a></span></li><li><span class="file"><a href="pt04ch05s02.html">getLongInfo</a></span></li><li><span class="file"><a href="pt04ch05s03.html">getCheckIds</a></span></li><li><span class="file"><a href="pt04ch05s04.html">getCheckTitle</a></span></li><li><span class="file"><a href="pt04ch05s05.html">supportsAutoCorrection</a></span></li><li><span class="file"><a href="pt04ch05s06.html">getDefaultLogLevel</a></span></li><li><span class="file"><a href="pt04ch05s07.html">configure</a></span></li><li><span class="file"><a href="pt04ch05s08.html">startBatch</a></span></li><li><span class="file"><a href="pt04ch05s09.html">finishBatch</a></span></li><li><span class="file"><a href="html_rule_apply.html">apply</a></span></li><li><span class="file"><a href="my_html_rule_complete.html">The complete example</a></span></li><li><span class="file"><a href="pt04ch05s12.html">Creating the Rule Plug-in</a></span></li></ul></li><li><span class="file"><a href="autoformat_plugins.html">AutoFormat plug-ins</a></span><ul><li><span class="file"><a href="pt04ch06s01.html">AutoFormat Transformations</a></span></li><li id="webhelp-currentid"><span class="file"><a href="pt04ch06s02.html">AutoFormat Example</a></span></li><li><span class="file"><a href="pt04ch06s03.html">Creating an AutoFormat Plug-in</a></span></li></ul></li><li><span class="file"><a href="output_plugins.html">Output plug-ins</a></span></li><li><span class="file"><a href="customize_pdf_stylesheet.html">PDF stylesheet customization</a></span><ul><li><span class="file"><a href="customize_docbook_transformation.html">Customizing the transformation to DocBook</a></span></li><li><span class="file"><a href="pt04ch08s02.html">Customizing the DocBook stylesheets</a></span></li><li><span class="file"><a href="pt04ch08s03.html">Creating the stylesheet plug-in</a></span></li></ul></li></ul></div></div><div id="searchDiv"><div id="search"><form onsubmit="startWebHelpSearch(ditaSearch_Form);return false" name="ditaSearch_Form" class="searchForm"><fieldset class="searchFieldSet"><legend>Search</legend><div align="center"><input id="textToSearch" name="textToSearch" type="text" class="searchText"/>&nbsp;<input onclick="startWebHelpSearch(ditaSearch_Form)" type="button" class="searchButton" value="Go" id="doSearch"/></div></fieldset></form></div><div id="closeSearchResults" style="display:none"><a href="javascript:closeSearchShowToc();">Contents</a></div><div id="searchResults"><div align="center"></div></div></div></div></div>
+<div id="bookpartsnavigation"><ul><li><a href="tutorial.html">Tutorial</a></li><li><a href="reference_manual.html">User Manual</a></li><li><a href="xhtml_reference.html">XHTML Reference</a></li><li class="book-currentpart"><a href="plugin_developer_guide.html">Plug-in Developer Guide</a></li></ul></div>
+<div id="breadcrumbsnavigation" class="breadcrumbs"><span class="breadcrumb-link"><a class="breadcrumb_node" href="plugin_developer_guide.html">Plug-in Developer Guide</a></span> <span class="breadcrumb_separator">&rarr;</span> <span class="breadcrumb-link"><a class="breadcrumb_node" href="autoformat_plugins.html">AutoFormat plug-ins</a></span> <span class="breadcrumb_separator">&rarr;</span> <span class="breadcrumb_node breadcrumb_lastnode">AutoFormat Example</span></div>
+<div id="content"><div id="comp00000050" class="section"><h3>4.6.2. AutoFormat Example</h3><div title="AutoFormat Example" class="doc-content"><div class="normal-para">As an example of implementing an Auto-Format transformation, this section describes the source code of the Auto-Format class <tt>org.docma.plugin.examples.ApplyTemplate</tt>, which is included in the Docmenta installation package. See <a href="tut_dynamic_templates.html" title="1.9.2. Dynamic Templates">Section 1.9.2, “Dynamic Templates”</a> for more information on how to use this class. Following illustration depicts the template concept that is implemented by the class:</div>
+<div class="normal-para"><div title="ApplyTemplate example" class="figure"><div class="mediaobject"><img src="images/apply_template_example_32bit.png" alt="" title="ApplyTemplate example"     /></div><p class="title">Figure 4.6.8. ApplyTemplate example</p></div></div>
+<div class="normal-para">The illustration explained in words: The <span class="code">notebox</span> style has the <tt>org.docma.plugin.examples.ApplyTemplate</tt> class with argument <span class="code">"notebox_template"</span> assigned. That means, input-elements which have the <span class="code">notebox</span> style assigned are transformed by this class. The <span class="code">ApplyTemplate</span> class replaces the input-element by the content of a template. The template is identified by the alias which is passed as argument (here: <span class="code">"notebox_template"</span>). Furthermore, the transformation replaces the substring "<tt>$content</tt>" within the template by the inner content of the input-element and the substring "<tt>$title</tt>" by the title-attribute of the input-element.</div>
+<div class="normal-para">Following the source code of the <tt>org.docma.plugin.examples.ApplyTemplate</tt> class, that implements this template concept:</div>
+<div title="ApplyTemplate.java" class="formal-block"><div class="formal-contents"><div title="ApplyTemplate.java" class="_formal_code_listing"><table border="0" cellpadding="0" width="100%" cellspacing="0" style="keep-together:auto;"><tr><td valign="top" style="width:22pt;"><div class="listing_line">1 
+</div><div class="listing_line">2 
+</div><div class="listing_line">3 
+</div><div class="listing_line">4 
+</div><div class="listing_line">5 
+</div><div class="listing_line">6 
+</div><div class="listing_line">7 
+</div><div class="listing_line">8 
+</div><div class="listing_line">9 
+</div><div class="listing_line">10 
+</div><div class="listing_line">11 
+</div><div class="listing_line">12 
+</div><div class="listing_line">13 
+</div><div class="listing_line">14 
+</div><div class="listing_line">15 
+</div><div class="listing_line">16 
+</div><div class="listing_line">17 
+</div><div class="listing_line">18 
+</div><div class="listing_line">19 
+</div><div class="listing_line">20 
+</div><div class="listing_line">21 
+</div><div class="listing_line">22 
+</div><div class="listing_line">23 
+</div><div class="listing_line">24 
+</div><div class="listing_line">25 
+</div><div class="listing_line">26 
+</div><div class="listing_line">27 
+</div><div class="listing_line">28 
+</div><div class="listing_line">29 
+</div><div class="listing_line">30 
+</div><div class="listing_line">31 
+</div><div class="listing_line">32 
+</div><div class="listing_line">33 
+</div><div class="listing_line">34 
+</div><div class="listing_line">35 
+</div><div class="listing_line">36 
+</div><div class="listing_line">37 
+</div><div class="listing_line">38 
+</div><div class="listing_line">39 
+</div><div class="listing_line">40 
+</div><div class="listing_line">41 
+</div><div class="listing_line">42 
+</div><div class="listing_line">43 
+</div><div class="listing_line">44 
+</div><div class="listing_line">45 
+</div><div class="listing_line">46 
+</div><div class="listing_line">47 
+</div></td><td valign="top" class="listing_java"><div class="listing_line"><span class="code_keyword">package</span> myexample;
+</div><div class="listing_line"> 
+</div><div class="listing_line"><span class="code_keyword">import</span> org.docma.plugin.*;
+</div><div class="listing_line"><span class="code_keyword">import</span> java.io.*;
+</div><div class="listing_line"> 
+</div><div class="listing_line"><span class="code_keyword">public class</span> ApplyTemplate <span class="code_keyword">implements</span> AutoFormat
+</div><div class="listing_line">{
+</div><div class="listing_line">    <span class="code_keyword">private</span> ExportContext exportCtx;
+</div><div class="listing_line"> 
+</div><div class="listing_line">    <span class="code_keyword">public void</span> initialize(ExportContext ctx)
+</div><div class="listing_line">    {
+</div><div class="listing_line">        exportCtx = ctx;
+</div><div class="listing_line">    }
+</div><div class="listing_line"> 
+</div><div class="listing_line">    <span class="code_keyword">public void</span> finished()
+</div><div class="listing_line">    {
+</div><div class="listing_line">        exportCtx = <span class="code_keyword">null</span>;
+</div><div class="listing_line">    }
+</div><div class="listing_line"> 
+</div><div class="listing_line">    <span class="code_keyword">public void</span> transform(TransformationContext ctx) <span class="code_keyword">throws</span> Exception
+</div><div class="listing_line">    {
+</div><div class="listing_line">        String alias = ctx.getArgument(<span class="code_literal">0</span>);
+</div><div class="listing_line">        String template = 
+</div><div class="listing_line">          exportCtx.getContentStringByAlias(alias, <span class="code_keyword">true</span>);
+</div><div class="listing_line">        <span class="code_keyword">if</span> (template == <span class="code_keyword">null</span>) {
+</div><div class="listing_line">            <span class="code_keyword">throw new</span> Exception(<span class="code_char">"Could not find template with alias "</span>
+</div><div class="listing_line">                                + alias);
+</div><div class="listing_line">        }
+</div><div class="listing_line">        String title = ctx.getTagAttributes().get(<span class="code_char">"title"</span>);
+</div><div class="listing_line">        <span class="code_keyword">if</span> (title == <span class="code_keyword">null</span>) title = <span class="code_char">""</span>;
+</div><div class="listing_line">        Writer out = ctx.getWriter();
+</div><div class="listing_line">        out.write(template.replace(<span class="code_char">"$content"</span>, ctx.getInnerString())
+</div><div class="listing_line">                          .replace(<span class="code_char">"$title"</span>, title));
+</div><div class="listing_line">    }
+</div><div class="listing_line"> 
+</div><div class="listing_line">    <span class="code_keyword">public</span> String getShortInfo(String languageCode)
+</div><div class="listing_line">    {
+</div><div class="listing_line">        <span class="code_keyword">return</span> PluginUtil.getResourceString(<span class="code_keyword">this</span>.getClass(), 
+</div><div class="listing_line">               languageCode, <span class="code_char">"shortInfo"</span>);
+</div><div class="listing_line">    }
+</div><div class="listing_line"> 
+</div><div class="listing_line">    <span class="code_keyword">public</span> String getLongInfo(String languageCode)
+</div><div class="listing_line">    {
+</div><div class="listing_line">        <span class="code_keyword">return</span> PluginUtil.getResourceString(<span class="code_keyword">this</span>.getClass(), 
+</div><div class="listing_line">               languageCode, <span class="code_char">"longInfo"</span>);
+</div><div class="listing_line">    }
+</div><div class="listing_line">}
+</div></td></tr></table></div></div><p class="title">Listing 4.6.1. ApplyTemplate.java</p></div>
+<div class="normal-para">An Auto-Format transformation is a Java class that implements the interface <tt>org.docma.plugin.AutoFormat</tt>. The interface consists of following five methods: <tt>initialize</tt>, <tt>finished</tt>, <tt>transform</tt>, <tt>getShortInfo</tt> and <tt>getLongInfo</tt>.</div>
+<div class="normal-para">The method <tt>initialize</tt> is intended for initialization of a new instance of the Auto-Format class, i.e. it is always called by the export process before the method <tt>transform</tt> is called for the first time. The method gets an instance of the class <tt>org.docma.plugin.ExportContext</tt> as argument, which provides access to the context of the running export. This includes</div>
+<ul>
+<li>reading the content of a node within the product tree</li>
+<li>getting the user interface language</li>
+<li>getting the export language and format</li>
+<li>getting a GenText property value</li>
+<li>decoding/encoding character entities</li>
+<li>writing to the export log</li>
+</ul>
+<div class="normal-para">In this example the method just assigns the argument to the field <tt>exportCtx</tt>. This way the method <tt>transform</tt>, which is called for each element to be transformed, also has access to the export context.</div>
+<div class="normal-para">The method <tt>finished</tt> is called by the export process as soon as the complete export of the publication is finished. Therefore this method can be used to release any resources that have been allocated by the Auto-Format class. In this example it just sets the field <tt>exportCtx</tt> to <tt>null</tt> (this is not required, though it allows the garbage collector to release memory, which is allocated by the export context, as early as possible).</div>
+<div class="normal-para">The method <tt>transform</tt> actually executes the transformation of an element. This method is called by the export process each time an element within the publication has to be transformed by this Auto-Format class. That means, only one instance of the Auto-Format class is used for one export process. The method gets an instance of the class <tt>org.docma.plugin.TransformationContext</tt> as argument, which gives access to the element to be transformed and provides a writer object to write the transformation result.</div>
+<div class="normal-para">When an Auto-Format class is assigned to a style, the user can set Auto-Format arguments. With Auto-Format arguments the behavior of an Auto-Format class can be parameterized. The <tt>ApplyTemplate</tt> class expects one argument, which is the alias name of the content-node to be used as template. The Auto-Format arguments can be retrieved from the transformation context. Therefore, the first action within the method <tt>transform</tt> is to get the first Auto-Format argument from the transformation context:</div>
+<div class="normal-para java_no_line_nums">String alias = ctx.getArgument(<span class="code_literal">0</span>);</div>
+<div class="normal-para">The returned alias name is then used to retrieve the template-content:</div>
+<div class="normal-para java_no_line_nums">String template = exportCtx.getContentStringByAlias(alias, <span class="code_keyword">true</span>);</div>
+<div class="normal-para">If no content-node with the given alias name is found, an exception is thrown. Note that throwing an exception will cause an error message in the export log. However the export continues without transforming the element. The next action is to retrieve the value of the input-element's title attribute:</div>
+<div class="normal-para java_no_line_nums">String title = ctx.getTagAttributes().get(<span class="code_char">"title"</span>);</div>
+<div class="normal-para">If no title attribute is defined in the input-element, then the empty string is used as title:</div>
+<div class="normal-para java_no_line_nums"><span class="code_keyword">if</span> (title == <span class="code_keyword">null</span>) title = <span class="code_char">""</span>;</div>
+<div class="normal-para">Then the substring <span class="code">"$content"</span> within the template is replaced by the inner content of the input-element:</div>
+<div class="normal-para java_no_line_nums">template.replace(<span class="code_char">"$content"</span>, ctx.getInnerString())</div>
+<div class="normal-para">and the substring <span class="code">"$title"</span> is replaced by the title value:</div>
+<div class="normal-para java_no_line_nums">.replace(<span class="code_char">"$title"</span>, title)</div>
+<div class="normal-para">Finally, the resulting string is returned as transformation result:</div>
+<div class="normal-para java_no_line_nums">Writer out = ctx.getWriter();<br    />out.write(...);</div>
+<div class="normal-para">The method <tt>getShortInfo</tt> is intended to return a human-readable text describing the purpose of this Auto-Format transformation in one sentence. The method <tt>getLongInfo</tt> is intended to return a complete usage reference, including a description of all supported Auto-Format arguments. The returned text of both methods is displayed to the user of the Auto-Format class. For better readability the text returned by method <tt>getLongInfo</tt> can include XHTML tags, which allows basic formatting of the text. The text which is returned by both methods should be in the language given by the argument <em>languageCode</em>. At least the language code "en" has to be supported (i.e. the descriptions have to be available at least in English).</div>
+<div class="normal-para">For long descriptions and to allow the translation of the descriptions without having to touch the source code of the classes, the text returned by the methods <tt>getShortInfo</tt> and <tt>getLongInfo</tt> should be stored in external resource files. You can use the static method <tt>getResourceString</tt> of the utility class <tt>org.docma.plugin.PluginUtil</tt> to load a language dependent property from an external resource file, as shown in this example. The path of the resource file is derived from the provided class and language code by replacing all dots within the full-qualified class name by a dash ("/"), appending the language code separated by an underscore and attaching the file extension ".xml". Therefore, in our example the path to the resource file for the English language (language code "en") is <tt>org/docma/plugin/example/ApplyTemplate_en.xml</tt>. In other words, a resource file with name <tt>ApplyTemplate_en.xml</tt> has to be located in the same folder where the corresponding class file is located (usually packaged in a jar archive).</div>
+<div class="normal-para">The format of the resource file is the XML properties format as used by the Java class <tt>java.util.Properties</tt> (see the Java Standard Edition API documentation for more information). Following an example of the resource file <tt>ApplyTemplate_en.xml</tt>:</div>
+<div title="ApplyTemplate_en.xml" class="formal-block"><div class="formal-contents"><div title="ApplyTemplate_en.xml" class="_formal_code_listing"><table border="0" cellpadding="0" width="100%" cellspacing="0" style="keep-together:auto;"><tr><td valign="top" style="width:22pt;"><div class="listing_line">1 
+</div><div class="listing_line">2 
+</div><div class="listing_line">3 
+</div><div class="listing_line">4 
+</div><div class="listing_line">5 
+</div><div class="listing_line">6 
+</div><div class="listing_line">7 
+</div><div class="listing_line">8 
+</div><div class="listing_line">9 
+</div><div class="listing_line">10 
+</div><div class="listing_line">11 
+</div><div class="listing_line">12 
+</div><div class="listing_line">13 
+</div><div class="listing_line">14 
+</div><div class="listing_line">15 
+</div><div class="listing_line">16 
+</div><div class="listing_line">17 
+</div><div class="listing_line">18 
+</div><div class="listing_line">19 
+</div></td><td valign="top" class="listing_xml"><div class="listing_line"><span class="code_pi">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span>
+</div><div class="listing_line"><span class="code_xmlintro">&lt;!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd"&gt;</span>
+</div><div class="listing_line"><span class="code_tag">&lt;properties&gt;</span>
+</div><div class="listing_line">  <span class="code_tag">&lt;entry </span><span class="code_attrib">key=</span><span class="code_attval">"shortInfo"</span><span class="code_tag">&gt;</span>Format input using a template<span class="code_tag">&lt;/entry&gt;</span>
+</div><div class="listing_line">  <span class="code_tag">&lt;entry </span><span class="code_attrib">key=</span><span class="code_attval">"longInfo"</span><span class="code_tag">&gt;</span><span class="code_cdata">&lt;![CDATA[</span>
+</div><div class="listing_line"><span class="code_cdata">  &lt;big&gt;&lt;b&gt;Arguments:&lt;/b&gt;&lt;/big&gt;</span>
+</div><div class="listing_line"><span class="code_cdata">  &lt;ul&gt;</span>
+</div><div class="listing_line"><span class="code_cdata">    &lt;li&gt;&lt;b&gt;&lt;tt&gt;&lt;i&gt;ALIAS&lt;/i&gt;&lt;/tt&gt;&lt;/b&gt;:</span>
+</div><div class="listing_line"><span class="code_cdata">    &lt;br /&gt;The alias name of the template node.&lt;/li&gt;</span>
+</div><div class="listing_line"><span class="code_cdata">  &lt;/ul&gt;</span>
+</div><div class="listing_line"><span class="code_cdata">  &lt;p&gt;&lt;big&gt;&lt;b&gt;Description:&lt;/b&gt;&lt;/big&gt;&lt;/p&gt;</span>
+</div><div class="listing_line"><span class="code_cdata">  &lt;p&gt;</span>
+</div><div class="listing_line"><span class="code_cdata">    The content-node given by alias name &lt;tt&gt;&lt;i&gt;ALIAS&lt;/i&gt;&lt;/tt&gt;</span>
+</div><div class="listing_line"><span class="code_cdata">    is used as a template. It is assumed that the template content </span>
+</div><div class="listing_line"><span class="code_cdata">    contains the substrings "&lt;tt&gt;$title&lt;/tt&gt;" and "&lt;tt&gt;$content&lt;/tt&gt;".</span>
+</div><div class="listing_line"><span class="code_cdata">  &lt;/p&gt;</span>
+</div><div class="listing_line"><span class="code_cdata">  ]]&gt;</span>
+</div><div class="listing_line">  <span class="code_tag">&lt;/entry&gt;</span>
+</div><div class="listing_line"><span class="code_tag">&lt;/properties&gt;</span>
+</div></td></tr></table></div></div><p class="title">Listing 4.6.2. ApplyTemplate_en.xml</p></div>
+<div class="normal-para">Note that a CDATA section is used for the value of the <tt>longInfo</tt> property, because the property value contains XHTML tags, which would otherwise interfere with the XML properties format. By using a CDATA section, the <span class="code">&lt;</span> and <span class="code">&gt;</span> characters do not have to be encoded as character entities (<span class="code">&amp;lt;</span> and <span class="code">&amp;gt;</span>).</div>
+<div class="normal-para">To use the Auto-Format transformation, just place the compiled <tt>ApplyTemplate</tt> class together with the resource file <tt>ApplyTemplate_en.xml</tt> into the class path of the Docmenta application.</div>
+</div><div title="Improved" class="doc-content"><div class="header_para">
+<div class="normal-para">Improving the performance</div>
+</div>
+<div class="normal-para">As mentioned above, the <tt>transform</tt> method is called for each occurence of an element to be transformed. Therefore, the performance can be improved by caching the template content. Following listing gives the improved source code of the <tt>ApplyTemplate</tt> class (the changed lines are highlighted):</div>
+<div title="ApplyTemplate.java (improved)" class="formal-block"><div class="formal-contents"><div title="ApplyTemplate.java (improved)" class="_formal_code_listing"><table border="0" cellpadding="0" width="100%" cellspacing="0" style="keep-together:auto;"><tr><td valign="top" style="width:22pt;"><div class="listing_line">1 
+</div><div class="listing_line">2 
+</div><div class="listing_line">3 
+</div><div class="marked_line_num">4 
+</div><div class="listing_line">5 
+</div><div class="listing_line">6 
+</div><div class="listing_line">7 
+</div><div class="listing_line">8 
+</div><div class="listing_line">9 
+</div><div class="marked_line_num">10 
+</div><div class="listing_line">11 
+</div><div class="listing_line">12 
+</div><div class="listing_line">13 
+</div><div class="listing_line">14 
+</div><div class="marked_line_num">15 
+</div><div class="listing_line">16 
+</div><div class="listing_line">17 
+</div><div class="listing_line">18 
+</div><div class="listing_line">19 
+</div><div class="listing_line">20 
+</div><div class="marked_line_num">21 
+</div><div class="listing_line">22 
+</div><div class="listing_line">23 
+</div><div class="listing_line">24 
+</div><div class="listing_line">25 
+</div><div class="listing_line">26 
+</div><div class="marked_line_num">27 
+</div><div class="marked_line_num">28 
+</div><div class="marked_line_num">29 
+</div><div class="marked_line_num">30 
+</div><div class="marked_line_num">31 
+</div><div class="marked_line_num">32 
+</div><div class="marked_line_num">33 
+</div><div class="marked_line_num">34 
+</div><div class="marked_line_num">35 
+</div><div class="listing_line">36 
+</div><div class="listing_line">37 
+</div><div class="listing_line">38 
+</div><div class="listing_line">39 
+</div><div class="listing_line">40 
+</div><div class="listing_line">41 
+</div><div class="listing_line">42 
+</div><div class="listing_line">43 
+</div><div class="listing_line">44 
+</div><div class="listing_line">45 
+</div><div class="listing_line">46 
+</div><div class="listing_line">47 
+</div><div class="listing_line">48 
+</div><div class="listing_line">49 
+</div><div class="listing_line">50 
+</div><div class="listing_line">51 
+</div><div class="listing_line">52 
+</div><div class="listing_line">53 
+</div><div class="listing_line">54 
+</div></td><td valign="top" class="listing_java"><div class="listing_line"><span class="code_keyword">package</span> myexample;
+</div><div class="listing_line"> 
+</div><div class="listing_line"><span class="code_keyword">import</span> org.docma.plugin.*;
+</div><div class="listing_line_marked"><span class="code_keyword">import</span> java.util.*;                              <span class="code_comment"></span>
+</div><div class="listing_line"><span class="code_keyword">import</span> java.io.*;
+</div><div class="listing_line"> 
+</div><div class="listing_line"><span class="code_keyword">public class</span> ApplyTemplate <span class="code_keyword">implements</span> AutoFormat
+</div><div class="listing_line">{
+</div><div class="listing_line">    <span class="code_keyword">private</span> ExportContext exportCtx;
+</div><div class="listing_line_marked">    <span class="code_keyword">private</span> Map&lt;String, String&gt; templateMap;     <span class="code_comment"></span>
+</div><div class="listing_line"> 
+</div><div class="listing_line">    <span class="code_keyword">public void</span> initialize(ExportContext ctx)
+</div><div class="listing_line">    {
+</div><div class="listing_line">        exportCtx = ctx;
+</div><div class="listing_line_marked">        templateMap = <span class="code_keyword">new</span> HashMap&lt;String, String&gt;();  <span class="code_comment"></span>
+</div><div class="listing_line">    }
+</div><div class="listing_line"> 
+</div><div class="listing_line">    <span class="code_keyword">public void</span> finished()
+</div><div class="listing_line">    {
+</div><div class="listing_line">        exportCtx = <span class="code_keyword">null</span>;
+</div><div class="listing_line_marked">        templateMap = <span class="code_keyword">null</span>;                      <span class="code_comment"></span>
+</div><div class="listing_line">    }
+</div><div class="listing_line"> 
+</div><div class="listing_line">    <span class="code_keyword">public void</span> transform(TransformationContext ctx) <span class="code_keyword">throws</span> Exception
+</div><div class="listing_line">    {
+</div><div class="listing_line">        String alias = ctx.getArgument(<span class="code_literal">0</span>);
+</div><div class="listing_line_marked">        String template = templateMap.get(alias);    <span class="code_comment"></span>
+</div><div class="listing_line_marked">        <span class="code_keyword">if</span> (template == <span class="code_keyword">null</span>) {                      <span class="code_comment"></span>
+</div><div class="listing_line_marked">            template = exportCtx.getContentStringByAlias(alias, <span class="code_keyword">true</span>); <span class="code_comment"></span>
+</div><div class="listing_line_marked">            <span class="code_keyword">if</span> (template == <span class="code_keyword">null</span>) {                  <span class="code_comment"></span>
+</div><div class="listing_line_marked">                <span class="code_keyword">throw new</span> Exception(<span class="code_char">"Could not find template with alias "</span><span class="code_comment"></span>
+</div><div class="listing_line_marked">                                    + alias);        <span class="code_comment"></span>
+</div><div class="listing_line_marked">            }                                        <span class="code_comment"></span>
+</div><div class="listing_line_marked">            templateMap.put(alias, template);        <span class="code_comment"></span>
+</div><div class="listing_line_marked">        }                                            <span class="code_comment"></span>
+</div><div class="listing_line">        String title = ctx.getTagAttributes().get(<span class="code_char">"title"</span>);
+</div><div class="listing_line">        <span class="code_keyword">if</span> (title == <span class="code_keyword">null</span>) title = <span class="code_char">""</span>;
+</div><div class="listing_line">        Writer out = ctx.getWriter();
+</div><div class="listing_line">        out.write(template.replace(<span class="code_char">"$content"</span>, ctx.getInnerString())
+</div><div class="listing_line">                          .replace(<span class="code_char">"$title"</span>, title));
+</div><div class="listing_line">    }
+</div><div class="listing_line"> 
+</div><div class="listing_line">    <span class="code_keyword">public</span> String getShortInfo(String languageCode)
+</div><div class="listing_line">    {
+</div><div class="listing_line">        <span class="code_keyword">return</span> PluginUtil.getResourceString(<span class="code_keyword">this</span>.getClass(),  
+</div><div class="listing_line">               languageCode, <span class="code_char">"shortInfo"</span>);
+</div><div class="listing_line">    }
+</div><div class="listing_line"> 
+</div><div class="listing_line">    <span class="code_keyword">public</span> String getLongInfo(String languageCode)
+</div><div class="listing_line">    {
+</div><div class="listing_line">        <span class="code_keyword">return</span> PluginUtil.getResourceString(<span class="code_keyword">this</span>.getClass(),  
+</div><div class="listing_line">               languageCode, <span class="code_char">"longInfo"</span>);
+</div><div class="listing_line">    }
+</div><div class="listing_line">}
+</div></td></tr></table></div></div><p class="title">Listing 4.6.3. ApplyTemplate.java (improved)</p></div>
+<div class="normal-para">Note that different styles can have different Auto-Format arguments. That means, it is not sufficient to cache a single template. In the implementation above a <tt>java.util.HashMap</tt> object stores the cached templates. The alias of the template is used as key which is mapped to the template content.</div>
+</div></div><div class="navfooter"><hr/><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="pt04ch06s01.html"><span class="navlink-text">Prev</span></a>&#160;</td><td width="20%" align="center"><a accesskey="u" href="autoformat_plugins.html"><span class="navlink-text">Up</span></a></td><td width="40%" align="right">&#160;<a accesskey="n" href="pt04ch06s03.html"><span class="navlink-text">Next</span></a></td></tr><tr><td width="40%" align="left" valign="top">4.6.1. AutoFormat Transformations&#160;</td><td width="20%" align="center"><a accesskey="h" href="index.html"><span class="navlink-text">Home</span></a></td><td width="40%" align="right" valign="top">&#160;4.6.3. Creating an AutoFormat Plug-in</td></tr></table></div>
+<div class="web_footer">
+<p class="align-center">&#169; 2017 - www.docmenta.org</p>
+</div>
+</div>
+<a id="showHideButton" onclick="showHideToc();" class="pointLeft" title="Hide TOC tree">&nbsp;</a></body>
+</html>

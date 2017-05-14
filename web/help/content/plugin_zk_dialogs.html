@@ -1,0 +1,442 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<!-- Put your custom HTML head tags here and select this file in the HTML output configuration. -->
+<!-- Note: The content of this file has to be XML (XHTML). -->
+<meta http-equiv="X-UA-Compatible" content="IE=8" />
+<meta http-equiv="expires" content="43200" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="generator" content="Docmenta 1.9.0"/>
+<title>4.3.3.2. ZK Dialogs</title>
+<link rel="shortcut icon" href="favicon.ico" type="image/x-icon"/>
+<link rel="home" href="index.html" title="Docmenta Tutorial and Reference"/>
+<link rel="up" href="plugin_add_dialog.html" title="4.3.3. Adding a dialog"/>
+<link rel="prev" href="plugin_plain_js_dialogs.html" title="4.3.3.1. Plain JavaScript Dialogs"/>
+<link rel="prev" href="plugin_add_tab.html" title="4.3.4. Adding a tab"/>
+<link rel="stylesheet" type="text/css" href="styles.css"/>
+<link rel="stylesheet" type="text/css" href="common/jquery/theme-redmond/jquery-ui-1.8.2.custom.css"/>
+<link rel="stylesheet" type="text/css" href="common/jquery/treeview/jquery.treeview.css"/>
+<link rel="stylesheet" type="text/css" href="common/css/positioning.css"/>
+<script type="text/javascript">
+  var treeCookieId = "treeview-1494620492860";
+  var language = "en";
+  var w = new Object();
+  txt_filesfound = "Results";
+  txt_enter_at_least_1_char = "You must enter at least one character.";
+  txt_browser_not_supported = "Your browser is not supported. Use of Mozilla Firefox is recommended.";
+  txt_please_wait = "Please wait. Search in progress...";
+  txt_results_for = "Results for: ";
+</script>
+<script type="text/javascript" src="common/jquery/jquery-1.4.2.min.js"></script>
+<script type="text/javascript" src="common/jquery/jquery-ui-1.8.2.custom.min.js"></script>
+<script type="text/javascript" src="common/jquery/jquery.cookie.js"></script>
+<script type="text/javascript" src="common/jquery/treeview/jquery.treeview.min.js"></script>
+<script type="text/javascript" src="search/htmlFileList.js"></script>
+<script type="text/javascript" src="search/htmlFileInfoList.js"></script>
+<script type="text/javascript" src="search/nwSearchFnt.js"></script>
+<script type="text/javascript" src="search/stemmers/en_stemmer.js"></script>
+<script type="text/javascript" src="search/index-1.js"></script>
+<script type="text/javascript" src="search/index-2.js"></script>
+<script type="text/javascript" src="search/index-3.js"></script>
+<script type="text/javascript" src="custom.js"></script>
+<script type="text/javascript" src="common/main.js"></script>
+</head>
+<body>
+<div id="header"><img id="webhelplogo1" align="left" src='common/images/logo1.png' alt="Logo"/><img id="webhelplogo2" align="right" src='common/images/logo2.png' alt="Logo"/><div class="webhelptitle"><div class="webhelptitle1">4.3.3. Adding a dialog</div><div class="webhelptitle2">4.3.3.2. ZK Dialogs</div></div><div id="navheader" align="right"><table><tr><td><img src="common/images/highlight-blue.gif" alt="H" onclick="toggleHighlight()" id="showHideHighlight" title="Toggle search result highlighting" /></td><td><a id="navhead-prev" accesskey="p" href="plugin_plain_js_dialogs.html"><span class="navlink-text">Prev</span></a><span class="navhead-separator">&nbsp;|&nbsp;</span><a id="navhead-up" accesskey="u" href="plugin_add_dialog.html"><span class="navlink-text">Up</span></a><span class="navhead-separator">&nbsp;|&nbsp;</span><a id="navhead-next" accesskey="n" href="plugin_add_tab.html"><span class="navlink-text">Next</span></a></td></tr></table></div></div>
+<div id="leftnavigation"><div id="tabs"><ul id="tocsearchnavigation" style="display:none"><li id="tocnavigationtab"><a href="#treeDiv"><em>Contents</em></a></li><li id="searchnavigationtab"><a href="#searchDiv"><em>Search</em></a></li></ul><div id="treeDiv"><img src="common/images/loading.gif" alt="loading table of contents..." id="tocLoading" style="display:block;"/><div id="ulTreeDiv" style="display:none;"><div id="treenavigationtitle" style="display:none;">Contents</div><ul id="tree" class="filetree"><li><span class="file"><a href="pt04ch01.html">Introduction</a></span></li><li><span class="file"><a href="create_plugin_package.html">Creating a plug-in package</a></span></li><li><span class="file"><a href="plugin_api.html">Plug-in API</a></span><ul><li><span class="file"><a href="plugin_lifecycle_methods.html">Lifecycle methods</a></span></li><li><span class="file"><a href="plugin_add_menu.html">Adding menu items</a></span></li><li><span class="file"><a href="plugin_add_dialog.html">Adding a dialog</a></span><ul><li><span class="file"><a href="plugin_plain_js_dialogs.html">Plain JavaScript Dialogs</a></span></li><li id="webhelp-currentid"><span class="file"><a href="plugin_zk_dialogs.html">ZK Dialogs</a></span></li></ul></li><li><span class="file"><a href="plugin_add_tab.html">Adding a tab</a></span></li><li><span class="file"><a href="plugin_jsp_integration.html">JSP integration</a></span></li><li><span class="file"><a href="pt04ch03s06.html">Accessing content</a></span></li></ul></li><li><span class="file"><a href="content_handler_plugins.html">Editor and viewer plug-ins</a></span><ul><li><span class="file"><a href="pt04ch04s01.html">Content Handlers</a></span></li><li><span class="file"><a href="plug_viewer.html">Viewer Plug-ins</a></span><ul><li><span class="file"><a href="pt04ch04s02s01.html">initialize</a></span></li><li><span class="file"><a href="pt04ch04s02s02.html">getApplicationId</a></span></li><li><span class="file"><a href="pt04ch04s02s03.html">getApplicationName</a></span></li><li><span class="file"><a href="pt04ch04s02s04.html">getSupportedViewExtensions</a></span></li><li><span class="file"><a href="pt04ch04s02s05.html">getSupportedEditExtensions</a></span></li><li><span class="file"><a href="pt04ch04s02s06.html">getPreviewURL</a></span></li><li><span class="file"><a href="pt04ch04s02s07.html">openViewer</a></span></li><li><span class="file"><a href="pt04ch04s02s08.html">openEditor</a></span></li><li><span class="file"><a href="pt04ch04s02s09.html">setCharEntities</a></span></li><li><span class="file"><a href="plug_view_handler_complete.html">The complete viewer class</a></span></li><li><span class="file"><a href="pt04ch04s02s11.html">The view.jsp page</a></span></li><li><span class="file"><a href="plug_viewer_package.html">Creating the viewer plug-in</a></span></li><li><span class="file"><a href="plug_viewer_install.html">Installing the viewer plug-in</a></span></li></ul></li><li><span class="file"><a href="pt04ch04s03.html">Editor Plug-ins</a></span><ul><li><span class="file"><a href="pt04ch04s03s01.html">getSupportedEditExtensions</a></span></li><li><span class="file"><a href="pt04ch04s03s02.html">openEditor</a></span></li><li><span class="file"><a href="plug_edit_handler_complete.html">The complete editor class</a></span></li><li><span class="file"><a href="pt04ch04s03s04.html">The edit.jsp page</a></span></li><li><span class="file"><a href="pt04ch04s03s05.html">Creating the editor plug-in</a></span></li></ul></li></ul></li><li><span class="file"><a href="rule_plugins.html">Rule plug-ins</a></span><ul><li><span class="file"><a href="html_rule_getShortInfo.html">getShortInfo</a></span></li><li><span class="file"><a href="pt04ch05s02.html">getLongInfo</a></span></li><li><span class="file"><a href="pt04ch05s03.html">getCheckIds</a></span></li><li><span class="file"><a href="pt04ch05s04.html">getCheckTitle</a></span></li><li><span class="file"><a href="pt04ch05s05.html">supportsAutoCorrection</a></span></li><li><span class="file"><a href="pt04ch05s06.html">getDefaultLogLevel</a></span></li><li><span class="file"><a href="pt04ch05s07.html">configure</a></span></li><li><span class="file"><a href="pt04ch05s08.html">startBatch</a></span></li><li><span class="file"><a href="pt04ch05s09.html">finishBatch</a></span></li><li><span class="file"><a href="html_rule_apply.html">apply</a></span></li><li><span class="file"><a href="my_html_rule_complete.html">The complete example</a></span></li><li><span class="file"><a href="pt04ch05s12.html">Creating the Rule Plug-in</a></span></li></ul></li><li><span class="file"><a href="autoformat_plugins.html">AutoFormat plug-ins</a></span><ul><li><span class="file"><a href="pt04ch06s01.html">AutoFormat Transformations</a></span></li><li><span class="file"><a href="pt04ch06s02.html">AutoFormat Example</a></span></li><li><span class="file"><a href="pt04ch06s03.html">Creating an AutoFormat Plug-in</a></span></li></ul></li><li><span class="file"><a href="output_plugins.html">Output plug-ins</a></span></li><li><span class="file"><a href="customize_pdf_stylesheet.html">PDF stylesheet customization</a></span><ul><li><span class="file"><a href="customize_docbook_transformation.html">Customizing the transformation to DocBook</a></span></li><li><span class="file"><a href="pt04ch08s02.html">Customizing the DocBook stylesheets</a></span></li><li><span class="file"><a href="pt04ch08s03.html">Creating the stylesheet plug-in</a></span></li></ul></li></ul></div></div><div id="searchDiv"><div id="search"><form onsubmit="startWebHelpSearch(ditaSearch_Form);return false" name="ditaSearch_Form" class="searchForm"><fieldset class="searchFieldSet"><legend>Search</legend><div align="center"><input id="textToSearch" name="textToSearch" type="text" class="searchText"/>&nbsp;<input onclick="startWebHelpSearch(ditaSearch_Form)" type="button" class="searchButton" value="Go" id="doSearch"/></div></fieldset></form></div><div id="closeSearchResults" style="display:none"><a href="javascript:closeSearchShowToc();">Contents</a></div><div id="searchResults"><div align="center"></div></div></div></div></div>
+<div id="bookpartsnavigation"><ul><li><a href="tutorial.html">Tutorial</a></li><li><a href="reference_manual.html">User Manual</a></li><li><a href="xhtml_reference.html">XHTML Reference</a></li><li class="book-currentpart"><a href="plugin_developer_guide.html">Plug-in Developer Guide</a></li></ul></div>
+<div id="breadcrumbsnavigation" class="breadcrumbs"><span class="breadcrumb-link"><a class="breadcrumb_node" href="plugin_developer_guide.html">Plug-in Developer Guide</a></span> <span class="breadcrumb_separator">&rarr;</span> <span class="breadcrumb-link"><a class="breadcrumb_node" href="plugin_api.html">Plug-in API</a></span> <span class="breadcrumb_separator">&rarr;</span> <span class="breadcrumb-link"><a class="breadcrumb_node" href="plugin_add_dialog.html">Adding a dialog</a></span> <span class="breadcrumb_separator">&rarr;</span> <span class="breadcrumb_node breadcrumb_lastnode">ZK Dialogs</span></div>
+<div id="content"><div id="plugin_zk_dialogs" class="section"><h4>4.3.3.2. ZK Dialogs</h4><div title="The zul code" class="doc-content"><div class="normal-para">The second solution utilizes the UI framework that is used by Docmenta to create the web interface. It requires some knowledge of the ZK framework. In short, ZK is an Open Source framework for creating web interfaces in Java. In principle you can create a web interface in ZK without having to know the details of HTML or JavaScript. Following example gives a short introduction on how to use the ZK framework. More information can be found on the <a href="http://www.zkoss.org" target="_top">ZK homepage</a>.</div>
+<div class="normal-para">As an example, we'll add a configuration dialog to the plug-in, which has been created in <a href="plugin_add_menu.html" title="4.3.2. Adding menu items">Section 4.3.2, “Adding menu items”</a>. The dialog shall allow to configure the text to be displayed in the "Hello World" message box. In more detail: the dialog shall contain a text box where the user can enter some text, and a "Save" as well as a "Cancel" button.</div>
+<div class="normal-para">In ZK the user interface is defined in an XML-based language named ZUML (ZK User Interface Markup Language). It is similar to HTML, but has some more advanced features for defining interactive user interfaces. Following ZUML code defines our configuration dialog:</div>
+<div title="my_config_dialog.zul" class="formal-block"><div class="formal-contents"><div title="my_config_dialog.zul" class="_formal_code_listing"><table border="0" cellpadding="0" width="100%" cellspacing="0" style="keep-together:auto;"><tr><td valign="top" style="width:22pt;"><div class="listing_line">1 
+</div><div class="listing_line">2 
+</div><div class="listing_line">3 
+</div><div class="listing_line">4 
+</div><div class="listing_line">5 
+</div><div class="listing_line">6 
+</div><div class="listing_line">7 
+</div><div class="listing_line">8 
+</div><div class="listing_line">9 
+</div><div class="listing_line">10 
+</div><div class="listing_line">11 
+</div><div class="listing_line">12 
+</div><div class="listing_line">13 
+</div><div class="listing_line">14 
+</div><div class="listing_line">15 
+</div><div class="listing_line">16 
+</div><div class="listing_line">17 
+</div><div class="listing_line">18 
+</div><div class="listing_line">19 
+</div><div class="listing_line">20 
+</div><div class="listing_line">21 
+</div><div class="listing_line">22 
+</div><div class="listing_line">23 
+</div><div class="listing_line">24 
+</div><div class="listing_line">25 
+</div><div class="listing_line">26 
+</div><div class="listing_line">27 
+</div><div class="listing_line">28 
+</div><div class="listing_line">29 
+</div><div class="listing_line">30 
+</div><div class="listing_line">31 
+</div><div class="listing_line">32 
+</div></td><td valign="top" class="listing_xml"><div class="listing_line"><span class="code_tag">&lt;window </span><span class="code_attrib">id=</span><span class="code_attval">"my_plugin_config_dialog"</span> 
+</div><div class="listing_line">        <span class="code_attrib">title=</span><span class="code_attval">"${labels.my_plugin.config_dialog_title}"</span> 
+</div><div class="listing_line">        <span class="code_attrib">border=</span><span class="code_attval">"normal"</span> 
+</div><div class="listing_line">        <span class="code_attrib">width=</span><span class="code_attval">"460px"</span> 
+</div><div class="listing_line">        <span class="code_attrib">contentStyle=</span><span class="code_attval">"padding:10px;"</span>
+</div><div class="listing_line">        <span class="code_attrib">visible=</span><span class="code_attval">"false"</span> 
+</div><div class="listing_line">        <span class="code_attrib">sizable=</span><span class="code_attval">"false"</span> 
+</div><div class="listing_line">        <span class="code_attrib">closable=</span><span class="code_attval">"true"</span> 
+</div><div class="listing_line">        <span class="code_attrib">onClose=</span><span class="code_attval">"self.visible = false; event.stopPropagation();"</span>
+</div><div class="listing_line">        <span class="code_attrib">apply=</span><span class="code_attval">"myexample.MyDialogComposer"</span> <span class="code_tag">&gt;</span> 
+</div><div class="listing_line">  <span class="code_tag">&lt;caption&gt;</span>
+</div><div class="listing_line">    <span class="code_tag">&lt;toolbarbutton </span><span class="code_attrib">id=</span><span class="code_attval">"config_help_btn"</span> 
+</div><div class="listing_line">                   <span class="code_attrib">label=</span><span class="code_attval">"${labels.my_plugin.help_btn}"</span> <span class="code_tag">/&gt;</span>
+</div><div class="listing_line">  <span class="code_tag">&lt;/caption&gt;</span>
+</div><div class="listing_line"> 
+</div><div class="listing_line">  <span class="code_tag">&lt;vbox </span><span class="code_attrib">spacing=</span><span class="code_attval">"6px"</span> <span class="code_attrib">width=</span><span class="code_attval">"100%"</span> <span class="code_attrib">align=</span><span class="code_attval">"stretch"</span><span class="code_tag">&gt;</span>
+</div><div class="listing_line">    <span class="code_tag">&lt;hbox </span><span class="code_attrib">align=</span><span class="code_attval">"center"</span><span class="code_tag">&gt;</span>
+</div><div class="listing_line">      <span class="code_tag">&lt;label&gt;</span>${labels.my_plugin.config_message_label}:<span class="code_tag">&lt;/label&gt;</span>
+</div><div class="listing_line">      <span class="code_tag">&lt;textbox </span><span class="code_attrib">id=</span><span class="code_attval">"config_textbox"</span> <span class="code_attrib">maxlength=</span><span class="code_attval">"100"</span> <span class="code_attrib">hflex=</span><span class="code_attval">"1"</span> <span class="code_tag">/&gt;</span>
+</div><div class="listing_line">    <span class="code_tag">&lt;/hbox&gt;</span>
+</div><div class="listing_line">    <span class="code_tag">&lt;hbox </span><span class="code_attrib">spacing=</span><span class="code_attval">"4px"</span><span class="code_tag">&gt;</span>
+</div><div class="listing_line">      <span class="code_tag">&lt;button </span><span class="code_attrib">id=</span><span class="code_attval">"config_save_btn"</span> 
+</div><div class="listing_line">              <span class="code_attrib">label=</span><span class="code_attval">"${labels.my_plugin.save_btn}"</span> 
+</div><div class="listing_line">              <span class="code_attrib">image=</span><span class="code_attval">"img/save.gif"</span> 
+</div><div class="listing_line">              <span class="code_attrib">hflex=</span><span class="code_attval">"1"</span> <span class="code_tag">/&gt;</span>
+</div><div class="listing_line">      <span class="code_tag">&lt;button </span><span class="code_attrib">id=</span><span class="code_attval">"config_cancel_btn"</span> 
+</div><div class="listing_line">              <span class="code_attrib">label=</span><span class="code_attval">"${labels.my_plugin.cancel_btn}"</span> 
+</div><div class="listing_line">              <span class="code_attrib">image=</span><span class="code_attval">"img/cancel.gif"</span> 
+</div><div class="listing_line">              <span class="code_attrib">hflex=</span><span class="code_attval">"1"</span> <span class="code_tag">/&gt;</span>
+</div><div class="listing_line">    <span class="code_tag">&lt;/hbox&gt;</span>
+</div><div class="listing_line">  <span class="code_tag">&lt;/vbox&gt;</span>
+</div><div class="listing_line"><span class="code_tag">&lt;/window&gt;</span>
+</div></td></tr></table></div></div><p class="title">Listing 4.3.13. my_config_dialog.zul</p></div>
+<div class="normal-para">Following a short description of the elements. For further information, please consult the ZUML documentation on <a href="http://www.zkoss.org" target="_top">http://www.zkoss.org</a>.</div>
+<div class="header_para">
+<div class="normal-para">The <span class="code">window</span> element</div>
+</div>
+<div class="normal-para">In ZUML, popup windows can be created using the <span class="code">window</span> element. In our example, the window gets the ID <span class="code">"my_plugin_config_dialog"</span>. Note that the IDs of windows have to be unique within the Docmenta application. To avoid naming conflicts it is therefore a good idea to include the plug-in ID as prefix. Furthermore the code above provides a title for the dialog via the <span class="code">title</span> attribute. As the title may be language dependent, the title is loaded as property named <span class="code">"my_plugin.config_dialog_title"</span> from the <span class="code">locale.properties</span> file. To read a property value from <span class="code">locale.properties</span> the notation <span class="code">${labels.<span class="emphasis">name</span>}</span> can be used in ZUML (where <em><span class="code">name</span></em> is the name of the property to be retrieved).</div>
+<div class="normal-para">The attribute <span class="code">border="normal"</span> just sets the default border to be used for the window. The <span class="code">width</span> attribute defines the width of the dialog. Note that no height is specified here, as the height shall be automatically determined from the content. The <span class="code">contentStyle</span> attribute allows to set some custom CSS to be applied to the content. In our example, a padding of 10 pixels is defined, i.e. 10 pixels of space will be inserted between the border of the window and the content of the window.</div>
+<div class="normal-para">The attribute <span class="code">visible</span> can be used to show or hide a window. Because our dialog shall only pop up if user clicks on the configuration button of our plug-in, the dialog is set to be initially hidden (i.e. <span class="code">visible="false"</span>). The attribute <span class="code">sizable="false"</span> disables resizing of the window by the user.</div>
+<div class="normal-para">The attribute <span class="code">closable="true"</span> has the effect that a close-button is shown in the top-right corner of the window:</div>
+<div class="normal-para"><div title="Close button in the title-bar of the dialog" class="figure"><div class="mediaobject"><img src="images/plugin_dialog_close_btn.png" alt="" title="Close button in the title-bar of the dialog"     /></div><p class="title">Figure 4.3.11. Close button in the title-bar of the dialog</p></div></div>
+<div class="normal-para">In our example, the close-button shall just close the dialog without saving the user-input, i.e. it shall have the same effect as clicking the "Cancel" button. The attribute <span class="code">onClose</span> allows to define the action to be performed when the user clicks on the close-button. In ZUML a special script language is available that allows to include scripts within ZUML. In our example, the script <span class="code">"self.visible = false;"</span> hides the window, if user clicks on the close-button. Furthermore, the statement <span class="code">"event.stopPropagation();"</span> prevents the "onClose" event to be further propagated to the default event handler. This is required in our example, because the default event handler completely destroys the window instance. But we want to reuse the window instance in case the user opens and closes the dialog multiple times within a session.</div>
+<div class="normal-para">Finally, the attribute <span class="code">apply</span> defines a custom Java class that implements the dynamic part of the dialog. The code for the class <span class="code">myexample.MyDialogComposer</span> is shown below.</div>
+<div class="header_para">
+<div class="normal-para">The <span class="code">caption</span> element</div>
+</div>
+<div class="normal-para">A window can optionaly contain a <span class="code">caption</span> element. The <span class="code">caption</span> element allows to add buttons to the title bar of a window. In our example, a <span class="code">toolbarbutton</span> element with ID <span class="code">"config_help_btn"</span> is added to the window's title bar. A <span class="code">toolbarbutton</span> is like a normal button, but requires less space, because it is rendered without the border of a normal button. The button shall provide a link to the online-help of the plug-in.</div>
+<div class="normal-para"><div title="Help button in the title-bar of the dialog" class="figure"><div class="mediaobject"><img src="images/plugin_dialog_help_btn.png" alt="" title="Help button in the title-bar of the dialog"     /></div><p class="title">Figure 4.3.12. Help button in the title-bar of the dialog</p></div></div>
+<div class="normal-para">As for the window title, the button's label is retrieved as property named <span class="code">my_plugin.help_btn</span> from the <span class="code">locale.properties</span> file.</div>
+<div class="header_para">
+<div class="normal-para">Defining the layout using <span class="code">vbox</span> and <span class="code">hbox</span></div>
+</div>
+<div class="normal-para">The elements that follow the <span class="code">caption</span> element define the content of the window. In our example, a <span class="code">vbox</span> element is the root of the content. A <span class="code">vbox</span> element aligns its child-elements vertically, whereas a <span class="code">hbox</span> element aligns its child-elements horizontally. In our example, the <span class="code">vbox</span> element contains two <span class="code">hbox</span> elements. Therefore, our layout consists of two rows, each row containing elements that are horizontally aligned.</div>
+<div class="normal-para">The <span class="code">spacing</span> attribute defines the space to be inserted between child-elements. The attribute <span class="code">width="100%"</span> assures that the <span class="code">vbox</span> element fills the complete width of the dialog (otherwise the width of the <span class="code">vbox</span> would be determined from the preferred width of the child-elements). The attribute <span class="code">align="stretch"</span> has the effect, that the width of the child-elements is stretched to the complete width of the <span class="code">vbox</span>.</div>
+<div class="normal-para">The attribute <span class="code">align="center"</span> of the <span class="code">hbox</span> element has the effect, that in case the child-elements do not have the same height, then the child-elements are centered vertically.</div>
+<div class="header_para">
+<div class="normal-para">Defining the input fields using <span class="code">label</span>, <span class="code">textbox</span> and <span class="code">button</span></div>
+</div>
+<div class="normal-para">The first row of our layout contains a <span class="code">label</span> and a <span class="code">textbox</span> element. In ZUML the <span class="code">label</span> element is used to display static text. In our example, the text to be displayed is again retrieved from the <span class="code">locale.properties</span> file, by using the notation <span class="code">${labels.<span class="emphasis">name</span>}</span>, where <em><span class="code">name</span></em> is the name of the property to be retrieved.</div>
+<div class="normal-para">The <span class="code">textbox</span> element represents a input field where the user can enter text. The optional attribute <span class="code">maxlength</span> defines the maximum number of characters that the user is allowed to enter. The attribute <span class="code">hflex</span> defines how the horizontal space is partitioned between the child-elements. If an element has no <span class="code">hflex</span> attribute, then the size of the element is determined by its content. However, if the parent-element has more horizontal space available than the sum of the preferred widths of the child-elements, then the extra space is divided up between all child-elements. The <span class="code">hflex</span> attribute allows to assign a weight to the child-element, that determines how much of the extra space shall be assigned to the child-element. In our example, because the label element has no <span class="code">hflex</span> attribute, and the textbox element has the attribute <span class="code">hflex="1"</span>, the complete extra space will be assigned to the textbox.</div>
+<div class="normal-para">The second row contains the "Okay" and "Cancel" buttons. The labels for both buttons are again retrieved from the <span class="code">locale.properties</span> file by using the <span class="code">${labels.<span class="emphasis">name</span>}</span> notation. Furthermore, the attribute <span class="code">image</span> defines images to be displayed in front of the labels. Note that the image URLs <span class="code">"img/save.gif"</span> and <span class="code">"img/cancel.gif"</span> reference images that are included in the Docmenta installation by default. Therefore these images do <em>not</em> have to be included in the plug-in package.</div>
+<div class="normal-para">The width of the buttons is defined by the <span class="code">hflex="1"</span> attribute. Because both buttons get the same weight, any extra space will be divided up between both buttons equally.</div>
+<div class="normal-para">Assuming that following lines have been added to locale.properties:</div>
+<div title="Lines added to locale.properties" class="formal-block"><div class="formal-contents"><div title="Lines added to locale.properties" class="_formal_code_listing"><p class="listing_properties">my_plugin.config_dialog_title = My Configuration<br    />my_plugin.help_btn = Help<br    />my_plugin.save_btn = Save<br    />my_plugin.cancel_btn = Cancel<br    />my_plugin.config_message_label = Enter your text:<br    /></p></div></div><p class="title">Listing 4.3.14. Lines added to locale.properties</p></div>
+<div class="normal-para">the resulting dialog should be similar to following:</div>
+<div class="normal-para"><div title="Configuration dialog example" class="figure"><div class="mediaobject"><img src="images/plugin_my_config_dialog.png" alt="" title="Configuration dialog example"     /></div><p class="title">Figure 4.3.13. Configuration dialog example</p></div></div>
+<div class="normal-para">But before we can test the ZUML code, two more things have to be done: we have to implement the composer class <span class="code">myexample.MyDialogComposer</span>, and we have to include the dialog in our plug-in implementation. </div>
+</div><div title="The composer" class="doc-content"><div class="header_para">
+<div class="normal-para">Implementing a Composer</div>
+</div>
+<div class="normal-para">In the ZUML code above, a Java class named <span class="code">myexample.MyDialogComposer</span> is referenced by the <span class="code">window</span> element. In ZK a so-called composer initializes components. In our example, we use a composer to initialize the dialog. A composer has to implement the <span class="code">org.zkoss.zk.ui.util.Composer</span> interface. ZK already provides an implementation of this interface, named <span class="code">org.zkoss.zk.ui.select.SelectorComposer</span>. This class allows using Java annotations, to wire the elements in a ZUML page with the Java code. Following listing shows the implementation of our composer that extends from the <span class="code">SelectorComposer</span> class:</div>
+<div title="MyDialogComposer.java" class="formal-block"><div class="formal-contents"><div title="MyDialogComposer.java" class="_formal_code_listing"><table border="0" cellpadding="0" width="100%" cellspacing="0" style="keep-together:auto;"><tr><td valign="top" style="width:22pt;"><div class="listing_line">1 
+</div><div class="listing_line">2 
+</div><div class="listing_line">3 
+</div><div class="listing_line">4 
+</div><div class="listing_line">5 
+</div><div class="listing_line">6 
+</div><div class="listing_line">7 
+</div><div class="listing_line">8 
+</div><div class="listing_line">9 
+</div><div class="listing_line">10 
+</div><div class="listing_line">11 
+</div><div class="listing_line">12 
+</div><div class="listing_line">13 
+</div><div class="listing_line">14 
+</div><div class="listing_line">15 
+</div><div class="listing_line">16 
+</div><div class="listing_line">17 
+</div><div class="listing_line">18 
+</div><div class="listing_line">19 
+</div><div class="listing_line">20 
+</div><div class="listing_line">21 
+</div><div class="listing_line">22 
+</div><div class="listing_line">23 
+</div><div class="listing_line">24 
+</div><div class="listing_line">25 
+</div><div class="listing_line">26 
+</div><div class="listing_line">27 
+</div><div class="listing_line">28 
+</div><div class="listing_line">29 
+</div><div class="listing_line">30 
+</div><div class="listing_line">31 
+</div><div class="listing_line">32 
+</div><div class="listing_line">33 
+</div><div class="listing_line">34 
+</div><div class="listing_line">35 
+</div><div class="listing_line">36 
+</div><div class="listing_line">37 
+</div><div class="listing_line">38 
+</div><div class="listing_line">39 
+</div><div class="listing_line">40 
+</div><div class="listing_line">41 
+</div><div class="listing_line">42 
+</div><div class="listing_line">43 
+</div><div class="listing_line">44 
+</div><div class="listing_line">45 
+</div></td><td valign="top" class="listing_java"><div class="listing_line"><span class="code_keyword">package</span> myexample;
+</div><div class="listing_line"> 
+</div><div class="listing_line"><span class="code_keyword">import</span> org.zkoss.util.resource.Labels;
+</div><div class="listing_line"><span class="code_keyword">import</span> org.zkoss.zk.ui.Component;
+</div><div class="listing_line"><span class="code_keyword">import</span> org.zkoss.zk.ui.select.SelectorComposer;
+</div><div class="listing_line"><span class="code_keyword">import</span> org.zkoss.zk.ui.select.annotation.*;
+</div><div class="listing_line"><span class="code_keyword">import</span> org.zkoss.zk.ui.util.Clients;
+</div><div class="listing_line"><span class="code_keyword">import</span> org.zkoss.zul.*;
+</div><div class="listing_line"> 
+</div><div class="listing_line"><span class="code_keyword">public class</span> MyDialogComposer <span class="code_keyword">extends</span> SelectorComposer&lt;Component&gt; {
+</div><div class="listing_line"> 
+</div><div class="listing_line">    <span class="code_keyword">private</span> MyMenuPlugin plugin;
+</div><div class="listing_line">    @Wire   Window       my_plugin_config_dialog;
+</div><div class="listing_line">    @Wire   Textbox      config_textbox;
+</div><div class="listing_line"> 
+</div><div class="listing_line">    <span class="code_keyword">public void</span> openDialog(MyMenuPlugin plugin) 
+</div><div class="listing_line">    {
+</div><div class="listing_line">        <span class="code_keyword">this</span>.plugin = plugin;
+</div><div class="listing_line">        config_textbox.setValue(plugin.getMessage());
+</div><div class="listing_line">        my_plugin_config_dialog.doHighlighted();
+</div><div class="listing_line">    }
+</div><div class="listing_line">    
+</div><div class="listing_line">    @Listen(<span class="code_char">"onClick = #config_save_btn"</span>)
+</div><div class="listing_line">    <span class="code_keyword">public void</span> onOkayClick() <span class="code_keyword">throws</span> Exception 
+</div><div class="listing_line">    {
+</div><div class="listing_line">        plugin.setMessage(config_textbox.getValue());
+</div><div class="listing_line">        my_plugin_config_dialog.setVisible(<span class="code_keyword">false</span>);
+</div><div class="listing_line">    }
+</div><div class="listing_line"> 
+</div><div class="listing_line">    @Listen(<span class="code_char">"onClick = #config_cancel_btn"</span>)
+</div><div class="listing_line">    <span class="code_keyword">public void</span> onCancelClick() 
+</div><div class="listing_line">    {
+</div><div class="listing_line">        my_plugin_config_dialog.setVisible(<span class="code_keyword">false</span>);
+</div><div class="listing_line">    }
+</div><div class="listing_line">    
+</div><div class="listing_line">    @Listen(<span class="code_char">"onClick = #config_help_btn"</span>)
+</div><div class="listing_line">    <span class="code_keyword">public void</span> onHelpClick() 
+</div><div class="listing_line">    {
+</div><div class="listing_line">        String help_url = Labels.getLabel(<span class="code_char">"my_plugin.help_url"</span>);
+</div><div class="listing_line">        String js = <span class="code_char">"window.open('"</span> + help_url + <span class="code_char">"', '_blank', "</span> +
+</div><div class="listing_line">          <span class="code_char">"'width=850,height=600,resizable=yes,scrollbars=yes,"</span> +
+</div><div class="listing_line">          <span class="code_char">"location=yes,menubar=yes,status=yes');"</span>;
+</div><div class="listing_line">        Clients.evalJavaScript(js);
+</div><div class="listing_line">    }
+</div><div class="listing_line">}
+</div></td></tr></table></div></div><p class="title">Listing 4.3.15. MyDialogComposer.java</p></div>
+<div class="normal-para">The class extends from <span class="code">SelectorComposer</span> to allow usage of the <span class="code">@Wire</span> and <span class="code">@Listen</span> annotations. Note that also the classes from the <span class="code">org.zkoss.zk.ui.select.annotation</span> package have to be imported. For every type of element in ZUML, a equally named Java class exists in the <span class="code">org.zkoss.zul</span> package. For example, for the <span class="code">&lt;textbox /&gt;</span> element in ZUML, a corresponding class <span class="code">org.zkoss.zul.Textbox</span> exists.</div>
+<div class="normal-para">In our example, we have to access the dialog-window and the textbox from within Java. Therefore the two member fields <span class="code">my_plugin_config_dialog</span> and <span class="code">config_textbox</span> exist. As you can see, the name of the member fields is equal to the <span class="code">id</span> attribute that has been assigned in the ZUML file (<span class="code">my_config_dialog.zul</span>). The <span class="code">@Wire</span> annotation initializes a Java member field with the object that represents the element in the ZUML page, i.e. the element that has an <span class="code">id</span> attribute value equal to the name of the member field.</div>
+<div class="normal-para"> In the ZUML page of our dialog, the attribute <span class="code">visible="false"</span> has been added to the <span class="code">&lt;window /&gt;</span> element. That means, our dialog is closed by default. Therefore we have to provide a method that allows us to open the dialog. As you might guess, this is done by the method <span class="code">openDialog()</span>.  The <span class="code">org.zkoss.zul.Window</span> element provides several methods to make a window visible. You could just call the method <span class="code">setVisible(true)</span>. However, our window shall be displayed as a modal dialog, i.e. the Docmenta main window shall not be accessible until our plug-in dialog is closed again. To achieve this, the method <span class="code">doHighlighted()</span> is called instead of <span class="code">setVisible(true)</span>. Please consult the ZK documentation for more information.</div>
+<div class="normal-para">Before the dialog is opened, the textbox needs to be initialized with the current configuration setting. To retrieve the currently configured message, our plug-in will be extended with a method named <span class="code">getMessage()</span>. Furthermore, the class <span class="code">org.zkoss.zul.Textbox</span> provides a method named <span class="code">setValue()</span> to initialize the input field.</div>
+<div class="normal-para">The next three methods, <span class="code">onOkayClick()</span>, <span class="code">onCancelClick()</span> and <span class="code">onHelpClick()</span> are event handlers. That means, these methods are called if certain events occur. Which kind of event causes a method call is defined by the <span class="code">@Listen</span> annotation. For example, the annotation <span class="code">@Listen("onClick = #config_save_btn")</span>, causes a method call, in case an "onClick" event occurs for the element with <span class="code">id</span> attribute <span class="code">"config_save_btn"</span>. Simply said, the <span class="code">onOkayClick()</span> method is called, if the user clicks on the "Okay" button, the <span class="code">onCancelClick()</span> method is called, if user clicks on the "Cancel" button and the <span class="code">onHelpClick()</span> method is called, if user clicks on the "Help" button (in the window's title bar).</div>
+<div class="normal-para">If the user clicks on the "Okay" button, then the entered text has to be stored as the new configuration setting. This is done by the statement <span class="code">plugin.setMessage(config_textbox.getValue())</span>. Note that the method <span class="code">setMessage()</span> still needs to be added to our plug-in (see below). The expression <span class="code">config_textbox.getValue()</span> returns the text that is currently contained in the input field of the dialog. The statement <span class="code">my_plugin_config_dialog.setVisible(false)</span> finally closes the dialog.</div>
+<div class="normal-para">The method <span class="code">onCancelClick()</span> just closes the dialog (without changing the configuration setting).</div>
+<div class="normal-para">The method <span class="code">onHelpClick()</span> opens a help page, by sending a <span class="code">"window.open(...)"</span> JavaScript command to the client browser. Note that the URL of the help page is retrieved as property <span class="code">"my_plugin.help_url"</span> from the <span class="code">locale.properties</span> file (i.e. you have to add a corresponding line to this file and include the referenced help file in the plug-in package). </div>
+</div><div title="Extending the plug-in" class="doc-content"><div class="header_para">
+<div class="normal-para">Extending the Plug-in class</div>
+</div>
+<div class="normal-para">Now, we have to add the <span class="code">getMessage()</span> and <span class="code">setMessage()</span> methods to our plug-in class, i.e. the methods that are used in <span class="code">MyDialogComposer.java</span> to read and write the configured message. Furthermore, we have to overwrite the <span class="code">onLoad()</span> method, to load the configured message on server start-up, and the <span class="code">onShowConfigDialog()</span> method, to open the configuration dialog. Following listing shows the extended version of the plug-in. The line-numbers of the added and changed lines are highlighted:</div>
+<div title="MyMenuPlugin.java (configuration dialog extensions)" class="formal-block"><div class="formal-contents"><div title="MyMenuPlugin.java (configuration dialog extensions)" class="_formal_code_listing"><table border="0" cellpadding="0" width="100%" cellspacing="0" style="keep-together:auto;"><tr><td valign="top" style="width:22pt;"><div class="listing_line">1 
+</div><div class="listing_line">2 
+</div><div class="listing_line">3 
+</div><div class="listing_line">4 
+</div><div class="listing_line">5 
+</div><div class="listing_line">6 
+</div><div class="listing_line">7 
+</div><div class="listing_line">8 
+</div><div class="listing_line">9 
+</div><div class="listing_line">10 
+</div><div class="listing_line">11 
+</div><div class="listing_line">12 
+</div><div class="marked_line_num">13 
+</div><div class="marked_line_num">14 
+</div><div class="marked_line_num">15 
+</div><div class="marked_line_num">16 
+</div><div class="marked_line_num">17 
+</div><div class="marked_line_num">18 
+</div><div class="marked_line_num">19 
+</div><div class="marked_line_num">20 
+</div><div class="marked_line_num">21 
+</div><div class="marked_line_num">22 
+</div><div class="marked_line_num">23 
+</div><div class="marked_line_num">24 
+</div><div class="marked_line_num">25 
+</div><div class="marked_line_num">26 
+</div><div class="marked_line_num">27 
+</div><div class="marked_line_num">28 
+</div><div class="marked_line_num">29 
+</div><div class="marked_line_num">30 
+</div><div class="marked_line_num">31 
+</div><div class="marked_line_num">32 
+</div><div class="marked_line_num">33 
+</div><div class="marked_line_num">34 
+</div><div class="marked_line_num">35 
+</div><div class="marked_line_num">36 
+</div><div class="marked_line_num">37 
+</div><div class="marked_line_num">38 
+</div><div class="marked_line_num">39 
+</div><div class="marked_line_num">40 
+</div><div class="marked_line_num">41 
+</div><div class="marked_line_num">42 
+</div><div class="marked_line_num">43 
+</div><div class="marked_line_num">44 
+</div><div class="marked_line_num">45 
+</div><div class="marked_line_num">46 
+</div><div class="marked_line_num">47 
+</div><div class="marked_line_num">48 
+</div><div class="listing_line">49 
+</div><div class="listing_line">50 
+</div><div class="listing_line">51 
+</div><div class="listing_line">52 
+</div><div class="listing_line">53 
+</div><div class="listing_line">54 
+</div><div class="listing_line">55 
+</div><div class="listing_line">56 
+</div><div class="listing_line">57 
+</div><div class="listing_line">58 
+</div><div class="marked_line_num">59 
+</div><div class="marked_line_num">60 
+</div><div class="marked_line_num">61 
+</div><div class="marked_line_num">62 
+</div><div class="marked_line_num">63 
+</div><div class="listing_line">64 
+</div><div class="listing_line">65 
+</div><div class="listing_line">66 
+</div><div class="listing_line">67 
+</div><div class="listing_line">68 
+</div><div class="listing_line">69 
+</div><div class="listing_line">70 
+</div><div class="listing_line">71 
+</div><div class="marked_line_num">72 
+</div><div class="listing_line">73 
+</div><div class="listing_line">74 
+</div><div class="listing_line">75 
+</div><div class="listing_line">76 
+</div></td><td valign="top" class="listing_java"><div class="listing_line"><span class="code_keyword">package</span> myexample;
+</div><div class="listing_line"> 
+</div><div class="listing_line"><span class="code_keyword">import</span> java.io.*;
+</div><div class="listing_line"><span class="code_keyword">import</span> org.docma.plugin.*;
+</div><div class="listing_line"><span class="code_keyword">import</span> org.docma.plugin.web.*;
+</div><div class="listing_line"><span class="code_keyword">import</span> org.zkoss.zul.Window;
+</div><div class="listing_line"> 
+</div><div class="listing_line"><span class="code_keyword">public class</span> MyMenuPlugin <span class="code_keyword">extends</span> DefaultWebPlugin 
+</div><div class="listing_line">                          <span class="code_keyword">implements</span> UIListener 
+</div><div class="listing_line">{
+</div><div class="listing_line">    <span class="code_keyword">static final</span> String MY_ITEM_ID = <span class="code_char">"my_plugin_menu_item"</span>;
+</div><div class="listing_line"> 
+</div><div class="listing_line_marked">    <span class="code_keyword">private</span> MyDialogComposer dialog_composer;  <span class="code_comment"></span>
+</div><div class="listing_line_marked">    <span class="code_keyword">private</span> File config_file;                  <span class="code_comment"></span>
+</div><div class="listing_line_marked">    <span class="code_keyword">private</span> String message = <span class="code_char">""</span>;               <span class="code_comment"></span>
+</div><div class="listing_line_marked">                                               <span class="code_comment"></span>
+</div><div class="listing_line_marked">    <span class="code_keyword">public</span> String getMessage()                 <span class="code_comment"></span>
+</div><div class="listing_line_marked">    {                                          <span class="code_comment"></span>
+</div><div class="listing_line_marked">        <span class="code_keyword">return this</span>.message;                   <span class="code_comment"></span>
+</div><div class="listing_line_marked">    }                                          <span class="code_comment"></span>
+</div><div class="listing_line_marked">                                                            <span class="code_comment"></span>
+</div><div class="listing_line_marked">    <span class="code_keyword">public void</span> setMessage(String msg) <span class="code_keyword">throws</span> IOException   <span class="code_comment"></span>
+</div><div class="listing_line_marked">    {                                                       <span class="code_comment"></span>
+</div><div class="listing_line_marked">        <span class="code_keyword">this</span>.message = msg;                                 <span class="code_comment"></span>
+</div><div class="listing_line_marked">        FileWriter out = <span class="code_keyword">new</span> FileWriter(<span class="code_keyword">this</span>.config_file);  <span class="code_comment"></span>
+</div><div class="listing_line_marked">        out.write(msg);                                     <span class="code_comment"></span>
+</div><div class="listing_line_marked">        out.close();                                        <span class="code_comment"></span>
+</div><div class="listing_line_marked">    }                                                       <span class="code_comment"></span>
+</div><div class="listing_line_marked">                                                            <span class="code_comment"></span>
+</div><div class="listing_line_marked">    @Override                                               <span class="code_comment"></span>
+</div><div class="listing_line_marked">    <span class="code_keyword">public void</span> onLoad(PluginContext ctx) <span class="code_keyword">throws</span> Exception  <span class="code_comment"></span>
+</div><div class="listing_line_marked">    {                                                       <span class="code_comment"></span>
+</div><div class="listing_line_marked">        File dir = ctx.getPluginDirectory();                <span class="code_comment"></span>
+</div><div class="listing_line_marked">        <span class="code_keyword">this</span>.config_file = <span class="code_keyword">new</span> File(dir, <span class="code_char">"config.txt"</span>);     <span class="code_comment"></span>
+</div><div class="listing_line_marked">        <span class="code_keyword">if</span> (<span class="code_keyword">this</span>.config_file.exists()) {                    <span class="code_comment"></span>
+</div><div class="listing_line_marked">            BufferedReader in = <span class="code_keyword">new</span> BufferedReader(         <span class="code_comment"></span>
+</div><div class="listing_line_marked">                                <span class="code_keyword">new</span> FileReader(<span class="code_keyword">this</span>.config_file));<span class="code_comment"></span>
+</div><div class="listing_line_marked">            <span class="code_keyword">this</span>.message = in.readLine();                   <span class="code_comment"></span>
+</div><div class="listing_line_marked">            in.close();                                     <span class="code_comment"></span>
+</div><div class="listing_line_marked">        }                                                   <span class="code_comment"></span>
+</div><div class="listing_line_marked">    }                                                       <span class="code_comment"></span>
+</div><div class="listing_line_marked">                                                            <span class="code_comment"></span>
+</div><div class="listing_line_marked">    @Override                                               <span class="code_comment"></span>
+</div><div class="listing_line_marked">    <span class="code_keyword">public void</span> onShowConfigDialog(WebPluginContext ctx,    <span class="code_comment"></span>
+</div><div class="listing_line_marked">                                   WebUserSession sess)     <span class="code_comment"></span>
+</div><div class="listing_line_marked">    {                                                       <span class="code_comment"></span>
+</div><div class="listing_line_marked">        <span class="code_keyword">this</span>.dialog_composer.openDialog(<span class="code_keyword">this</span>);              <span class="code_comment"></span>
+</div><div class="listing_line_marked">    }                                                       <span class="code_comment"></span>
+</div><div class="listing_line"> 
+</div><div class="listing_line">    @Override
+</div><div class="listing_line">    <span class="code_keyword">public void</span> onInitMainWindow(WebPluginContext ctx, 
+</div><div class="listing_line">                                 WebUserSession sess) 
+</div><div class="listing_line">    {
+</div><div class="listing_line">        String item_label = sess.getLabel(<span class="code_char">"my_plugin.show_hello"</span>);
+</div><div class="listing_line">        String icon_url = <span class="code_char">"plugins/my_plugin/images/my_icon.png"</span>;
+</div><div class="listing_line">        sess.addMenuItem(ctx, <span class="code_char">"treemenu"</span>, MY_ITEM_ID, item_label,
+</div><div class="listing_line">                         icon_url, <span class="code_char">"treemenuExtra"</span>, <span class="code_keyword">true</span>);
+</div><div class="listing_line">        sess.setUIListener(ctx, <span class="code_keyword">this</span>);
+</div><div class="listing_line_marked">        String windowId =                                           <span class="code_comment"></span>
+</div><div class="listing_line_marked">          sess.addDialog(<span class="code_char">"plugins/my_plugin/my_config_dialog.zul"</span>); <span class="code_comment"></span>
+</div><div class="listing_line_marked">        Window dialog = (Window) sess.getDialog(windowId);          <span class="code_comment"></span>
+</div><div class="listing_line_marked">        <span class="code_keyword">this</span>.dialog_composer =                                      <span class="code_comment"></span>
+</div><div class="listing_line_marked">          (MyDialogComposer) dialog.getAttribute(<span class="code_char">"$composer"</span>);      <span class="code_comment"></span>
+</div><div class="listing_line">    }
+</div><div class="listing_line"> 
+</div><div class="listing_line">    @Override
+</div><div class="listing_line">    <span class="code_keyword">public void</span> onEvent(UIEvent evt) 
+</div><div class="listing_line">    {
+</div><div class="listing_line">        WebUserSession sess = evt.getSession();
+</div><div class="listing_line">        String targetId = evt.getTargetId();
+</div><div class="listing_line">        <span class="code_keyword">if</span> (MY_ITEM_ID.equals(targetId) &amp;&amp; evt.isClick()) {
+</div><div class="listing_line_marked">            sess.showMessage(<span class="code_keyword">this</span>.message);                     <span class="code_comment"></span>
+</div><div class="listing_line">        }
+</div><div class="listing_line">    }
+</div><div class="listing_line"> 
+</div><div class="listing_line">}
+</div></td></tr></table></div></div><p class="title">Listing 4.3.16. MyMenuPlugin.java (configuration dialog extensions)</p></div>
+<div class="normal-para">A member field named <span class="code">message</span> has been added to the plug-in, which stores the configured message. The method <span class="code">getMessage()</span> just returns the value of this field. The method <span class="code">setMessage()</span> is a little bit more complicated, because it also has to write the message to a file. Otherwise the configuration setting would be lost on server restart.</div>
+<div class="normal-para">The path of the file that is used to store the configured message is given in the member field <span class="code">config_file</span>. This field is initialized in the plug-in's <span class="code">onLoad()</span> method (see <a href="plugin_lifecycle_methods.html" title="4.3.1. Lifecycle methods">Section 4.3.1, “Lifecycle methods”</a>). The configuration file is named <span class="code">"config.txt"</span> and is stored in the directory returned by the expression <span class="code">ctx.getPluginDirectory()</span>. In Docmenta all installed plug-ins are stored in the sub-directory named <span class="code">"plugins"</span> in the document-store directory. For each installed plug-in a separate sub-directory exists, which is called the <em>"Plug-in directory"</em>. This directory contains the installed plug-in package. If a new version of Docmenta is installed, then all previously installed plug-ins are restored from this directory. This directory can also be used by the plug-in, to store any kind of data, e.g. configuration settings. A plug-in can retrieve the path to this directory from the <span class="code">org.docma.plugin.PluginContext</span> instance by calling the method <span class="code">getPluginDirectory()</span>.</div>
+<div class="normal-para">Besides initializing the member field <span class="code">config_file</span>, the method <span class="code">onLoad()</span> also sets the member field <span class="code">message</span> to the content of the configuration file. This way, on server restart the configured message does not get lost.</div>
+<div class="normal-para">The implementation of the lifecycle method <span class="code">onShowConfigDialog()</span> is quite simple: it just calls the method <span class="code">openDialog()</span> of the composer instance (see <span class="code">MyDialogComposer.java</span> above). The composer instance is stored in the member field <span class="code">dialog_composer</span>, which is initialized in the lifecycle method <span class="code">onInitMainWindow()</span>.</div>
+<div class="normal-para">The method <span class="code">onInitMainWindow()</span> is similar to the previous version of the example plug-in. The only differences are some added lines for the configuration dialog. First, our configuration dialog is added to the web-interface of the current session by calling the method <span class="code">addDialog()</span> and passing the path to the dialog's ZUML file. The method returns the id of the root element in the passed ZUML file (in our example this is <span class="code">"my_plugin_config_dialog"</span>). Then, the expression <span class="code">sess.getDialog(windowId)</span> retrieves the instance of the root element, i.e. in our example an instance of <span class="code">org.zkoss.zul.Window</span>. Finally, the expression <span class="code">dialog.getAttribute("$composer")</span> retrieves the composer instance that has been declared for the window in the ZUML file (via the <span class="code">apply</span> attribute). The method <span class="code">getAttribute()</span> is provided by ZK for all components. By convention, the attribute named <span class="code">"$composer"</span> stores the composer that is assigned to the component.</div>
+<div class="normal-para">The method <span class="code">onEvent()</span> is identical to the previous version of the plug-in, except that the message to be displayed is no longer retrieved from <span class="code">locale.properties</span>, but from the member field <span class="code">message</span>.</div>
+</div><div title="Update plugin properties" class="doc-content"><div class="header_para">
+<div class="normal-para">The plugin.properties file</div>
+</div>
+<div class="normal-para">Before we can package and install the plug-in, we have to update the <span class="code">plugin.properties</span> file as follows:</div>
+<div title="" class="formal-block"><div class="formal-contents"><div class="_formal_code_listing"><p class="listing_properties">id=my_plugin<br    />version=1.0<br    />plugin_class=myexample.MyMenuPlugin<br    />required_app_version = 1.9<br    />load_type = next_startup<br    />config_dialog = true<br    />keep_files = config.txt<br    /></p></div></div><p class="title">Listing 4.3.17. </p></div>
+<div class="normal-para">As you can see, two lines have been added: The line "<span class="code">config_dialog = true</span>" has the effect that after the plug-in has been loaded, a configuration button will be displayed, as shown in following screenshot:</div>
+<div class="normal-para"><div title="Plug-in configuration button" class="figure"><div class="mediaobject"><img src="images/plugin_my_config_btn.png" alt="" id="fig_plugin_config_button" title="Plug-in configuration button"     /></div><p class="title">Figure 4.3.14. Plug-in configuration button</p></div></div>
+<div class="normal-para">If the user clicks the configuration button, the plug-in's <span class="code">onShowConfigDialog()</span> method is called.</div>
+<div class="normal-para">The line "<span class="code">keep_files = config.txt</span>" has the effect, that in case a newer version of the plug-in is installed, the file named <span class="code">config.txt</span> in the Plug-in directory is not deleted, i.e. the configuration settings of the old version is reused for the new version. This avoids that the user has to re-enter all the configuration settings in case the plug-in is upgraded. The value of the <span class="code">keep_files</span> property can be a list of relative file paths. All the file paths have to be given relative to the Plug-in directory.</div>
+</div><div title="Create the package" class="doc-content"><div class="normal-para">We can now create a zip package and install the plugin as described in <a href="create_plugin_package.html" title="4.2. Creating a plug-in package">Chapter 4.2, Creating a plug-in package</a>. The content of the package should be as follows: </div>
+<div class="normal-para"><div title="Package structure of the dialog plug-in" class="figure"><div class="mediaobject"><img src="images/plugin_dialog_folder_structure.gif" alt="" title="Package structure of the dialog plug-in"     /></div><p class="title">Figure 4.3.15. Package structure of the dialog plug-in</p></div></div></div><div title="Test the dialog" class="doc-content"><div class="header_para">
+<div class="normal-para">Testing the plug-in</div>
+</div>
+<div class="normal-para">After installation of the plug-in, the plug-in control should display a "Configure" button (see <a href="plugin_zk_dialogs.html#fig_plugin_config_button" title="4.3.14. Plug-in configuration button">Figure 4.3.14, “Plug-in configuration button”</a>). Clicking this button opens our configuration dialog:</div>
+<div class="normal-para"><div title="The plug-in configuration dialog" class="figure"><div class="mediaobject"><img src="images/plugin_my_config_dialog.png" alt="" title="The plug-in configuration dialog"     /></div><p class="title">Figure 4.3.16. The plug-in configuration dialog</p></div></div>
+<div class="normal-para">To update the plug-in configuration, enter a text and click the "Save" button. The entered text should now be stored in the <span class="code">config.txt</span> file in the plug-in directory. After the plug-in has been configured, clicking the "Hello World" menu item displays the configured text.</div>
+<div class="normal-para">Be aware that in our example only one plug-in configuration exists for all users. That means, if one user (with administrator rights) changes the plug-in configuration, all users are affected. However, if a plug-in needs to store user-specific settings, this can be realized as shown in <a href="plugin_add_tab.html" title="4.3.4. Adding a tab">Section 4.3.4, “Adding a tab”</a>. </div></div></div><div class="navfooter"><hr/><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="plugin_plain_js_dialogs.html"><span class="navlink-text">Prev</span></a>&#160;</td><td width="20%" align="center"><a accesskey="u" href="plugin_add_dialog.html"><span class="navlink-text">Up</span></a></td><td width="40%" align="right">&#160;<a accesskey="n" href="plugin_add_tab.html"><span class="navlink-text">Next</span></a></td></tr><tr><td width="40%" align="left" valign="top">4.3.3.1. Plain JavaScript Dialogs&#160;</td><td width="20%" align="center"><a accesskey="h" href="index.html"><span class="navlink-text">Home</span></a></td><td width="40%" align="right" valign="top">&#160;4.3.4. Adding a tab</td></tr></table></div>
+<div class="web_footer">
+<p class="align-center">&#169; 2017 - www.docmenta.org</p>
+</div>
+</div>
+<a id="showHideButton" onclick="showHideToc();" class="pointLeft" title="Hide TOC tree">&nbsp;</a></body>
+</html>

@@ -293,6 +293,7 @@ function showHideToc() {
         leftNavigation.css("display","block");
         showHideButton.attr("title", "Hide the TOC Tree");
         $.cookie('webhelpTocState', '');
+        resizeToc();  // Restore resized toc width
     }
 }
 
@@ -303,7 +304,7 @@ function initResizeToc() {
     leftnav.resizable({
       ghost:true,
       handles: "e",
-      stop: function( event, ui ) {
+      stop: function( event, ui ) {  // user has resized the toc
         webhelp_options.resizetoc_function(ui.size.width);
         $.cookie('docma-leftnav-width', ui.size.width);
       }

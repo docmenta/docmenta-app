@@ -99,10 +99,15 @@ public class LogUtil
                 sb.insert(0, "[" + n.getChildPos(node) + "] ");
             }
             while (n != null) {
+                if (sb.length() > 500) {
+                    sb.insert(0, "... / ");
+                    break;
+                }
                 sb.insert(0, n.getTitle() + " / ");
                 if (n.isDocumentRoot()) {
                     break;
                 }
+                n = n.getParent();
             }
             return sb.toString();
         } catch (Exception ex) {  // should never occur

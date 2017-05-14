@@ -173,7 +173,14 @@ public class QuickLinkRule implements HTMLRule
 
         // Return transformed content.
         // If buf is empty then no valid quick links have been found (content is unchanged).
-        return (autoCorrect && (buf.length() > 0)) ? buf.toString() : null;
+        if (autoCorrect && (buf.length() > 0)) { 
+            if (copypos < content.length()) {  // copy remaining content
+                buf.append(content, copypos, content.length());
+            }
+            return buf.toString();
+        } else {
+            return null;
+        }
     }
     
     private static String transformQuickLinkToAnchor(StoreConnection storeConn, String quicklink)

@@ -174,9 +174,16 @@ public class ContentResolver
 
                         // If inclusion is inside of <p > ... </p>, then
                         // avoid nested <p> elements.
-                        int h1 = cont.lastIndexOf('<', p1);
-                        if (h1 >= 0) {
-                            int h2 = h1 + 1;
+                        boolean insideTag = false;
+                        boolean enclosingP = false;
+                        boolean enclosingPAtts = false;
+                        int h1 = cont.lastIndexOf('<', p1);  // Start of outer opening tag 
+                        int h2 = -1;  // Start of attributes of outer tag
+                        int h3 = -1;  // End of outer opening tag
+                        int h4 = -1;  // Start of outer closing tag
+                        final String P_END_TAG = "</p>";
+                        if (h1 >= 0) {   // Found outer opening tag
+                            h2 = h1 + 1;
                             while (h2 < p1) {
                                 char ch = cont.charAt(h2);
                                 if (ch == '>' || Character.isWhitespace(ch)) {
@@ -185,57 +192,79 @@ public class ContentResolver
                                 h2++;
                             }
                             String outerTagName = cont.substring(h1 + 1, h2);
-                            int h3 = cont.indexOf('>', h2);
-                            if (outerTagName.equals("p") && (h3 > 0) && 
-                                (h3 < p1) && (cont.charAt(h3 - 1) != '/')) {
+                            h3 = cont.indexOf('>', h2);
+                            boolean openP = outerTagName.equals("p") && 
+                                            (h3 > 0) && (h3 < p1) && 
+                                            (cont.charAt(h3 - 1) != '/');
+                            if (openP) {
                                 // Found open p tag in front of inclusion.
-                                final String P_END_TAG = "</p>";
-                                int h4 = cont.indexOf(P_END_TAG, p2);
+                                h4 = cont.indexOf(P_END_TAG, p2);
                                 if (h4 > 0) {
                                     // Found closing p tag after inclusion.
                                     String before = cont.substring(h3 + 1, p1).trim();
                                     String after = cont.substring(p2 + 1, h4).trim();
-                                    boolean onlySpace = before.equals("") && after.equals("");
-                                    try {
-                                        XMLParser parser = new XMLParser(replace_str);
-                                        int evt = parser.next();
-                                        if (evt == XMLParser.START_ELEMENT) {
-                                            String insTag = parser.getElementName().toLowerCase();
-                                            List<String> an = new ArrayList<String>();
-                                            List<String> av = new ArrayList<String>();
-                                            parser.getAttributes(an, av);
-                                            int innerStart = parser.getEndOffset();
-                                            parser.readUntilCorrespondingClosingTag();
-                                            int innerEnd = parser.isEmptyElement() ? 
-                                                  innerStart : parser.getStartOffset();
-                                            boolean insertSingle = (parser.next() == XMLParser.FINISHED);
-                                            if (insertSingle && insTag.equals("p")) {
-                                                // Remove enclosing p element
-                                                replace_str = 
-                                                  replace_str.substring(innerStart, innerEnd);
-                                                if (onlySpace) {
-                                                    // Insert attributes of removed p
-                                                    // into enclosing <p ...>
-                                                    replace_str = 
-                                                      mergeParas(cont, h2, an, av, replace_str);
-                                                    p1 = h3;   // position of > of opening p tag
-                                                }
-                                            } else if (onlySpace && forbiddenInP(insTag)) {
-                                                // Remove outer p element
-                                                p1 = h1;  // start of outer <p ...>
-                                                p2 = h4 + P_END_TAG.length() - 1;
-                                            }
-                                        }
-                                    } catch (Exception ex) {}
+                                    enclosingP = before.equals("") && after.equals("");
+                                    enclosingPAtts = !cont.substring(h2, h3).trim().equals("");
                                 }
                             } else if (outerTagName.startsWith("!--")) {  // start of comment
                                 // Skip inclusion if inside of comment
                                 if (cont.indexOf("-->", h2) > p2) continue;
                             } else if (h3 > p2) {  
                                 // Content inclusion is inside attribute value
-                                replace_str = removeTagsAndLineBreaks(replace_str);
+                                insideTag = true;
                             }
                         }
+                        if (insideTag) {
+                            replace_str = removeTagsAndLineBreaks(replace_str);
+                        } else {
+                            try {
+                                XMLParser parser = new XMLParser(replace_str);
+                                int evt = parser.next();
+                                if (evt == XMLParser.START_ELEMENT) {
+                                    String insTag = parser.getElementName().toLowerCase();
+                                    List<String> an = new ArrayList<String>();
+                                    List<String> av = new ArrayList<String>();
+                                    parser.getAttributes(an, av);
+                                    int innerStart = parser.getEndOffset();
+                                    int innerEnd;
+                                    if (parser.isEmptyElement()) {
+                                        innerEnd = innerStart;
+                                    } else {
+                                        parser.readUntilCorrespondingClosingTag();
+                                        innerEnd = parser.getStartOffset();
+                                    }
+                                    boolean insertSingle = (parser.next() == XMLParser.FINISHED);
+                                    if (insertSingle && insTag.equals("p")) {  // Include single p
+                                        if (an.isEmpty()) {  // Included p has no attributes
+                                            // Remove p from included content
+                                            replace_str = replace_str.substring(innerStart, innerEnd);
+                                        } else if (enclosingP) {  // p in p
+                                            if (enclosingPAtts) { // Both p have attributes
+                                                // Remove p from included content
+                                                replace_str = replace_str.substring(innerStart, innerEnd);
+                                                // Insert attributes of removed p
+                                                // into enclosing <p ...>
+                                                replace_str = 
+                                                  mergeParas(cont, h2, an, av, replace_str);
+                                                p1 = h3;   // position of > of opening p tag
+                                            } else {  // Enclosing p has no attributes.
+                                                // Remove enclosing p element.
+                                                p1 = h1;  // start of enclosing <p ...>
+                                                p2 = h4 + P_END_TAG.length() - 1;
+                                            }
+                                        }
+                                    } else if (enclosingP && (! enclosingPAtts) && forbiddenInP(insTag)) {
+                                        // Remove enclosing p element if it has no
+                                        // attributes and the included content is
+                                        // a block element that is not allowed in p.
+                                        p1 = h1;  // start of outer <p ...>
+                                        p2 = h4 + P_END_TAG.length() - 1;
+                                    }
+                                }
+                            } catch (Exception ex) {
+                                if (DocmaConstants.DEBUG) ex.printStackTrace();
+                            }
+                        }  // if (insideTag) ... else ...
                     }
                 } else {  // no content inclusion; then it is title inclusion
                     replace_str = ref_node.getTitleEntityEncoded();
@@ -437,7 +466,7 @@ public class ContentResolver
             sb.append(str, copy_pos, len);
         }
         return sb.toString().replace('<', ' ').replace('>', ' ')
-                 .replace('\n', ' ').replace('\r', ' ').replace('\f', ' ');
+                 .replace('\n', ' ').replace('\r', ' ').replace('\f', ' ').trim();
     }
     
     private static boolean forbiddenInP(String tag) 

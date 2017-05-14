@@ -107,7 +107,7 @@ public class CompareVersionsDialog extends Window
                     if (transMode != null) tempSess.enterTranslationMode(transMode);
                     node = tempSess.getNodeById(nodeId);
                 }
-                if (! (GUIUtil.isUpdateContentAllowed(node, true) &&
+                if (! (GUIUtil.isEditContentAllowed(node, true) &&
                        GUIUtil.isContentNotLocked(mainWin, tempSess, node, true, false))) {
                     return;
                 }

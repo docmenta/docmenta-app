@@ -1119,8 +1119,7 @@ public class FormattingEngine
             StringBuilder props_by_class = new StringBuilder();
             if (styles.length > 0) {
                 props_by_class.append("<xsl:choose>");
-                for (int i=0; i < styles.length; i++) {
-                    DocmaStyle s = styles[i];
+                for (DocmaStyle s : styles) {
                     props_by_class.append("<xsl:when test=\"$class_val = '").append(s.getBaseId()).append("'\">");
                     getFOFromCSS(props_by_class, s.getCSS(), true);
                     props_by_class.append("</xsl:when>");
@@ -1130,20 +1129,21 @@ public class FormattingEngine
 
             // User-defined styles
             StringBuilder when_block_style = new StringBuilder(500 * styles.length);
-            for (int i=0; i < styles.length; i++) {
-                DocmaStyle s = styles[i];
-                if (s.isInlineStyle()) {
-                    addInlineStyleTemplate(buf, s.getBaseId(), s.getCSS());
-                } else {
-                    String bs_id = s.getBaseId();
-                    when_block_style.append("<xsl:when test=\"contains($role_val, ' ")
-                                      .append(bs_id).append(" ')\">");
-                                      // .append("<xsl:when test=\"(@role = '")
-                                      // .append(bs_id).append("') or contains($role_val, ' ")
-                                      // .append(bs_id).append("') or starts-with(@role, '")
-                    addBlockStyleAttributes(when_block_style, s.getBaseId(), s.getCSS());
-                    when_block_style.append("</xsl:when>");
-                }
+            for (DocmaStyle s : styles) {
+                String bs_id = s.getBaseId();
+                String css = s.getCSS();
+
+                // Add style for the DocBook phrase element (inline formatting) 
+                addInlineStyleTemplate(buf, bs_id, css);
+
+                // Add style for the DocBook para element (block formatting)
+                when_block_style.append("<xsl:when test=\"contains($role_val, ' ")
+                        .append(bs_id).append(" ')\">");
+                // .append("<xsl:when test=\"(@role = '")
+                // .append(bs_id).append("') or contains($role_val, ' ")
+                // .append(bs_id).append("') or starts-with(@role, '")
+                addBlockStyleAttributes(when_block_style, bs_id, css);
+                when_block_style.append("</xsl:when>");
             }
 
             // Add the PDF include file

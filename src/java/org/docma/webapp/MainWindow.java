@@ -2214,7 +2214,7 @@ public class MainWindow extends Window implements EventListener
 
     void doEditContent(DocmaNode node) throws Exception
     {
-        if (! GUIUtil.isUpdateContentAllowed(node, true)) {
+        if (! GUIUtil.isEditContentAllowed(node, true)) {
             return;
         }
         if (node.isHTMLContent()) {
@@ -3518,7 +3518,7 @@ public class MainWindow extends Window implements EventListener
                           "&stamp=" + System.currentTimeMillis());
         String client_action = "window.open('" + url +
           "', '_blank', 'width=400,height=400,left=50,top=50" +
-          ",resizable=yes,location=no,menubar=yes,scrollbars=yes');";
+          ",resizable=yes,location=no,menubar=yes,toolbar=yes,scrollbars=yes');";
         Clients.evalJavaScript(client_action);
     }
 

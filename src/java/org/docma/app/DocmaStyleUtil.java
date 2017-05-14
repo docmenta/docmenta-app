@@ -24,11 +24,32 @@ public class DocmaStyleUtil
 {
     private static Set<String> internalInlineStyles = null;
     private static Set<String> internalBlockStyles = null;
+    private static Set<String> virtualStyles = null;
 
     private DocmaStyleUtil()
     {
     }
-    
+
+    /**
+     * Indicates whether the supplied style is an internal style.
+     * An internal style defines the formatting of generated parts in the
+     * exported publication. In other words, an internal style is assigned by
+     * the formatter during the export process.
+     * Therefore, an internal style shall <em>not</em> be 
+     * assigned to content directly. An internal style may define the  
+     * formatting for all or only for specific output formats.
+     * <p>
+     * For example, the internal style <code>header1</code> defines the 
+     * formatting of generated first-level headers for all output formats. 
+     * On the other side, the internal style <code>webhelptitle1</code> defines 
+     * the formatting of the headline in the header area for WebHelp output
+     * only.
+     * </p>
+     * 
+     * @param styleID  the style identifier
+     * @return  <code>true</code> if the style is an internal style; 
+     *          <code>false</code> otherwise
+     */    
     public static boolean isInternalStyle(String styleID)
     {
         return isInternalBlockStyle(styleID) || isInternalInlineStyle(styleID);
@@ -50,6 +71,55 @@ public class DocmaStyleUtil
         return internalInlineStyles.contains(styleID);
     }
 
+    /**
+     * Indicates whether the supplied style is a virtual style.
+     * A virtual style can be assigned to content as any other user-defined 
+     * style. However, a virtual style has a pre-defined meaning. 
+     * Therefore, assigning CSS properties to a virtual style may have no 
+     * effect, because the formatting properties may be pre-defined.
+     * For example, the virtual style <code>indent-level1</code> indents the
+     * block to which the style is assigned by one level.
+     * 
+     * @param styleID  the style identifier
+     * @return  <code>true</code> if the style is a virtual style; 
+     *          <code>false</code> otherwise
+     */
+    public static boolean isVirtualStyle(String styleID)
+    {
+        if (virtualStyles == null) {
+            initVirtualStyleSet();
+        }
+        return virtualStyles.contains(styleID);
+    }
+
+    /**
+     * Indicates whether the supplied style has a pre-defined meaning.
+     * 
+     * @param styleID  the style identifier
+     * @return  <code>true</code> if the style is a virtual style; 
+     *          <code>false</code> otherwise
+     */    
+    public static boolean isPredefinedStyle(String styleID)
+    {
+        return isInternalStyle(styleID) || isVirtualStyle(styleID);
+    }
+    
+    private static synchronized void initVirtualStyleSet()
+    {
+        virtualStyles = new HashSet();
+        virtualStyles.add("align-center");
+        virtualStyles.add("align-full");
+        virtualStyles.add("align-left");
+        virtualStyles.add("align-right");
+        virtualStyles.add("footnote");
+        virtualStyles.add("indexterm");
+        virtualStyles.add("keep_together");
+        virtualStyles.add("keep_together_auto");
+        virtualStyles.add("landscape_table");
+        for (int i=1; i < 10; i++) {
+            virtualStyles.add("indent-level" + i);
+        }
+    }
 
     private static synchronized void initInternalBlockStyleSet()
     {

@@ -49,10 +49,12 @@ public class ConsistencyCheckComposer extends SelectorComposer<Component>
 {
     @Wire("#ConsistencyCheckDialog") Window checkDialog;
     @Wire("#ConsistencyCheckHeadLabel") Label headLabel;
+    @Wire("#ConsistencyCheckLangCodeLabel") Label langCodeLabel;
     @Wire("#ConsistencyCheckSelectTree") Tree selectTree;
     @Wire("#ConsistencyCheckCountOnLabel") Label countOnLabel;
     @Wire("#ConsistencyCheckCountOffLabel") Label countOffLabel;
     @Wire("#ConsistencyCheckCountCorrectLabel") Label countCorrectLabel;
+    @Wire("#ConsistencyCheckCorrectArea") Component correctArea;
     @Wire("#ConsistencyCheckCorrectCheckbox") Checkbox correctBox;
     @Wire("#ConsistencyCheckStartBtn") Button startBtn;
     
@@ -64,6 +66,7 @@ public class ConsistencyCheckComposer extends SelectorComposer<Component>
     private final List<String> checksOn = new ArrayList<String>();
     private final List<String> checksOff = new ArrayList<String>();
     private int cntAutoCorrect = 0;
+    private boolean readOnlyStore;
     
     public void showDialog()
     {
@@ -145,6 +148,13 @@ public class ConsistencyCheckComposer extends SelectorComposer<Component>
     {
         checkDialog.setVisible(false);   // close dialog
     }
+
+    @Listen("onClick = #ConsistencyCheckHelpBtn")
+    public void onHelpClick() throws Exception
+    {
+        MainWindow.openHelp("help/consistency_check.html");
+    }
+    
     
     @Listen("onSelect = #ConsistencyCheckSelectTree")
     public void treeSelectionChanged(Event evt)
@@ -251,9 +261,16 @@ public class ConsistencyCheckComposer extends SelectorComposer<Component>
         DocmaSession docmaSess = webSess.getDocmaSession();
         DefaultTreeModel model = createTreeModel(webApp.getRulesManager(), docmaSess.getStoreId());
         selectTree.setModel(model);
+
+        String langCode = docmaSess.getLanguageCode();
+        langCodeLabel.setValue(langCode == null ? "" : langCode.toUpperCase());
+        
+        readOnlyStore = !GUIUtil.isUpdateVersionAllowed(docmaSess, false);
         
         correctBox.setChecked(false);
-        correctBox.setDisabled(cntAutoCorrect == 0);
+        correctBox.setDisabled(readOnlyStore || (cntAutoCorrect == 0));
+        correctArea.setVisible(! readOnlyStore);
+        
         updateCountLabels();
         startBtn.setDisabled(checksOn.isEmpty());
     }
@@ -357,6 +374,7 @@ public class ConsistencyCheckComposer extends SelectorComposer<Component>
         DefaultTreeNode root = new DefaultTreeNode("Rules", level1);
         DefaultTreeModel model = new DefaultTreeModel(root);
         model.setMultiple(true);
+        model.setOpenObjects(selectedNodes);
         model.setSelection(selectedNodes);
         return model;
     }

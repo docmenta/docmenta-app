@@ -237,12 +237,12 @@ public class RulesManager
                 rc.setCorrectOnSave(chk,  true);
                 
                 // Check image src setting 
-                chk = BaseRule.CHECK_ID_IMAGE_SRC;
+                chk = BaseRule.CHECK_ID_INVALID_IMAGE_SRC;
                 rc.setExecuteOnCheck(chk, true);
                 rc.setExecuteOnSave(chk,  false);
                 
                 // Check target type setting
-                chk = BaseRule.CHECK_ID_TARGET_TYPE;
+                chk = BaseRule.CHECK_ID_INVALID_TARGET_TYPE;
                 rc.setExecuteOnCheck(chk, true);
                 rc.setExecuteOnSave(chk,  false);
                 

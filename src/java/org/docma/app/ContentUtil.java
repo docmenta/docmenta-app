@@ -15,6 +15,9 @@
 package org.docma.app;
 
 import java.util.*;
+import org.docma.coreapi.DocRuntimeException;
+import org.docma.util.XMLParseException;
+import org.docma.util.XMLParser;
 
 /**
  *
@@ -136,6 +139,109 @@ public class ContentUtil
     }
     
     public static DocmaAnchor[] getContentAnchors(String content, DocmaNode sourceNode)
+    {
+        DocmaAnchor[] res = parseWellFormedXML(content);
+        for (DocmaAnchor anch : res) {
+            anch.setNode(sourceNode);
+        }
+        return res;
+    }
+    
+    public static DocmaAnchor[] parseWellFormedXML(String content)
+    {
+        // To do: Replace XMLParser by SimpleXMLProcessor, because 
+        //        invocations of XMLParser.readUntilCorrespondingClosingTag()
+        //        does not check if XML is well-formed.
+        
+        if ((content == null) || content.equals("")) {
+            return new DocmaAnchor[0];
+        }
+        List<DocmaAnchor> res = new ArrayList<DocmaAnchor>();
+        Deque<String> openElements = new ArrayDeque<String>();
+        try {
+            XMLParser parser = new XMLParser(content);
+            Map<String, String> atts = new HashMap<String, String>();
+                        
+            int eventType;
+            do {
+                eventType = parser.next();
+                if (eventType == XMLParser.START_ELEMENT) {
+                    String elemName = parser.getElementName();
+                    boolean isEmpty = parser.isEmptyElement();
+                    if (! isEmpty) {
+                        openElements.addLast(elemName);
+                    }
+                    parser.getAttributes(atts);
+                    
+                    String id_value = atts.get("id");
+                    if ((id_value == null) || !id_value.matches(DocmaConstants.REGEXP_ID)) {
+                        continue;   // skip invalid id values
+                    }
+                    
+                    int tagStart = parser.getStartOffset();
+                    
+                    String title = atts.get("title");
+                    if (elemName.equals("span") || (elemName.equals("cite"))) {
+                        if ((title == null) && !isEmpty) {
+                            // If span/cite has no title attribute, then the 
+                            // use the content of the element as title.
+                            int innerStart = parser.getEndOffset();
+                            parser.readUntilCorrespondingClosingTag();
+                            openElements.pollLast();
+                            int innerEnd = parser.getStartOffset();
+                            title = content.substring(innerStart, innerEnd);
+                        }
+                    } else if (elemName.equals("table")) {
+                        if ((title == null) && !isEmpty) {
+                            // Extract caption element.
+                            // This is a quick and dirty implementation.
+                            // To do: replace by real XML parsing.
+                            int tab_start = parser.getEndOffset();
+                            parser.readUntilCorrespondingClosingTag();
+                            openElements.pollLast();
+                            int tab_end = parser.getStartOffset();
+                            int p1 = content.indexOf("<caption>", tab_start);
+                            if ((p1 >= 0) && (p1 < tab_end)) {  // if this table contains a caption
+                                p1 += "<caption>".length();
+                                int p2 = content.indexOf("</caption>", p1);
+                                if ((p2 >= 0) && (p2 < tab_end)) { 
+                                    title = content.substring(p1, p2);
+                                }
+                            }
+                        }
+                    }
+                    
+                    if (title == null) title = "";
+
+                    DocmaAnchor anchor = new DocmaAnchor();
+                    anchor.setAlias(id_value);
+                    anchor.setTitle(title);
+                    anchor.setTagPosition(tagStart);
+                    res.add(anchor);
+                } else if (eventType == XMLParser.END_ELEMENT) {
+                    String elemName = parser.getElementName();
+                    String openName = openElements.pollLast();
+                    if ((openName == null) || !openName.equals(elemName)) {
+                        throw new XMLParseException("Closing tag '" + elemName + 
+                                                    "' has no matching opening tag!");
+                    }
+                }
+            } while (eventType != XMLParser.FINISHED);
+            if (! openElements.isEmpty()) {
+                throw new XMLParseException("Opening tag '" + openElements.getLast() + 
+                                            "' has no matching closing tag!");
+            }
+        } catch (XMLParseException xpe) {
+            throw new DocRuntimeException(xpe);
+        } catch (DocRuntimeException dre) {
+            throw dre;
+        } catch (Exception ex) {
+            throw new DocRuntimeException(ex);
+        }
+        return res.toArray(new DocmaAnchor[res.size()]);
+    }
+    
+    private static DocmaAnchor[] getContentAnchors_old(String content, DocmaNode sourceNode)
     {
         if (content == null) {
             return new DocmaAnchor[0];

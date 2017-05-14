@@ -2,49 +2,55 @@
 <!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
 <properties>
   <entry key="shortInfo">Basic Docmenta HTML Checks</entry>
+  <!-- Check Titles -->
   <entry key="attribute_required.title">Logs, corrects or removes elements with missing attributes</entry>
   <entry key="broken_inline_inclusion.title">Logs broken inline inclusions</entry>
   <entry key="broken_link.title">Logs broken links</entry>
   <entry key="content_required.title">Logs or removes empty elements</entry>
-  <entry key="image_src.title">Logs image elements with invalid src attribute</entry>
+  <entry key="invalid_image_src.title">Logs image elements with invalid src attribute</entry>
   <entry key="invalid_style.title">Logs usage of non-existing style identifiers</entry>
-  <entry key="target_type.title">Logs links with wrong target type</entry>
+  <entry key="invalid_target_type.title">Logs links with invalid target type</entry>
   <entry key="trim_empty_paras.title">Logs or removes empty paragraphs at the end of content nodes</entry>
   <entry key="trim_figure_spaces.title">Logs or removes whitespace around figures</entry>
-  <entry key="headStyleStatistics">Style Usage Statistics:</entry>
-  <entry key="headValidStyles">Valid Styles:</entry>
-  <entry key="headInvalidStyles">Invalid Styles:</entry>
-  <entry key="msgStyleNotFound">Non existing style identifier: {0}</entry>
+  <!-- Check messages -->
+  <entry key="msgStyleNotFound">Style ''{0}'' not found</entry>
   <entry key="msgTotalInvalidStyleCount">Total invalid style usages: {0}</entry>
-  <entry key="msgReferencedAliasTooLong">Referenced alias exceeds maximum length of {0} characters.</entry>
-  <entry key="msgInlineInclusionAliasNotFound">Referenced node with alias ''{0}'' not found.</entry>
-  <entry key="msgContentInclusionToNonContent">Content inclusion to node with alias ''{0}'' which is not a content-node.</entry>
-  <entry key="msgMissingAliasInHref">Missing alias in href attribute: ''{0}''.</entry>
-  <entry key="msgAliasInHrefNotFound">Referenced node with alias ''{0}'' not found.</entry>
-  <entry key="msgContentLinkToNonContent">Referenced node with alias ''{0}'' is not a content-node.</entry>
-  <entry key="msgImageLinkToNonSupportedImage">Image link to non-image node with alias ''{0}''.</entry>
-  <entry key="msgFileLinkToNonFile">File link to non-file node with alias ''{0}''.</entry>
-  <entry key="msgMissingImageSrcAttribute">Image has no src attribute.</entry>
-  <entry key="msgMissingAliasInImageSrc">Missing alias in image src: ''{0}''.</entry>
-  <entry key="msgAliasInImageSrcNotFound">Referenced image with alias ''{0}'' not found.</entry>
-  <entry key="msgImageSrcToNonSupportedImage">Image src references non-image node with alias ''{0}''.</entry>
-  <entry key="msgInvalidImageSrc">Invalid image src attribute: ''{0}''.</entry>
-  <entry key="msgEmptyParaExists">Found an empty paragraph at the end of the content node.</entry>
-  <entry key="msgEmptyParaRemoved">Removed empty paragraph from the end of the content node.</entry>
-  <entry key="msgFigureSpacesExist">Found whitespace around figure.</entry>
-  <entry key="msgFigureSpacesRemoved">Removed whitespace around figure.</entry>
-  <entry key="msgEmptyElementRemoved">Removed empty ''{0}'' element.</entry>
-  <entry key="msgEmptyElementExists">Found empty ''{0}'' element.</entry>
-  <entry key="msgTagRemoved">Removed ''{0}'' tag.</entry>
-  <entry key="msgTagExists">Found ''{0}'' tag.</entry>
-  <entry key="msgTagWithoutAttribRemoved">Removed ''{0}'' without attribute.</entry>
-  <entry key="msgMissingAttribAddedDefault">Added default value for ''{1}'' attribute to ''{0}'' element.</entry>
-  <entry key="msgTagWithoutAttrib">Found ''{0}'' without attribute.</entry>
-  <entry key="msgTagWithMissingAttribRemoved">Removed ''{0}'' tag with missing ''{1}'' attribute.</entry>
-  <entry key="msgTagAttribMissing">Found ''{0}'' with missing ''{1}'' attribute.</entry>
-  <entry key="msgTagAttribMissingDefault">Found ''{0}'' with missing ''{1}'' attribute. Enable auto-correct to set default.</entry>
-  <entry key="msgForbiddenAttribRemoved">Removed forbidden ''{1}'' attribute from ''{0}'' element.</entry>
-  <entry key="msgTagWithForbiddenAttrib">Found ''{0}'' with forbidden attribute ''{1}''.</entry>
+  <entry key="msgReferencedAliasTooLong">Referenced alias exceeds maximum length of {0} characters</entry>
+  <entry key="msgInlineInclusionAliasNotFound">Referenced node with alias ''{0}'' not found</entry>
+  <entry key="msgContentInclusionToNonContent">Content inclusion to node with alias ''{0}'' which is not a content-node</entry>
+  <entry key="msgMissingAliasInHref">Missing alias in href attribute ''{0}''</entry>
+  <entry key="msgAliasInHrefNotFound">Referenced node with alias ''{0}'' not found</entry>
+  <entry key="msgContentLinkToNonContent">Referenced node with alias ''{0}'' is not a content-node</entry>
+  <entry key="msgImageLinkToNonSupportedImage">Image link to non-image node with alias ''{0}''</entry>
+  <entry key="msgFileLinkToNonFile">File link to non-file node with alias ''{0}''</entry>
+  <entry key="msgMissingImageSrcAttribute">Image has no src attribute</entry>
+  <entry key="msgMissingAliasInImageSrc">Missing alias in image src ''{0}''</entry>
+  <entry key="msgAliasInImageSrcNotFound">Referenced image with alias ''{0}'' not found</entry>
+  <entry key="msgImageSrcToNonSupportedImage">Image src references non-image node with alias ''{0}''</entry>
+  <entry key="msgInvalidImageSrc">Invalid image src attribute ''{0}''</entry>
+  <entry key="msgEmptyParaExists">Found an empty paragraph at the end of the content node</entry>
+  <entry key="msgEmptyParaRemoved">Removed empty paragraph from the end of the content node</entry>
+  <entry key="msgFigureSpacesExist">Found whitespace around figure</entry>
+  <entry key="msgFigureSpacesRemoved">Removed whitespace around figure</entry>
+  <entry key="msgEmptyElementRemoved">Removed empty ''{0}'' element</entry>
+  <entry key="msgEmptyElementExists">Found empty ''{0}'' element</entry>
+  <entry key="msgTagRemoved">Removed ''{0}'' tag</entry>
+  <entry key="msgTagExists">Found ''{0}'' tag</entry>
+  <entry key="msgTagWithoutAttribRemoved">Removed ''{0}'' without attribute</entry>
+  <entry key="msgMissingAttribAddedDefault">Added default value for ''{1}'' attribute to ''{0}'' element</entry>
+  <entry key="msgTagWithoutAttrib">Found ''{0}'' without attribute</entry>
+  <entry key="msgTagWithMissingAttribRemoved">Removed ''{0}'' tag with missing ''{1}'' attribute</entry>
+  <entry key="msgTagAttribMissing">Found ''{0}'' with missing ''{1}'' attribute</entry>
+  <entry key="msgTagAttribMissingDefault">Found ''{0}'' with missing ''{1}'' attribute. Enable auto-correct to set default</entry>
+  <entry key="msgForbiddenAttribRemoved">Removed forbidden ''{1}'' attribute from ''{0}'' element</entry>
+  <entry key="msgTagWithForbiddenAttrib">Found ''{0}'' with forbidden attribute ''{1}''</entry>
+  <!-- Other labels -->
+  <entry key="headStyleStatistics">Style counts</entry>
+  <entry key="headValidStyles">Valid styles:</entry>
+  <entry key="headInvalidStyles">Invalid styles:</entry>
+  <entry key="stylesCount">Count</entry>
+  <entry key="stylesTotal">Total</entry>
+  <!-- Check online help -->
   <entry key="longInfo"><![CDATA[
   <p>
   This class provides basic Docmenta HTML checks. 
@@ -55,9 +61,9 @@
     <li><a href="#broken_inline_inclusion">broken_inline_inclusion</a></li>
     <li><a href="#broken_link">broken_link</a></li>
     <li><a href="#content_required">content_required</a></li>
-    <li><a href="#image_src">image_src</a></li>
+    <li><a href="#invalid_image_src">invalid_image_src</a></li>
     <li><a href="#invalid_style">invalid_style</a></li>
-    <li><a href="#target_type">target_type</a></li>
+    <li><a href="#invalid_target_type">invalid_target_type</a></li>
     <li><a href="#trim_empty_paras">trim_empty_paras</a></li>
     <li><a href="#trim_figure_spaces">trim_figure_spaces</a></li>
   </ul>
@@ -232,8 +238,8 @@
     </p>
   </div>
 
-  <a name="image_src" />
-  <big><strong>image_src</strong></big>
+  <a name="invalid_image_src" />
+  <big><strong>invalid_image_src</strong></big>
   <div style="margin-left:16pt;">
     <p>
       <b>Arguments:</b> <em>none</em>
@@ -263,8 +269,8 @@
     </p>
   </div>
 
-  <a name="target_type" />
-  <big><strong>target_type</strong></big>
+  <a name="invalid_target_type" />
+  <big><strong>invalid_target_type</strong></big>
   <div style="margin-left:16pt;">
     <p>
       <b>Arguments:</b> <em>none</em>

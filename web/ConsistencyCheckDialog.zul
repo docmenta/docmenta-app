@@ -7,7 +7,7 @@
   </caption>
   <vbox spacing="8px" hflex="1" vflex="1" align="stretch">
     <label id="ConsistencyCheckHeadLabel" style="font-weight:bold;">Check:</label>
-    <tree id="ConsistencyCheckSelectTree" hflex="1" vflex="1" checkmark="true" multiple="true" zclass="z-dottree">
+    <tree id="ConsistencyCheckSelectTree" hflex="1" vflex="1" checkmark="true" zclass="z-dottree">
         <treechildren></treechildren>
     </tree>
     <hbox pack="start" align="center" hflex="1" spacing="4px">
@@ -20,7 +20,11 @@
       <label value="${c:l('consistency.check.count_off')}" />
       <label value=" " id="ConsistencyCheckCountOffLabel" style="font-weight:bold;" />
     </hbox>
-    <hbox pack="start" align="center" hflex="1" spacing="3px">
+    <hbox spacing="4px">
+        <label value="${c:l('consistency.check.language')}:" style="font-weight:bold;"/>
+        <label id="ConsistencyCheckLangCodeLabel" style="font-weight:bold;" />
+    </hbox>
+    <hbox id="ConsistencyCheckCorrectArea" pack="start" align="center" hflex="1" spacing="3px">
       <checkbox id="ConsistencyCheckCorrectCheckbox" hflex="min" />
       <label value="${c:l('consistency.check.allow_autocorrect')}" style="font-weight:bold;"/>
     </hbox>

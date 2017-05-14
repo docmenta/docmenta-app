@@ -14,7 +14,6 @@
 package org.docma.app;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -32,6 +31,8 @@ import org.docma.plugin.LogLevel;
 import org.docma.plugin.Node;
 import org.docma.plugin.PluginUtil;
 import org.docma.plugin.PubContent;
+import org.docma.plugin.PubSection;
+import org.docma.plugin.Reference;
 import org.docma.plugin.StoreConnection;
 import org.docma.plugin.Style;
 import org.docma.plugin.UserSession;
@@ -60,8 +61,8 @@ public class BaseRule implements HTMLRule, XMLElementHandler
     // Link checks
     public static final String CHECK_ID_BROKEN_INLINE_INCLUSION = "broken_inline_inclusion";
     public static final String CHECK_ID_BROKEN_LINK = "broken_link";
-    public static final String CHECK_ID_TARGET_TYPE = "target_type";
-    public static final String CHECK_ID_IMAGE_SRC = "image_src";
+    public static final String CHECK_ID_INVALID_TARGET_TYPE = "invalid_target_type";
+    public static final String CHECK_ID_INVALID_IMAGE_SRC = "invalid_image_src";
 
     // Link prefixes
     private final String IMAGE_PREFIX = "image/";
@@ -113,9 +114,9 @@ public class BaseRule implements HTMLRule, XMLElementHandler
           CHECK_ID_BROKEN_INLINE_INCLUSION,
           CHECK_ID_BROKEN_LINK,
           CHECK_ID_CONTENT_REQUIRED, 
-          CHECK_ID_IMAGE_SRC,
+          CHECK_ID_INVALID_IMAGE_SRC,
           CHECK_ID_INVALID_STYLE,
-          CHECK_ID_TARGET_TYPE,
+          CHECK_ID_INVALID_TARGET_TYPE,
           CHECK_ID_TRIM_EMPTY_PARAS, 
           CHECK_ID_TRIM_FIGURE_SPACES
         };
@@ -141,9 +142,9 @@ public class BaseRule implements HTMLRule, XMLElementHandler
         debug("BaseRule.getDefaultLogLevel()");
         if (checkId.equals(CHECK_ID_BROKEN_INLINE_INCLUSION) ||
             checkId.equals(CHECK_ID_BROKEN_LINK) || 
-            checkId.equals(CHECK_ID_IMAGE_SRC) || 
+            checkId.equals(CHECK_ID_INVALID_IMAGE_SRC) || 
             checkId.equals(CHECK_ID_INVALID_STYLE) ||
-            checkId.equals(CHECK_ID_TARGET_TYPE)) {
+            checkId.equals(CHECK_ID_INVALID_TARGET_TYPE)) {
             return LogLevel.WARNING;
         } else {
             return LogLevel.INFO;
@@ -234,36 +235,49 @@ public class BaseRule implements HTMLRule, XMLElementHandler
         // Write style statistics        
         //
         if ((ctx != null) && ctx.isEnabled(CHECK_ID_INVALID_STYLE)) {
-            StringBuilder statsHead = new StringBuilder(label("headStyleStatistics"));
-            char[] headLine = new char[statsHead.length()];
-            Arrays.fill(headLine, '=');
-            statsHead.append("\n").append(headLine);
-            
-            StringBuilder statsValid = new StringBuilder(label("headValidStyles"));
-            StringBuilder statsInvalid = new StringBuilder(label("headInvalidStyles"));
-            char[] validLine = new char[statsValid.length()];
-            char[] invalidLine = new char[statsInvalid.length()];
-            Arrays.fill(validLine, '-');
-            Arrays.fill(invalidLine, '-');
-            statsValid.append("\n").append(validLine).append("\n");
-            statsInvalid.append("\n").append(invalidLine).append("\n");
-            
+            ctx.logHeader(1, label("headStyleStatistics"));
+
+            final String dots  = "........................................";
+            final String space = "                                        ";
+            // String countLabel = "Count";
+            // String countLine = space.substring(countLabel.length()) + countLabel + "\n";
+            StringBuilder statsValid = new StringBuilder();
+            StringBuilder statsInvalid = new StringBuilder();
+            int totalValid = 0;
             int totalInvalid = 0;
             for (StyleInfo sinfo : styleInfos.values()) {
                 StringBuilder stats; 
-                if (sinfo.styleExists() || sinfo.isInternal()) {
+                if (sinfo.styleExists() || sinfo.isPredefined()) {
                     stats = statsValid;
+                    totalValid += sinfo.getCount();
                 } else {
                     stats = statsInvalid;
                     totalInvalid += sinfo.getCount();
                 }
-                stats.append(sinfo.getCSSName()).append(": ")
-                     .append(sinfo.getCount()).append("\n");
+                String cssName = sinfo.getCSSName();
+                String cntStr =  " " + sinfo.getCount();
+                int len = cssName.length() + cntStr.length() + 1;
+                stats.append(cssName).append(" ");
+                if (len < dots.length() - 3) {
+                    stats.append(dots.substring(len));
+                } else {
+                    stats.append("...");
+                }
+                stats.append(cntStr).append("\n");
             }
-            ctx.log(LogLevel.INFO, 
-                    "\n" + statsHead + "\n\n" +
-                    statsValid + "\n" + statsInvalid + "\n\n" + 
-                    label("msgTotalInvalidStyleCount", totalInvalid));
+            String totalLabel = label("stylesTotal");
+            String sumValid = totalLabel + ": " + totalValid;
+            statsValid.append(space.substring(sumValid.length()))
+                      .append(sumValid).append("\n");
+            String sumInvalid = totalLabel + ": " + totalInvalid;
+            statsInvalid.append(space.substring(sumInvalid.length()))
+                        .append(sumInvalid).append("\n");
+            
+            // ctx.logHeader(1, label("headValidStyles"));
+            ctx.logText(label("headValidStyles"), statsValid.toString());
+            // ctx.logHeader(1, label("headInvalidStyles"));
+            ctx.logText(label("headInvalidStyles"), statsInvalid.toString());
+            // ctx.logHeader(2, label("msgTotalInvalidStyleCount", totalInvalid));
         }
         styleInfos.clear();
     }
@@ -289,9 +303,9 @@ public class BaseRule implements HTMLRule, XMLElementHandler
         boolean chk_cont_required = ctx.isEnabled(CHECK_ID_CONTENT_REQUIRED);
         boolean chk_att_required = ctx.isEnabled(CHECK_ID_ATTRIBUTE_REQUIRED);
         boolean chk_broken_link = ctx.isEnabled(CHECK_ID_BROKEN_LINK);
-        boolean chk_image_src = ctx.isEnabled(CHECK_ID_IMAGE_SRC);
+        boolean chk_image_src = ctx.isEnabled(CHECK_ID_INVALID_IMAGE_SRC);
         boolean chk_invalid_style = ctx.isEnabled(CHECK_ID_INVALID_STYLE);
-        boolean chk_target_type = ctx.isEnabled(CHECK_ID_TARGET_TYPE);
+        boolean chk_target_type = ctx.isEnabled(CHECK_ID_INVALID_TARGET_TYPE);
         
         boolean has_enabled = chk_cont_required || chk_att_required || 
                               chk_broken_link || chk_image_src || 
@@ -301,6 +315,7 @@ public class BaseRule implements HTMLRule, XMLElementHandler
             boolean has_correct = ctx.isAutoCorrect(CHECK_ID_CONTENT_REQUIRED) || 
                                   ctx.isAutoCorrect(CHECK_ID_ATTRIBUTE_REQUIRED);
             XMLProcessor xmlproc = XMLProcessorFactory.newInstance();
+            xmlproc.setCheckWellformed(true);
             xmlproc.setIgnoreElementCase(true);
             if (chk_invalid_style) {
                 xmlproc.setElementHandler(this);  // process all elements
@@ -369,7 +384,7 @@ public class BaseRule implements HTMLRule, XMLElementHandler
         String ename = elemCtx.getElementName().toLowerCase();
         int pos = elemCtx.getCharacterOffset();
 
-        boolean chkTargetType = ruleCtx.isEnabled(CHECK_ID_TARGET_TYPE);
+        boolean chkTargetType = ruleCtx.isEnabled(CHECK_ID_INVALID_TARGET_TYPE);
         
         //
         // Check broken links: CHECK_ID_BROKEN_LINK, CHECK_ID_TARGET_TYPE
@@ -384,7 +399,7 @@ public class BaseRule implements HTMLRule, XMLElementHandler
         // Check image references: CHECK_ID_IMAGE_SRC, CHECK_ID_TARGET_TYPE
         //
         if (ename.equals("img")) {
-            if (ruleCtx.isEnabled(CHECK_ID_IMAGE_SRC) || chkTargetType) {
+            if (ruleCtx.isEnabled(CHECK_ID_INVALID_IMAGE_SRC) || chkTargetType) {
                 checkImageSrc(elemCtx, pos);
             }
         }
@@ -546,7 +561,7 @@ public class BaseRule implements HTMLRule, XMLElementHandler
                 styleInfos.put(css_cls, sinfo);
             }
             sinfo.increaseCount();
-            if (! (sinfo.styleExists() || sinfo.isInternal())) {
+            if (! (sinfo.styleExists() || sinfo.isPredefined())) {
                 ruleCtx.log(CHECK_ID_INVALID_STYLE, pos, label("msgStyleNotFound", css_cls));
             }
         }
@@ -574,10 +589,11 @@ public class BaseRule implements HTMLRule, XMLElementHandler
                 p1++;
             }
             if ((p2 - p1) > DocmaConstants.ALIAS_MAX_LENGTH) {
-                ruleCtx.log(CHECK_ID_BROKEN_INLINE_INCLUSION, p1, label("msgReferencedAliasTooLong", DocmaConstants.ALIAS_MAX_LENGTH));
+                // ruleCtx.log(CHECK_ID_BROKEN_INLINE_INCLUSION, p1, label("msgReferencedAliasTooLong", DocmaConstants.ALIAS_MAX_LENGTH));
+                continue;
             } else {
                 String ref_alias = content.substring(p1, p2);
-                if (ref_alias.equals("")) {
+                if (ref_alias.equals("") || !ref_alias.matches(DocmaConstants.REGEXP_ALIAS_LINK)) {
                     continue;
                 }
                 StoreConnection conn = ruleCtx.getStoreConnection();
@@ -614,16 +630,23 @@ public class BaseRule implements HTMLRule, XMLElementHandler
                         ruleCtx.log(CHECK_ID_BROKEN_LINK, pos, label("msgAliasInHrefNotFound", target_alias));
                     } else {
                         if (isContentLink) {
-                            if (! (nd instanceof PubContent)) {
-                                ruleCtx.log(CHECK_ID_TARGET_TYPE, pos, label("msgContentLinkToNonContent", target_alias));
+                            boolean is_cont_nd;
+                            if (nd instanceof Reference) {
+                                Reference ref = (Reference) nd;
+                                is_cont_nd = ref.isContentInclusion() || ref.isSectionInclusion();
+                            } else {
+                                is_cont_nd = (nd instanceof PubContent) || (nd instanceof PubSection);
+                            }
+                            if (! is_cont_nd) {
+                                ruleCtx.log(CHECK_ID_INVALID_TARGET_TYPE, pos, label("msgContentLinkToNonContent", target_alias));
                             }
                         } else if (isImageLink) { 
                             if (! (nd instanceof ImageFile)) {
-                                ruleCtx.log(CHECK_ID_TARGET_TYPE, pos, label("msgImageLinkToNonSupportedImage", target_alias));
+                                ruleCtx.log(CHECK_ID_INVALID_TARGET_TYPE, pos, label("msgImageLinkToNonSupportedImage", target_alias));
                             }
                         } else {  // file link
                             if (! (nd instanceof FileContent)) {
-                                ruleCtx.log(CHECK_ID_TARGET_TYPE, pos, label("msgFileLinkToNonFile", target_alias));
+                                ruleCtx.log(CHECK_ID_INVALID_TARGET_TYPE, pos, label("msgFileLinkToNonFile", target_alias));
                             }
                         }
                     }
@@ -636,24 +659,24 @@ public class BaseRule implements HTMLRule, XMLElementHandler
     {
         String src = elemCtx.getAttributeValue("src");
         if (src == null) {
-            ruleCtx.log(CHECK_ID_IMAGE_SRC, pos, label("msgMissingImageSrcAttribute"));
+            ruleCtx.log(CHECK_ID_INVALID_IMAGE_SRC, pos, label("msgMissingImageSrcAttribute"));
         } else {
             boolean isImageLink = src.startsWith(IMAGE_PREFIX);
             if (isImageLink) {
                 String  target_alias = src.substring(IMAGE_PREFIX.length()).trim();
                 if (target_alias.equals("")) {
-                    ruleCtx.log(CHECK_ID_IMAGE_SRC, pos, label("msgMissingAliasInImageSrc", src));
+                    ruleCtx.log(CHECK_ID_INVALID_IMAGE_SRC, pos, label("msgMissingAliasInImageSrc", src));
                 } else {
                     StoreConnection conn = ruleCtx.getStoreConnection();
                     Node nd = conn.getNodeByAlias(target_alias);
                     if (nd == null) {
-                        ruleCtx.log(CHECK_ID_IMAGE_SRC, pos, label("msgAliasInImageSrcNotFound", target_alias));
+                        ruleCtx.log(CHECK_ID_INVALID_IMAGE_SRC, pos, label("msgAliasInImageSrcNotFound", target_alias));
                     } else if (! (nd instanceof ImageFile)) {
-                        ruleCtx.log(CHECK_ID_TARGET_TYPE, pos, label("msgImageSrcToNonSupportedImage", target_alias));
+                        ruleCtx.log(CHECK_ID_INVALID_TARGET_TYPE, pos, label("msgImageSrcToNonSupportedImage", target_alias));
                     }
                 }
             } else {
-                ruleCtx.log(CHECK_ID_IMAGE_SRC, pos, label("msgInvalidImageSrc", src));
+                ruleCtx.log(CHECK_ID_INVALID_IMAGE_SRC, pos, label("msgInvalidImageSrc", src));
             }
         }
     }
@@ -888,14 +911,14 @@ public class BaseRule implements HTMLRule, XMLElementHandler
     {
         private final String cssName;
         private final Style style;
-        private final boolean internal;
+        private final boolean predefined;
         private int count = 0;
         
         StyleInfo(String cssName, Style style)
         {
             this.cssName = cssName;
             this.style = style;
-            this.internal = DocmaStyleUtil.isInternalStyle(cssName);
+            this.predefined = DocmaStyleUtil.isPredefinedStyle(cssName);
         }
         
         String getCSSName()
@@ -913,9 +936,9 @@ public class BaseRule implements HTMLRule, XMLElementHandler
             return (style != null);
         }
         
-        boolean isInternal()
+        boolean isPredefined()
         {
-            return internal;
+            return predefined;
         }
         
         int getCount() 

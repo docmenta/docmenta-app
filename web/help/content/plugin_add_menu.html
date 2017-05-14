@@ -1,0 +1,341 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<!-- Put your custom HTML head tags here and select this file in the HTML output configuration. -->
+<!-- Note: The content of this file has to be XML (XHTML). -->
+<meta http-equiv="X-UA-Compatible" content="IE=8" />
+<meta http-equiv="expires" content="43200" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="generator" content="Docmenta 1.9.0"/>
+<title>4.3.2. Adding menu items</title>
+<link rel="shortcut icon" href="favicon.ico" type="image/x-icon"/>
+<link rel="home" href="index.html" title="Docmenta Tutorial and Reference"/>
+<link rel="up" href="plugin_api.html" title="4.3. Plug-in API"/>
+<link rel="prev" href="plugin_lifecycle_methods.html" title="4.3.1. Lifecycle methods"/>
+<link rel="prev" href="plugin_add_dialog.html" title="4.3.3. Adding a dialog"/>
+<link rel="stylesheet" type="text/css" href="styles.css"/>
+<link rel="stylesheet" type="text/css" href="common/jquery/theme-redmond/jquery-ui-1.8.2.custom.css"/>
+<link rel="stylesheet" type="text/css" href="common/jquery/treeview/jquery.treeview.css"/>
+<link rel="stylesheet" type="text/css" href="common/css/positioning.css"/>
+<script type="text/javascript">
+  var treeCookieId = "treeview-1494620492857";
+  var language = "en";
+  var w = new Object();
+  txt_filesfound = "Results";
+  txt_enter_at_least_1_char = "You must enter at least one character.";
+  txt_browser_not_supported = "Your browser is not supported. Use of Mozilla Firefox is recommended.";
+  txt_please_wait = "Please wait. Search in progress...";
+  txt_results_for = "Results for: ";
+</script>
+<script type="text/javascript" src="common/jquery/jquery-1.4.2.min.js"></script>
+<script type="text/javascript" src="common/jquery/jquery-ui-1.8.2.custom.min.js"></script>
+<script type="text/javascript" src="common/jquery/jquery.cookie.js"></script>
+<script type="text/javascript" src="common/jquery/treeview/jquery.treeview.min.js"></script>
+<script type="text/javascript" src="search/htmlFileList.js"></script>
+<script type="text/javascript" src="search/htmlFileInfoList.js"></script>
+<script type="text/javascript" src="search/nwSearchFnt.js"></script>
+<script type="text/javascript" src="search/stemmers/en_stemmer.js"></script>
+<script type="text/javascript" src="search/index-1.js"></script>
+<script type="text/javascript" src="search/index-2.js"></script>
+<script type="text/javascript" src="search/index-3.js"></script>
+<script type="text/javascript" src="custom.js"></script>
+<script type="text/javascript" src="common/main.js"></script>
+</head>
+<body>
+<div id="header"><img id="webhelplogo1" align="left" src='common/images/logo1.png' alt="Logo"/><img id="webhelplogo2" align="right" src='common/images/logo2.png' alt="Logo"/><div class="webhelptitle"><div class="webhelptitle1">Chapter 4.3. Plug-in API</div><div class="webhelptitle2">4.3.2. Adding menu items</div></div><div id="navheader" align="right"><table><tr><td><img src="common/images/highlight-blue.gif" alt="H" onclick="toggleHighlight()" id="showHideHighlight" title="Toggle search result highlighting" /></td><td><a id="navhead-prev" accesskey="p" href="plugin_lifecycle_methods.html"><span class="navlink-text">Prev</span></a><span class="navhead-separator">&nbsp;|&nbsp;</span><a id="navhead-up" accesskey="u" href="plugin_api.html"><span class="navlink-text">Up</span></a><span class="navhead-separator">&nbsp;|&nbsp;</span><a id="navhead-next" accesskey="n" href="plugin_add_dialog.html"><span class="navlink-text">Next</span></a></td></tr></table></div></div>
+<div id="leftnavigation"><div id="tabs"><ul id="tocsearchnavigation" style="display:none"><li id="tocnavigationtab"><a href="#treeDiv"><em>Contents</em></a></li><li id="searchnavigationtab"><a href="#searchDiv"><em>Search</em></a></li></ul><div id="treeDiv"><img src="common/images/loading.gif" alt="loading table of contents..." id="tocLoading" style="display:block;"/><div id="ulTreeDiv" style="display:none;"><div id="treenavigationtitle" style="display:none;">Contents</div><ul id="tree" class="filetree"><li><span class="file"><a href="pt04ch01.html">Introduction</a></span></li><li><span class="file"><a href="create_plugin_package.html">Creating a plug-in package</a></span></li><li><span class="file"><a href="plugin_api.html">Plug-in API</a></span><ul><li><span class="file"><a href="plugin_lifecycle_methods.html">Lifecycle methods</a></span></li><li id="webhelp-currentid"><span class="file"><a href="plugin_add_menu.html">Adding menu items</a></span></li><li><span class="file"><a href="plugin_add_dialog.html">Adding a dialog</a></span><ul><li><span class="file"><a href="plugin_plain_js_dialogs.html">Plain JavaScript Dialogs</a></span></li><li><span class="file"><a href="plugin_zk_dialogs.html">ZK Dialogs</a></span></li></ul></li><li><span class="file"><a href="plugin_add_tab.html">Adding a tab</a></span></li><li><span class="file"><a href="plugin_jsp_integration.html">JSP integration</a></span></li><li><span class="file"><a href="pt04ch03s06.html">Accessing content</a></span></li></ul></li><li><span class="file"><a href="content_handler_plugins.html">Editor and viewer plug-ins</a></span><ul><li><span class="file"><a href="pt04ch04s01.html">Content Handlers</a></span></li><li><span class="file"><a href="plug_viewer.html">Viewer Plug-ins</a></span><ul><li><span class="file"><a href="pt04ch04s02s01.html">initialize</a></span></li><li><span class="file"><a href="pt04ch04s02s02.html">getApplicationId</a></span></li><li><span class="file"><a href="pt04ch04s02s03.html">getApplicationName</a></span></li><li><span class="file"><a href="pt04ch04s02s04.html">getSupportedViewExtensions</a></span></li><li><span class="file"><a href="pt04ch04s02s05.html">getSupportedEditExtensions</a></span></li><li><span class="file"><a href="pt04ch04s02s06.html">getPreviewURL</a></span></li><li><span class="file"><a href="pt04ch04s02s07.html">openViewer</a></span></li><li><span class="file"><a href="pt04ch04s02s08.html">openEditor</a></span></li><li><span class="file"><a href="pt04ch04s02s09.html">setCharEntities</a></span></li><li><span class="file"><a href="plug_view_handler_complete.html">The complete viewer class</a></span></li><li><span class="file"><a href="pt04ch04s02s11.html">The view.jsp page</a></span></li><li><span class="file"><a href="plug_viewer_package.html">Creating the viewer plug-in</a></span></li><li><span class="file"><a href="plug_viewer_install.html">Installing the viewer plug-in</a></span></li></ul></li><li><span class="file"><a href="pt04ch04s03.html">Editor Plug-ins</a></span><ul><li><span class="file"><a href="pt04ch04s03s01.html">getSupportedEditExtensions</a></span></li><li><span class="file"><a href="pt04ch04s03s02.html">openEditor</a></span></li><li><span class="file"><a href="plug_edit_handler_complete.html">The complete editor class</a></span></li><li><span class="file"><a href="pt04ch04s03s04.html">The edit.jsp page</a></span></li><li><span class="file"><a href="pt04ch04s03s05.html">Creating the editor plug-in</a></span></li></ul></li></ul></li><li><span class="file"><a href="rule_plugins.html">Rule plug-ins</a></span><ul><li><span class="file"><a href="html_rule_getShortInfo.html">getShortInfo</a></span></li><li><span class="file"><a href="pt04ch05s02.html">getLongInfo</a></span></li><li><span class="file"><a href="pt04ch05s03.html">getCheckIds</a></span></li><li><span class="file"><a href="pt04ch05s04.html">getCheckTitle</a></span></li><li><span class="file"><a href="pt04ch05s05.html">supportsAutoCorrection</a></span></li><li><span class="file"><a href="pt04ch05s06.html">getDefaultLogLevel</a></span></li><li><span class="file"><a href="pt04ch05s07.html">configure</a></span></li><li><span class="file"><a href="pt04ch05s08.html">startBatch</a></span></li><li><span class="file"><a href="pt04ch05s09.html">finishBatch</a></span></li><li><span class="file"><a href="html_rule_apply.html">apply</a></span></li><li><span class="file"><a href="my_html_rule_complete.html">The complete example</a></span></li><li><span class="file"><a href="pt04ch05s12.html">Creating the Rule Plug-in</a></span></li></ul></li><li><span class="file"><a href="autoformat_plugins.html">AutoFormat plug-ins</a></span><ul><li><span class="file"><a href="pt04ch06s01.html">AutoFormat Transformations</a></span></li><li><span class="file"><a href="pt04ch06s02.html">AutoFormat Example</a></span></li><li><span class="file"><a href="pt04ch06s03.html">Creating an AutoFormat Plug-in</a></span></li></ul></li><li><span class="file"><a href="output_plugins.html">Output plug-ins</a></span></li><li><span class="file"><a href="customize_pdf_stylesheet.html">PDF stylesheet customization</a></span><ul><li><span class="file"><a href="customize_docbook_transformation.html">Customizing the transformation to DocBook</a></span></li><li><span class="file"><a href="pt04ch08s02.html">Customizing the DocBook stylesheets</a></span></li><li><span class="file"><a href="pt04ch08s03.html">Creating the stylesheet plug-in</a></span></li></ul></li></ul></div></div><div id="searchDiv"><div id="search"><form onsubmit="startWebHelpSearch(ditaSearch_Form);return false" name="ditaSearch_Form" class="searchForm"><fieldset class="searchFieldSet"><legend>Search</legend><div align="center"><input id="textToSearch" name="textToSearch" type="text" class="searchText"/>&nbsp;<input onclick="startWebHelpSearch(ditaSearch_Form)" type="button" class="searchButton" value="Go" id="doSearch"/></div></fieldset></form></div><div id="closeSearchResults" style="display:none"><a href="javascript:closeSearchShowToc();">Contents</a></div><div id="searchResults"><div align="center"></div></div></div></div></div>
+<div id="bookpartsnavigation"><ul><li><a href="tutorial.html">Tutorial</a></li><li><a href="reference_manual.html">User Manual</a></li><li><a href="xhtml_reference.html">XHTML Reference</a></li><li class="book-currentpart"><a href="plugin_developer_guide.html">Plug-in Developer Guide</a></li></ul></div>
+<div id="breadcrumbsnavigation" class="breadcrumbs"><span class="breadcrumb-link"><a class="breadcrumb_node" href="plugin_developer_guide.html">Plug-in Developer Guide</a></span> <span class="breadcrumb_separator">&rarr;</span> <span class="breadcrumb-link"><a class="breadcrumb_node" href="plugin_api.html">Plug-in API</a></span> <span class="breadcrumb_separator">&rarr;</span> <span class="breadcrumb_node breadcrumb_lastnode">Adding menu items</span></div>
+<div id="content"><div id="plugin_add_menu" class="section"><h3>4.3.2. Adding menu items</h3><div title="Add menu item" class="doc-content"><div class="normal-para">As a simple example we'll add a menu item to the context menu of the product-tree. When the user clicks on the menu item, a message box showing the text "Hello World!" shall be opened.</div>
+<div class="normal-para">The label of the menu item shall be "Show Hello". Additionally, an icon shall be displayed on the left side of the label as shown in the following example:</div>
+<div class="normal-para"><div title="Menu item example" class="figure"><div class="mediaobject"><img src="images/menu_hello_example.png" alt="" title="Menu item example"     /></div><p class="title">Figure 4.3.2. Menu item example</p></div></div>
+<div class="normal-para">As the text displayed in the user interface should depend on the user interface language, we'll add the phrases "Show Hello" and "Hello World!" as properties to the <span class="code">locale.properties</span> file (see <a href="create_plugin_package.html" title="4.2. Creating a plug-in package">Chapter 4.2, Creating a plug-in package</a>):</div>
+<div title="locale.properties (hello world example)" class="formal-block"><div class="formal-contents"><div title="locale.properties (hello world example)" class="_formal_code_listing"><p class="listing_properties">my_plugin.description = A simple Hello World Plug-in<br    />my_plugin.show_hello = Show Hello<br    />my_plugin.hello_world = Hello World!<br    /></p></div></div><p class="title">Listing 4.3.7. locale.properties (hello world example)</p></div>
+<div class="normal-para">To avoid naming conflicts with other plug-ins, any added property name in <span class="code">locale.properties</span> should start with the plug-in identifier followed by a dot (here: <span class="code">my_plugin.</span>).</div>
+<div class="normal-para">By adding the text phrases to the <span class="code">locale.properties</span> file, we can later on provide translations of these text phrases for different user interface languages. For example, to support the German language, you just need to add a file named <span class="code">locale_de.properties</span> to the plugin package that contains the German translations of the phrases:</div>
+<div title="locale_de.properties (hello world example)" class="formal-block"><div class="formal-contents"><div title="locale_de.properties (hello world example)" class="_formal_code_listing"><p class="listing_properties">my_plugin.description = Ein einfaches Hallo Welt Plug-in<br    />my_plugin.show_hello = Zeige Hallo<br    />my_plugin.hello_world = Hallo Welt!<br    /></p></div></div><p class="title">Listing 4.3.8. locale_de.properties (hello world example)</p></div>
+<div class="normal-para">The next step is to create the plugin implementation by extending the class <span class="code">org.docma.plugin.web.DefaultWebPlugin</span> and overwriting the <span class="code">onInitMainWindow()</span> method:</div>
+<div title="MyMenuPlugin.java" class="formal-block"><div class="formal-contents"><div title="MyMenuPlugin.java" class="_formal_code_listing"><table border="0" cellpadding="0" width="100%" cellspacing="0" style="keep-together:auto;"><tr><td valign="top" style="width:22pt;"><div class="listing_line">1 
+</div><div class="listing_line">2 
+</div><div class="listing_line">3 
+</div><div class="listing_line">4 
+</div><div class="listing_line">5 
+</div><div class="listing_line">6 
+</div><div class="listing_line">7 
+</div><div class="listing_line">8 
+</div><div class="listing_line">9 
+</div><div class="listing_line">10 
+</div><div class="listing_line">11 
+</div><div class="listing_line">12 
+</div><div class="listing_line">13 
+</div><div class="listing_line">14 
+</div><div class="listing_line">15 
+</div><div class="listing_line">16 
+</div><div class="listing_line">17 
+</div><div class="listing_line">18 
+</div><div class="listing_line">19 
+</div></td><td valign="top" class="listing_java"><div class="listing_line"><span class="code_keyword">package</span> myexample;
+</div><div class="listing_line"> 
+</div><div class="listing_line"><span class="code_keyword">import</span> org.docma.plugin.*;
+</div><div class="listing_line"><span class="code_keyword">import</span> org.docma.plugin.web.*;
+</div><div class="listing_line"> 
+</div><div class="listing_line"><span class="code_keyword">public class</span> MyMenuPlugin <span class="code_keyword">extends</span> DefaultWebPlugin {
+</div><div class="listing_line"> 
+</div><div class="listing_line">    <span class="code_keyword">static final</span> String MY_ITEM_ID = <span class="code_char">"my_plugin_menu_item"</span>;
+</div><div class="listing_line"> 
+</div><div class="listing_line">    @Override
+</div><div class="listing_line">    <span class="code_keyword">public void</span> onInitMainWindow(WebPluginContext ctx, 
+</div><div class="listing_line">                                 WebUserSession sess) 
+</div><div class="listing_line">    {
+</div><div class="listing_line">        String item_label = sess.getLabel(<span class="code_char">"my_plugin.show_hello"</span>);
+</div><div class="listing_line">        String icon_url = <span class="code_char">"plugins/my_plugin/images/my_icon.png"</span>;
+</div><div class="listing_line">        sess.addMenuItem(ctx, <span class="code_char">"treemenu"</span>, MY_ITEM_ID, item_label,
+</div><div class="listing_line">                         icon_url, <span class="code_keyword">null</span>, <span class="code_keyword">false</span>);
+</div><div class="listing_line">    }
+</div><div class="listing_line">}
+</div></td></tr></table></div></div><p class="title">Listing 4.3.9. MyMenuPlugin.java</p></div>
+<div class="normal-para">The first operation in <span class="code">onInitMainWindow()</span>retrieves the item text by calling the method <span class="code">getLabel()</span> on the <span class="code">WebUserSession</span> instance. The method <span class="code">getLabel()</span> returns the string for the passed property name (here: "<span class="code">my_plugin.show_hello</span>"). The property name can be any property defined in <span class="code">locale.properties</span>. The menu item is created by calling the method <span class="code">addMenuItem()</span>. The signature of this method is:</div>
+<div title="Signature of WebUserSession.addMenuItem()" class="normal-para java_no_line_nums"><span class="code_keyword">void</span> addMenuItem(WebPluginContext ctx, String parentMenuId, <br    />                 String itemId, String title, String iconUrl, <br    />                 String neighbourId, <span class="code_keyword">boolean</span> insertBefore);<br    /></div>
+<div class="normal-para">Following a description of the parameters:</div>
+<div class="normal-para indent-level1"><span class="code">ctx</span></div>
+<div class="normal-para indent-level2">The first parameter is of type <span class="code">WebPluginContext</span> and defines the owner of the new menu item.</div>
+<div class="normal-para indent-level1"><span class="code">parentMenuId</span></div>
+<div class="normal-para indent-level2">The parameter <span class="code">parentMenuId</span> identifies an existing menu, where the item shall be inserted as sub-element. Following table lists the predefined menus that exist in Docmenta:</div>
+<table border="2" cellpadding="4" cellspacing="0" style="border-color: #000000; border-width: 2px; width: 80%; border-style: solid;" rules="rows" class="indent-level2">
+<tbody>
+<tr><th style="width: 180px;">Menu ID</th><th>Description</th></tr>
+<tr>
+<td><span class="code">contentmenu</span></td>
+<td>The toolbar menu.</td>
+</tr>
+<tr>
+<td><span class="code">treemenu</span></td>
+<td>The context menu of the product-tree.</td>
+</tr>
+<tr>
+<td><span class="code">treemenuPaste</span></td>
+<td>The sub-menu "Paste" in the context-menu of the product-tree.</td>
+</tr>
+<tr>
+<td><span class="code">treemenuExtra</span></td>
+<td>The sub-menu "Extra" in the context-menu of the product-tree.</td>
+</tr>
+</tbody>
+</table>
+<div class="normal-para indent-level2">In the example above, the string <span class="code">"treemenu"</span> is passed as parent menu identifier, i.e. the menu item is inserted in the context menu of the product-tree.</div>
+<div class="normal-para indent-level1"><span class="code">itemId</span></div>
+<div class="normal-para indent-level2">The parameter <span class="code">itemId</span> defines the identifier of the new menu item. This has to be a string that uniquely identifies the menu item within the complete user interface. To avoid naming conflicts (e.g. with other plug-ins), it is recommended to include the plug-in identifier as prefix of the item identifier. In the example above the identifier <span class="code">"my_plugin_menu_item"</span> has been chosen.</div>
+<div class="normal-para indent-level1"><span class="code">title</span></div>
+<div class="normal-para indent-level2">The displayed label of the menu item.</div>
+<div class="normal-para indent-level1"><span class="code">iconUrl</span></div>
+<div class="normal-para indent-level2">The relative URL of the icon that shall be displayed next to the label. The URL has to be relative to the web-application root. In the example above, the URL has been set to "<span class="code">plugins/my_plugin/images/my_icon.png</span>", i.e. an image named <span class="code">my_icon.png</span> has to be placed in the plug-in package in the sub-folder <span class="code">web/plugins/my_plugin/images</span>.</div>
+<div class="normal-para indent-level1"><span class="code">neighbourId</span></div>
+<div class="normal-para indent-level2">The parameter <span class="code">neighbourId</span> defines an existing menu entry on the same level where the new item shall be inserted. If <span class="code">null</span> is passed, then the new item is added as last element.</div>
+<div class="normal-para indent-level1"><span class="code">insertBefore</span></div>
+<div class="normal-para indent-level2">The parameter <span class="code">insertBefore</span> defines whether the new item shall be inserted before or after the entry that is identified by the parameter <span class="code">neighbourId</span>. If <span class="code">neighbourId</span> is <span class="code">null</span>, then this parameter has no effect.</div>
+<div class="normal-para">You can now create a zip package and install the plugin as described in <a href="create_plugin_package.html" title="4.2. Creating a plug-in package">Chapter 4.2, Creating a plug-in package</a>. The content of the package should be as follows:</div>
+<div class="normal-para"><div title="Package structure of menu plug-in" class="figure"><div class="mediaobject"><img src="images/plugin_menu_folder_structure.gif" alt="" title="Package structure of menu plug-in"     /></div><p class="title">Figure 4.3.3. Package structure of menu plug-in</p></div></div>
+<div class="normal-para">Until now the plug-in just adds a "Show Hello" menu item as last entry to the context menu:</div>
+<div class="normal-para"><div title="Menu item added as last entry of the context menu" class="figure"><div class="mediaobject"><img src="images/menu_hello_added.png" alt="" title="Menu item added as last entry of the context menu"     /></div><p class="title">Figure 4.3.4. Menu item added as last entry of the context menu</p></div></div>
+</div><div title="Add UI listener" class="doc-content"><div class="normal-para">If you click on the menu item, nothing happens. To introduce some functionality we have to be able to react on user interface (UI) events. The following extended version of the listing above adds a listener for UI events to the plug-in. The line numbers of the added lines are highlighted:</div>
+<div title="MyMenuPlugin.java (extended)" class="formal-block"><div class="formal-contents"><div title="MyMenuPlugin.java (extended)" class="_formal_code_listing"><table border="0" cellpadding="0" width="100%" cellspacing="0" style="keep-together:auto;"><tr><td valign="top" style="width:22pt;"><div class="listing_line">1 
+</div><div class="listing_line">2 
+</div><div class="listing_line">3 
+</div><div class="listing_line">4 
+</div><div class="listing_line">5 
+</div><div class="listing_line">6 
+</div><div class="marked_line_num">7 
+</div><div class="listing_line">8 
+</div><div class="listing_line">9 
+</div><div class="listing_line">10 
+</div><div class="listing_line">11 
+</div><div class="listing_line">12 
+</div><div class="listing_line">13 
+</div><div class="listing_line">14 
+</div><div class="listing_line">15 
+</div><div class="listing_line">16 
+</div><div class="listing_line">17 
+</div><div class="listing_line">18 
+</div><div class="marked_line_num">19 
+</div><div class="listing_line">20 
+</div><div class="listing_line">21 
+</div><div class="marked_line_num">22 
+</div><div class="marked_line_num">23 
+</div><div class="marked_line_num">24 
+</div><div class="marked_line_num">25 
+</div><div class="marked_line_num">26 
+</div><div class="marked_line_num">27 
+</div><div class="marked_line_num">28 
+</div><div class="marked_line_num">29 
+</div><div class="marked_line_num">30 
+</div><div class="marked_line_num">31 
+</div><div class="listing_line">32 
+</div></td><td valign="top" class="listing_java"><div class="listing_line"><span class="code_keyword">package</span> myexample;
+</div><div class="listing_line"> 
+</div><div class="listing_line"><span class="code_keyword">import</span> org.docma.plugin.*;
+</div><div class="listing_line"><span class="code_keyword">import</span> org.docma.plugin.web.*;
+</div><div class="listing_line"> 
+</div><div class="listing_line"><span class="code_keyword">public class</span> MyMenuPlugin <span class="code_keyword">extends</span> DefaultWebPlugin 
+</div><div class="listing_line_marked">                          <span class="code_keyword">implements</span> UIListener { <span class="code_comment"></span>
+</div><div class="listing_line"> 
+</div><div class="listing_line">    <span class="code_keyword">static final</span> String MY_ITEM_ID = <span class="code_char">"my_plugin_menu_item"</span>;
+</div><div class="listing_line"> 
+</div><div class="listing_line">    @Override
+</div><div class="listing_line">    <span class="code_keyword">public void</span> onInitMainWindow(WebPluginContext ctx, 
+</div><div class="listing_line">                                 WebUserSession sess) 
+</div><div class="listing_line">    {
+</div><div class="listing_line">        String item_label = sess.getLabel(<span class="code_char">"my_plugin.show_hello"</span>);
+</div><div class="listing_line">        String icon_url = <span class="code_char">"plugins/my_plugin/images/my_icon.png"</span>;
+</div><div class="listing_line">        sess.addMenuItem(ctx, <span class="code_char">"treemenu"</span>, MY_ITEM_ID, item_label, 
+</div><div class="listing_line">                         icon_url, <span class="code_keyword">null</span>, <span class="code_keyword">false</span>);
+</div><div class="listing_line_marked">        sess.setUIListener(ctx, <span class="code_keyword">this</span>); <span class="code_comment"></span>
+</div><div class="listing_line">    }
+</div><div class="listing_line"> 
+</div><div class="listing_line_marked">    @Override                                <span class="code_comment"></span>
+</div><div class="listing_line_marked">    <span class="code_keyword">public void</span> onEvent(UIEvent evt)         <span class="code_comment"></span>
+</div><div class="listing_line_marked">    {                                        <span class="code_comment"></span>
+</div><div class="listing_line_marked">        String targetId = evt.getTargetId(); <span class="code_comment"></span>
+</div><div class="listing_line_marked">        <span class="code_keyword">if</span> (MY_ITEM_ID.equals(targetId) &amp;&amp; evt.isClick()) {      <span class="code_comment"></span>
+</div><div class="listing_line_marked">            WebUserSession sess = evt.getSession();              <span class="code_comment"></span>
+</div><div class="listing_line_marked">            String msg = sess.getLabel(<span class="code_char">"my_plugin.hello_world"</span>); <span class="code_comment"></span>
+</div><div class="listing_line_marked">            sess.showMessage(msg);                               <span class="code_comment"></span>
+</div><div class="listing_line_marked">        }  <span class="code_comment"></span>
+</div><div class="listing_line_marked">    }      <span class="code_comment"></span>
+</div><div class="listing_line">}
+</div></td></tr></table></div></div><p class="title">Listing 4.3.10. MyMenuPlugin.java (extended)</p></div>
+<div class="normal-para">In the Docmenta Plug-in API a listener for UI events can be any object that implements the <span class="code">org.docma.plugin.web.UIListener</span> interface. In the listing above, the plug-in itself is defined as UI listener. This is done by adding <span class="code">implements UIListener</span> to the class declaration. Furthermore, for the implementation of the <span class="code">UIListener</span> interface, the method <span class="code">onEvent(UIEvent evt)</span> has been added. Finally, the plug-in instance needs to be registered as listener for UI events. In the listing above this is done by the line <span class="code">sess.setUIListener(ctx, this)</span>.</div>
+<div class="normal-para">The <span class="code">onEvent()</span> method contains the code that reacts on UI events. All event data can be retrieved from the object that is passed in the parameter <span class="code">evt</span>. In our example, the first operation is to check if the event is caused by the menu item with identifier <span class="code">"my_plugin_menu_item"</span>. As you might guess, the expression <span class="code">evt.getTargetId()</span> returns the identifier of the component that received the event. This check is necessary, because all UI components that are added by the same plug-in share the same listener, i.e. the listener that has been registered by the <span class="code">setUIListener()</span> method.</div>
+<div class="normal-para">Additionally it is checked if the event is actually a click event. This is done by including the expression <span class="code">evt.isClick()</span> in the condition. Checking the event type should always be done, because the same component could receive events of different types. For example, a button could receive click- and focus-events. But an action should probably be executed, only if the click-event is received. Also be aware that new event types might be added with newer versions of Docmenta. Your plug-in should be prepared for this.</div>
+<div class="normal-para">Finally, if a click-event for the added menu item has been detected, the text to be displayed in the message box is retrieved from the <span class="code">locale.properties</span> file. This is done by the expression <span class="code">sess.getLabel("my_plugin.hello_world")</span>. As you can see, the <span class="code">WebUserSession</span> instance can be retrieved from the <span class="code">UIEvent</span> instance through the <span class="code">getSession()</span> method. The text is then displayed in a message box by calling the utility method <span class="code">showMessage()</span>.</div>
+<div class="normal-para">When you install the plug-in and click on the "Show Hello" menu item, a message box similar to the following should be shown:</div>
+<div class="normal-para"><div title="Hello World message box" class="figure"><div class="mediaobject"><img src="images/plugin_hello_msgbox.png" alt="" title="Hello World message box"     /></div><p class="title">Figure 4.3.5. Hello World message box</p></div></div>
+</div><div title="Menu item position" class="doc-content"><div class="header_para">
+<div class="normal-para">Define menu item position</div>
+</div>
+<div class="normal-para">In the example above, the new menu item is just added as last element to the menu. The Plug-in API provides more options where to add a new menu entry. If you want the new item to be added as first entry in the menu, then you have to pass the value <span class="code">true</span> for the <span class="code">insertBefore</span> argument (and keep the <span class="code">null</span> value for the <span class="code">neighbourId</span> argument). In other words, the <span class="code">addMenuItem()</span> call has to be changed as follows:</div>
+<div class="normal-para java_no_line_nums">sess.addMenuItem(ctx, <span class="code_char">"treemenu"</span>, MY_ITEM_ID, item_label,<br    />                 icon_url, <span class="code_keyword">null</span>, <span class="code_keyword">true</span>);</div>
+<div class="normal-para">You can also insert a new menu item before or after an existing menu entry. For this you have to pass the identifier of the existing entry in the <span class="code">neighbourId</span> parameter. Following illustration shows all identifiers of the existing entries in the standard Docmenta context menu.</div>
+<div class="normal-para"><div title="Context menu identifiers" class="figure"><div class="mediaobject"><img src="images/plugin_treemenu_ids.png" alt="" title="Context menu identifiers"     /></div><p class="title">Figure 4.3.6. Context menu identifiers</p></div></div>
+<div class="normal-para">The identifiers of the entries in the toolbar menu are shown in the following illustration:</div>
+<div class="normal-para"><div title="Toolbar menu identifiers" class="figure"><div class="mediaobject"><img src="images/plugin_contentmenu_ids.png" alt="" title="Toolbar menu identifiers"     /></div><p class="title">Figure 4.3.7. Toolbar menu identifiers</p></div></div>
+<div class="normal-para">For example, to insert the menu item before the "Extra" sub-menu, the <span class="code">addMenuItem()</span> call has to be changed as follows:</div>
+<div class="normal-para java_no_line_nums">sess.addMenuItem(ctx, <span class="code_char">"treemenu"</span>, MY_ITEM_ID, item_label,<br    />                 icon_url, <span class="code_char">"treemenuExtra"</span>, <span class="code_keyword">true</span>);</div>
+</div><div title="Add separator" class="doc-content"><div class="header_para">
+<div class="normal-para">Adding a separator</div>
+</div>
+<div class="normal-para">To add a separator line between your menu item and the "Extra" entry, following code can be used:</div>
+<div class="normal-para java_no_line_nums">sess.addMenuItem(ctx, <span class="code_char">"treemenu"</span>, MY_ITEM_ID, item_label,<br    />                 icon_url, <span class="code_char">"treemenuExtra"</span>, <span class="code_keyword">true</span>);<br    />sess.addMenuSeparator(ctx, <span class="code_char">"treemenu"</span>, <span class="code_char">"my_plugin_separator"</span>, <br    />                      <span class="code_char">"treemenuExtra"</span>, <span class="code_keyword">true</span>);</div>
+<div class="normal-para">The method <span class="code">addMenuSeparator()</span> works the same way as <span class="code">addMenuItem()</span>, except that it does not require the parameters for the label and icon. In the example above, the identifier <span class="code">"my_plugin_separator"</span> is used for the separator. The result should be as follows:</div>
+<div class="normal-para"><div title="Menu separator example" class="figure"><div class="mediaobject"><img src="images/menu_hello_separator.png" alt="" title="Menu separator example"     /></div><p class="title">Figure 4.3.8. Menu separator example</p></div></div>
+</div><div title="Add submenu example" class="doc-content"><div class="header_para">
+<div class="normal-para">Adding a sub-menu</div>
+</div>
+<div class="normal-para">You can also create your own sub-menu as shown in the following example:</div>
+<div class="normal-para java_no_line_nums"><span class="code_keyword">final</span> String SUBMENU_ID = <span class="code_char">"my_plugin_submenu"</span>;<br    />String submenu_label = sess.getLabel(<span class="code_char">"my_plugin.submenu_label"</span>);<br    />sess.addSubMenu(ctx, <span class="code_char">"treemenu"</span>, SUBMENU_ID, submenu_label,<br    />                <span class="code_keyword">null</span>, <span class="code_char">"treemenuExtra"</span>, <span class="code_keyword">true</span>);<br    />sess.addMenuItem(ctx, SUBMENU_ID, MY_ITEM_ID, item_label,<br    />                 icon_url, <span class="code_keyword">null</span>, <span class="code_keyword">false</span>);</div>
+<div class="normal-para">The first line stores the identifier to be used for the new sub-menu in the constant <span class="code">SUBMENU_ID</span>. The second line retrieves the label for the new sub-menu and stores it in the variable <span class="code">submenu_label</span>. Then the sub-menu is inserted before the "Extra" entry in the context menu by calling the <span class="code">addSubMenu()</span> method. The identifier of the new sub-menu (<span class="code">SUBMENU_ID</span>) is then passed as <span class="code">parentMenuId</span> argument in the following call to <span class="code">addMenuItem()</span>. This way the new item is inserted as child entry in the previously added sub-menu. Assuming that you have added following line to <span class="code">locale.properties</span>,</div>
+<div title="" class="formal-block"><div class="formal-contents"><div class="_formal_code_listing"><p class="listing_properties">my_plugin.submenu_label = My Submenu</p></div></div><p class="title">Listing 4.3.11. </p></div>
+<div class="normal-para">the result should be as follows:</div>
+<div class="normal-para"><div title="Sub-menu example" class="figure"><div class="mediaobject"><img src="images/plugin_hello_submenu.png" alt="" title="Sub-menu example"     /></div><p class="title">Figure 4.3.9. Sub-menu example</p></div></div>
+</div><div title="Enable/disable menu items" class="doc-content"><div class="header_para">
+<div class="normal-para">Enabling and disabling menu items</div>
+</div>
+<div class="normal-para">Sometimes you might want to enable or disable menu items, depending on which nodes are currently selected in the product-tree. The Plug-in API provides a possibility to update menu items just before a menu is opened. Every time a menu is opened, an "onOpen" event is sent to the registered UI listener (just before the menu is displayed). This allows the UI listener to update the menu items before the items are rendered on the screen.</div>
+<div class="normal-para">If the context menu of the product-tree is opened, then an "onOpen" event occurs with the target identifier <span class="code">"treemenu"</span>. If the toolbar menu is opened, then an "onOpen" event occurs with the target identifier <span class="code">"contentmenu"</span>. Note that an "onOpen" event only occurs for the root menus, but not for sub-menus.</div>
+<div class="normal-para">As an example, following implementation of the <span class="code">onEvent()</span> method enables our context menu item, only if a single node is selected. Otherwise the menu item is disabled.</div>
+<div class="normal-para java_no_line_nums">    @Override<br    />    <span class="code_keyword">public void</span> onEvent(UIEvent evt) <br    />    {<br    />        WebUserSession sess = evt.getSession();<br    />        String targetId = evt.getTargetId();<br    />        <span class="code_keyword">if</span> ((<span class="code_char">"treemenu"</span>.equals(targetId)) &amp;&amp; evt.isOpen()) {<br    />            <span class="code_keyword">int</span> cnt = sess.selectedNodesCount();<br    />            sess.setMenuDisabled(MY_ITEM_ID, cnt != <span class="code_literal">1</span>);<br    />        } <span class="code_keyword">else if</span> (MY_ITEM_ID.equals(targetId) &amp;&amp; evt.isClick()) {<br    />            String msg = sess.getLabel(<span class="code_char">"my_plugin.hello_world"</span>);<br    />            sess.showMessage(msg);<br    />        }<br    />    }</div>
+<div class="normal-para">In the example above the occurance of an "onOpen" event is determined with the expression <span class="code">evt.isOpen()</span>. The method <span class="code">isOpen()</span> returns true if the event name is "onOpen", otherwise it returns false. Therefore <span class="code">isOpen()</span> is just a shortcut for <span class="code">evt.getName.equals("onOpen")</span>.</div>
+<div class="normal-para">The number of currently selected product-tree nodes is returned by the method <span class="code">selectedNodesCount()</span> and stored in the variable <span class="code">cnt</span>. Afterwards, the menu item is disabled or enabled by the expression <span class="code">sess.setMenuDisabled(MY_ITEM_ID, cnt != 1)</span>. The first argument (<span class="code">MY_ITEM_ID</span>) defines the menu item. The boolean value that is passed as second argument determines whether the item shall be disabled (<span class="code">true</span>) or enabled (<span class="code">false</span>).</div>
+<div class="normal-para">As you might guess, as long as a menu item is disabled, clicking on the item does not cause any "onClick" event, i.e. in the example above, no message box is shown when clicking on the disabled item.</div>
+</div><div title="Hide menu items" class="doc-content"><div class="header_para">
+<div class="normal-para">Hiding menu items </div>
+</div>
+<div class="normal-para">Instead of disabling a menu item, an item could also be completely hidden. This can be done by calling the method <span class="code">setMenuVisible()</span>.</div>
+</div><div title="Updating menu items" class="doc-content"><div class="header_para">
+<div class="normal-para">Updating menu items</div>
+</div>
+<div class="normal-para">The label and icon of a menu item can be changed after the item has been created, by calling the method <span class="code">setMenuLabel()</span> or <span class="code">setMenuImage()</span>, respectively.</div>
+</div><div title="Checkbox menu item" class="doc-content"><div class="header_para">
+<div class="normal-para">Checkbox menu items</div>
+</div>
+<div class="normal-para">A menu item can also provide the functionality of a checkbox. In this case, instead of the icon a checkbox is shown next to the label. Following listing shows an example of adding a checkbox item to the context menu.</div>
+<div title="MyMenuPlugin.java (checkbox example)" class="formal-block"><div class="formal-contents"><div title="MyMenuPlugin.java (checkbox example)" class="_formal_code_listing"><table border="0" cellpadding="0" width="100%" cellspacing="0" style="keep-together:auto;"><tr><td valign="top" style="width:22pt;"><div class="listing_line">1 
+</div><div class="listing_line">2 
+</div><div class="listing_line">3 
+</div><div class="listing_line">4 
+</div><div class="listing_line">5 
+</div><div class="listing_line">6 
+</div><div class="listing_line">7 
+</div><div class="listing_line">8 
+</div><div class="listing_line">9 
+</div><div class="listing_line">10 
+</div><div class="listing_line">11 
+</div><div class="listing_line">12 
+</div><div class="listing_line">13 
+</div><div class="listing_line">14 
+</div><div class="listing_line">15 
+</div><div class="listing_line">16 
+</div><div class="listing_line">17 
+</div><div class="listing_line">18 
+</div><div class="listing_line">19 
+</div><div class="listing_line">20 
+</div><div class="listing_line">21 
+</div><div class="listing_line">22 
+</div><div class="listing_line">23 
+</div><div class="listing_line">24 
+</div><div class="listing_line">25 
+</div><div class="listing_line">26 
+</div><div class="listing_line">27 
+</div><div class="listing_line">28 
+</div><div class="listing_line">29 
+</div><div class="listing_line">30 
+</div><div class="listing_line">31 
+</div><div class="listing_line">32 
+</div></td><td valign="top" class="listing_java"><div class="listing_line"><span class="code_keyword">package</span> myexample;
+</div><div class="listing_line"> 
+</div><div class="listing_line"><span class="code_keyword">import</span> org.docma.plugin.*;
+</div><div class="listing_line"><span class="code_keyword">import</span> org.docma.plugin.web.*;
+</div><div class="listing_line"> 
+</div><div class="listing_line"><span class="code_keyword">public class</span> MyMenuPlugin <span class="code_keyword">extends</span> DefaultWebPlugin 
+</div><div class="listing_line">                          <span class="code_keyword">implements</span> UIListener {
+</div><div class="listing_line"> 
+</div><div class="listing_line">    <span class="code_keyword">static final</span> String MY_ITEM_ID = <span class="code_char">"my_plugin_menu_item"</span>;
+</div><div class="listing_line">    
+</div><div class="listing_line">    @Override
+</div><div class="listing_line">    <span class="code_keyword">public void</span> onInitMainWindow(WebPluginContext ctx, 
+</div><div class="listing_line">                                 WebUserSession sess) 
+</div><div class="listing_line">    {
+</div><div class="listing_line">        String item_label = sess.getLabel(<span class="code_char">"my_plugin.show_hello"</span>);
+</div><div class="listing_line">        sess.addMenuItem(ctx, <span class="code_char">"treemenu"</span>, MY_ITEM_ID, item_label,
+</div><div class="listing_line">                         <span class="code_keyword">null</span>, <span class="code_char">"treemenuExtra"</span>, <span class="code_keyword">true</span>);
+</div><div class="listing_line">        sess.setMenuCheckbox(MY_ITEM_ID, <span class="code_keyword">true</span>);
+</div><div class="listing_line">        sess.setMenuChecked(MY_ITEM_ID, <span class="code_keyword">false</span>);
+</div><div class="listing_line">        sess.setUIListener(ctx, <span class="code_keyword">this</span>);
+</div><div class="listing_line">    }
+</div><div class="listing_line"> 
+</div><div class="listing_line">    @Override
+</div><div class="listing_line">    <span class="code_keyword">public void</span> onEvent(UIEvent evt) 
+</div><div class="listing_line">    {
+</div><div class="listing_line">        <span class="code_keyword">if</span> (MY_ITEM_ID.equals(evt.getTargetId()) &amp;&amp; evt.isClick()) {
+</div><div class="listing_line">            WebUserSession sess = evt.getSession();
+</div><div class="listing_line">            <span class="code_keyword">boolean</span> state = sess.isMenuChecked(MY_ITEM_ID);
+</div><div class="listing_line">            sess.setMenuChecked(MY_ITEM_ID, !state);
+</div><div class="listing_line">        }
+</div><div class="listing_line">    }
+</div><div class="listing_line">}
+</div></td></tr></table></div></div><p class="title">Listing 4.3.12. MyMenuPlugin.java (checkbox example)</p></div>
+<div class="normal-para">In the <span class="code">onInitMainWindow()</span> method, a new item is added by calling <span class="code">addMenuItem()</span> the same way as in the previous examples, except that this time the value <span class="code">null</span> is passed in the parameter <span class="code">iconUrl</span>. The expression <span class="code">sess.setMenuCheckbox(my_item_id, true)</span> in the next line defines the item to be a checkbox-item. The second parameter of <span class="code">setMenuCheckbox()</span> defines whether the item shall be rendered as normal menu item (<span class="code">false</span>) or as a checkbox-item (<span class="code">true</span>). Finally, the state of the checkbox is set by the expression <span class="code">sess.setMenuChecked(my_item_id, false)</span>, i.e. the initial state of the checkbox is unchecked.</div>
+<div class="normal-para">In the <span class="code">onEvent()</span> method, the state of the checkbox is then toggled. This is achieved by retrieving the current state of the checkbox via</div>
+<div class="normal-para java_no_line_nums">    <span class="code_keyword">boolean</span> state = sess.isMenuChecked(my_item_id);</div>
+<div class="normal-para">and setting the negated value via</div>
+<div class="normal-para java_no_line_nums">    sess.setMenuChecked(my_item_id, !state);</div>
+<div class="normal-para">The result is that every time the user clicks on the menu item, the checkbox switches between checked and unchecked:</div>
+<div class="normal-para"><div title="Checkbox menu item" class="figure"><div class="mediaobject"><img src="images/plugin_menu_checkbox.png" alt="" title="Checkbox menu item"     /></div><p class="title">Figure 4.3.10. Checkbox menu item</p></div></div>
+</div></div><div class="navfooter"><hr/><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="plugin_lifecycle_methods.html"><span class="navlink-text">Prev</span></a>&#160;</td><td width="20%" align="center"><a accesskey="u" href="plugin_api.html"><span class="navlink-text">Up</span></a></td><td width="40%" align="right">&#160;<a accesskey="n" href="plugin_add_dialog.html"><span class="navlink-text">Next</span></a></td></tr><tr><td width="40%" align="left" valign="top">4.3.1. Lifecycle methods&#160;</td><td width="20%" align="center"><a accesskey="h" href="index.html"><span class="navlink-text">Home</span></a></td><td width="40%" align="right" valign="top">&#160;4.3.3. Adding a dialog</td></tr></table></div>
+<div class="web_footer">
+<p class="align-center">&#169; 2017 - www.docmenta.org</p>
+</div>
+</div>
+<a id="showHideButton" onclick="showHideToc();" class="pointLeft" title="Hide TOC tree">&nbsp;</a></body>
+</html>

@@ -1,0 +1,285 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<!-- Put your custom HTML head tags here and select this file in the HTML output configuration. -->
+<!-- Note: The content of this file has to be XML (XHTML). -->
+<meta http-equiv="X-UA-Compatible" content="IE=8" />
+<meta http-equiv="expires" content="43200" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="generator" content="Docmenta 1.9.0"/>
+<title>4.3.4. Adding a tab</title>
+<link rel="shortcut icon" href="favicon.ico" type="image/x-icon"/>
+<link rel="home" href="index.html" title="Docmenta Tutorial and Reference"/>
+<link rel="up" href="plugin_api.html" title="4.3. Plug-in API"/>
+<link rel="prev" href="plugin_zk_dialogs.html" title="4.3.3.2. ZK Dialogs"/>
+<link rel="prev" href="plugin_jsp_integration.html" title="4.3.5. JSP integration"/>
+<link rel="stylesheet" type="text/css" href="styles.css"/>
+<link rel="stylesheet" type="text/css" href="common/jquery/theme-redmond/jquery-ui-1.8.2.custom.css"/>
+<link rel="stylesheet" type="text/css" href="common/jquery/treeview/jquery.treeview.css"/>
+<link rel="stylesheet" type="text/css" href="common/css/positioning.css"/>
+<script type="text/javascript">
+  var treeCookieId = "treeview-1494620492861";
+  var language = "en";
+  var w = new Object();
+  txt_filesfound = "Results";
+  txt_enter_at_least_1_char = "You must enter at least one character.";
+  txt_browser_not_supported = "Your browser is not supported. Use of Mozilla Firefox is recommended.";
+  txt_please_wait = "Please wait. Search in progress...";
+  txt_results_for = "Results for: ";
+</script>
+<script type="text/javascript" src="common/jquery/jquery-1.4.2.min.js"></script>
+<script type="text/javascript" src="common/jquery/jquery-ui-1.8.2.custom.min.js"></script>
+<script type="text/javascript" src="common/jquery/jquery.cookie.js"></script>
+<script type="text/javascript" src="common/jquery/treeview/jquery.treeview.min.js"></script>
+<script type="text/javascript" src="search/htmlFileList.js"></script>
+<script type="text/javascript" src="search/htmlFileInfoList.js"></script>
+<script type="text/javascript" src="search/nwSearchFnt.js"></script>
+<script type="text/javascript" src="search/stemmers/en_stemmer.js"></script>
+<script type="text/javascript" src="search/index-1.js"></script>
+<script type="text/javascript" src="search/index-2.js"></script>
+<script type="text/javascript" src="search/index-3.js"></script>
+<script type="text/javascript" src="custom.js"></script>
+<script type="text/javascript" src="common/main.js"></script>
+</head>
+<body>
+<div id="header"><img id="webhelplogo1" align="left" src='common/images/logo1.png' alt="Logo"/><img id="webhelplogo2" align="right" src='common/images/logo2.png' alt="Logo"/><div class="webhelptitle"><div class="webhelptitle1">Chapter 4.3. Plug-in API</div><div class="webhelptitle2">4.3.4. Adding a tab</div></div><div id="navheader" align="right"><table><tr><td><img src="common/images/highlight-blue.gif" alt="H" onclick="toggleHighlight()" id="showHideHighlight" title="Toggle search result highlighting" /></td><td><a id="navhead-prev" accesskey="p" href="plugin_zk_dialogs.html"><span class="navlink-text">Prev</span></a><span class="navhead-separator">&nbsp;|&nbsp;</span><a id="navhead-up" accesskey="u" href="plugin_api.html"><span class="navlink-text">Up</span></a><span class="navhead-separator">&nbsp;|&nbsp;</span><a id="navhead-next" accesskey="n" href="plugin_jsp_integration.html"><span class="navlink-text">Next</span></a></td></tr></table></div></div>
+<div id="leftnavigation"><div id="tabs"><ul id="tocsearchnavigation" style="display:none"><li id="tocnavigationtab"><a href="#treeDiv"><em>Contents</em></a></li><li id="searchnavigationtab"><a href="#searchDiv"><em>Search</em></a></li></ul><div id="treeDiv"><img src="common/images/loading.gif" alt="loading table of contents..." id="tocLoading" style="display:block;"/><div id="ulTreeDiv" style="display:none;"><div id="treenavigationtitle" style="display:none;">Contents</div><ul id="tree" class="filetree"><li><span class="file"><a href="pt04ch01.html">Introduction</a></span></li><li><span class="file"><a href="create_plugin_package.html">Creating a plug-in package</a></span></li><li><span class="file"><a href="plugin_api.html">Plug-in API</a></span><ul><li><span class="file"><a href="plugin_lifecycle_methods.html">Lifecycle methods</a></span></li><li><span class="file"><a href="plugin_add_menu.html">Adding menu items</a></span></li><li><span class="file"><a href="plugin_add_dialog.html">Adding a dialog</a></span><ul><li><span class="file"><a href="plugin_plain_js_dialogs.html">Plain JavaScript Dialogs</a></span></li><li><span class="file"><a href="plugin_zk_dialogs.html">ZK Dialogs</a></span></li></ul></li><li id="webhelp-currentid"><span class="file"><a href="plugin_add_tab.html">Adding a tab</a></span></li><li><span class="file"><a href="plugin_jsp_integration.html">JSP integration</a></span></li><li><span class="file"><a href="pt04ch03s06.html">Accessing content</a></span></li></ul></li><li><span class="file"><a href="content_handler_plugins.html">Editor and viewer plug-ins</a></span><ul><li><span class="file"><a href="pt04ch04s01.html">Content Handlers</a></span></li><li><span class="file"><a href="plug_viewer.html">Viewer Plug-ins</a></span><ul><li><span class="file"><a href="pt04ch04s02s01.html">initialize</a></span></li><li><span class="file"><a href="pt04ch04s02s02.html">getApplicationId</a></span></li><li><span class="file"><a href="pt04ch04s02s03.html">getApplicationName</a></span></li><li><span class="file"><a href="pt04ch04s02s04.html">getSupportedViewExtensions</a></span></li><li><span class="file"><a href="pt04ch04s02s05.html">getSupportedEditExtensions</a></span></li><li><span class="file"><a href="pt04ch04s02s06.html">getPreviewURL</a></span></li><li><span class="file"><a href="pt04ch04s02s07.html">openViewer</a></span></li><li><span class="file"><a href="pt04ch04s02s08.html">openEditor</a></span></li><li><span class="file"><a href="pt04ch04s02s09.html">setCharEntities</a></span></li><li><span class="file"><a href="plug_view_handler_complete.html">The complete viewer class</a></span></li><li><span class="file"><a href="pt04ch04s02s11.html">The view.jsp page</a></span></li><li><span class="file"><a href="plug_viewer_package.html">Creating the viewer plug-in</a></span></li><li><span class="file"><a href="plug_viewer_install.html">Installing the viewer plug-in</a></span></li></ul></li><li><span class="file"><a href="pt04ch04s03.html">Editor Plug-ins</a></span><ul><li><span class="file"><a href="pt04ch04s03s01.html">getSupportedEditExtensions</a></span></li><li><span class="file"><a href="pt04ch04s03s02.html">openEditor</a></span></li><li><span class="file"><a href="plug_edit_handler_complete.html">The complete editor class</a></span></li><li><span class="file"><a href="pt04ch04s03s04.html">The edit.jsp page</a></span></li><li><span class="file"><a href="pt04ch04s03s05.html">Creating the editor plug-in</a></span></li></ul></li></ul></li><li><span class="file"><a href="rule_plugins.html">Rule plug-ins</a></span><ul><li><span class="file"><a href="html_rule_getShortInfo.html">getShortInfo</a></span></li><li><span class="file"><a href="pt04ch05s02.html">getLongInfo</a></span></li><li><span class="file"><a href="pt04ch05s03.html">getCheckIds</a></span></li><li><span class="file"><a href="pt04ch05s04.html">getCheckTitle</a></span></li><li><span class="file"><a href="pt04ch05s05.html">supportsAutoCorrection</a></span></li><li><span class="file"><a href="pt04ch05s06.html">getDefaultLogLevel</a></span></li><li><span class="file"><a href="pt04ch05s07.html">configure</a></span></li><li><span class="file"><a href="pt04ch05s08.html">startBatch</a></span></li><li><span class="file"><a href="pt04ch05s09.html">finishBatch</a></span></li><li><span class="file"><a href="html_rule_apply.html">apply</a></span></li><li><span class="file"><a href="my_html_rule_complete.html">The complete example</a></span></li><li><span class="file"><a href="pt04ch05s12.html">Creating the Rule Plug-in</a></span></li></ul></li><li><span class="file"><a href="autoformat_plugins.html">AutoFormat plug-ins</a></span><ul><li><span class="file"><a href="pt04ch06s01.html">AutoFormat Transformations</a></span></li><li><span class="file"><a href="pt04ch06s02.html">AutoFormat Example</a></span></li><li><span class="file"><a href="pt04ch06s03.html">Creating an AutoFormat Plug-in</a></span></li></ul></li><li><span class="file"><a href="output_plugins.html">Output plug-ins</a></span></li><li><span class="file"><a href="customize_pdf_stylesheet.html">PDF stylesheet customization</a></span><ul><li><span class="file"><a href="customize_docbook_transformation.html">Customizing the transformation to DocBook</a></span></li><li><span class="file"><a href="pt04ch08s02.html">Customizing the DocBook stylesheets</a></span></li><li><span class="file"><a href="pt04ch08s03.html">Creating the stylesheet plug-in</a></span></li></ul></li></ul></div></div><div id="searchDiv"><div id="search"><form onsubmit="startWebHelpSearch(ditaSearch_Form);return false" name="ditaSearch_Form" class="searchForm"><fieldset class="searchFieldSet"><legend>Search</legend><div align="center"><input id="textToSearch" name="textToSearch" type="text" class="searchText"/>&nbsp;<input onclick="startWebHelpSearch(ditaSearch_Form)" type="button" class="searchButton" value="Go" id="doSearch"/></div></fieldset></form></div><div id="closeSearchResults" style="display:none"><a href="javascript:closeSearchShowToc();">Contents</a></div><div id="searchResults"><div align="center"></div></div></div></div></div>
+<div id="bookpartsnavigation"><ul><li><a href="tutorial.html">Tutorial</a></li><li><a href="reference_manual.html">User Manual</a></li><li><a href="xhtml_reference.html">XHTML Reference</a></li><li class="book-currentpart"><a href="plugin_developer_guide.html">Plug-in Developer Guide</a></li></ul></div>
+<div id="breadcrumbsnavigation" class="breadcrumbs"><span class="breadcrumb-link"><a class="breadcrumb_node" href="plugin_developer_guide.html">Plug-in Developer Guide</a></span> <span class="breadcrumb_separator">&rarr;</span> <span class="breadcrumb-link"><a class="breadcrumb_node" href="plugin_api.html">Plug-in API</a></span> <span class="breadcrumb_separator">&rarr;</span> <span class="breadcrumb_node breadcrumb_lastnode">Adding a tab</span></div>
+<div id="content"><div id="plugin_add_tab" class="section"><h3>4.3.4. Adding a tab</h3><div title="Intro, Example zul code" class="doc-content"><div class="normal-para">A plug-in can add new tabs to the user interface. Currently the plug-in API allows to add tabs to</div>
+<ul>
+<li>the user profile dialog</li>
+<li>the publishing workspace</li>
+<li>the administration workspace</li>
+</ul>
+<div class="normal-para">To add a new tab at one of these positions, the <span class="code">org.docma.plugin.web.WebUserSession</span> interface provides the methods:</div>
+<ul>
+<li><span class="code">addUserTab</span></li>
+<li><span class="code">addPublishingTab</span></li>
+<li><span class="code">addAdminTab</span></li>
+</ul>
+<div class="normal-para">In <a href="plugin_add_dialog.html" title="4.3.3. Adding a dialog">Section 4.3.3, “Adding a dialog”</a> we have added a configuration dialog to our plug-in that allows to configure the text to be displayed in the "Hello World" message box. This configuration affects all users, as the configured text is stored in a file within the plug-in directory (which is the same for all users). As an example of adding a tab, we will change the plug-in and store the configured text as a user property. For this we will add a new tab to the user profile dialog.</div>
+<div class="normal-para">In Docmenta a user can configure user-specific settings by clicking the user profile button:</div>
+<div class="normal-para"><img src="images/btn_profile.gif" alt=""     /> </div>
+<div class="normal-para">This opens the user profile dialog:</div>
+<div class="normal-para"><div title="The user profile dialog" class="figure"><div class="mediaobject"><img src="images/screen_edit_user.png" alt="" title="The user profile dialog"     /></div><p class="title">Figure 4.3.17. The user profile dialog</p></div></div>
+<div class="normal-para">By default, the user profile dialog contains two tabs: "General" and "Groups". In our example we want to insert an additional tab that allows to configure the user-specific text to be displayed in the "Hello World" message box. Therefore the content of the tab shall just contain an input box and a label. As the tab is part of the ZK user interface, the content of the tab has to be defined in the ZK User Interface Markup Language (ZUML). Detailed information on this language can be found on the <a href="http://www.zkoss.org" target="_top">ZK homepage</a>. Following the ZUML file that defines the content of our tab:</div>
+<div title="my_user_tab.zul" class="formal-block"><div class="formal-contents"><div title="my_user_tab.zul" class="_formal_code_listing"><table border="0" cellpadding="0" width="100%" cellspacing="0" style="keep-together:auto;"><tr><td valign="top" style="width:22pt;"><div class="listing_line">1 
+</div><div class="listing_line">2 
+</div><div class="listing_line">3 
+</div><div class="listing_line">4 
+</div></td><td valign="top" class="listing_xml"><div class="listing_line"><span class="code_tag">&lt;hbox </span><span class="code_attrib">align=</span><span class="code_attval">"center"</span><span class="code_tag">&gt;</span>
+</div><div class="listing_line">  <span class="code_tag">&lt;label&gt;</span>${labels.my_plugin.config_message_label}:<span class="code_tag">&lt;/label&gt;</span>
+</div><div class="listing_line">  <span class="code_tag">&lt;textbox </span><span class="code_attrib">id=</span><span class="code_attval">"my_plugin_message_textbox"</span> <span class="code_attrib">maxlength=</span><span class="code_attval">"100"</span> <span class="code_attrib">hflex=</span><span class="code_attval">"1"</span> <span class="code_tag">/&gt;</span>
+</div><div class="listing_line"><span class="code_tag">&lt;/hbox&gt;</span>
+</div></td></tr></table></div></div><p class="title">Listing 4.3.18. my_user_tab.zul</p></div>
+<div class="normal-para">For a description of the <span class="code">hbox</span>, <span class="code">label</span> and <span class="code">textbox</span> elements see the example given in <a href="plugin_add_dialog.html" title="4.3.3. Adding a dialog">Section 4.3.3, “Adding a dialog”</a>.</div></div><div title="Extend the plug-in" class="doc-content"><div class="header_para">
+<div class="normal-para">Extending the Plug-in class</div>
+</div>
+<div class="normal-para">Now, we extend the example plug-in already described in <a href="plugin_add_menu.html" title="4.3.2. Adding menu items">Section 4.3.2, “Adding menu items”</a>. The extended plug-in shall add a tab to the user profile dialog. The added tab shall display the elements defined in the <span class="code">my_user_tab.zul</span> file shown above. When the user closes the user profile dialog, the text that has been entered in the tab's text box shall be stored as user-specific property. Following listing shows the extended plug-in. The line-numbers of the added and changed lines are highlighted: </div>
+<div title="MyMenuPlugin.java (user tab example)" class="formal-block"><div class="formal-contents"><div title="MyMenuPlugin.java (user tab example)" class="_formal_code_listing"><table border="0" cellpadding="0" width="100%" cellspacing="0" style="keep-together:auto;"><tr><td valign="top" style="width:22pt;"><div class="listing_line">1 
+</div><div class="listing_line">2 
+</div><div class="listing_line">3 
+</div><div class="listing_line">4 
+</div><div class="listing_line">5 
+</div><div class="listing_line">6 
+</div><div class="listing_line">7 
+</div><div class="listing_line">8 
+</div><div class="listing_line">9 
+</div><div class="marked_line_num">10 
+</div><div class="marked_line_num">11 
+</div><div class="listing_line">12 
+</div><div class="listing_line">13 
+</div><div class="listing_line">14 
+</div><div class="listing_line">15 
+</div><div class="listing_line">16 
+</div><div class="listing_line">17 
+</div><div class="listing_line">18 
+</div><div class="listing_line">19 
+</div><div class="listing_line">20 
+</div><div class="listing_line">21 
+</div><div class="listing_line">22 
+</div><div class="marked_line_num">23 
+</div><div class="marked_line_num">24 
+</div><div class="marked_line_num">25 
+</div><div class="marked_line_num">26 
+</div><div class="listing_line">27 
+</div><div class="listing_line">28 
+</div><div class="listing_line">29 
+</div><div class="listing_line">30 
+</div><div class="listing_line">31 
+</div><div class="listing_line">32 
+</div><div class="listing_line">33 
+</div><div class="listing_line">34 
+</div><div class="listing_line">35 
+</div><div class="marked_line_num">36 
+</div><div class="marked_line_num">37 
+</div><div class="marked_line_num">38 
+</div><div class="marked_line_num">39 
+</div><div class="marked_line_num">40 
+</div><div class="marked_line_num">41 
+</div><div class="marked_line_num">42 
+</div><div class="marked_line_num">43 
+</div><div class="marked_line_num">44 
+</div><div class="marked_line_num">45 
+</div><div class="marked_line_num">46 
+</div><div class="marked_line_num">47 
+</div><div class="marked_line_num">48 
+</div><div class="marked_line_num">49 
+</div><div class="marked_line_num">50 
+</div><div class="marked_line_num">51 
+</div><div class="marked_line_num">52 
+</div><div class="listing_line">53 
+</div><div class="listing_line">54 
+</div><div class="listing_line">55 
+</div><div class="marked_line_num">56 
+</div><div class="listing_line">57 
+</div><div class="listing_line">58 
+</div><div class="listing_line">59 
+</div><div class="marked_line_num">60 
+</div><div class="marked_line_num">61 
+</div><div class="marked_line_num">62 
+</div><div class="marked_line_num">63 
+</div><div class="marked_line_num">64 
+</div><div class="listing_line">65 
+</div></td><td valign="top" class="listing_java"><div class="listing_line"><span class="code_keyword">package</span> myexample;
+</div><div class="listing_line"> 
+</div><div class="listing_line"><span class="code_keyword">import</span> org.docma.plugin.web.*;
+</div><div class="listing_line"><span class="code_keyword">import</span> org.zkoss.zul.Textbox;
+</div><div class="listing_line"> 
+</div><div class="listing_line"><span class="code_keyword">public class</span> MyMenuPlugin <span class="code_keyword">extends</span> DefaultWebPlugin 
+</div><div class="listing_line">                          <span class="code_keyword">implements</span> UIListener 
+</div><div class="listing_line">{
+</div><div class="listing_line">    <span class="code_keyword">static final</span> String MY_ITEM_ID = <span class="code_char">"my_plugin_menu_item"</span>;
+</div><div class="listing_line_marked">    <span class="code_keyword">static final</span> String MY_TAB_ID = <span class="code_char">"my_plugin_user_tab"</span>;      <span class="code_comment"></span>
+</div><div class="listing_line_marked">    <span class="code_keyword">static final</span> String MY_USER_PROP = <span class="code_char">"my_plugin_message"</span>;    <span class="code_comment"></span>
+</div><div class="listing_line">    
+</div><div class="listing_line">    @Override
+</div><div class="listing_line">    <span class="code_keyword">public void</span> onInitMainWindow(WebPluginContext ctx, 
+</div><div class="listing_line">                                 WebUserSession sess) 
+</div><div class="listing_line">    {
+</div><div class="listing_line">        <span class="code_comment">// Add context menu item</span>
+</div><div class="listing_line">        String item_label = sess.getLabel(<span class="code_char">"my_plugin.show_hello"</span>);
+</div><div class="listing_line">        String icon_url = <span class="code_char">"plugins/my_plugin/images/my_icon.png"</span>;
+</div><div class="listing_line">        sess.addMenuItem(ctx, <span class="code_char">"treemenu"</span>, MY_ITEM_ID, item_label, 
+</div><div class="listing_line">                         icon_url, <span class="code_char">"treemenuExtra"</span>, <span class="code_keyword">true</span>);
+</div><div class="listing_line">        
+</div><div class="listing_line_marked">        <span class="code_comment">// Add user dialog tab                                         </span>
+</div><div class="listing_line_marked">        String tab_title = sess.getLabel(<span class="code_char">"my_plugin.user_tab_title"</span>);  <span class="code_comment"></span>
+</div><div class="listing_line_marked">        sess.addUserTab(ctx, MY_TAB_ID, tab_title, -<span class="code_literal">1</span>,                 <span class="code_comment"></span>
+</div><div class="listing_line_marked">                        <span class="code_char">"plugins/my_plugin/my_user_tab.zul"</span>);          <span class="code_comment"></span>
+</div><div class="listing_line">        
+</div><div class="listing_line">        sess.setUIListener(ctx, <span class="code_keyword">this</span>);
+</div><div class="listing_line">    }
+</div><div class="listing_line"> 
+</div><div class="listing_line">    @Override
+</div><div class="listing_line">    <span class="code_keyword">public void</span> onEvent(UIEvent evt) 
+</div><div class="listing_line">    {
+</div><div class="listing_line">        WebUserSession sess = evt.getSession();
+</div><div class="listing_line">        String targetId = evt.getTargetId();
+</div><div class="listing_line_marked">        Textbox box =                                                  <span class="code_comment"></span>
+</div><div class="listing_line_marked">         (Textbox) sess.getTabComponent(MY_TAB_ID,                     <span class="code_comment"></span>
+</div><div class="listing_line_marked">                                        <span class="code_char">"my_plugin_message_textbox"</span>);  <span class="code_comment"></span>
+</div><div class="listing_line_marked">                                                                       <span class="code_comment"></span>
+</div><div class="listing_line_marked">        <span class="code_comment">// User dialog is opened                                       </span>
+</div><div class="listing_line_marked">        <span class="code_keyword">if</span> (<span class="code_char">"UserDialog"</span>.equals(targetId) &amp;&amp; evt.isOpen()) {           <span class="code_comment"></span>
+</div><div class="listing_line_marked">            <span class="code_comment">// Show currently configured message in textbox            </span>
+</div><div class="listing_line_marked">            box.setValue(getMessage(sess));                            <span class="code_comment"></span>
+</div><div class="listing_line_marked">            <span class="code_keyword">return</span>;                                                    <span class="code_comment"></span>
+</div><div class="listing_line_marked">        }                                                              <span class="code_comment"></span>
+</div><div class="listing_line_marked">                                                                       <span class="code_comment"></span>
+</div><div class="listing_line_marked">        <span class="code_comment">// User dialog is closed by clicking the "Okay" button         </span>
+</div><div class="listing_line_marked">        <span class="code_keyword">if</span> (<span class="code_char">"UserDialogOkayBtn"</span>.equals(targetId) &amp;&amp; evt.isClick()) {   <span class="code_comment"></span>
+</div><div class="listing_line_marked">            <span class="code_comment">// Save the entered text as user property                  </span>
+</div><div class="listing_line_marked">            sess.getUser().setProperty(MY_USER_PROP, box.getValue());  <span class="code_comment"></span>
+</div><div class="listing_line_marked">            <span class="code_keyword">return</span>;                                                    <span class="code_comment"></span>
+</div><div class="listing_line_marked">        }                                                              <span class="code_comment"></span>
+</div><div class="listing_line">        
+</div><div class="listing_line">        <span class="code_comment">// Menu item is clicked</span>
+</div><div class="listing_line">        <span class="code_keyword">if</span> (MY_ITEM_ID.equals(targetId) &amp;&amp; evt.isClick()) {
+</div><div class="listing_line_marked">            sess.showMessage(getMessage(sess));                <span class="code_comment"></span>
+</div><div class="listing_line">        }
+</div><div class="listing_line">    }
+</div><div class="listing_line">    
+</div><div class="listing_line_marked">    <span class="code_keyword">private</span> String getMessage(WebUserSession sess)               <span class="code_comment"></span>
+</div><div class="listing_line_marked">    {                                                            <span class="code_comment"></span>
+</div><div class="listing_line_marked">        String msg = sess.getUser().getProperty(MY_USER_PROP);   <span class="code_comment"></span>
+</div><div class="listing_line_marked">        <span class="code_keyword">return</span> (msg == <span class="code_keyword">null</span>) ? <span class="code_char">""</span> : msg;                         <span class="code_comment"></span>
+</div><div class="listing_line_marked">    }                                                            <span class="code_comment"></span>
+</div><div class="listing_line">}
+</div></td></tr></table></div></div><p class="title">Listing 4.3.19. MyMenuPlugin.java (user tab example)</p></div>
+<div class="normal-para">First, two new constants are defined. The <span class="code">My_TAB_ID</span> constant is used as identifier for the new tab. In the plug-in API each added tab needs a unique identifier. To ensure that the identifier is unique, it is recommended to use a string that includes the plug-in identifier as prefix (in our example: "<span class="code">my_plugin</span>").</div>
+<div class="normal-para">The <span class="code">MY_USER_PROP</span> constant is the property name of the user property that stores the text that the user has entered in the text field.</div>
+<div class="normal-para">In the <span class="code">onInitMainWindow</span> method two lines are added that insert the new tab to the user-dialog. First, the label of the tab is loaded from the plug-ins's <span class="code">locale.properties</span> file, by calling <span class="code">sess.getLabel("my_plugin.user_tab_title")</span>. Then the line</div>
+<div class="normal-para java_no_line_nums">sess.addUserTab(ctx, MY_TAB_ID, tab_title, -<span class="code_literal">1</span>, <br    />                <span class="code_char">"plugins/my_plugin/my_user_tab.zul"</span>);</div>
+<div class="normal-para">adds a new tab with identifier <span class="code">MY_TAB_ID</span> to the user-dialog. The third argument is the label to be displayed (here: <span class="code">tab_title</span>). The fourth argument defines the insert position of the tab. If the value <span class="code">-1</span> is passed, then the tab is just added after the extisting tabs. The last argument defines the path to the ZUML file, in our example, the path to the <span class="code">my_user_tab.zul</span> file.</div>
+<div class="normal-para">The main extensions to our plug-in are in the <span class="code">onEvent</span> method. To get our plug-in working we have to react to following three events:</div>
+<ol>
+<li><em>The user opens the user-dialog</em>: <br    />Initialize the input field of the added tab with the value stored in the <span class="code">MY_USER_PROP</span> user property.</li>
+<li><em>The user closes the user-dialog by clicking the "OK" button:</em><br    />Store the text entered in the input field of the added tab in the <span class="code">MY_USER_PROP</span> user property.</li>
+<li><em>The user clicks the menu item that has been added to the context menu:</em><br    />Show the text stored in the the <span class="code">MY_USER_PROP</span> user property.</li>
+</ol>
+<div class="header_para">
+<div class="normal-para">Initializing the input field</div>
+</div>
+<div class="normal-para">In Docmenta, the identifier of the user-dialog is "<span class="code">UserDialog</span>". Events that indicate the opening of a component have the name "<span class="code">onOpen</span>". Therefore, to identify the event that indicates the opening of the user-dialog, it has to be checked that the event's target identifier equals "<span class="code">UserDialog</span>" and the event name is "<span class="code">onOpen</span>". Exactly this is done by the following expression. Note that <span class="code">evt.isOpen()</span> is just a shortcut for <span class="code">evt.getName().equals("onOpen")</span>:</div>
+<div class="normal-para java_no_line_nums"><span class="code_char">"UserDialog"</span>.equals(targetId) &amp;&amp; evt.isOpen()</div>
+<div class="normal-para">If the expression is true, then the input field which is identified by the ID "<span class="code">my_plugin_message_textbox</span>" needs to be initialized (see the file <span class="code">my_user_tab.zul</span> above). A component that is defined in the tab's ZUML file can be retrieved by calling the <span class="code">getTabComponent</span> method of the user session. The first argument passed to this method has to be the identifier of the tab that contains the component (here: <span class="code">MY_TAB_ID</span>). The second argument has to be the identifier of the component that shall be retrieved. If a component with this ID exists, then this method returns an object that represents the corresponding ZUML component (otherwise <span class="code">null</span> is returned). In the ZK framework the <span class="code">&lt;textbox .../&gt;</span> component is represented by the Java class <span class="code">org.zkoss.zul.Textbox</span>. More information on ZK can be found on the <a href="http://www.zkoss.org" target="_top">ZK homepage</a>. After having retrieved the textbox, the input field can be filled by calling the the component's <span class="code">setValue</span> method. In our example, this is done by following line:</div>
+<div class="normal-para java_no_line_nums">box.setValue(getMessage(sess));</div>
+<div class="normal-para">This statement fills the input field with the value returned by the <span class="code">getMessage</span> method. The <span class="code">getMessage</span> method retrieves the current value of the MY_USER_PROP user property. User properties can be retrieved and set through the <span class="code">getProperty</span> and <span class="code">setProperty</span> methods of the <span class="code">org.docma.User</span> class. An instance of this class that represents the owner of the session is returned by the session's <span class="code">getUser</span> method. Therefore, following expression retrieves the <span class="code">MY_USER_PROP</span> user property:</div>
+<div class="normal-para java_no_line_nums">sess.getUser().getProperty(MY_USER_PROP)</div>
+<div class="normal-para">This is all that needs to be done for initializing the tab's input field.</div>
+<div class="header_note">
+<div class="normal-para">Note: Tab selection events</div>
+</div>
+<div class="note_box">
+<div class="normal-para">Instead of initializing the input field on opening of the user-dialog, the initialization could be deferred to the time when user selects the tab, because until then the tab's component are not visible. For this the <span class="code">if</span> statement that initializes the input field would have to be changed as follows:</div>
+<div class="normal-para java_no_line_nums"><span class="code_keyword">if</span> (MY_TAB_ID.equals(targetId) &amp;&amp; evt.isSelect()) {<br    />    box.setValue(getMessage(sess));<br    />    <span class="code_keyword">return</span>;<br    />}</div>
+<div class="normal-para">Be aware that in this case, the value in the input field must not be stored, unless the tab has been selected before!</div>
+</div>
+<div class="header_para">
+<div class="normal-para">Storing the entered text</div>
+</div>
+<div class="normal-para">When user closes the dialog by clicking the "OK" button, the entered text needs to be stored as user property. In Docmenta the "OK" button of the user-dialog is identified by the ID "<span class="code">UserDialogOkayBtn</span>". Therefore, the event that indicates the clicking of the "OK" button can easily be recognized by the expression</div>
+<div class="normal-para java_no_line_nums"><span class="code_char">"UserDialogOkayBtn"</span>.equals(targetId) &amp;&amp; evt.isClick()</div>
+<div class="normal-para">The text that is contained in the input field is returned by the <span class="code">getValue</span> method of the <span class="code">org.zkoss.zul.Textbox</span> component. Therefore, following statement stores the entered text as user property with name <span class="code">MY_USER_PROP</span>:</div>
+<div class="normal-para java_no_line_nums">sess.getUser().setProperty(MY_USER_PROP, box.getValue())</div>
+<div class="header_para">
+<div class="normal-para">Reacting on menu item clicks</div>
+</div>
+<div class="normal-para">The code that reacts on menu item clicks is nearly identical to the code given in <a href="plugin_add_menu.html" title="4.3.2. Adding menu items">Section 4.3.2, “Adding menu items”</a>, except that this time the displayed text is the value of the user property <span class="code">MY_USER_PROP</span>, instead of a text retrieved from the <span class="code">locale.properties</span> file:</div>
+<div class="normal-para java_no_line_nums">sess.showMessage(getMessage(sess))</div>
+<div class="header_para">
+<div class="normal-para">Creating the plug-in package</div>
+</div>
+<div class="normal-para">Before creating the plug-in package, we have to add the <span class="code">my_plugin.user_tab_title</span> property to the <span class="code">locale.properties</span> file. Following an example file that could be used for our plug-in:</div>
+<div title="locale.properties (user tab example)" class="formal-block"><div class="formal-contents"><div title="locale.properties (user tab example)" class="_formal_code_listing"><p class="listing_properties">my_plugin.description = A simple Hello World Plug-in<br    />my_plugin.show_hello = Show Hello<br    />my_plugin.user_tab_title = Hello<br    /></p></div></div><p class="title">Listing 4.3.20. locale.properties (user tab example)</p></div>
+<div class="normal-para">We can now create the package as described in <a href="create_plugin_package.html" title="4.2. Creating a plug-in package">Chapter 4.2, Creating a plug-in package</a>. The content of the package should be as follows: </div>
+<div class="normal-para"><div title="Package structure of the user tab plug-in" class="figure"><div class="mediaobject"><img src="images/plugin_usertab_folder_structure.gif" alt="" title="Package structure of the user tab plug-in"     /></div><p class="title">Figure 4.3.18. Package structure of the user tab plug-in</p></div></div>
+</div><div title="Test the user tab plug-in" class="doc-content"><div class="header_para">
+<div class="normal-para">Testing the Plug-in</div>
+</div>
+<div class="normal-para">After installation of the plug-in, the user-dialog should display a "<span class="code">Hello</span>" tab:</div>
+<div class="normal-para"><div title="The 'Hello' tab" class="figure"><div class="mediaobject"><img src="images/plugin_userdialog_hello_tab.png" alt="" id="fig_plugin_hello_tab" title="The 'Hello' tab"     /></div><p class="title">Figure 4.3.19. The 'Hello' tab</p></div></div>
+<div class="normal-para">The user can select this tab and enter some text. Closing the dialog by clicking "OK" saves the entered text. Each user can configure his own text, because the text is stored as user property. After having configured a text, clicking the "Hello World" menu item opens a message box that displays the user-specific text:</div>
+<div class="normal-para"><div title="Message box (user-specific text)" class="figure"><div class="mediaobject"><img src="images/plugin_hello_msgbox.png" alt="" title="Message box (user-specific text)"     /></div><p class="title">Figure 4.3.20. Message box (user-specific text)</p></div></div>
+<div class="header_para">
+<div class="normal-para">Resizing the user-dialog</div>
+</div>
+<div class="normal-para">You might notice that in <a href="plugin_add_tab.html#fig_plugin_hello_tab" title="4.3.19. The 'Hello' tab">Figure 4.3.19, “The 'Hello' tab”</a>, there is a lot of space between the input field and the buttons at the bottom of the dialog. This is because the initial size of the user-dialog is larger than the space required by our components. If you want to avoid this, or if you need more space than provided by the initial dialog size, then you could insert following code in the <span class="code">onEvent</span> method:</div>
+<div class="normal-para java_no_line_nums"><span class="code_keyword">if</span> (MY_TAB_ID.equals(targetId) &amp;&amp; evt.isSelect()) {<br    />    Window win = (Window) sess.getDialog(<span class="code_char">"UserDialog"</span>);<br    />    win.invalidate();<br    />}</div>
+<div class="normal-para">The <span class="code">if</span> condition</div>
+<div class="normal-para indent-level1 java_no_line_nums">MY_TAB_ID.equals(targetId) &amp;&amp; evt.isSelect()</div>
+<div class="normal-para">evaluates to true, if the tab identified by <span class="code">MY_TAB_ID</span> receives an "<span class="code">onSelect</span>" event. This indicates that the user has selected the tab. In this case the method <span class="code">getDialog</span> of the <span class="code">WebUserSession</span> object is called, which returns an instance of the <span class="code">org.zkoss.zul.Window</span> class. This instance represents the dialog identified by the passed ID ("<span class="code">UserDialog</span>"). Invoking the <span class="code">invalidate</span> method of this instance causes the height of the user-dialog to be adapted to the actual space needed by the components of the selected tab. However, the width of the dialog is fixed and does not change automatically.</div>
+<div class="normal-para">Most of the times it is sufficient to adapt the height and leave the width of the dialog unchanged. Though, if the width of the dialog needs to be changed as well, then additionally the <span class="code">setWidth</span> method of the dialog instance has to be called. For example, to adapt the height of the dialog to fit the height of the visible components and to set a width of 300 pixels, following code could be used:</div>
+<div class="normal-para java_no_line_nums"><span class="code_keyword">if</span> (MY_TAB_ID.equals(targetId) &amp;&amp; evt.isSelect()) {<br    />    Window win = (Window) sess.getDialog(<span class="code_char">"UserDialog"</span>);<br    />    win.setWidth(<span class="code_char">"300px"</span>);<br    />    win.invalidate();<br    />}</div>
+<div class="normal-para">This code adapts the width and the height of the user-dialog, as soon as the user selects the tab.</div>
+</div></div><div class="navfooter"><hr/><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="plugin_zk_dialogs.html"><span class="navlink-text">Prev</span></a>&#160;</td><td width="20%" align="center"><a accesskey="u" href="plugin_api.html"><span class="navlink-text">Up</span></a></td><td width="40%" align="right">&#160;<a accesskey="n" href="plugin_jsp_integration.html"><span class="navlink-text">Next</span></a></td></tr><tr><td width="40%" align="left" valign="top">4.3.3.2. ZK Dialogs&#160;</td><td width="20%" align="center"><a accesskey="h" href="index.html"><span class="navlink-text">Home</span></a></td><td width="40%" align="right" valign="top">&#160;4.3.5. JSP integration</td></tr></table></div>
+<div class="web_footer">
+<p class="align-center">&#169; 2017 - www.docmenta.org</p>
+</div>
+</div>
+<a id="showHideButton" onclick="showHideToc();" class="pointLeft" title="Hide TOC tree">&nbsp;</a></body>
+</html>

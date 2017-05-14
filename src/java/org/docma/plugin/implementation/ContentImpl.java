@@ -129,6 +129,15 @@ public abstract class ContentImpl extends NodeImpl implements Content
         }
     }
 
+    public void checkEditContentAllowed() throws DocmaException
+    {
+        try {
+            docNode.checkEditContentAllowed();
+        } catch (Exception ex) {
+            throw new DocmaException(ex);
+        }
+    }
+
     public boolean makeRevision() 
     {
         try {
