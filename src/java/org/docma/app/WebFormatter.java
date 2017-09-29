@@ -32,7 +32,11 @@ import org.docma.util.Log;
  */
 public class WebFormatter 
 {
-    private final static String COMMON_RELATIVE_URL = "common/";  // relative path from content to common
+    public final static String DOCTYPE_INTRO_DEFAULT = 
+        "<?xml version=\"1.0\" encoding=\"###encoding###\" standalone=\"no\"?>\n" + 
+        "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">";
+
+    private final static String COMMON_RELATIVE_URL = "common";  // relative path from content to common
     
     private final static String ROOT_CHUNK_FILENAME = "index.html";
     private final static String TOC_CHUNK_FILENAME = "toc-01.html";
@@ -49,9 +53,12 @@ public class WebFormatter
     private final XMLEventFactory eventFactory;
     
     private final Map<String, Properties> defaultGenTextProps = new HashMap<String, Properties>();
+    
+    private TemplateReader template = null;
+    private Map<String, TemplateReader> templateVariants = null;
 
 
-    public WebFormatter(File docbookXSLDir, File tempDir) 
+    public WebFormatter(File configDir, File docbookXSLDir, File tempDir) 
     throws Exception
     {
         this.l10nDir = new File(docbookXSLDir, "common");
@@ -67,6 +74,45 @@ public class WebFormatter
             xinFactory.setProperty(XMLInputFactory.IS_REPLACING_ENTITY_REFERENCES, Boolean.FALSE);
         } catch (Exception ex) {  // illegal argument exception
             Log.error("Property not supported: " + XMLInputFactory.IS_REPLACING_ENTITY_REFERENCES);
+        }
+        
+        readTemplates(configDir);
+    }
+    
+    private void readTemplates(File configDir) throws Exception
+    {
+        final String templateName = "web_v2.tmpl";
+        final String templatePrefix = "web_v2-";
+        
+        // Read default template
+        template = new TemplateReader(new File(configDir, templateName), "UTF-8");
+        
+        // Read variant templates
+        File[] arr = configDir.listFiles(new FilenameFilter() {
+            public boolean accept(File dir, String name)
+            {
+                return name.startsWith(templatePrefix) && name.endsWith(".tmpl");
+            }
+        });
+        if (arr != null) {
+            for (File f : arr) {
+                String fn = f.getName();
+                String variant = fn.substring(templatePrefix.length(), fn.lastIndexOf('.'));
+                if (templateVariants == null) {
+                    templateVariants = new HashMap<String, TemplateReader>();
+                }
+                templateVariants.put(variant, new TemplateReader(f, "UTF-8"));
+            }
+        }
+    }
+    
+    private TemplateReader getTemplateReader(String variant) 
+    {
+        if ((variant == null) || variant.equals("") || (templateVariants == null)) {
+            return template;
+        } else {
+            TemplateReader variantTemplate = templateVariants.get(variant);
+            return (variantTemplate != null) ? variantTemplate : template;
         }
     }
 
@@ -183,7 +229,7 @@ public class WebFormatter
     public static void main(String[] args) throws Exception
     {
         File dir = new File("c:\\TEMP");
-        WebFormatter formatter = new WebFormatter(dir, dir);
+        WebFormatter formatter = new WebFormatter(dir, dir, dir);
         String in = DocmaUtil.readFileToString(new File("c:\\TEMP\\printinstance.html"));
         File out_dir = new File(dir, "web_output_" + System.currentTimeMillis());
         formatter.format(in, out_dir, null, null, null);
@@ -790,7 +836,7 @@ public class WebFormatter
     }
     
     private void writeChunk(File outputDir,
-                            DocmaOutputConfig outConfig,
+                            final DocmaOutputConfig outConfig,
                             WebChunk chunk, 
                             WebChunk prev,
                             WebChunk next,
@@ -806,6 +852,11 @@ public class WebFormatter
         if ((encoding == null) || (encoding.length() == 0)) {
             encoding = "UTF-8";
         }
+        String docType = outConfig.getHtmlCustomDocType();
+        if ((docType == null) || docType.equals("")) {
+            docType = DOCTYPE_INTRO_DEFAULT;
+        }
+        docType = docType.replace("###encoding###", encoding);
         ParserTocEntry chunkEntry = chunk.getTocEntry();
         ParserTocEntry prevEntry = (prev == null) ? null : prev.getTocEntry();
         ParserTocEntry nextEntry = (next == null) ? null : next.getTocEntry();
@@ -816,109 +867,101 @@ public class WebFormatter
         }
         boolean show_up = (upEntry != null) && (upEntry != homeEntry);
         
+        String custom_head_tags = outConfig.getHtmlCustomHeadTags();
+        custom_head_tags = (custom_head_tags != null) ? custom_head_tags.trim() : "";
+        
+        String langCode = outConfig.getLanguageCode();
+        if ((langCode == null) || langCode.equals("")) {
+            langCode = "en";
+        }
+        
+        Map<String, String> placeholders = new HashMap<String, String>();
+        placeholders.put("current_time_millis", Long.toString(System.currentTimeMillis()));
+        placeholders.put("lang_code", langCode);
+        placeholders.put("encoding", encoding);
+        placeholders.put("doctype", docType);
+        placeholders.put("custom_head_tags", custom_head_tags);
+        placeholders.put("app_shortname", DocmaConstants.DISPLAY_APP_SHORTNAME);
+        placeholders.put("app_version", DocmaConstants.DISPLAY_APP_VERSION);
+        placeholders.put("chunk_title", chunkEntry.getNumberedTitle());
+        if ((homeEntry != null) && (home != chunk)) {
+            String url = homeEntry.getLinkURL();
+            String ti = homeEntry.getNumberedTitle();
+            placeholders.put("link_home", "<link rel=\"home\" href=\"" + url + "\" title=\"" + ti + "\"/>");
+        }
+        if (show_up) {
+            String url = upEntry.getLinkURL();
+            String ti = upEntry.getNumberedTitle();
+            placeholders.put("link_up", "<link rel=\"up\" href=\"" + url + "\" title=\"" + ti + "\"/>");
+        }
+        if (prevEntry != null) {
+            String url = prevEntry.getLinkURL();
+            String ti = prevEntry.getNumberedTitle();
+            placeholders.put("link_prev", "<link rel=\"prev\" href=\"" + url + "\" title=\"" + ti + "\"/>");
+        }
+        if (nextEntry != null) {
+            String url = nextEntry.getLinkURL();
+            String ti = nextEntry.getNumberedTitle();
+            placeholders.put("link_next", "<link rel=\"next\" href=\"" + url + "\" title=\"" + ti + "\"/>");
+        }
+        placeholders.put("link_custom_css", "<link rel=\"stylesheet\" type=\"text/css\" href=\"" + DocmaConstants.HTML_CSS_FILENAME + "\"/>");
+        placeholders.put("common_url", COMMON_RELATIVE_URL);
+
+        // Header titles
+        String head1_mode = outConfig.getHtmlWebhelpHeader1();
+        String head2_mode = outConfig.getHtmlWebhelpHeader2();
+        if ((head1_mode == null) || head1_mode.equals("")) {
+            head1_mode = "upper";    // Show title of upper chunk by default
+        }
+        if ((head2_mode == null) || head2_mode.equals("")) {
+            head2_mode = "current";  // Show title of current chunk by default
+        }
+        String head1 = null;
+        if ((! head1_mode.equals("upper")) || show_up) {
+            head1 = getChunkHeaderText(head1_mode, chunkEntry, upEntry, tocRoot, infoElems, outConfig);
+            if (head1.length() > 0) {
+                placeholders.put("header_title1", "<div class=\"webhelptitle1\">" + head1 + "</div>");
+            }
+        }
+        if ((! head2_mode.equals("upper")) || show_up) {
+            String head2 = getChunkHeaderText(head2_mode, chunkEntry, upEntry, tocRoot, infoElems, outConfig);
+            // Output second header if existent and not the same as the first header
+            if ((head2.length() > 0) && !((head1 != null) && head1.equals(head2))) {
+                placeholders.put("header_title2", "<div class=\"webhelptitle2\">" + head2 + "</div>");
+            }
+        }
+        
+        // Prev and Next links in header
+        placeholders.put("navigation_links", getHeaderNavigation(prevEntry, nextEntry, upEntry, homeEntry, outConfig));
+        
+        placeholders.put("navigation_tree", getLeftNavigation(chunkEntry, outConfig));
+        placeholders.put("parts_navigation", getPartsNavigation(chunkEntry, tocRoot, outConfig));
+            
+        if (outConfig.isHtmlBreadcrumbs()) {
+            placeholders.put("breadcrumbs_navigation", getBreadcrumbsNavigation(chunkEntry, outConfig, infoElems));
+        }
+        if (header != null) {
+            placeholders.put("custom_header", header);
+        }
+        placeholders.put("content", chunk.getContent().toString());
+        placeholders.put("footer_navigation", getFooterNavigation(chunkEntry, prevEntry, nextEntry, upEntry, homeEntry, separateToc, outConfig));
+        if (footer != null) {
+            placeholders.put("custom_footer", footer);
+        }
+            
+        GentextRetriever gen = new GentextRetriever() {
+            public String getGenText(String key) throws Exception
+            {
+                return WebFormatter.this.getGenText(key, outConfig);
+            }
+        };
+        TemplateReader tr = getTemplateReader(outConfig.getStyleVariant());
+        
         File fn = new File(outputDir, chunk.getRelativeFilePath());
         FileOutputStream fout = new FileOutputStream(fn);
         BufferedWriter out = new BufferedWriter(new OutputStreamWriter(fout, encoding));
         try {
-            out.append("<?xml version=\"1.0\" encoding=\"").append(encoding).append("\" standalone=\"no\"?>\n");
-            out.append("<!DOCTYPE html\n");
-            out.append("  PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n");
-            out.append("<html>\n");
-            out.append("<head>\n");
-            String custom_head_tags = outConfig.getHtmlCustomHeadTags();
-            if (custom_head_tags != null) {
-                custom_head_tags = custom_head_tags.trim();
-                if (custom_head_tags.length() > 0) {
-                    out.append(custom_head_tags).append("\n");
-                }
-            }
-            out.append("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=")
-               .append(encoding.toLowerCase()).append("\"/>\n");
-            out.append("<meta name=\"generator\" content=\"")
-               .append(DocmaConstants.DISPLAY_APP_SHORTNAME).append(" ")
-               .append(DocmaConstants.DISPLAY_APP_VERSION).append("\"/>\n");
-            out.append("<title>").append(chunkEntry.getNumberedTitle()).append("</title>\n");
-            out.append("<link rel=\"shortcut icon\" href=\"favicon.ico\" type=\"image/x-icon\"/>\n");
-            if ((homeEntry != null) && (home != chunk)) {
-                String url = homeEntry.getLinkURL();
-                String ti = homeEntry.getNumberedTitle();
-                out.append("<link rel=\"home\" href=\"").append(url).append("\" title=\"").append(ti).append("\"/>\n");
-            }
-            if (show_up) {
-                String url = upEntry.getLinkURL();
-                String ti = upEntry.getNumberedTitle();
-                out.append("<link rel=\"up\" href=\"").append(url).append("\" title=\"").append(ti).append("\"/>\n");
-            }
-            if (prevEntry != null) {
-                String url = prevEntry.getLinkURL();
-                String ti = prevEntry.getNumberedTitle();
-                out.append("<link rel=\"prev\" href=\"").append(url).append("\" title=\"").append(ti).append("\"/>\n");
-            }
-            if (nextEntry != null) {
-                String url = nextEntry.getLinkURL();
-                String ti = nextEntry.getNumberedTitle();
-                out.append("<link rel=\"prev\" href=\"").append(url).append("\" title=\"").append(ti).append("\"/>\n");
-            }
-            writeCSSLink(out, DocmaConstants.HTML_CSS_FILENAME);
-            writeCSSLink(out, COMMON_RELATIVE_URL + "jquery/theme-redmond/jquery-ui-1.8.2.custom.css");
-            writeCSSLink(out, COMMON_RELATIVE_URL + "jquery/treeview/jquery.treeview.css");
-            writeCSSLink(out, COMMON_RELATIVE_URL + "css/positioning.css");
-            writeSiteJavascript(out, outConfig);
-            out.append("</head>\n");
-            out.append("<body>\n");
-            
-            out.append("<div id=\"header\">");
-            // Logo images
-            out.append("<img id=\"webhelplogo1\" align=\"left\" src='" + COMMON_RELATIVE_URL + "images/logo1.png' alt=\"Logo\"/>");
-            out.append("<img id=\"webhelplogo2\" align=\"right\" src='" + COMMON_RELATIVE_URL + "images/logo2.png' alt=\"Logo\"/>");
-            // Header titles
-            String head1_mode = outConfig.getHtmlWebhelpHeader1();
-            String head2_mode = outConfig.getHtmlWebhelpHeader2();
-            if ((head1_mode == null) || head1_mode.equals("")) {
-                head1_mode = "upper";    // Show title of upper chunk by default
-            }
-            if ((head2_mode == null) || head2_mode.equals("")) {
-                head2_mode = "current";  // Show title of current chunk by default
-            }
-            String head1 = null;
-            out.append("<div class=\"webhelptitle\">");
-            if ((! head1_mode.equals("upper")) || show_up) {
-                head1 = getChunkHeaderText(head1_mode, chunkEntry, upEntry, tocRoot, infoElems, outConfig);
-                if (head1.length() > 0) {
-                    out.append("<div class=\"webhelptitle1\">").append(head1).append("</div>");
-                }
-            }
-            if ((! head2_mode.equals("upper")) || show_up) {
-                String head2 = getChunkHeaderText(head2_mode, chunkEntry, upEntry, tocRoot, infoElems, outConfig);
-                // Output second header if existent and not the same as the first header
-                if ((head2.length() > 0) && !((head1 != null) && head1.equals(head2))) {
-                    out.append("<div class=\"webhelptitle2\">").append(head2).append("</div>");
-                }
-            }
-            out.append("</div>");
-            
-            // Show/Hide ToC button, Toggle Search button, Prev and Next links
-            writeHeaderNavigation(out, prevEntry, nextEntry, upEntry, homeEntry, outConfig);
-            out.append("</div>\n");  // end of <div id="header"> 
-
-            writeLeftNavigation(out, chunkEntry, outConfig);
-            writePartsNavigation(out, chunkEntry, tocRoot, outConfig);
-            if (outConfig.isHtmlBreadcrumbs()) {
-                writeBreadcrumbsNavigation(out, chunkEntry, outConfig, infoElems);
-            }
-            out.append("<div id=\"content\">"); 
-            if (header != null) {
-                out.append(header);
-            }
-            out.append(chunk.getContent()); 
-            writeFooterNavigation(out, chunkEntry, prevEntry, nextEntry, upEntry, homeEntry, separateToc, outConfig);
-            if (footer != null) {
-                out.append(footer);
-            }
-            out.append("</div>\n");  // end of <div id="content">
-            out.append("<a id=\"showHideButton\" onclick=\"showHideToc();\" class=\"pointLeft\" title=\"Hide TOC tree\">&nbsp;</a>");
-            out.append("</body>\n");
-            out.append("</html>\n");
+            tr.writeTemplate(out, placeholders, gen);
         } finally {
             out.close();
             try {
@@ -929,8 +972,7 @@ public class WebFormatter
         }
     }
     
-    private void writePartsNavigation(Appendable out,
-                                      ParserTocEntry chunkEntry,
+    private String getPartsNavigation(ParserTocEntry chunkEntry,
                                       ParserTocEntry rootEntry,
                                       DocmaOutputConfig outConfig) throws Exception
     {
@@ -954,14 +996,13 @@ public class WebFormatter
             buf.append("</a></li>");
         }
         if (buf.length() > 0) {
-            out.append("<div id=\"bookpartsnavigation\"><ul>");
-            out.append(buf);
-            out.append("</ul></div>\n");
+            return "<div id=\"bookpartsnavigation\"><ul>" + buf + "</ul></div>";
+        } else {
+            return "";
         }
     }
     
-    private void writeBreadcrumbsNavigation(Appendable out,
-                                            ParserTocEntry chunkEntry,
+    private String getBreadcrumbsNavigation(ParserTocEntry chunkEntry,
                                             DocmaOutputConfig outConfig, 
                                             Map<String, String> infoElems) throws Exception
     {
@@ -1001,15 +1042,13 @@ public class WebFormatter
             parent = pp;
         }
         if (link_buf.length() == 0) {
-            return;  // do not show breadcrumbs if it consists of the last node only (i.e. the root)
+            return "";  // do not show breadcrumbs if it consists of the last node only (i.e. the root)
         }
         
         // Output breadcrumbs
-        out.append("<div id=\"breadcrumbsnavigation\" class=\"breadcrumbs\">");
-        out.append(link_buf);
-        out.append("<span class=\"breadcrumb_node breadcrumb_lastnode\">");
-        out.append(chunkEntry.getTitle());
-        out.append("</span></div>\n");
+        return "<div id=\"breadcrumbsnavigation\" class=\"breadcrumbs\">" + link_buf +
+               "<span class=\"breadcrumb_node breadcrumb_lastnode\">" + chunkEntry.getTitle() + 
+               "</span></div>";
     }
     
     private void appendFootnotes(Appendable out,
@@ -1051,8 +1090,7 @@ public class WebFormatter
         out.append("</div>\n");
     }
 
-    private void writeHeaderNavigation(Appendable out, 
-                                       ParserTocEntry prevEntry,
+    private String getHeaderNavigation(ParserTocEntry prevEntry,
                                        ParserTocEntry nextEntry,
                                        ParserTocEntry upEntry,
                                        ParserTocEntry homeEntry,
@@ -1060,11 +1098,7 @@ public class WebFormatter
     {
         boolean show_up = (upEntry != null) && (upEntry != homeEntry);
         
-        out.append("<div id=\"navheader\" align=\"right\">");
-        out.append("<table><tr>");
-        out.append("<td><img src=\"" + COMMON_RELATIVE_URL + "images/highlight-blue.gif\" alt=\"H\" onclick=\"toggleHighlight()\" id=\"showHideHighlight\"")
-           .append(" title=\"").append(jsGenTxt("HighlightButton", outConfig)).append("\" /></td>");
-        out.append("<td>");
+        StringBuilder out = new StringBuilder();
         // final String NAVHEAD_SEP = outConfig.isHtmlNavigationalIcons() ? "&nbsp;" : "&nbsp;<span class=\"navhead-separator\">|</span>&nbsp;";
         final String NAVHEAD_SEP = "<span class=\"navhead-separator\">&nbsp;|&nbsp;</span>";
         if (prevEntry != null) {
@@ -1088,13 +1122,10 @@ public class WebFormatter
             writeNavLinkContent(out, "next", outConfig);
             out.append("</a>");
         }
-        out.append("</td>");
-        out.append("</tr></table>");
-        out.append("</div>");  // end of <div id="navheader"> 
+        return out.toString();
     }
 
-    private void writeFooterNavigation(Appendable out,
-                                       ParserTocEntry chunkEntry,
+    private String getFooterNavigation(ParserTocEntry chunkEntry,
                                        ParserTocEntry prevEntry,
                                        ParserTocEntry nextEntry,
                                        ParserTocEntry upEntry,
@@ -1174,14 +1205,11 @@ public class WebFormatter
             rows.append("</tr>");
         }
 
-        out.append("<div class=\"navfooter\">");
-        out.append("<hr/>");
         if (rows.length() > 0) {
-            out.append("<table width=\"100%\" summary=\"Navigation footer\">");
-            out.append(rows);
-            out.append("</table>");
+            return "<table width=\"100%\" summary=\"Navigation footer\">" + rows + "</table>";
+        } else {
+            return "";
         }
-        out.append("</div>\n");
     }
     
     private void writeNavLinkContent(Appendable out, String direction, DocmaOutputConfig outConfig) throws Exception
@@ -1190,7 +1218,7 @@ public class WebFormatter
         String spantxt = "<span class=\"navlink-text\">" + txt + "</span>";
         if (outConfig.isHtmlNavigationalIcons()) {
             boolean is_next = direction.equals("next");
-            String path = COMMON_RELATIVE_URL + "images/"; // outConfig.getHtmlNavigationIconsPath();
+            String path = COMMON_RELATIVE_URL + "/images/"; // outConfig.getHtmlNavigationIconsPath();
             String ext = ".png";   // outConfig.getHtmlNavigationIconsExt()
             // if ((path.length() > 0) && !path.endsWith("/")) {
             //     path += "/";
@@ -1228,22 +1256,8 @@ public class WebFormatter
         }
     }
             
-    private void writeLeftNavigation(Appendable out,
-                                     ParserTocEntry chunkEntry,
-                                     DocmaOutputConfig outConfig) throws Exception
+    private String getLeftNavigation(ParserTocEntry chunkEntry, DocmaOutputConfig outConfig) throws Exception
     {
-        String toclabel = getGenText("WebHelpContents", outConfig);
-        if ((toclabel == null) || toclabel.equals("")) {
-            toclabel = "Contents";
-        }
-        String searchlabel = getGenText("Search", outConfig);
-        if ((searchlabel == null) || searchlabel.equals("")) {
-            searchlabel = "Search";
-        }
-        String golabel = getGenText("Go", outConfig);
-        if ((golabel == null) || golabel.equals("")) {
-            golabel = "Go";
-        }
         ParserTocEntry rootEntry = null;
         if (chunkEntry.getParentEntry() == null) {
             // If this is the root chunk (index.html), show sub-tree of first part
@@ -1259,49 +1273,10 @@ public class WebFormatter
                 p = rootEntry.getParentEntry();
             } while ((p != null) && !rootEntry.isPart());
         }
-        out.append("<div id=\"leftnavigation\">");
-        out.append("<div id=\"tabs\">");
-        out.append("<ul id=\"tocsearchnavigation\" style=\"display:none\">");
-        out.append("<li id=\"tocnavigationtab\">");
-        out.append("<a href=\"#treeDiv\"><em>").append(toclabel).append("</em></a>");
-        out.append("</li>");
-        out.append("<li id=\"searchnavigationtab\">");
-        out.append("<a href=\"#searchDiv\"><em>").append(searchlabel).append("</em></a>");
-        out.append("</li>");
-        out.append("</ul>");
         
-        out.append("<div id=\"treeDiv\">");
-        out.append("<img src=\"" + COMMON_RELATIVE_URL + "images/loading.gif\" alt=\"loading table of contents...\"")
-           .append(" id=\"tocLoading\" style=\"display:block;\"/>");
-        out.append("<div id=\"ulTreeDiv\" style=\"display:none;\">");
-        out.append("<div id=\"treenavigationtitle\" style=\"display:none;\">").append(toclabel).append("</div>");
-        out.append("<ul id=\"tree\" class=\"filetree\">");
+        StringBuilder out = new StringBuilder();
         writeNavigationTree(out, rootEntry, chunkEntry);
-        out.append("</ul>");   // end of <ul id="tree">
-        out.append("</div>");  // end of <div id="ulTreeDiv">
-        out.append("</div>");  // end of <div id="treeDiv">
-        
-        out.append("<div id=\"searchDiv\">");
-        out.append("<div id=\"search\">");
-        out.append("<form onsubmit=\"startWebHelpSearch(ditaSearch_Form);return false\" name=\"ditaSearch_Form\" class=\"searchForm\">");
-        out.append("<fieldset class=\"searchFieldSet\">");
-        out.append("<legend>").append(searchlabel).append("</legend>");
-        out.append("<div align=\"center\">");
-        out.append("<input id=\"textToSearch\" name=\"textToSearch\" type=\"text\" class=\"searchText\"/>&nbsp;");
-        out.append("<input onclick=\"startWebHelpSearch(ditaSearch_Form)\" type=\"button\" class=\"searchButton\" value=\"")
-           .append(golabel).append("\" id=\"doSearch\"/>");
-        out.append("</div>");
-        out.append("</fieldset>");
-        out.append("</form>");
-        out.append("</div>");  // end of <div id="search">
-        out.append("<div id=\"closeSearchResults\" style=\"display:none\">");
-        out.append("<a href=\"javascript:closeSearchShowToc();\">").append(toclabel).append("</a>");
-        out.append("</div>");  // end of <div id="closeSearchResults">
-        out.append("<div id=\"searchResults\"><div align=\"center\"></div></div>");
-        out.append("</div>");  // end of <div id="searchDiv">
-        
-        out.append("</div>");  // end of <div id="tabs">
-        out.append("</div>\n");  // end of <div id="leftnavigation">
+        return out.toString();
     }
     
     private void writeNavigationTree(Appendable out, 
@@ -1337,40 +1312,6 @@ public class WebFormatter
     private void writeJSLink(Appendable out, String jsUrl) throws IOException
     {
         out.append("<script type=\"text/javascript\" src=\"").append(jsUrl).append("\"></script>\n");
-    }
-    
-    private void writeSiteJavascript(Appendable out, DocmaOutputConfig outConfig) throws Exception
-    {
-        String langCode = outConfig.getLanguageCode();
-        if ((langCode == null) || langCode.equals("")) {
-            langCode = "en";
-        } else {
-            langCode = langCode.toLowerCase();
-        }
-        String export_id = Long.toString(System.currentTimeMillis());
-        out.append("<script type=\"text/javascript\">\n");
-        out.append("  var treeCookieId = \"treeview-").append(export_id).append("\";\n");
-        out.append("  var language = \"").append(langCode).append("\";\n");
-        out.append("  var w = new Object();\n");
-        out.append("  txt_filesfound = \"")           .append(jsGenTxt("txt_filesfound", outConfig)).append("\";\n");
-        out.append("  txt_enter_at_least_1_char = \"").append(jsGenTxt("txt_enter_at_least_1_char", outConfig)).append("\";\n");
-        out.append("  txt_browser_not_supported = \"").append(jsGenTxt("txt_browser_not_supported", outConfig)).append("\";\n");
-        out.append("  txt_please_wait = \"")          .append(jsGenTxt("txt_please_wait", outConfig)).append("\";\n");
-        out.append("  txt_results_for = \"")          .append(jsGenTxt("txt_results_for", outConfig)).append("\";\n");
-        out.append("</script>\n");
-        writeJSLink(out, COMMON_RELATIVE_URL + "jquery/jquery-1.4.2.min.js");
-        writeJSLink(out, COMMON_RELATIVE_URL + "jquery/jquery-ui-1.8.2.custom.min.js");
-        writeJSLink(out, COMMON_RELATIVE_URL + "jquery/jquery.cookie.js");
-        writeJSLink(out, COMMON_RELATIVE_URL + "jquery/treeview/jquery.treeview.min.js");
-        writeJSLink(out, "search/htmlFileList.js");
-        writeJSLink(out, "search/htmlFileInfoList.js");
-        writeJSLink(out, "search/nwSearchFnt.js");
-        writeJSLink(out, "search/stemmers/" + langCode + "_stemmer.js");
-        writeJSLink(out, "search/index-1.js");
-        writeJSLink(out, "search/index-2.js");
-        writeJSLink(out, "search/index-3.js");
-        writeJSLink(out, "custom.js");
-        writeJSLink(out, COMMON_RELATIVE_URL + "main.js");
     }
     
     private String jsGenTxt(String genKey, DocmaOutputConfig outConfig) throws Exception

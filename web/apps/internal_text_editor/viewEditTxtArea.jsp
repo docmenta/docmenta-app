@@ -1,18 +1,9 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"
         session="true"
         import="java.net.*,org.docma.plugin.*,org.docma.plugin.web.*,org.docma.plugin.internals.*"
-%><html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<meta http-equiv="expires" content="0">
-<meta http-equiv="cache-control" content="no-cache">
-<meta http-equiv="pragma" content="no-cache">
-<title>Text File Content</title>
-<style type="text/css">
-pre { font-size:medium }
-.errormsg { font-size:12px; font-weight:bold; color:red; }
-</style>
-<%
+%><!DOCTYPE html>
+<html>
+<head><%
     request.setCharacterEncoding("UTF-8");
     String sessid = request.getParameter("docsess");
     String nodeid = request.getParameter("nodeid");
@@ -38,6 +29,16 @@ pre { font-size:medium }
     String error_msg = isCont ? "" : "Node type is not supported.";
     boolean hasError = (error_msg != null) && !error_msg.equals("");
 %>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta http-equiv="expires" content="0">
+<meta http-equiv="cache-control" content="no-cache">
+<meta http-equiv="pragma" content="no-cache">
+<%= TextFileHandler.getHTMLMeta(webSess, ext) %>
+<title>Text File Content</title>
+<style type="text/css">
+pre { font-size:medium }
+.errormsg { font-size:12px; font-weight:bold; color:red; }
+</style>
 <script type="text/javascript">
     function docmaInit() {
         <%= hasError ? "" : "parent.initAfterLoad(); " + TextFileHandler.getJSOnLoad(webSess, ext) %>

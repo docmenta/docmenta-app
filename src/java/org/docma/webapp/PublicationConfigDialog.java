@@ -257,7 +257,7 @@ public class PublicationConfigDialog extends Window implements org.zkoss.zk.ui.e
         if (val != null) {
             tempList.clear();
             if (val.length() > 0) {
-                DocmaAppUtil.listAliasesStartWith(val, getContentAliases(), tempList);
+                DocmaAppUtil.listValuesStartWith(val, getContentAliases(), tempList);
             }
             int item_cnt = cbox.getItemCount();
             if ((item_cnt > 0) && tempList.size() == 1) {  // exact match

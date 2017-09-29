@@ -41,8 +41,10 @@
         // Prepare content for saving (editor specific and general XHTML cleaning)
         cont = TinyEditorUtil.prepareContentForSave(cont, editorId, para_indent);
         StringBuilder cont_buf = new StringBuilder(cont);
-        // Transform quick links, trim empty paragraphs, apply HTML rules, ... 
-        LogEntries res = storeConn.prepareHTMLForSave(cont_buf, nodeid, null);
+
+        // Apply HTML rules (transform quick links, trim empty paragraphs,...) 
+        boolean allowCorrect = true; // isSave;
+        LogEntries res = storeConn.prepareHTMLForSave(cont_buf, nodeid, allowCorrect, null);
         if (isSave && (res.getErrorCount() > 0)) {
             throw new Exception(res.getErrors()[0].getMessage());
         }

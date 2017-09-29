@@ -43,6 +43,7 @@ public class EditContentTransformer
     public static LogEntries prepareHTMLForSave(StringBuilder content,
                                                 String nodeId,
                                                 Map<Object, Object> props,
+                                                boolean allowAutoCorrect,
                                                 DocmaSession docmaSess)
     {
         HTMLRuleContextImpl ctx = createHTMLRuleContext(docmaSess, props, true, true);
@@ -51,7 +52,7 @@ public class EditContentTransformer
         try {
             ruleObjs = acquireRuleInstances(confs);
             callStartBatch(ctx, confs, ruleObjs);
-            callApply(content, nodeId, true, ctx, confs, ruleObjs);
+            callApply(content, nodeId, allowAutoCorrect, ctx, confs, ruleObjs);
             callFinishBatch(ctx, confs, ruleObjs);
         } finally {
             releaseRuleInstances(confs, ruleObjs);
@@ -95,6 +96,9 @@ public class EditContentTransformer
             }
         }
         
+        // Number of skipped/processed/updated nodes
+        NodeCounts nodeCounts = new NodeCounts();
+        
         // Number of warnings/errors per generator
         SortedMap<String, LogCounts> logStats = new TreeMap<String, LogCounts>();
 
@@ -107,21 +111,17 @@ public class EditContentTransformer
             transferLogEntries(ctx, progress, logStats);
 
             StringBuilder contentBuffer = new StringBuilder(); // temporary working buffer  
-            int skipped = 0;  // number of skipped nodes
-            skipped = checkRecursive(nodes.toArray(new DocmaNode[nodes.size()]), 
-                                     1,        // depth
-                                     null,     // parent path (null for root nodes)
-                                     skipped, 
-                                     props, 
-                                     allowAutoCorrect, 
-                                     docmaSess, 
-                                     progress, 
-                                     logStats,
-                                     contentBuffer, 
-                                     ctx, ruleConfs, ruleObjs);
-            if (skipped > 0) {
-                progress.logHeader(1, "consistency_check.skipped_non_html_count", skipped);
-            }
+            checkRecursive(nodes.toArray(new DocmaNode[nodes.size()]), 
+                           1,        // depth
+                           null,     // parent path (null for root nodes)
+                           props, 
+                           allowAutoCorrect, 
+                           docmaSess, 
+                           progress, 
+                           logStats,
+                           nodeCounts,
+                           contentBuffer, 
+                           ctx, ruleConfs, ruleObjs);
             
             callFinishBatch(ctx, ruleConfs, ruleObjs);
             transferLogEntries(ctx, progress, logStats);
@@ -132,33 +132,45 @@ public class EditContentTransformer
             releaseRuleInstances(ruleConfs, ruleObjs);
         }
         
-        // Write Statistics per generator
+        // Write Statistics
         progress.logHeader(1, "log_statistics.summary_header");
+        DocI18n i18n = docmaSess.getI18n();
+
+        String processedMsg = i18n.getLabel("consistency_check.processed_count", 
+                                            nodeCounts.getProcessedCount(), 
+                                            nodeCounts.getUpdatedCount());
+        progress.logText(processedMsg, null);
+        int skipped = nodeCounts.getSkippedCount();
+        if (skipped > 0) {
+            progress.logText(i18n.getLabel("consistency_check.skipped_non_html_count", skipped), null);
+        }
+        
+        // Write Statistics per generator
         writeSummaryPerGenerator(logStats, LogLevel.WARNING, docmaSess, progress);
         writeSummaryPerGenerator(logStats, LogLevel.ERROR, docmaSess, progress);
         
         Integer err_cnt = progress.getErrorCount();
         Integer warn_cnt = progress.getWarningCount();
-        String finished = docmaSess.getI18n().getLabel("consistency_check.finished_summary", err_cnt, warn_cnt);
+        String finished = i18n.getLabel("consistency_check.finished_summary", err_cnt, warn_cnt);
         progress.logText(finished, null);
         // progress.logHeader(2, "consistency_check.finished_summary", err_cnt, warn_cnt);
     }
 
     /* -------------  Private Methods ------------------ */
     
-    private static int checkRecursive(DocmaNode[] nodes, 
-                                      int depth, 
-                                      String parentPath, 
-                                      int skipped, 
-                                      Map<Object, Object> props, 
-                                      boolean allowAutoCorrect,
-                                      DocmaSession docmaSess,                               
-                                      ProgressCallback progress, 
-                                      SortedMap<String, LogCounts> logStats,
-                                      StringBuilder contentBuffer,  // temporary working buffer
-                                      HTMLRuleContextImpl ctx,
-                                      List<RuleConfig> ruleConfs,
-                                      Map<String, HTMLRule> ruleObjs)
+    private static void checkRecursive(DocmaNode[] nodes, 
+                                       int depth, 
+                                       String parentPath, 
+                                       Map<Object, Object> props, 
+                                       boolean allowAutoCorrect,
+                                       DocmaSession docmaSess,                               
+                                       ProgressCallback progress, 
+                                       SortedMap<String, LogCounts> logStats,
+                                       NodeCounts nodeCnts,
+                                       StringBuilder contentBuffer,  // temporary working buffer
+                                       HTMLRuleContextImpl ctx,
+                                       List<RuleConfig> ruleConfs,
+                                       Map<String, HTMLRule> ruleObjs)
     throws CanceledByUserException
     {
         progress.startWork(nodes.length);
@@ -175,17 +187,17 @@ public class EditContentTransformer
                     if (nd.isSection()) {
                         DocmaNode[] children = nd.getChildren();
                         if ((children != null) && (children.length > 0)) {
-                            skipped = checkRecursive(children, 
-                                                     depth + 1, 
-                                                     nodePath, 
-                                                     skipped, 
-                                                     props, 
-                                                     allowAutoCorrect, 
-                                                     docmaSess, 
-                                                     progress, 
-                                                     logStats,
-                                                     contentBuffer, 
-                                                     ctx, ruleConfs, ruleObjs);
+                            checkRecursive(children, 
+                                           depth + 1, 
+                                           nodePath, 
+                                           props, 
+                                           allowAutoCorrect, 
+                                           docmaSess, 
+                                           progress, 
+                                           logStats,
+                                           nodeCnts,
+                                           contentBuffer, 
+                                           ctx, ruleConfs, ruleObjs);
                         }
                     } else if (nd.isHTMLContent()) {
                         String pathMsg = i18n.getLabel("consistency_check.entering_html_node", nodePath);
@@ -196,6 +208,7 @@ public class EditContentTransformer
                         callApply(contentBuffer, nd.getId(), allowAutoCorrect, ctx, ruleConfs, ruleObjs);
                         
                         transferLogEntries(ctx, progress, logStats); // Transfer log entries to global log
+                        nodeCnts.increaseProcessed();
 
                         if (allowAutoCorrect) {
                             String updated = contentBuffer.toString();
@@ -203,10 +216,11 @@ public class EditContentTransformer
                                 nd.makeRevision();
                                 nd.setContentString(updated);
                                 progress.logInfo("consistency_check.node_updated", nodePath);
+                                nodeCnts.increaseUpdated();
                             }
                         }
                     } else {
-                        skipped++;
+                        nodeCnts.increaseSkipped();
                     }
                 } catch (Exception ex) {
                     progress.logError("consistency_check.exception", ex.getMessage());
@@ -217,7 +231,6 @@ public class EditContentTransformer
         } finally {
             progress.finishWork();
         }
-        return skipped;
     }
     
     private static void transferLogEntries(HTMLRuleContextImpl ctx, 
@@ -529,6 +542,43 @@ public class EditContentTransformer
         }
         ctx.setAllowAutoCorrect(allowAutoCorrect);
         return ctx;
+    }
+    
+    private static class NodeCounts 
+    {
+        private int skipped = 0;
+        private int processed = 0;
+        private int updated = 0;
+        
+        int getSkippedCount()
+        {
+            return skipped;
+        }
+        
+        void increaseSkipped()
+        {
+            skipped++;
+        }
+        
+        int getProcessedCount()
+        {
+            return processed;
+        }
+        
+        void increaseProcessed()
+        {
+            processed++;
+        }
+        
+        int getUpdatedCount()
+        {
+            return updated;
+        }
+        
+        void increaseUpdated()
+        {
+            updated++;
+        }
     }
     
     private static class LogCounts 

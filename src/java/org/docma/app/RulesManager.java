@@ -240,7 +240,14 @@ public class RulesManager
                 chk = BaseRule.CHECK_ID_INVALID_IMAGE_SRC;
                 rc.setExecuteOnCheck(chk, true);
                 rc.setExecuteOnSave(chk,  false);
-                
+
+                // Check embedded image setting 
+                chk = BaseRule.CHECK_ID_EMBEDDED_IMAGE;
+                rc.setExecuteOnCheck(chk, true);
+                rc.setCorrectOnCheck(chk, true);
+                rc.setExecuteOnSave(chk,  true);
+                rc.setCorrectOnSave(chk,  true);
+
                 // Check target type setting
                 chk = BaseRule.CHECK_ID_INVALID_TARGET_TYPE;
                 rc.setExecuteOnCheck(chk, true);

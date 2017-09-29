@@ -2,31 +2,27 @@
 <window id="NodePropertiesDialog" title="Properties Dialog" border="normal" width="400px" visible="false"
         contentStyle="padding:6px 12px 8px 12px;"
         closable="true" onClose="self.visible = false; event.stopPropagation();"
-        use="org.docma.webapp.NodePropertiesDialog">
+        apply="org.docma.webapp.NodePropertiesComposer">
     <caption>
-        <toolbarbutton label="${c:l('label.help')}" onClick='mainWin.onHelp("help/node_types.html")'/>
+        <toolbarbutton id="NodePropsHelpBtn" label="${c:l('label.help')}" onClick='mainWin.onHelp("help/node_types.html")'/>
     </caption>
     <vbox spacing="3px" hflex="1" align="stretch">
             <vbox hflex="1" align="stretch">
-                <label style="font-weight:bold;">${c:l('label.node.title')}:</label>
-                <textbox id="NodeTitleTextbox" maxlength="100" width="98%"
-                         forward="onOK=NodePropDialogOkayBtn.onClick" />
+                <label id="NodeTitleLabel" style="font-weight:bold;">${c:l('label.node.title')}:</label>
+                <textbox id="NodeTitleTextbox" maxlength="100" width="98%" />
             </vbox>
             <separator spacing="1px"/>
             <hbox hflex="1" pack="stretch" align="end" spacing="8px">
                 <vbox hflex="1" align="stretch">
                     <hbox hflex="1" pack="stretch" align="end">
                         <label style="font-weight:bold; padding-top:5px;" hflex="1">${c:l('label.node.alias')}:</label>
-                        <textbutton label="${c:l('label.find_references.btn')}" 
-                                    forward="onClick=NodePropertiesDialog.onFindReferences" />
+                        <textbutton id="NodePropsFindRefsBtn" label="${c:l('label.find_references.btn')}"  />
                     </hbox>
-                    <textbox id="NodeAliasTextbox" maxlength="40" width="98%"
-                             forward="onOK=NodePropDialogOkayBtn.onClick" />
+                    <textbox id="NodeAliasTextbox" maxlength="40" width="98%" />
                 </vbox>
                 <vbox hflex="1" align="stretch">
                     <label style="font-weight:bold;">${c:l('label.node.applic')}:</label>
-                    <textbox id="NodeApplicTextbox" maxlength="80" width="98%"
-                             forward="onOK=NodePropDialogOkayBtn.onClick" />
+                    <combobox id="NodeApplicTextbox" maxlength="255" width="98%" />
                 </vbox>
             </hbox>
             <separator spacing="1px"/>
@@ -56,10 +52,8 @@
             </vbox>
             <separator spacing="2px"/>
             <hbox pack="stretch" hflex="1" spacing="8px">
-                <button id="NodePropDialogOkayBtn" label="${c:l('label.okay.btn')}" hflex="1"
-                        onClick="NodePropertiesDialog.onOkayClick()"/>
-                <button label="${c:l('label.cancel.btn')}" hflex="1"
-                        onClick="NodePropertiesDialog.onCancelClick()"/>
+                <button id="NodePropDialogOkayBtn" label="${c:l('label.okay.btn')}" hflex="1" />
+                <button id="NodePropDialogCancelBtn" label="${c:l('label.cancel.btn')}" hflex="1" />
             </hbox>
     </vbox>
 </window>

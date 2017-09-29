@@ -27,8 +27,6 @@ import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.select.SelectorComposer;
 import org.zkoss.zk.ui.select.annotation.*;
 import org.zkoss.zk.ui.event.Event;
-import org.zkoss.zk.ui.event.EventListener;
-import org.zkoss.zk.ui.event.OpenEvent;
 import org.zkoss.zul.*;
 
 /**
@@ -73,7 +71,7 @@ public class UserDialogComposer extends SelectorComposer<Component>
     @Listen("onClick = #UserDialogOkayBtn")
     public void onOkayClick(Event evt)
     {
-        if (hasInvalidInputs(docmaSess)) {
+        if (hasInvalidInputs()) {
             return;  // keep dialog opened
         }
         try {
@@ -256,7 +254,7 @@ public class UserDialogComposer extends SelectorComposer<Component>
         }
     }
 
-    private boolean hasInvalidInputs(DocmaSession docmaSess)
+    private boolean hasInvalidInputs()
     {
         String name = usernameBox.getValue().trim();
         if (name.equals("")) {

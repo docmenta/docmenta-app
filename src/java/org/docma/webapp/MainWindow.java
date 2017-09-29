@@ -148,6 +148,7 @@ public class MainWindow extends Window implements EventListener
     private Tree createDocTree(boolean isHorizontal)
     {
         DocmaSession docmaSess = getDocmaSession();
+        DocI18n i18n = docmaSess.getI18n();
 
         Tree cont_tree = new DocmaWebTree(); // new Tree();
         cont_tree.setId("doctree");
@@ -159,26 +160,26 @@ public class MainWindow extends Window implements EventListener
         Treecols tcols = new Treecols();
         tcols.setSizable(true);
         tcols.addForward("onColSize", this, "onDocTreeColSize");
-        Treecol col1 = new Treecol("Title");
+        Treecol col1 = new Treecol(i18n.getLabel("label.nodecolumn.title"));
         col1.setId("doctree_col_title");
         col1.setWidth(getDocTreeColWidth(docmaSess, col1.getId(), isHorizontal, "20%"));
-        Treecol col2 = new Treecol("Lang");
+        Treecol col2 = new Treecol(i18n.getLabel("label.nodecolumn.lang"));
         col2.setId("doctree_col_lang");
         col2.setWidth(getDocTreeColWidth(docmaSess, col2.getId(), isHorizontal, "40px"));
         col2.setVisible(false);
-        Treecol col3 = new Treecol("Alias");
+        Treecol col3 = new Treecol(i18n.getLabel("label.nodecolumn.alias"));
         col3.setId("doctree_col_alias");
         col3.setWidth(getDocTreeColWidth(docmaSess, col3.getId(), isHorizontal, "15%"));
-        Treecol col4 = new Treecol("Applicability");
+        Treecol col4 = new Treecol(i18n.getLabel("label.nodecolumn.applic"));
         col4.setId("doctree_col_applic");
         col4.setWidth(getDocTreeColWidth(docmaSess, col4.getId(), isHorizontal, "20%"));
-        Treecol col5 = new Treecol("Status");
+        Treecol col5 = new Treecol(i18n.getLabel("label.nodecolumn.status"));
         col5.setId("doctree_col_wfstatus");
         col5.setWidth(getDocTreeColWidth(docmaSess, col5.getId(), isHorizontal, "10%"));
-        Treecol col6 = new Treecol("Progress");
+        Treecol col6 = new Treecol(i18n.getLabel("label.nodecolumn.progress"));
         col6.setId("doctree_col_progress");
         col6.setWidth(getDocTreeColWidth(docmaSess, col6.getId(), isHorizontal, "10%"));
-        Treecol col7 = new Treecol("Last Modified");
+        Treecol col7 = new Treecol(i18n.getLabel("label.nodecolumn.lastmod"));
         col7.setId("doctree_col_lastmod");
         col7.setWidth(getDocTreeColWidth(docmaSess, col7.getId(), isHorizontal, "20%"));
         tcols.appendChild(col1);
@@ -718,7 +719,7 @@ public class MainWindow extends Window implements EventListener
         if (vstr.equals(DocmaConstants.DEFAULT_LATEST_VERSION_ID)) {
             vstr = docmaI18.getLabel("label.versionid.latest");
         }
-        return vstr + " " + state_label;
+        return vstr + " - " + state_label;
     }
 
     private int getProductSelectIndex(String storeId)
@@ -829,14 +830,14 @@ public class MainWindow extends Window implements EventListener
     private void closeOpenedDialogs()
     {
         SearchReplaceDialog search_dialog = getSearchReplaceDialog();
-        FindNodesDialog find_dialog = getFindNodesDialog();
+        FindNodesComposer find_comp = getFindNodesComposer();
         ActivityWinComposer act_comp = getActivityWinComposer();
         
         if (search_dialog.isDialogOpened()) {
             search_dialog.closeDialog();
         }
-        if (find_dialog.isDialogOpened()) {
-            find_dialog.closeDialog();
+        if (find_comp.isDialogOpened()) {
+            find_comp.closeDialog();
         }
         if (act_comp.isWindowOpened()) {
             act_comp.closeWindow();
@@ -850,9 +851,10 @@ public class MainWindow extends Window implements EventListener
         return (SearchReplaceDialog) getPage().getFellow("SearchReplaceDialog");
     }
     
-    FindNodesDialog getFindNodesDialog()
+    FindNodesComposer getFindNodesComposer()
     {
-        return (FindNodesDialog) getPage().getFellow("FindNodesDialog");
+        Window dialog = (Window) getPage().getFellow("FindNodesDialog");
+        return (FindNodesComposer) dialog.getAttribute("$composer");
     }
     
     ConsistencyCheckComposer getConsistencyCheckComposer() 
@@ -1389,15 +1391,26 @@ public class MainWindow extends Window implements EventListener
 
     public DocmaNode getSelectedDocmaNode()
     {
+        return getSelectedDocmaNode(false);
+    }
+    
+    public DocmaNode getSelectedDocmaNode(boolean showError)
+    {
         if (docTree.getSelectedCount() == 1) {
             Treeitem item = docTree.getSelectedItem();
             Object selobj = item.getValue();
             if (selobj instanceof DocmaNode) {
                 return (DocmaNode) selobj;
             } else {
+                if (showError) {
+                    MessageUtil.showError(this, "text.no_valid_object_assign_to_tree_item");
+                }
                 return null;
             }
         } else {
+            if (showError) {
+                MessageUtil.showError(this, "text.no_tree_item_selected");
+            }
             return null;
         }
     }
@@ -2032,6 +2045,12 @@ public class MainWindow extends Window implements EventListener
                     // Get assigned viewer application for this file extension
                     DocmaWebSession webSess = getDocmaWebSession();
                     String appid = webSess.getFileViewerId(ext);
+                    if (appid == null) {
+                        // If the file has no configured text-file extension, 
+                        // then the system default text editor shows a hint that
+                        // file extension needs to be configured.
+                        appid = webSess.getDocmaWebApplication().getSystemDefaultTextEditor();
+                    }
                     if (appid != null) {
                         view_url = webSess.getPreviewURL(appid, node.getId());
                     }
@@ -2149,14 +2168,16 @@ public class MainWindow extends Window implements EventListener
     
     public void onAddSubNode() throws Exception
     {
-        SelectNodeTypeDialog dialog = (SelectNodeTypeDialog) getPage().getFellow("SelectNodeTypeDialog");
-        dialog.appendSubNode(this);
+        Window dialog = (Window) getPage().getFellow("SelectNodeTypeDialog");
+        SelectNodeTypeComposer composer = (SelectNodeTypeComposer) dialog.getAttribute("$composer");
+        composer.appendSubNode(this);
     }
 
     public void onInsertNode() throws Exception
     {
-        SelectNodeTypeDialog dialog = (SelectNodeTypeDialog) getPage().getFellow("SelectNodeTypeDialog");
-        dialog.insertNodeHere(this);
+        Window dialog = (Window) getPage().getFellow("SelectNodeTypeDialog");
+        SelectNodeTypeComposer composer = (SelectNodeTypeComposer) dialog.getAttribute("$composer");
+        composer.insertNodeHere(this);
     }
 
     public void onViewContent() throws Exception
@@ -2222,7 +2243,7 @@ public class MainWindow extends Window implements EventListener
         } else if (node.isFileContent() || node.isImageContent()) {
             openFileNodeInWindow(node, true);
         } else {
-            doEditNodeProps(node);
+            doEditNodeProps(node, null);
         }
     }
 
@@ -2268,7 +2289,7 @@ public class MainWindow extends Window implements EventListener
             return;
         }
         DocmaNode node = (DocmaNode) item.getValue();
-        doEditNodeProps(node);
+        doEditNodeProps(node, null);
     }
 
     public void onEditNodePropsById(Event evt) throws Exception
@@ -2285,28 +2306,41 @@ public class MainWindow extends Window implements EventListener
             Messagebox.show("Node with ID " + node_id + " does not exist.");
             return;
         }
-        doEditNodeProps(node);
-        refreshPreviewOnClientSide();
+        doEditNodeProps(node, new Callback() {
+            public void onEvent(String evt) 
+            {
+                refreshPreviewOnClientSide();
+            }
+        });
     }
 
-    private void doEditNodeProps(DocmaNode node) throws Exception
+    void doEditNodeProps(final DocmaNode node, final Callback okAction) throws Exception
     {
         try {
-            DocmaSession docmaSess = getDocmaSession();
-            if (node.isImageFolder()) {
-                doEditImageFolder(node, docmaSess);
-                return;
-            }
-            if (node.isSystemFolder()) {
-                doEditSystemFolder(node, docmaSess);
+            final DocmaSession docmaSess = getDocmaSession();
+            if (node.isFolder()) {
+                doEditFolder(node, docmaSess, okAction);
                 return;
             }
             if (node.isReference()) {
-                doEditReference(node, docmaSess);
+                doEditReference(node, docmaSess, okAction);
                 return;
             }
-            NodePropertiesDialog dialog = (NodePropertiesDialog) getPage().getFellow("NodePropertiesDialog");
-            boolean isOkay;
+            Window dialog = (Window) getPage().getFellow("NodePropertiesDialog");
+            final NodePropertiesComposer composer = (NodePropertiesComposer) dialog.getAttribute("$composer");
+            Callback okHandler = new Callback() {
+                public void onEvent(String eventName) 
+                {
+                    try {
+                        composer.updateModel(node, docmaSess);
+                        if (okAction != null) {
+                            okAction.onEvent(eventName);
+                        }
+                    } catch (Exception ex) {
+                        Messagebox.show("Error: " + ex.getMessage());
+                    }
+                }
+            };
             if (node.isContent()) {
                 boolean hasApproveRight = docmaSess.hasRight(AccessRights.RIGHT_APPROVE_CONTENT);
                 String wfstate = node.getWorkflowStatus();
@@ -2314,16 +2348,12 @@ public class MainWindow extends Window implements EventListener
                     Messagebox.show("Content is already approved! You need the 'Approve content' right to change the state.");
                     return;
                 }
-                isOkay = dialog.doEdit_ContentProps(node, docmaSess);
+                composer.doEdit_ContentProps(node, docmaSess, okHandler);
             } else
             if (node.isSection()) {
-                isOkay = dialog.doEdit_SectionProps(node, docmaSess);
+                composer.doEdit_SectionProps(node, docmaSess, okHandler);
             } else {
                 Messagebox.show("Cannot edit properties: Invalid node type!");
-                return;
-            }
-            if (isOkay) {
-                dialog.updateModel(node, docmaSess);
             }
         } catch (Exception ex) {
             Messagebox.show("Error: " + ex.getMessage());
@@ -2333,22 +2363,34 @@ public class MainWindow extends Window implements EventListener
     public void onAddContent() throws Exception
     {
         try {
-            DocmaSession docmaSess = getDocmaSession();
-            Treeitem item = docTree.getSelectedItem();
-            DocmaNode node = (DocmaNode) item.getValue();
+            final DocmaSession docmaSess = getDocmaSession();
+            final Treeitem item = docTree.getSelectedItem();
+            final DocmaNode node = (DocmaNode) item.getValue();
 
             if (node == null) {
                 Messagebox.show("Internal Error: No object assigned to tree item!");
                 return;
             }
-            NodePropertiesDialog dialog = (NodePropertiesDialog) getPage().getFellow("NodePropertiesDialog");
-            if (dialog.doEdit_ContentProps(null, docmaSess)) {  // edit new node
-                DocmaNode new_content = docmaSess.createHTMLContent();
-                dialog.updateModel(new_content, docmaSess);
-                int insert_pos = node.getDefaultInsertPos(new_content);
-                node.insertChild(insert_pos, new_content);
-                if (! item.isOpen()) item.setOpen(true);
-            }
+            Window dialog = (Window) getPage().getFellow("NodePropertiesDialog");
+            final NodePropertiesComposer composer = (NodePropertiesComposer) dialog.getAttribute("$composer");
+            
+            composer.doEdit_ContentProps(null, docmaSess, new Callback() {  // edit new node
+                public void onEvent(String eventName) 
+                {
+                    if (NodePropertiesComposer.EVENT_OKAY.equals(eventName)) {  // OK button clicked
+                        try {
+                            DocmaNode new_content = docmaSess.createHTMLContent();
+                            composer.updateModel(new_content, docmaSess);
+                            int insert_pos = node.getDefaultInsertPos(new_content);
+                            node.insertChild(insert_pos, new_content);
+                            if (! item.isOpen()) item.setOpen(true);
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
+                            Messagebox.show("Error: " + ex.getMessage());
+                        }
+                    }
+                }
+            });
         } catch (Exception ex) {
             ex.printStackTrace();
             Messagebox.show("Error: " + ex.getMessage());
@@ -2358,109 +2400,278 @@ public class MainWindow extends Window implements EventListener
     public void onInsertContent() throws Exception
     {
         try {
-            DocmaSession docmaSess = getDocmaSession();
+            final DocmaSession docmaSess = getDocmaSession();
             Treeitem item = docTree.getSelectedItem();
-            DocmaNode node = (DocmaNode) item.getValue();
+            final DocmaNode node = (DocmaNode) item.getValue();
 
             if (node == null) {
                 Messagebox.show("Internal Error: No object assigned to tree item!");
                 return;
             }
-            NodePropertiesDialog dialog = (NodePropertiesDialog) getPage().getFellow("NodePropertiesDialog");
-            if (dialog.doEdit_ContentProps(null, docmaSess)) {  // edit new node
-                DocmaNode parentNode = node.getParent();
-                int insert_pos = parentNode.getChildPos(node);
-                if (! parentNode.isInsertContentAllowed(insert_pos)) {
-                    Messagebox.show("Cannot insert content here!");
-                    return;
+            Window dialog = (Window) getPage().getFellow("NodePropertiesDialog");
+            final NodePropertiesComposer composer = (NodePropertiesComposer) dialog.getAttribute("$composer");
+            
+            composer.doEdit_ContentProps(null, docmaSess, new Callback() {  // edit new node
+                public void onEvent(String eventName) 
+                {
+                    if (NodePropertiesComposer.EVENT_OKAY.equals(eventName)) {  // OK button clicked
+                        try {
+                            DocmaNode parentNode = node.getParent();
+                            int insert_pos = parentNode.getChildPos(node);
+                            if (! parentNode.isInsertContentAllowed(insert_pos)) {
+                                Messagebox.show("Cannot insert content here!");
+                                return;
+                            }
+                            DocmaNode new_content = docmaSess.createHTMLContent();
+                            composer.updateModel(new_content, docmaSess);
+                            parentNode.insertChild(insert_pos, new_content);
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
+                            Messagebox.show("Error: " + ex.getMessage());
+                        }
+                    }
                 }
-                DocmaNode new_content = docmaSess.createHTMLContent();
-                dialog.updateModel(new_content, docmaSess);
-                parentNode.insertChild(insert_pos, new_content);
-            }
+            });
         } catch (Exception ex) {
             Messagebox.show("Error: " + ex.getMessage());
         }
     }
 
-    public DocmaNode onAddSubSection() throws Exception
+    public void onAddEmptyTextFile() throws Exception
     {
         try {
-            DocmaSession docmaSess = getDocmaSession();
-            Treeitem item = docTree.getSelectedItem();
-            DocmaNode node = (DocmaNode) item.getValue();
+            final DocmaSession docmaSess = getDocmaSession();
+            final Treeitem item = docTree.getSelectedItem();
+            final DocmaNode node = (DocmaNode) item.getValue();
+
             if (node == null) {
                 Messagebox.show("Internal Error: No object assigned to tree item!");
-                return null;
+                return;
             }
-            NodePropertiesDialog dialog = (NodePropertiesDialog) getPage().getFellow("NodePropertiesDialog");
-            if (dialog.doEdit_SectionProps(null, docmaSess)) {  // edit new node
-                DocmaNode new_section = docmaSess.createSection();
-                // new_section.setTitle("New section");
-                dialog.updateModel(new_section, docmaSess);
-                node.addChild(new_section);
-                if (! item.isOpen()) item.setOpen(true);
-                return new_section;
-            }
+            Window dialog = (Window) getPage().getFellow("NodePropertiesDialog");
+            final NodePropertiesComposer composer = (NodePropertiesComposer) dialog.getAttribute("$composer");
+            
+            composer.doEdit_NewTextFileProps(docmaSess, new Callback() {  // edit new node
+                public void onEvent(String eventName) 
+                {
+                    if (NodePropertiesComposer.EVENT_OKAY.equals(eventName)) {  // OK button clicked
+                        try {
+                            DocmaNode new_content = docmaSess.createFileContent();
+                            composer.updateModel(new_content, docmaSess);
+                            int insert_pos = node.getDefaultInsertPos(new_content);
+                            node.insertChild(insert_pos, new_content);
+                            new_content.setContentString("");
+                            if (! item.isOpen()) item.setOpen(true);
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
+                            Messagebox.show("Error: " + ex.getMessage());
+                        }
+                    }
+                }
+            });
         } catch (Exception ex) {
             ex.printStackTrace();
             Messagebox.show("Error: " + ex.getMessage());
         }
-        return null;
+    }
+
+    public void onInsertEmptyTextFile() throws Exception
+    {
+        try {
+            final DocmaSession docmaSess = getDocmaSession();
+            Treeitem item = docTree.getSelectedItem();
+            final DocmaNode node = (DocmaNode) item.getValue();
+
+            if (node == null) {
+                Messagebox.show("Internal Error: No object assigned to tree item!");
+                return;
+            }
+            Window dialog = (Window) getPage().getFellow("NodePropertiesDialog");
+            final NodePropertiesComposer composer = (NodePropertiesComposer) dialog.getAttribute("$composer");
+            
+            composer.doEdit_NewTextFileProps(docmaSess, new Callback() {  // edit new node
+                public void onEvent(String eventName) 
+                {
+                    if (NodePropertiesComposer.EVENT_OKAY.equals(eventName)) {  // OK button clicked
+                        try {
+                            DocmaNode parentNode = node.getParent();
+                            int insert_pos = parentNode.getChildPos(node);
+                            DocmaNode new_content = docmaSess.createFileContent();
+                            composer.updateModel(new_content, docmaSess);
+                            parentNode.insertChild(insert_pos, new_content);
+                            new_content.setContentString("");
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
+                            Messagebox.show("Error: " + ex.getMessage());
+                        }
+                    }
+                }
+            });
+        } catch (Exception ex) {
+            Messagebox.show("Error: " + ex.getMessage());
+        }
+    }
+
+    public void onAddSubSection() throws Exception
+    {
+        try {
+            final DocmaSession docmaSess = getDocmaSession();
+            final Treeitem item = docTree.getSelectedItem();
+            final DocmaNode node = (DocmaNode) item.getValue();
+            if (node == null) {
+                Messagebox.show("Internal Error: No object assigned to tree item!");
+                return;
+            }
+            Window dialog = (Window) getPage().getFellow("NodePropertiesDialog");
+            final NodePropertiesComposer composer = (NodePropertiesComposer) dialog.getAttribute("$composer");
+            
+            composer.doEdit_SectionProps(null, docmaSess, new Callback() {  // edit new node
+                public void onEvent(String eventName) 
+                {
+                    if (NodePropertiesComposer.EVENT_OKAY.equals(eventName)) {  // OK button clicked
+                        try {
+                            DocmaNode new_section = docmaSess.createSection();
+                            // new_section.setTitle("New section");
+                            composer.updateModel(new_section, docmaSess);
+                            node.addChild(new_section);
+                            if (! item.isOpen()) item.setOpen(true);
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
+                            Messagebox.show("Error: " + ex.getMessage());
+                        }
+                    }
+                }
+            });
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            Messagebox.show("Error: " + ex.getMessage());
+        }
     }
 
     public void onAddSubSectionWithContent() throws Exception
     {
-        DocmaNode new_section = onAddSubSection();
-        if (new_section != null) {
-            DocmaSession docmaSess = getDocmaSession();
-            DocmaNode new_content = docmaSess.createHTMLContent();
-            new_content.setTitle(new_section.getTitle());
-            new_section.addChild(new_content);
-            Treeitem item = getDocTree().getTreeitemByDocmaNode(new_section);
-            if (item != null) item.setOpen(true);
+        try {
+            final DocmaSession docmaSess = getDocmaSession();
+            final Treeitem item = docTree.getSelectedItem();
+            final DocmaNode node = (DocmaNode) item.getValue();
+            if (node == null) {
+                Messagebox.show("Internal Error: No object assigned to tree item!");
+                return;
+            }
+            Window dialog = (Window) getPage().getFellow("NodePropertiesDialog");
+            final NodePropertiesComposer composer = (NodePropertiesComposer) dialog.getAttribute("$composer");
+            
+            composer.doEdit_SectionProps(null, docmaSess, new Callback() {  // edit new node
+                public void onEvent(String eventName) 
+                {
+                    if (NodePropertiesComposer.EVENT_OKAY.equals(eventName)) {  // OK button clicked
+                        try {
+                            DocmaNode new_section = docmaSess.createSection();
+                            // new_section.setTitle("New section");
+                            composer.updateModel(new_section, docmaSess);
+                            node.addChild(new_section);
+                            if (! item.isOpen()) item.setOpen(true);
+                            
+                            DocmaNode new_content = docmaSess.createHTMLContent();
+                            new_content.setTitle(new_section.getTitle());
+                            new_section.addChild(new_content);
+                            Treeitem sect_item = getDocTree().getTreeitemByDocmaNode(new_section);
+                            if (sect_item != null) sect_item.setOpen(true);
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
+                            Messagebox.show("Error: " + ex.getMessage());
+                        }
+                    }
+                }
+            });
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            Messagebox.show("Error: " + ex.getMessage());
         }
     }
 
-    public DocmaNode onInsertSection() throws Exception
+    public void onInsertSection() throws Exception
     {
         try {
-            DocmaSession docmaSess = getDocmaSession();
-            Treeitem item = docTree.getSelectedItem();
-            DocmaNode node = (DocmaNode) item.getValue();
+            final DocmaSession docmaSess = getDocmaSession();
+            final Treeitem item = docTree.getSelectedItem();
+            final DocmaNode node = (DocmaNode) item.getValue();
             if (node == null) {
                 Messagebox.show("Internal Error: No object assigned to tree item!");
-                return null;
+                return;
             }
             if (node.isContent() || node.isContentIncludeReference()) {
                 Messagebox.show("Cannot insert section before content node!");
-                return null;
+                return;
             }
-            NodePropertiesDialog dialog = (NodePropertiesDialog) getPage().getFellow("NodePropertiesDialog");
-            if (dialog.doEdit_SectionProps(null, docmaSess)) {  // edit new node
-                DocmaNode new_section = docmaSess.createSection();
-                dialog.updateModel(new_section, docmaSess);
-                DocmaNode parentNode = node.getParent();
-                int ins_pos = parentNode.getChildPos(node);
-                parentNode.insertChild(ins_pos, new_section);
-                return new_section;
-            }
+            Window dialog = (Window) getPage().getFellow("NodePropertiesDialog");
+            final NodePropertiesComposer composer = (NodePropertiesComposer) dialog.getAttribute("$composer");
+            
+            composer.doEdit_SectionProps(null, docmaSess, new Callback() {  // edit new node
+                public void onEvent(String eventName) 
+                {
+                    if (NodePropertiesComposer.EVENT_OKAY.equals(eventName)) {  // OK button clicked
+                        try {
+                            DocmaNode new_section = docmaSess.createSection();
+                            composer.updateModel(new_section, docmaSess);
+                            DocmaNode parentNode = node.getParent();
+                            int ins_pos = parentNode.getChildPos(node);
+                            parentNode.insertChild(ins_pos, new_section);
+                            // return new_section;
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
+                            Messagebox.show("Error: " + ex.getMessage());
+                        }
+                    }
+                }
+            });
         } catch (Exception ex) {
             Messagebox.show("Error: " + ex.getMessage());
         }
-        return null;
     }
 
     public void onInsertSectionWithContent() throws Exception
     {
-        DocmaNode new_section = onInsertSection();
-        if (new_section != null) {
-            DocmaSession docmaSess = getDocmaSession();
-            DocmaNode new_content = docmaSess.createHTMLContent();
-            new_content.setTitle(new_section.getTitle());
-            new_section.addChild(new_content);
-            Treeitem item = getDocTree().getTreeitemByDocmaNode(new_section);
-            if (item != null) item.setOpen(true);
+        try {
+            final DocmaSession docmaSess = getDocmaSession();
+            final Treeitem item = docTree.getSelectedItem();
+            final DocmaNode node = (DocmaNode) item.getValue();
+            if (node == null) {
+                Messagebox.show("Internal Error: No object assigned to tree item!");
+                return;
+            }
+            if (node.isContent() || node.isContentIncludeReference()) {
+                Messagebox.show("Cannot insert section before content node!");
+                return;
+            }
+            Window dialog = (Window) getPage().getFellow("NodePropertiesDialog");
+            final NodePropertiesComposer composer = (NodePropertiesComposer) dialog.getAttribute("$composer");
+            
+            composer.doEdit_SectionProps(null, docmaSess, new Callback() {  // edit new node
+                public void onEvent(String eventName) 
+                {
+                    if (NodePropertiesComposer.EVENT_OKAY.equals(eventName)) {  // OK button clicked
+                        try {
+                            DocmaNode new_section = docmaSess.createSection();
+                            composer.updateModel(new_section, docmaSess);
+                            DocmaNode parentNode = node.getParent();
+                            int ins_pos = parentNode.getChildPos(node);
+                            parentNode.insertChild(ins_pos, new_section);
+                            
+                            DocmaNode new_content = docmaSess.createHTMLContent();
+                            new_content.setTitle(new_section.getTitle());
+                            new_section.addChild(new_content);
+                            Treeitem sect_item = getDocTree().getTreeitemByDocmaNode(new_section);
+                            if (sect_item != null) sect_item.setOpen(true);
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
+                            Messagebox.show("Error: " + ex.getMessage());
+                        }
+                    }
+                }
+            });
+        } catch (Exception ex) {
+            Messagebox.show("Error: " + ex.getMessage());
         }
     }
 
@@ -2469,92 +2680,132 @@ public class MainWindow extends Window implements EventListener
         DocmaSession docmaSess = getDocmaSession();
         Treeitem item = docTree.getSelectedItem();
         DocmaNode node = (DocmaNode) item.getValue();
-        doEditReference(node, docmaSess);
+        doEditReference(node, docmaSess, null);
     }
 
-    private void doEditReference(DocmaNode node, DocmaSession docmaSess) throws Exception
+    private void doEditReference(final DocmaNode node, 
+                                 final DocmaSession docmaSess, 
+                                 final Callback okAction) throws Exception
     {
         if (node == null) {
             Messagebox.show("Internal Error: No object assigned to tree item!");
             return;
         }
-        ReferenceDialog dialog = (ReferenceDialog) getPage().getFellow("ReferenceDialog");
+        Window dialog = (Window) getPage().getFellow("ReferenceDialog");
+        final ReferenceDialogComposer composer = (ReferenceDialogComposer) dialog.getAttribute("$composer");
         if (node.isSectionIncludeReference()) {
-            dialog.setMode_EditSectionRef();
-        } else
-        if (node.isImageIncludeReference()) {
-            dialog.setMode_EditImageRef();
+            composer.setMode_EditSectionRef();
+        } else if (node.isImageIncludeReference()) {
+            composer.setMode_EditImageRef();
         } else {
-            dialog.setMode_EditContentRef();
+            composer.setMode_EditContentRef();
         }
-        dialog.updateGUI(node);
-        if (dialog.doEdit(docmaSess)) {
-            dialog.updateModel(node, docmaSess);
-        }
+        composer.doEdit(node, docmaSess, new Callback() {
+            public void onEvent(String eventName) 
+            {
+                if (ReferenceDialogComposer.EVENT_OKAY.equals(eventName)) {  // OK button clicked
+                    try {
+                        composer.updateModel(node, docmaSess);
+                        if (okAction != null) {
+                            okAction.onEvent(eventName);
+                        }
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                        Messagebox.show("Error: " + ex.getMessage());
+                    }
+                }
+            }
+        });
     }
 
 
-    private void onAddInclude(boolean isSection, boolean isContent, boolean isImage)
+    private void onAddInclude(final boolean isSection, 
+                              final boolean isContent, 
+                              final boolean isImage)
     throws Exception
     {
-        DocmaSession docmaSess = getDocmaSession();
-        Treeitem item = docTree.getSelectedItem();
-        DocmaNode node = (DocmaNode) item.getValue();
+        final DocmaSession docmaSess = getDocmaSession();
+        final Treeitem item = docTree.getSelectedItem();
+        final DocmaNode node = (DocmaNode) item.getValue();
         if (node == null) {
             Messagebox.show("Internal Error: No object assigned to tree item!");
             return;
         }
-        ReferenceDialog dialog = (ReferenceDialog) getPage().getFellow("ReferenceDialog");
-        if (isSection) dialog.setMode_NewSectionRef();
-        if (isContent) dialog.setMode_NewContentRef();
-        if (isImage) dialog.setMode_NewImageRef();
-        dialog.updateGUI(null);  // clear dialog fields
-        if (dialog.doEdit(docmaSess)) {
-            DocmaNode new_ref = null;
-            if (isSection) new_ref = docmaSess.createSectionIncludeReference();
-            if (isContent) new_ref = docmaSess.createContentIncludeReference();
-            if (isImage) new_ref = docmaSess.createImageIncludeReference();
-            dialog.updateModel(new_ref, docmaSess);
-            int insert_pos = node.getDefaultInsertPos(new_ref);
-            node.insertChild(insert_pos, new_ref);
-            if (! item.isOpen()) item.setOpen(true);
-        }
+        Window dialog = (Window) getPage().getFellow("ReferenceDialog");
+        final ReferenceDialogComposer composer = (ReferenceDialogComposer) dialog.getAttribute("$composer");
+        
+        if (isSection) composer.setMode_NewSectionRef();
+        if (isContent) composer.setMode_NewContentRef();
+        if (isImage) composer.setMode_NewImageRef();
+        composer.doEdit(null, docmaSess, new Callback() {  // null means dialog fields are cleared
+            public void onEvent(String eventName) 
+            {
+                if (ReferenceDialogComposer.EVENT_OKAY.equals(eventName)) {  // OK button clicked
+                    try {
+                        DocmaNode new_ref = null;
+                        if (isSection) new_ref = docmaSess.createSectionIncludeReference();
+                        if (isContent) new_ref = docmaSess.createContentIncludeReference();
+                        if (isImage) new_ref = docmaSess.createImageIncludeReference();
+                        composer.updateModel(new_ref, docmaSess);
+                        int insert_pos = node.getDefaultInsertPos(new_ref);
+                        node.insertChild(insert_pos, new_ref);
+                        if (! item.isOpen()) item.setOpen(true);
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                        Messagebox.show("Error: " + ex.getMessage());
+                    }
+                }
+            }
+        });
     }
 
 
-    private void onInsertInclude(boolean isSection, boolean isContent, boolean isImage)
+    private void onInsertInclude(final boolean isSection, 
+                                 final boolean isContent, 
+                                 final boolean isImage)
     throws Exception
     {
-        DocmaSession docmaSess = getDocmaSession();
-        Treeitem item = docTree.getSelectedItem();
-        DocmaNode node = (DocmaNode) item.getValue();
+        final DocmaSession docmaSess = getDocmaSession();
+        final Treeitem item = docTree.getSelectedItem();
+        final DocmaNode node = (DocmaNode) item.getValue();
         if (node == null) {
             Messagebox.show("Internal Error: No object assigned to tree item!");
             return;
         }
-        ReferenceDialog dialog = (ReferenceDialog) getPage().getFellow("ReferenceDialog");
-        if (isSection) dialog.setMode_NewSectionRef();
-        if (isContent) dialog.setMode_NewContentRef();
-        if (isImage) dialog.setMode_NewImageRef();
-        dialog.updateGUI(null);  // clear dialog fields
-        if (dialog.doEdit(docmaSess)) {
-            DocmaNode parentNode = node.getParent();
-            int insert_pos = parentNode.getChildPos(node);
-            if (isSection && !parentNode.isInsertSectionAllowed(insert_pos)) {
-                Messagebox.show("Cannot insert section here!");
-                return;
+        Window dialog = (Window) getPage().getFellow("ReferenceDialog");
+        final ReferenceDialogComposer composer = (ReferenceDialogComposer) dialog.getAttribute("$composer");
+        
+        if (isSection) composer.setMode_NewSectionRef();
+        if (isContent) composer.setMode_NewContentRef();
+        if (isImage) composer.setMode_NewImageRef();
+        composer.doEdit(null, docmaSess, new Callback() {  // null means dialog fields are cleared
+            public void onEvent(String eventName) 
+            {
+                if (ReferenceDialogComposer.EVENT_OKAY.equals(eventName)) {  // OK button clicked
+                    try {
+                        DocmaNode parentNode = node.getParent();
+                        int insert_pos = parentNode.getChildPos(node);
+                        if (isSection && !parentNode.isInsertSectionAllowed(insert_pos)) {
+                            Messagebox.show("Cannot insert section here!");
+                            return;
+                        }
+                        if ((isContent || isImage) && !parentNode.isInsertContentAllowed(insert_pos)) {
+                            Messagebox.show("Cannot insert content here!");
+                            return;
+                        }
+                        DocmaNode new_ref = null;
+                        if (isSection) new_ref = docmaSess.createSectionIncludeReference();
+                        if (isContent) new_ref = docmaSess.createContentIncludeReference();
+                        if (isImage) new_ref = docmaSess.createImageIncludeReference();
+                        composer.updateModel(new_ref, docmaSess);
+                        parentNode.insertChild(insert_pos, new_ref);
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                        Messagebox.show("Error: " + ex.getMessage());
+                    }
+                }
             }
-            if ((isContent || isImage) && !parentNode.isInsertContentAllowed(insert_pos)) {
-                Messagebox.show("Cannot insert content here!");
-                return;
-            }
-            DocmaNode new_ref = null;
-            if (isSection) new_ref = docmaSess.createSectionIncludeReference();
-            if (isContent) new_ref = docmaSess.createContentIncludeReference();
-            if (isImage) new_ref = docmaSess.createImageIncludeReference();
-            dialog.updateModel(new_ref, docmaSess);
-            parentNode.insertChild(insert_pos, new_ref);
-        }
+        });
     }
 
 
@@ -2597,17 +2848,23 @@ public class MainWindow extends Window implements EventListener
     public void onAddImageFolder() throws Exception
     {
         try {
-            DocmaSession docmaSess = getDocmaSession();
-            Treeitem item = docTree.getSelectedItem();
-            DocmaNode node = (DocmaNode) item.getValue();
+            final DocmaSession docmaSess = getDocmaSession();
+            final Treeitem item = docTree.getSelectedItem();
+            final DocmaNode node = (DocmaNode) item.getValue();
             if (node == null) {
                 Messagebox.show("Internal Error: No object assigned to tree item!");
                 return;
             }
-            FolderDialog dialog = (FolderDialog) getPage().getFellow("FolderDialog");
-            if (dialog.addImageFolder(node, docmaSess)) {
-                if (! item.isOpen()) item.setOpen(true);
-            }
+            Window dialog = (Window) getPage().getFellow("FolderDialog");
+            FolderDialogComposer composer = (FolderDialogComposer) dialog.getAttribute("$composer");
+            composer.addImageFolder(node, docmaSess, new Callback() {
+                public void onEvent(String eventName) 
+                {
+                    if (FolderDialogComposer.EVENT_OKAY.equals(eventName)) {  // OK button clicked
+                        if (! item.isOpen()) item.setOpen(true);
+                    }
+                }
+            });
         } catch (Exception ex) {
             Messagebox.show("Error: " + ex.getMessage());
         }
@@ -2617,17 +2874,23 @@ public class MainWindow extends Window implements EventListener
     public void onAddSystemFolder() throws Exception
     {
         try {
-            DocmaSession docmaSess = getDocmaSession();
-            Treeitem item = docTree.getSelectedItem();
+            final DocmaSession docmaSess = getDocmaSession();
+            final Treeitem item = docTree.getSelectedItem();
             DocmaNode node = (DocmaNode) item.getValue();
             if (node == null) {
                 Messagebox.show("Internal Error: No object assigned to tree item!");
                 return;
             }
-            FolderDialog dialog = (FolderDialog) getPage().getFellow("FolderDialog");
-            if (dialog.addSystemFolder(node, docmaSess)) {
-                if (! item.isOpen()) item.setOpen(true);
-            }
+            Window dialog = (Window) getPage().getFellow("FolderDialog");
+            FolderDialogComposer composer = (FolderDialogComposer) dialog.getAttribute("$composer");
+            composer.addSystemFolder(node, docmaSess, new Callback() {
+                public void onEvent(String eventName) 
+                {
+                    if (FolderDialogComposer.EVENT_OKAY.equals(eventName)) {  // OK button clicked
+                        if (! item.isOpen()) item.setOpen(true);
+                    }
+                }
+            });
         } catch (Exception ex) {
             Messagebox.show("Error: " + ex.getMessage());
         }
@@ -2644,10 +2907,16 @@ public class MainWindow extends Window implements EventListener
                 Messagebox.show("Internal Error: No object assigned to tree item!");
                 return;
             }
-            FolderDialog dialog = (FolderDialog) getPage().getFellow("FolderDialog");
-            if (dialog.insertImageFolder(node, docmaSess)) {
-                if (! item.isOpen()) item.setOpen(true);
-            }
+            Window dialog = (Window) getPage().getFellow("FolderDialog");
+            FolderDialogComposer composer = (FolderDialogComposer) dialog.getAttribute("$composer");
+            composer.insertImageFolder(node, docmaSess, new Callback() {
+                public void onEvent(String eventName) 
+                {
+                    // if (FolderDialogComposer.EVENT_OKAY.equals(eventName)) {  // OK button clicked
+                    //     if (! item.isOpen()) item.setOpen(true);
+                    // }
+                }
+            });
         } catch (Exception ex) {
             Messagebox.show("Error: " + ex.getMessage());
         }
@@ -2664,60 +2933,38 @@ public class MainWindow extends Window implements EventListener
                 Messagebox.show("Internal Error: No object assigned to tree item!");
                 return;
             }
-            FolderDialog dialog = (FolderDialog) getPage().getFellow("FolderDialog");
-            if (dialog.insertSystemFolder(node, docmaSess)) {
-                if (! item.isOpen()) item.setOpen(true);
-            }
+            Window dialog = (Window) getPage().getFellow("FolderDialog");
+            FolderDialogComposer composer = (FolderDialogComposer) dialog.getAttribute("$composer");
+            composer.insertSystemFolder(node, docmaSess, new Callback() {
+                public void onEvent(String eventName) 
+                {
+                    // if (FolderDialogComposer.EVENT_OKAY.equals(eventName)) {  // OK button clicked
+                    //     if (! item.isOpen()) item.setOpen(true);
+                    // }
+                }
+            });
         } catch (Exception ex) {
             Messagebox.show("Error: " + ex.getMessage());
         }
     }
 
 
-    public void onEditImageFolder() throws Exception
+    private void doEditFolder(DocmaNode node, DocmaSession docmaSess, final Callback okAction) throws Exception
     {
-        try {
-            DocmaSession docmaSess = getDocmaSession();
-            Treeitem item = docTree.getSelectedItem();
-            DocmaNode node = (DocmaNode) item.getValue();
-            if (node == null) {
-                Messagebox.show("Internal Error: No object assigned to tree item!");
-                return;
+        Window dialog = (Window) getPage().getFellow("FolderDialog");
+        FolderDialogComposer composer = (FolderDialogComposer) dialog.getAttribute("$composer");
+        composer.editFolder(node, docmaSess, new Callback() {
+            public void onEvent(String eventName) 
+            {
+                if (FolderDialogComposer.EVENT_OKAY.equals(eventName)) {  // OK button clicked
+                    if (okAction != null) {
+                        okAction.onEvent(eventName);
+                    }
+                }
             }
-            doEditImageFolder(node, docmaSess);
-        } catch (Exception ex) {
-            Messagebox.show("Error: " + ex.getMessage());
-        }
+        });
     }
 
-    private void doEditImageFolder(DocmaNode node, DocmaSession docmaSess) throws Exception
-    {
-        FolderDialog dialog = (FolderDialog) getPage().getFellow("FolderDialog");
-        dialog.editImageFolder(node, docmaSess);
-    }
-
-    public void onEditSystemFolder() throws Exception
-    {
-        try {
-            DocmaSession docmaSess = getDocmaSession();
-            Treeitem item = docTree.getSelectedItem();
-            DocmaNode node = (DocmaNode) item.getValue();
-            if (node == null) {
-                Messagebox.show("Internal Error: No object assigned to tree item!");
-                return;
-            }
-            doEditSystemFolder(node, docmaSess);
-        } catch (Exception ex) {
-            Messagebox.show("Error: " + ex.getMessage());
-        }
-    }
-
-    private void doEditSystemFolder(DocmaNode node, DocmaSession docmaSess) throws Exception
-    {
-        FolderDialog dialog = (FolderDialog) getPage().getFellow("FolderDialog");
-        dialog.editSystemFolder(node, docmaSess);
-    }
-    
     private synchronized UploadHandler getUploadHandler()
     {
         if (uploadHandler == null) {
@@ -2842,53 +3089,74 @@ public class MainWindow extends Window implements EventListener
     public void onFindByAliasAll() throws Exception
     {
         DocmaSession docmaSess = getDocmaSession();
-        FindNodesDialog dialog = getFindNodesDialog();
-        dialog.doFindByAlias(docmaSess);
+        FindNodesComposer composer = getFindNodesComposer();
+        composer.doFindByAlias(docmaSess);
     }
 
-
+    
     public void onFindByAlias() throws Exception
     {
-        DocmaSession docmaSess = getDocmaSession();
-        FindNodesDialog dialog = getFindNodesDialog();
-
-        Treeitem item = docTree.getSelectedItem();
-        if (item == null) {
-            Messagebox.show("Please select a tree item!");
-            return;
+        DocmaNode node = getSelectedDocmaNode(true);
+        if (node != null) {
+            DocmaSession docmaSess = getDocmaSession();
+            FindNodesComposer comp = getFindNodesComposer();
+            String alias = node.getAlias();
+            if (alias == null) alias = "";
+            comp.doFindByAlias(docmaSess, alias);
         }
-        DocmaNode node = (DocmaNode) item.getValue();
-        if (node == null) {
-            Messagebox.show("Internal Error: No object assigned to tree item!");
-            return;
-        }
-        String alias = node.getAlias();
-        if (alias == null) alias = "";
-        dialog.doFindByAlias(docmaSess, alias);
     }
 
+    public void onFindReferencesAll() throws Exception
+    {
+        getFindNodesComposer().doFindReferencingAlias(getDocmaSession());
+    }
+
+    public void onFindReferences() throws Exception
+    {
+        DocmaNode node = getSelectedDocmaNode(true);
+        if (node != null) {
+            getFindNodesComposer().doFindReferencingAlias(getDocmaSession(), "", node);
+        }
+    }
 
     public void onFindReferencingThis() throws Exception
     {
-        DocmaSession docmaSess = getDocmaSession();
-        FindNodesDialog dialog = getFindNodesDialog();
+        DocmaNode node = getSelectedDocmaNode(true);
+        if (node != null) {
+            String alias = node.getAlias();
+            if ((alias == null) || alias.equals("")) {
+                MessageUtil.showInfo(this, "text.node_not_referenced_no_alias");
+                return;
+            }
+            FindNodesComposer comp = getFindNodesComposer();
+            comp.doFindReferencingAlias(getDocmaSession(), alias, null);
+        }
+    }
+    
+    public void onFindStyleAll() throws Exception
+    {
+        getFindNodesComposer().doFindStyle(getDocmaSession(), null);
+    }
+    
+    public void onFindStyle() throws Exception
+    {
+        DocmaNode node = getSelectedDocmaNode(true);
+        if (node != null) {
+            getFindNodesComposer().doFindStyle(getDocmaSession(), node);
+        }
+    }
 
-        Treeitem item = docTree.getSelectedItem();
-        if (item == null) {
-            Messagebox.show("Please select a tree item!");
-            return;
+    public void onFindApplicAll() throws Exception
+    {
+        getFindNodesComposer().doFindApplic(getDocmaSession(), null);
+    }
+
+    public void onFindApplic() throws Exception
+    {
+        DocmaNode node = getSelectedDocmaNode(true);
+        if (node != null) {
+            getFindNodesComposer().doFindApplic(getDocmaSession(), node);
         }
-        DocmaNode node = (DocmaNode) item.getValue();
-        if (node == null) {
-            Messagebox.show("Internal Error: No object assigned to tree item!");
-            return;
-        }
-        String alias = node.getAlias();
-        if ((alias == null) || alias.equals("")) {
-            Messagebox.show("Node is not referenced (node has no alias name)!");
-            return;
-        }
-        dialog.doFindReferencingAlias(docmaSess, alias);
     }
 
     public void onChangeStylesFilter() throws Exception

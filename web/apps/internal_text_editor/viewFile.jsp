@@ -11,6 +11,11 @@
 <style type="text/css">
 div.docma_msg { margin: 1em; }
 .labeltxt { font-size:12px; }
+.hint_msg { color:#909090; }
+#filenameBox { float: left; font-weight:bold; font-size: 13px; }
+#commentBox { float: right; color:#909090; }
+#docmaPlugToolbar { margin-right: 14px; }
+#docmaPlugToolbar a { font-size: 12px; font-weight: normal; text-decoration: none; }
 </style>
 <%
     boolean isFile = false;
@@ -98,7 +103,7 @@ div.docma_msg { margin: 1em; }
   } else {
 %>
     function doEdit() {
-        window.frames['edit_txt_frame'].docmaEnterEdit();
+        getEditTxtFrame().docmaEnterEdit();
         document.forms["btnform"].editBtn.style.display = 'none';
         document.forms["btnform"].saveBtn.style.display = 'inline';
         if (isWin) {
@@ -109,12 +114,13 @@ div.docma_msg { margin: 1em; }
             document.forms["btnform"].openWinBtn.style.display = 'none';
         }
         currentStatus = 'edit';
+        document.getElementById("commentBox").style.visibility = 'hidden';
     }
 <% 
   }
 %>
     function doSave() {
-        window.frames['edit_txt_frame'].docmaBeforeSave();
+        getEditTxtFrame().docmaBeforeSave();
         var editform = window.frames['edit_txt_frame'].document.forms["editform"];
         var sel = document.forms["btnform"].file_encoding;
         editform.charset_name.value = sel.options[sel.selectedIndex].value;
@@ -199,7 +205,7 @@ div.docma_msg { margin: 1em; }
     }
 
     function switchToViewMode() {
-        window.frames['edit_txt_frame'].docmaEnterView();
+        getEditTxtFrame().docmaEnterView();
         document.forms["btnform"].saveBtn.disabled = false;
         document.forms["btnform"].saveBtn.style.display = 'none';
         document.forms["btnform"].editBtn.style.display = 'inline';
@@ -212,6 +218,7 @@ div.docma_msg { margin: 1em; }
             document.forms["btnform"].openWinBtn.style.display = 'inline';
         }
         currentStatus = 'view';
+        document.getElementById("commentBox").style.visibility = 'visible';
     }
 
     function changeEncoding() {
@@ -224,34 +231,56 @@ div.docma_msg { margin: 1em; }
     function openInNewWin() {
         <%= (js_open_viewer == null) ? "" : js_open_viewer  %>
     }
+
+    function getEditTxtFrame() {
+        return window.frames['edit_txt_frame'];
+    }
 </script>
 </head>
 <body style="background:#E0E0E0; font-family:Arial,sans-serif; margin:0 3px 0 0; padding:0; width:100%; max-width:100%; height:100%; overflow:hidden;">
 <%
     if (! (isTextFile || node instanceof PubContent)) {
         if (isFile) {
-            out.println("<div class=\"docma_msg\"><b>No preview available for " +
-                        ((FileContent) node).getFileName() + 
-                        "</b><br /><br /><i>If files with extension '." + ext + 
-                        "' are text-files, then add this extension as text-file extension in the application settings.</i></div>");
+            String no_preview = webSess.getLabel("texteditor.no_file_preview_available", ((FileContent) node).getFileName());
+            String preview_hint = webSess.getLabel("texteditor.no_file_preview_hint", ext);
+            out.println("<div class=\"docma_msg\"><b>" + no_preview +
+                        "</b><br /><br /><i class=\"hint_msg\">" + preview_hint + "</i></div>");
         } else {
-            out.println("<div class=\"docma_msg\"><b>No preview available for node " +
-                        node.getId() + "</div>");
+            String no_preview = webSess.getLabel("texteditor.no_node_preview_available", node.getId());
+            out.println("<div class=\"docma_msg\"><b>" + no_preview + "</div>");
         }
     } else {
+        String fn = isFile ? ((FileContent) node).getFileName() : "";
         String charsetName = ((Content) node).getCharset();
         if (charsetName == null) {
             String alias = node.getAlias();
-            String fn = isFile ? ((FileContent) node).getFileName() : "";
             if (((alias != null) && alias.equals("gentext")) || fn.startsWith("gentext")) {
                 charsetName = "ISO-8859-1";
             } else {
                 charsetName = "UTF-8";
             }
         }
+        
+        String displayTitle;
+        if (fn.equals("")) {
+            displayTitle = "<b>" + webSess.getLabel("texteditor.node_id_label") + ":</b>&nbsp;" + node.getId();
+            if (node instanceof PubContent) {
+                displayTitle += " <b>" + webSess.getLabel("label.node.title") + ":</b>&nbsp;" + 
+                                ((PubContent) node).getTitleEntityEncoded();
+            }
+        } else {
+            displayTitle = fn;
+        }
+        String editComment = webSess.getLabel("texteditor.start_edit_comment");
 %>
 <form name="btnform" action="<%= self_url %>" method="post" style="padding:0; margin:0; width:100%; height:100%;">
 <table border="0" cellspacing="0" cellpadding="0" style="width:100%; height:100%;">
+<tr>
+    <td height="28" valign="middle" style="padding:4px 5px 4px 5px; border-bottom:1px solid #D0D0D0;">
+        <div id="filenameBox"><%= displayTitle %></div>
+        <div id="commentBox"><%= editComment %></div>
+    </td>
+</tr>
 <tr>
     <td style="padding:0 0 1px 0; width:100%;">
         <iframe name="edit_txt_frame" src="<%= content_url %>" width="100%" height="100%"></iframe>
@@ -303,7 +332,14 @@ div.docma_msg { margin: 1em; }
           </td>
           <td align="right" valign="middle" nowrap>
             <table border="0" cellspacing="0" cellpadding="0">
-              <tr>
+              <tr><% 
+    String plug_toolbar = TextFileHandler.getHTMLToolbar(webSess, ext);
+    if ((plug_toolbar != null) && !plug_toolbar.equals("")) {
+        out.print("<td valign=\"middle\"><div id=\"docmaPlugToolbar\">");
+        out.print(plug_toolbar);
+        out.println("</div></td>");
+    }
+%>
                 <td valign="middle"><span class="labeltxt">Encoding:&nbsp;</span></td>
                 <td valign="middle">
     <select name="file_encoding" size="1" onchange="changeEncoding();">

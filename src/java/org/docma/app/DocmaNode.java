@@ -891,7 +891,7 @@ public class DocmaNode
         }
     }
 
-    public void setContent(byte[] cont)
+    public void setContent(byte[] cont) throws DocException
     {
         // Note: For HTML content, the setContentString method has to be used,
         //       because setContentString additionally updates the content
@@ -905,7 +905,7 @@ public class DocmaNode
             }
             setContentString(contstr);
         } else if (backendNode instanceof DocContent) {
-            // checkUpdateContentAllowed();
+            checkUpdateContentAllowed();
             boolean started = startNodeTransaction();
             try {
                 ((DocContent) backendNode).setContent(cont);
@@ -922,7 +922,7 @@ public class DocmaNode
         }
     }
     
-    public void setContentStream(InputStream cont)
+    public void setContentStream(InputStream cont) throws DocException
     {
         // Note: For HTML content, the setContentString method has to be used,
         //       because setContentString additionally updates the content
@@ -939,7 +939,7 @@ public class DocmaNode
             }
             setContentString(contstr);
         } else if (backendNode instanceof DocContent) {
-            // checkUpdateContentAllowed();
+            checkUpdateContentAllowed();
             boolean started = startNodeTransaction();
             try {
                 ((DocContent) backendNode).setContentStream(cont);
@@ -956,10 +956,10 @@ public class DocmaNode
         }
     }
     
-    public void setContentString(String cont)
+    public void setContentString(String cont) throws DocException
     {
         if (backendNode instanceof DocContent) {
-            // checkUpdateContentAllowed();
+            checkUpdateContentAllowed();
             boolean started = startNodeTransaction();
             try {
                 boolean is_file = isFileContent();

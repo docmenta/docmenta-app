@@ -170,11 +170,19 @@
         <space spacing="4px" />
         <textbox id="MediaHTMLURLTargetTextbox" maxlength="25" cols="12" value="" hflex="1"/>
       </hbox>
+      <vbox id="MediaHTMLDocTypeArea" hflex="1" align="start" spacing="0px">
+        <hbox hflex="1" spacing="4px" align="center" pack="stretch" >
+          <label hflex="1">DOCTYPE:</label>
+          <checkbox id="MediaHTMLDocTypeCheckbox" forward="onCheck=MediaConfigDialog.onCheckCustomDocType" />
+          <label hflex="min">Custom</label>
+        </hbox>
+        <textbox id="MediaHTMLDocTypeTextbox" multiline="true" rows="2" hflex="1" style="white-space:pre;" />
+      </vbox>
       <hbox pack="start" align="end" spacing="3px">
         <label>Additional&#160;Output&#160;Files:</label>
         <toolbarbutton label="Help" style="color:#0000FF" onClick='mainWin.onHelp("help/out_config_html.html")'/>
       </hbox>
-      <textbox id="MediaHTMLCustomFilesTextbox" multiline="true" rows="3" hflex="1" />
+      <textbox id="MediaHTMLCustomFilesTextbox" multiline="true" rows="3" hflex="1" style="white-space:pre;" />
      </vbox>
     </groupbox>
   </hbox>

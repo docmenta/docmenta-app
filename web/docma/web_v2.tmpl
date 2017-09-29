@@ -1,0 +1,96 @@
+###doctype###
+<html>
+<head>
+###custom_head_tags###
+<meta http-equiv="Content-Type" content="text/html; charset=###lower(encoding)###"/>
+<meta name="generator" content="###app_shortname### ###app_version###"/>
+<title>###chunk_title###</title>
+<link rel="shortcut icon" href="favicon.ico" type="image/x-icon"/>
+###link_home###
+###link_up###
+###link_prev###
+###link_next###
+###link_custom_css###
+<link rel="stylesheet" type="text/css" href="###common_url###/jquery/theme-redmond/jquery-ui-1.8.2.custom.css"/>
+<link rel="stylesheet" type="text/css" href="###common_url###/jquery/treeview/jquery.treeview.css"/>
+<link rel="stylesheet" type="text/css" href="###common_url###/css/positioning.css"/>
+<script type="text/javascript">
+  var treeCookieId = "treeview-###current_time_millis###";
+  var language = "###lower(lang_code)###";
+  var w = new Object();
+  txt_filesfound = "###noDoubleQuotes(gentext(txt_filesfound))||Results###";
+  txt_enter_at_least_1_char = "###noDoubleQuotes(gentext(txt_enter_at_least_1_char))||You must enter at least one character.###";
+  txt_browser_not_supported = "###noDoubleQuotes(gentext(txt_browser_not_supported))||Your browser is not supported.###";
+  txt_please_wait = "###noDoubleQuotes(gentext(txt_please_wait))||Please wait. Search in progress...###";
+  txt_results_for = "###noDoubleQuotes(gentext(txt_results_for))||Results for: ###";
+</script>
+<script type="text/javascript" src="###common_url###/jquery/jquery-1.4.2.min.js"></script>
+<script type="text/javascript" src="###common_url###/jquery/jquery-ui-1.8.2.custom.min.js"></script>
+<script type="text/javascript" src="###common_url###/jquery/jquery.cookie.js"></script>
+<script type="text/javascript" src="###common_url###/jquery/treeview/jquery.treeview.min.js"></script>
+<script type="text/javascript" src="search/htmlFileList.js"></script>
+<script type="text/javascript" src="search/htmlFileInfoList.js"></script>
+<script type="text/javascript" src="search/nwSearchFnt.js"></script>
+<script type="text/javascript" src="search/stemmers/en_stemmer.js"></script>
+<script type="text/javascript" src="search/index-1.js"></script>
+<script type="text/javascript" src="search/index-2.js"></script>
+<script type="text/javascript" src="search/index-3.js"></script>
+<script type="text/javascript" src="custom.js"></script>
+<script type="text/javascript" src="###common_url###/main.js"></script>
+</head>
+<body>
+<div id="header">
+<img id="webhelplogo1" align="left" src='###common_url###/images/logo1.png' alt="Logo"/>
+<img id="webhelplogo2" align="right" src='###common_url###/images/logo2.png' alt="Logo"/>
+<div class="webhelptitle">
+###header_title1###
+###header_title2###
+</div>
+<div id="navheader" align="right">
+<table>
+<tr>
+<td><img src="###common_url###/images/highlight-blue.gif" alt="H" onclick="toggleHighlight()" id="showHideHighlight" title="###noDoubleQuotes(gentext(HighlightButton))###" /></td>
+<td>###navigation_links###</td>
+</tr>
+</table>
+</div>
+</div>
+<div id="leftnavigation">
+<div id="tabs">
+<ul id="tocsearchnavigation" style="display:none">
+<li id="tocnavigationtab"><a href="#treeDiv"><em>###gentext(WebHelpContents)||Contents###</em></a></li>
+<li id="searchnavigationtab"><a href="#searchDiv"><em>###gentext(Search)||Search###</em></a></li>
+</ul>
+<div id="treeDiv"><img src="###common_url###/images/loading.gif" alt="loading table of contents..." id="tocLoading" style="display:block;"/>
+<div id="ulTreeDiv" style="display:none;">
+<div id="treenavigationtitle" style="display:none;">###gentext(WebHelpContents)||Contents###</div>
+<ul id="tree" class="filetree">###navigation_tree###</ul>
+</div>
+</div>
+<div id="searchDiv">
+<div id="search">
+<form onsubmit="startWebHelpSearch(ditaSearch_Form);return false" name="ditaSearch_Form" class="searchForm">
+<fieldset class="searchFieldSet">
+<legend>###gentext(Search)||Search###</legend>
+<div align="center">
+<input id="textToSearch" name="textToSearch" type="text" class="searchText"/>&nbsp;<input onclick="startWebHelpSearch(ditaSearch_Form)" type="button" class="searchButton" value="###gentext(Go)||Go###" id="doSearch"/>
+</div>
+</fieldset>
+</form>
+</div>
+<div id="closeSearchResults" style="display:none"><a href="javascript:closeSearchShowToc();">###gentext(WebHelpContents)||Contents###</a></div>
+<div id="searchResults"><div align="center"></div></div>
+</div>
+</div>
+</div>
+###parts_navigation###
+###breadcrumbs_navigation###
+<div id="content">
+###custom_header###
+###content###
+<div class="navfooter"><hr/>###footer_navigation###</div>
+###custom_footer###
+</div>
+<a id="showHideButton" onclick="showHideToc();" class="pointLeft" title="Hide TOC tree">&nbsp;</a>
+</body>
+</html>

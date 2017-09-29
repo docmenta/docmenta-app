@@ -1,7 +1,7 @@
 <window id="SelectNodeTypeDialog" title="${c:l('label.selectnodetype.dialog.insert.title')}"
         border="normal" width="280px" visible="false"
         closable="true" onClose="self.visible = false; event.stopPropagation();"
-        use="org.docma.webapp.SelectNodeTypeDialog">
+        apply="org.docma.webapp.SelectNodeTypeComposer">
 
     <caption>
         <toolbarbutton label="Help" onClick='mainWin.onHelp("help/node_types.html")'/>
@@ -12,19 +12,15 @@
         <separator spacing="0px"/>
         <vbox width="100%" align="stretch">
             <label>${c:l('label.selectnodetype.title')}:</label>
-            <listbox id="SelectNodeTypeListbox" rows="8" width="100%"
-                     onDoubleClick="SelectNodeTypeDialog.onSelectClick()"
-                     onOK="SelectNodeTypeDialog.onSelectClick()"></listbox>
+            <listbox id="SelectNodeTypeListbox" rows="8" width="100%"></listbox>
         </vbox>
         <separator spacing="2px"/>
         <hbox width="100%">
           <cell width="50%">
-                <button label="${c:l('label.okay.btn')}" width="100%"
-                        forward="SelectNodeTypeDialog.onSelectClick"/>
+            <button id="SelectNodeTypeOkayBtn" label="${c:l('label.okay.btn')}" width="100%" />
           </cell>
           <cell width="50%">
-                <button label="${c:l('label.cancel.btn')}" width="100%"
-                        forward="SelectNodeTypeDialog.onCancelClick"/>
+            <button id="SelectNodeTypeCancelBtn" label="${c:l('label.cancel.btn')}" width="100%" />
           </cell>
         </hbox>
         <separator spacing="0px"/>

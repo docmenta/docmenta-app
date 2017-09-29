@@ -36,12 +36,12 @@ import org.docma.app.fsimplementation.PublicationArchivesSessImpl;
  */
 public class DocmaSession
 {
-    private static final String ROOT_ALIAS = "root";
-    private static final String DOC_ROOT_ALIAS = "document_root";
-    private static final String SYS_ROOT_ALIAS = "system_root";
-    private static final String MEDIA_ROOT_ALIAS = "media_root";
-    private static final String FILE_ROOT_ALIAS = "file_root";
-    private static final String TEMPLATES_ALIAS = "system_templates";
+    static final String ROOT_ALIAS = "root";
+    static final String DOC_ROOT_ALIAS = "document_root";
+    static final String SYS_ROOT_ALIAS = "system_root";
+    static final String MEDIA_ROOT_ALIAS = "media_root";
+    static final String FILE_ROOT_ALIAS = "file_root";
+    static final String TEMPLATES_ALIAS = "system_templates";
 
     private final DocmaApplication docmaApp;
     private final DocStoreSession  docSess;
@@ -2925,6 +2925,58 @@ public class DocmaSession
     public boolean removeDocStoreActivity(String storeId, DocVersionId verId, long activityId)
     {
         return docmaApp.getActivities().removeVersionActivity(activityId);
+    }
+
+    /**
+     * Clear all finished user activities for the currently opened store.
+     * This removes all finished user activities for the user that owns this
+     * session. Activities of other users are not affected.
+     * 
+     * @return <code>true</code> if no more user activities exist;
+     *         <code>false</code> otherwise
+     */
+    public boolean clearFinishedUserActivities()
+    {
+        String sid = getStoreId();
+        DocVersionId vid = getVersionId();
+        if ((sid != null) && (vid != null)) {
+            return clearFinishedUserActivities(sid, vid);
+        } else {
+            return true;  // no store is currently opened; do nothing
+        }
+    }
+    
+    /**
+     * Clear all finished user activities for the specified store.
+     * This removes all finished user activities for the user that owns this
+     * session. Activities of other users are not affected.
+     * 
+     * @param storeId  the store identifier
+     * @param verId    the version identifier of the store
+     * @return <code>true</code> if no more user activities exist for the given store;
+     *         <code>false</code> otherwise
+     */
+    public boolean clearFinishedUserActivities(String storeId, DocVersionId verId)
+    {
+        try {
+            Activity[] acts = getDocStoreActivities(storeId, verId, getUserId());
+            boolean cleared = true;
+            for (Activity a : acts) {
+                if (a.isFinished()) {
+                    if (! removeDocStoreActivity(storeId, 
+                                                 verId, 
+                                                 a.getActivityId())) {
+                        cleared = false;  // finished activity could not be removed
+                    }
+                } else {
+                    cleared = false;  // running activity exists
+                }
+            }
+            return cleared;
+        } catch (Exception ex) {  // should never occur
+            ex.printStackTrace();
+            return false;
+        }
     }
     
     public boolean isStoreDisabled(String storeId) 

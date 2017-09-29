@@ -1131,8 +1131,13 @@ public class StoreConnectionImpl implements StoreConnection
     
     public LogEntries prepareHTMLForSave(StringBuilder content, String nodeId, Map<Object, Object> props) throws DocmaException
     {
+        return prepareHTMLForSave(content, nodeId, true, props);
+    }
+    
+    public LogEntries prepareHTMLForSave(StringBuilder content, String nodeId, boolean autoCorrect, Map<Object, Object> props) throws DocmaException
+    {
         try {
-            return EditContentTransformer.prepareHTMLForSave(content, nodeId, props, docmaSess);
+            return EditContentTransformer.prepareHTMLForSave(content, nodeId, props, autoCorrect, docmaSess);
         } catch (Exception ex) {
             throw new DocmaException(ex);
         }

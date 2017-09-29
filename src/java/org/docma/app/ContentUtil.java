@@ -16,8 +16,12 @@ package org.docma.app;
 
 import java.util.*;
 import org.docma.coreapi.DocRuntimeException;
+import org.docma.util.XMLElementContext;
+import org.docma.util.XMLElementHandler;
 import org.docma.util.XMLParseException;
 import org.docma.util.XMLParser;
+import org.docma.util.XMLProcessor;
+import org.docma.util.XMLProcessorFactory;
 
 /**
  *
@@ -25,6 +29,9 @@ import org.docma.util.XMLParser;
  */
 public class ContentUtil
 {
+    private static final String FILE_PREFIX = "file/";
+    private static final String IMAGE_PREFIX = "image/";
+    
     public static boolean contentIsEqual(String content1, String content2, boolean strict_compare)
     {
         if (strict_compare) {
@@ -48,9 +55,11 @@ public class ContentUtil
     }
     
     
-    public static boolean isReferencingThis(String content, String thisAlias)
+    public static boolean isReferencingAlias(String content, String alias)
     {
-        if (content == null) return false;
+        if (content == null) { 
+            return false;
+        }
         // String linkAlias = DocmaAppUtil.getLinkAlias(thisAlias);
         int len = content.length();
 
@@ -83,11 +92,16 @@ public class ContentUtil
                 int val_end = content.indexOf('"', val_start);
                 if (val_end < 0) continue;
 
-                if (content.charAt(val_start) != '#') continue;
-
-                String href_alias = content.substring(val_start + 1, val_end).trim();
-                if (href_alias.equals(thisAlias)) {
-                    return true;
+                String href_alias;
+                if (content.charAt(val_start) == '#') {
+                    href_alias = content.substring(val_start + 1, val_end).trim();
+                } else if (content.regionMatches(val_start, FILE_PREFIX, 0, FILE_PREFIX.length())) {
+                    href_alias = content.substring(val_start + FILE_PREFIX.length(), val_end).trim(); 
+                } else {
+                    continue;
+                }
+                if (href_alias.equals(alias)) {
+                      return true;
                 }
             } else
             if (tagname.equals("img")) {
@@ -101,7 +115,7 @@ public class ContentUtil
                 if (alias_end < 0) continue;
 
                 String src_alias = content.substring(alias_start, alias_end).trim();
-                if (src_alias.equals(thisAlias)) {
+                if (src_alias.equals(alias)) {
                     return true;
                 }
             }
@@ -125,14 +139,189 @@ public class ContentUtil
                 p1++;
             }
             String refAlias = content.substring(p1, p2);
-            if (refAlias.equals(thisAlias)) {
+            if (refAlias.equals(alias)) {
                 return true;
             }
         }
         return false;
     }
+    
+    public static String replaceAliasInReferences(final String content, 
+                                                  final String currentAlias, 
+                                                  final String newAlias, 
+                                                  final List<String> replacedRefs)
+    throws Exception
+    {
+        if (content == null) { 
+            return null;
+        }
+        
+        XMLProcessor xmlproc = XMLProcessorFactory.newInstance();
+        xmlproc.setIgnoreAttributeCase(true);
+        xmlproc.setIgnoreElementCase(true);
+        
+        XMLElementHandler linkHandler = new XMLElementHandler() 
+        {
+            public void processElement(XMLElementContext ctx) 
+            {
+                String val = ctx.getAttributeValue("href");
+                if (val == null) {
+                    return;
+                }
+                if (val.startsWith("#")) {
+                    if (val.trim().substring(1).equals(currentAlias)) {
+                        if (replacedRefs != null) {
+                            replacedRefs.add(ctx.getElement());
+                        }
+                        ctx.setAttribute("href", "#" + newAlias);
+                    }
+                } else if (val.startsWith(FILE_PREFIX)) {
+                    if (val.trim().substring(FILE_PREFIX.length()).equals(currentAlias)) {
+                        if (replacedRefs != null) {
+                            replacedRefs.add(ctx.getElement());
+                        }
+                        ctx.setAttribute("href", FILE_PREFIX + newAlias);
+                    }
+                }
+            }
+        };
+        
+        XMLElementHandler imgHandler = new XMLElementHandler() 
+        {
+            public void processElement(XMLElementContext ctx) 
+            {
+                String val = ctx.getAttributeValue("src");
+                if (val == null) {
+                    return;
+                }
+                if (val.startsWith(IMAGE_PREFIX)) {
+                    if (val.trim().substring(IMAGE_PREFIX.length()).equals(currentAlias)) {
+                        if (replacedRefs != null) {
+                            replacedRefs.add(ctx.getElement());
+                        }
+                        ctx.setAttribute("src", IMAGE_PREFIX + newAlias);
+                    }
+                }
+                // else if (val.startsWith(FILE_PREFIX)) {
+                //     if (val.trim().substring(FILE_PREFIX.length()).equals(currentAlias)) {
+                //         ctx.setAttribute("src", FILE_PREFIX + newAlias);
+                //     }
+                // }
+            }
+        };
+        
+        // Replace a and img tags
+        xmlproc.setElementHandler("a", linkHandler);
+        xmlproc.setElementHandler("img", imgHandler);
+        
+        StringBuilder out = new StringBuilder();
+        xmlproc.process(content, out);
+        
+        // Replace inclusions
+        int startpos = 0;
+        while (startpos < out.length()) {
+            int p1 = out.indexOf("[#", startpos);
+            if (p1 < 0) {  // no inclusion found
+                break;
+            }
+            int inclusion_start = p1;
+            p1 += 2;    // p1 is position after [#
+            if (p1 >= out.length()) {
+                break;  // end of content string reached
+            }
+            startpos = p1;          // in next loop continue search at p1
+            int p2 = out.indexOf("]", startpos);
+            if ((p2 < 0) || (p2 - p1 > DocmaConstants.ALIAS_MAX_LENGTH + 1)) {
+                continue;
+            }
+            if (out.charAt(p1) == '#') {  // content inclusion: [##
+                p1++;
+            }
+            String refAlias = out.substring(p1, p2);
+            if (refAlias.equals(currentAlias)) {
+                if (replacedRefs != null) {
+                    replacedRefs.add(out.substring(inclusion_start, p2 + 1));
+                }
+                out.replace(p1, p2, newAlias);
+                startpos = p1 + newAlias.length() + 1;
+            }
+        }
+        
+        return out.toString();
+    }
 
+    public static boolean isReferencingStyle(String content, String styleId)
+    {
+        if (content == null) { 
+            return false;
+        }
+        
+        try {
+            final String STYLE_ID_PATTERN = " " + styleId + " ";
+            XMLParser parser = new XMLParser(content);
+            Map<String, String> atts = new HashMap<String, String>();
+            int eventType;
+            do {
+                eventType = parser.next();
+                if (eventType == XMLParser.START_ELEMENT) {
+                    parser.getAttributes(atts);
+                    String cls_value = atts.get("class");
+                    if ((cls_value != null) && 
+                        (" " + cls_value + " ").contains(STYLE_ID_PATTERN)) {
+                        return true;
+                    }
+                }
+            } while (eventType != XMLParser.FINISHED);
+            return false;
+        } catch (Exception ex) {  // If content cannot be parsed
+            return false;
+        }
+    }
 
+    public static String replaceStyle(final String content, 
+                                      final String currentStyle, 
+                                      final String newStyle, 
+                                      final List<String> replacedElems)
+    throws Exception
+    {
+        if (content == null) {
+            return null;
+        }
+        
+        XMLProcessor xmlproc = XMLProcessorFactory.newInstance();
+        xmlproc.setIgnoreAttributeCase(true);
+        xmlproc.setIgnoreElementCase(true);
+        
+        XMLElementHandler elemHandler = new XMLElementHandler() 
+        {
+            public void processElement(XMLElementContext ctx) 
+            {
+                final String STYLE_PATTERN = " " + currentStyle + " ";
+                String val = ctx.getAttributeValue("class");
+                if (val == null) {
+                    return;
+                }
+                String oldVal = val.trim();
+                val = " " + oldVal + " ";
+                if ((val).contains(STYLE_PATTERN)) {
+                    if (replacedElems != null) {
+                        replacedElems.add(ctx.getElement());
+                    }
+                    String newVal = val.replace(STYLE_PATTERN, " " + newStyle + " ").trim();
+                    if (! newVal.equals(oldVal)) {
+                        ctx.setAttribute("class", newVal);
+                    }
+                }
+            }
+        };
+        
+        xmlproc.setElementHandler(elemHandler);
+        
+        StringBuilder out = new StringBuilder();
+        xmlproc.process(content, out);
+        return out.toString();
+    }
+    
     public static DocmaAnchor[] getContentAnchors(String content)
     {
         return getContentAnchors(content, null);

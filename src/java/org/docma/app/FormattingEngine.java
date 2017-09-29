@@ -231,7 +231,7 @@ public class FormattingEngine
         Log.info("WebHelp XSL Path: " + this.webhelp_XSLFileURL);
         Log.info("EPUB XSL Path: " + this.epub_XSLFileURL);
         
-        this.webFormatter = new WebFormatter(docbookXSLDir, tempDir);
+        this.webFormatter = new WebFormatter(configDir, docbookXSLDir, tempDir);
     }
 
     private String getHtml2DbPlugs_all() throws IOException
@@ -1613,38 +1613,36 @@ public class FormattingEngine
         if (css == null) return;
         css = css.trim();
         if (css.length() == 0) return;
-        
-        String[] props = css.split(";");
-        for (int i=0; i < props.length; i++) {
-            String prop = props[i];
-            int pos = prop.indexOf(':');
-            if (pos > 0) {
-                String pname_css = prop.substring(0, pos).trim().toLowerCase();
-                String pname_fo = (String) map_CSS_FO.get(pname_css);
-                if (pname_fo != null) {
-                    String pval = prop.substring(pos + 1).trim();
-                    if (pval.length() > 0) {
-                        if (mirrored) {
-                            // String mirr_name = (String) map_FO_MIRRORED.get(pname_fo);
-                            // if (mirr_name != null) {
-                            //     pname_fo = mirr_name;
-                            // }
-                            
-                            // mirror text-align (on even pages for double-sided output)
-                            if (pname_fo.equals("text-align")) { 
-                                if (pval.equalsIgnoreCase("left")) {
-                                    pval = "right";
-                                } else
-                                if (pval.equalsIgnoreCase("right")) {
-                                    pval = "left";
-                                }
+
+        SortedMap<String, String> props = CSSParser.parseCSSProperties(css);
+        for (Map.Entry<String, String> prop : props.entrySet()) {
+            String pname_css = prop.getKey().toLowerCase();
+            String pname_fo = (String) map_CSS_FO.get(pname_css);
+            if (pname_fo != null) {
+                String pval = prop.getValue();
+                if (pval.length() > 0) {
+                    if (mirrored) {
+                        // String mirr_name = (String) map_FO_MIRRORED.get(pname_fo);
+                        // if (mirr_name != null) {
+                        //     pname_fo = mirr_name;
+                        // }
+
+                        // mirror text-align (on even pages for double-sided output)
+                        if (pname_fo.equals("text-align")) { 
+                            if (pval.equalsIgnoreCase("left")) {
+                                pval = "right";
+                            } else
+                            if (pval.equalsIgnoreCase("right")) {
+                                pval = "left";
                             }
                         }
-                        if (as_attributes) {
-                            addAttribute(buf, pname_fo, pval);
-                        } else {
-                            buf.append(pname_fo).append("=\"").append(pval).append("\" ");
-                        }
+                    }
+                    if (as_attributes) {
+                        addAttribute(buf, pname_fo, pval);
+                    } else {
+                        buf.append(pname_fo).append("=\"")
+                           .append(XMLUtil.escapeDoubleQuotedCDATA(pval))
+                           .append("\" ");
                     }
                 }
             }
@@ -1712,7 +1710,7 @@ public class FormattingEngine
     private static void addAttribute(StringBuilder buf, String name, String value)
     {
         buf.append("<xsl:attribute name=\"").append(name).append("\">");
-        buf.append(value);
+        buf.append(XMLUtil.escapePCDATA(value));
         buf.append("</xsl:attribute>\n");
     }
 

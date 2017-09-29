@@ -1,7 +1,7 @@
 /*
- * SelectNodeTypeDialog.java
+ * SelectNodeTypeComposer.java
  * 
- *  Copyright (C) 2013  Manfred Paula, http://www.docmenta.org
+ *  Copyright (C) 2017  Manfred Paula, http://www.docmenta.org
  *   
  *  This file is part of Docmenta. Docmenta is free software: you can 
  *  redistribute it and/or modify it under the terms of the GNU Lesser 
@@ -17,13 +17,16 @@ package org.docma.webapp;
 import org.docma.app.*;
 import org.docma.coreapi.*;
 import org.docma.util.Log;
+import org.zkoss.zk.ui.Component;
+import org.zkoss.zk.ui.select.SelectorComposer;
+import org.zkoss.zk.ui.select.annotation.*;
 import org.zkoss.zul.*;
 
 /**
  *
  * @author MP
  */
-public class SelectNodeTypeDialog extends Window
+public class SelectNodeTypeComposer extends SelectorComposer<Component>
 {
     private static final int MODE_INSERT_HERE = 0;
     private static final int MODE_APPEND_SUB = 1;
@@ -36,107 +39,113 @@ public class SelectNodeTypeDialog extends Window
     private static final int NODE_TYPE_IMAGE_FOLDER     = 6;
     private static final int NODE_TYPE_FILE_FOLDER      = 7;
     private static final int NODE_TYPE_SECTION_WITH_CONTENT = 8;
+    private static final int NODE_TYPE_TEXT_FILE        = 9;
 
-    private int modalResult = -1;
     private int mode = -1;
+    private DocI18n i18n = null;
+    private MainWindow mainWin = null;
 
-    private Listbox nodetypes_listbox;
-    private DocmaI18 i18n = null;
+    @Wire("#SelectNodeTypeDialog") Window dialog;
+    @Wire("#SelectNodeTypeListbox") Listbox nodetypes_listbox;
 
 
+    @Listen("onClick = #SelectNodeTypeOkayBtn; onDoubleClick = #SelectNodeTypeListbox; onOK = #SelectNodeTypeListbox")
     public void onSelectClick()
     {
-        modalResult = GUIConstants.MODAL_OKAY;
-        setVisible(false);
-    }
-
-    public void onCancelClick()
-    {
-        modalResult = GUIConstants.MODAL_CANCEL;
-        setVisible(false);
-    }
-
-    public boolean insertNodeHere(MainWindow mainWin)
-    {
-        mode = MODE_INSERT_HERE;
-        setTitle(GUIUtil.i18(this).getLabel("label.selectnodetype.dialog.insert.title"));
-        return doSelect(mainWin);
-    }
-
-    public boolean appendSubNode(MainWindow mainWin)
-    {
-        mode = MODE_APPEND_SUB;
-        setTitle(GUIUtil.i18(this).getLabel("label.selectnodetype.dialog.addsub.title"));
-        return doSelect(mainWin);
-    }
-
-    private boolean doSelect(MainWindow mainWin)
-    {
         try {
-            i18n = mainWin.getDocmaI18();
-            nodetypes_listbox = (Listbox) getFellow("SelectNodeTypeListbox");
-
-            fillNodeTypesListbox(mainWin);
-            if (nodetypes_listbox.getItemCount() > 0) {
-                nodetypes_listbox.setSelectedIndex(0);
+            int ntype = getSelectedNodeType();
+            if (ntype < 0) {
+                Messagebox.show("Please select a node type from the list!");
+                return;  // keep dialog open
             }
-            nodetypes_listbox.setFocus(true);
-            do {
-                modalResult = -1;
-                doModal();
-                if (modalResult != GUIConstants.MODAL_OKAY) {
-                    return false;
-                }
-                int ntype = getSelectedNodeType();
-                if (ntype < 0) {
-                    Messagebox.show("Please select a node type from the list!");
-                    continue;
-                }
 
-                if (ntype == NODE_TYPE_CONTENT) {
-                    if (mode == MODE_APPEND_SUB) mainWin.onAddContent();
-                    else if (mode == MODE_INSERT_HERE) mainWin.onInsertContent();
-                } else
-                if (ntype == NODE_TYPE_CONTENT_INCLUDE) {
-                    if (mode == MODE_APPEND_SUB) mainWin.onAddContentInclude();
-                    else if (mode == MODE_INSERT_HERE) mainWin.onInsertContentInclude();
-                } else
-                if (ntype == NODE_TYPE_IMAGE_INCLUDE) {
-                    if (mode == MODE_APPEND_SUB) mainWin.onAddImageInclude();
-                    else if (mode == MODE_INSERT_HERE) mainWin.onInsertImageInclude();
-                } else
-                if (ntype == NODE_TYPE_SECTION) {
-                    if (mode == MODE_APPEND_SUB) mainWin.onAddSubSection();
-                    else if (mode == MODE_INSERT_HERE) mainWin.onInsertSection();
-                } else
-                if (ntype == NODE_TYPE_SECTION_INCLUDE) {
-                    if (mode == MODE_APPEND_SUB) mainWin.onAddSectionInclude();
-                    else if (mode == MODE_INSERT_HERE) mainWin.onInsertSectionInclude();
-                } else
-                if (ntype == NODE_TYPE_SECTION_WITH_CONTENT) {
-                    if (mode == MODE_APPEND_SUB) mainWin.onAddSubSectionWithContent();
-                    else if (mode == MODE_INSERT_HERE) mainWin.onInsertSectionWithContent();
-                } else
-                if (ntype == NODE_TYPE_IMAGE_FOLDER) {
-                    if (mode == MODE_APPEND_SUB) mainWin.onAddImageFolder();
-                    else if (mode == MODE_INSERT_HERE) mainWin.onInsertImageFolder();
-                } else
-                if (ntype == NODE_TYPE_FILE_FOLDER) {
-                    if (mode == MODE_APPEND_SUB) mainWin.onAddSystemFolder();
-                    else if (mode == MODE_INSERT_HERE) mainWin.onInsertSystemFolder();
-                } else {
-                    Messagebox.show("Internal error: Unkown node type!");
-                    return false;
-                }
-                break;
-            } while (true);
-            return true;
+            if (ntype == NODE_TYPE_CONTENT) {
+                if (mode == MODE_APPEND_SUB) mainWin.onAddContent();
+                else if (mode == MODE_INSERT_HERE) mainWin.onInsertContent();
+            } else
+            if (ntype == NODE_TYPE_CONTENT_INCLUDE) {
+                if (mode == MODE_APPEND_SUB) mainWin.onAddContentInclude();
+                else if (mode == MODE_INSERT_HERE) mainWin.onInsertContentInclude();
+            } else
+            if (ntype == NODE_TYPE_IMAGE_INCLUDE) {
+                if (mode == MODE_APPEND_SUB) mainWin.onAddImageInclude();
+                else if (mode == MODE_INSERT_HERE) mainWin.onInsertImageInclude();
+            } else
+            if (ntype == NODE_TYPE_SECTION) {
+                if (mode == MODE_APPEND_SUB) mainWin.onAddSubSection();
+                else if (mode == MODE_INSERT_HERE) mainWin.onInsertSection();
+            } else
+            if (ntype == NODE_TYPE_SECTION_INCLUDE) {
+                if (mode == MODE_APPEND_SUB) mainWin.onAddSectionInclude();
+                else if (mode == MODE_INSERT_HERE) mainWin.onInsertSectionInclude();
+            } else
+            if (ntype == NODE_TYPE_SECTION_WITH_CONTENT) {
+                if (mode == MODE_APPEND_SUB) mainWin.onAddSubSectionWithContent();
+                else if (mode == MODE_INSERT_HERE) mainWin.onInsertSectionWithContent();
+            } else
+            if (ntype == NODE_TYPE_IMAGE_FOLDER) {
+                if (mode == MODE_APPEND_SUB) mainWin.onAddImageFolder();
+                else if (mode == MODE_INSERT_HERE) mainWin.onInsertImageFolder();
+            } else
+            if (ntype == NODE_TYPE_FILE_FOLDER) {
+                if (mode == MODE_APPEND_SUB) mainWin.onAddSystemFolder();
+                else if (mode == MODE_INSERT_HERE) mainWin.onInsertSystemFolder();
+            } else
+            if (ntype == NODE_TYPE_TEXT_FILE) {
+                if (mode == MODE_APPEND_SUB) mainWin.onAddEmptyTextFile();
+                else if (mode == MODE_INSERT_HERE) mainWin.onInsertEmptyTextFile();
+            } else {
+                Messagebox.show("Internal error: Unkown node type!");
+                return;   // keep dialog open
+            }
         } catch (Exception ex) {
             ex.printStackTrace();
             try {
                 Messagebox.show("Internal Error: " + ex.getMessage());
             } catch (Exception ex2) {}
-            return false;
+            return;   // keep dialog open
+        }
+        dialog.setVisible(false);   // close dialog
+    }
+
+    @Listen("onClick = #SelectNodeTypeCancelBtn")
+    public void onCancelClick()
+    {
+        dialog.setVisible(false);
+    }
+
+    public void insertNodeHere(MainWindow mainWin)
+    {
+        mode = MODE_INSERT_HERE;
+        dialog.setTitle(GUIUtil.getI18n(dialog).getLabel("label.selectnodetype.dialog.insert.title"));
+        doSelect(mainWin);
+    }
+
+    public void appendSubNode(MainWindow mainWin)
+    {
+        mode = MODE_APPEND_SUB;
+        dialog.setTitle(GUIUtil.getI18n(dialog).getLabel("label.selectnodetype.dialog.addsub.title"));
+        doSelect(mainWin);
+    }
+
+    private void doSelect(MainWindow mainWin)
+    {
+        this.mainWin = mainWin;
+        try {
+            i18n = mainWin.getI18n();
+            nodetypes_listbox = (Listbox) dialog.getFellow("SelectNodeTypeListbox");
+
+            fillNodeTypesListbox();
+            if (nodetypes_listbox.getItemCount() > 0) {
+                nodetypes_listbox.setSelectedIndex(0);
+            }
+            nodetypes_listbox.setFocus(true);
+            dialog.doHighlighted();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            try {
+                Messagebox.show("Internal Error: " + ex.getMessage());
+            } catch (Exception ex2) {}
         }
     }
 
@@ -155,7 +164,7 @@ public class SelectNodeTypeDialog extends Window
         }
     }
 
-    private void fillNodeTypesListbox(MainWindow mainWin) throws Exception
+    private void fillNodeTypesListbox() throws Exception
     {
         nodetypes_listbox.getItems().clear();  // clear listbox
 
@@ -204,6 +213,9 @@ public class SelectNodeTypeDialog extends Window
                 addListitem_ImageFolder();
                 addListitem_FileFolder();
             }
+            if (sysFolder) {
+                addListitem_TextFile();
+            }
         } else
         if (mode == MODE_INSERT_HERE) {
             if (isRoot) return; // Insert not allowed on root level
@@ -228,6 +240,11 @@ public class SelectNodeTypeDialog extends Window
             // Add folder nodes
             addListitem_ImageFolder();
             addListitem_FileFolder();
+            
+            // Add new file nodes
+            if (parent.isSystemFolder()) {
+                addListitem_TextFile();
+            }
         }
     }
 
@@ -311,4 +328,13 @@ public class SelectNodeTypeDialog extends Window
         nodetypes_listbox.appendChild(item);
     }
 
+    private void addListitem_TextFile()
+    {
+        Listitem item = new Listitem();
+        item.setLabel(i18n.getLabel("label.nodetype.emptytextfile"));
+        item.setImage("img/text_node_icon.png");
+        item.setValue("" + NODE_TYPE_TEXT_FILE);
+        item.setSclass("docitemseltype");
+        nodetypes_listbox.appendChild(item);
+    }
 }

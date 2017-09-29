@@ -120,6 +120,9 @@ div.z-listheader-cnt { height:16px; max-height:16px; color:#000000; font-weight:
               <menupopup id="contentmenu" forward="onOpen=mainWin.onOpenContentMenu">
                 <menuitem id="menuitemShowIndexTerms" label="${c:l('label.menuitem.showindexterms')}" checkmark="true" autocheck="true" forward="mainWin.onTogglePreviewIndexTerms" />
                 <menuitem id="menuitemFindByAlias" label="${c:l('label.menuitem.findbyalias')}" forward="mainWin.onFindByAliasAll" />
+                <menuitem id="menuitemFindReferencesAll" label="${c:l('label.menuitem.findreferences')}" forward="mainWin.onFindReferencesAll" />
+                <menuitem id="menuitemFindStyleAll" label="${c:l('label.menuitem.findstyle')}" forward="mainWin.onFindStyleAll" />
+                <menuitem id="menuitemFindApplicAll" label="${c:l('label.menuitem.findapplic')}" forward="mainWin.onFindApplicAll" />
                 <menuitem id="menuitemClearCutList" label="${c:l('label.menuitem.clearcutlist')}" forward="mainWin.onClearCutCopyList" />
                 <menuseparator/>
                 <menuitem id="menuitemSwitchLayout" label="${c:l('label.menuitem.switchlayout')}" forward="mainWin.onSwitchContentLayout" />
@@ -253,15 +256,15 @@ div.z-listheader-cnt { height:16px; max-height:16px; color:#000000; font-weight:
 <!-- Start: Publishing Tabpanel. -->
                 <tabbox id="PublishingTabbox" orient="vertical" height="100%" width="100%" tabscroll="true">
                 <tabs width="150px">
-                    <tab label="Configuration"/>
-                    <tab label="Applicabilities"/>
-                    <tab label="Export"/>
+                    <tab label="${c:l('tab.publishing.configuration')}"/>
+                    <tab label="${c:l('tab.publishing.applics')}"/>
+                    <tab label="${c:l('tab.publishing.export')}"/>
                     <!-- <tab label="Filter settings"/> -->
                 </tabs>
                 <tabpanels style="background-color:#FFFFFF;">
                     <tabpanel id="PublishingConfigTabpanel" width="100%" height="100%" style="padding-right:0;">
                         <vlayout width="100%" height="100%" style="overflow:scroll;">
-                            <label value="Publications:" style="font-weight:bold;"/>
+                            <label value="${c:l('label.pubconfig.listheader')}:" style="font-weight:bold;"/>
                             <hbox width="100%" align="start" pack="stretch">
                               <listbox id="PublicationConfigListbox" width="100%" sizedByContent="false" context="PublicationConfigContextmenu">
                                 <listhead sizable="true">
@@ -287,7 +290,7 @@ div.z-listheader-cnt { height:16px; max-height:16px; color:#000000; font-weight:
                               <space spacing="4px" />
                             </hbox>
                             <separator spacing="2px"/>
-                            <label value="Output Configurations:" style="font-weight:bold;"/>
+                            <label value="${c:l('label.outconfig.listheader')}:" style="font-weight:bold;"/>
                             <hbox width="100%" height="100%" align="start" pack="stretch">
                               <listbox id="MediaConfigListbox" width="100%" sizedByContent="false" context="MediaConfigContextmenu">
                                 <listhead sizable="true">

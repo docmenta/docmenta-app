@@ -373,9 +373,10 @@ public class UserManagerImpl implements UserManager
         }
     }
 
-    private String getMD5Hash(String txt) throws Exception
+    private String getHash(String txt, String algorithm) throws Exception
     {
-        MessageDigest md = MessageDigest.getInstance("MD5");
+        // Algorithm can be "MD5" or "SHA-256"
+        MessageDigest md = MessageDigest.getInstance(algorithm);
         byte[] enc = md.digest(txt.getBytes("UTF-8"));
         BigInteger bigint = new BigInteger(1, enc);
         return bigint.toString(16);
@@ -460,12 +461,17 @@ public class UserManagerImpl implements UserManager
         String save_pw;
         String pw_encoding;
         try {
-            save_pw = getMD5Hash(newPassword);
-            pw_encoding = "MD5";
-        } catch (Exception ex) {
-            // No encryption algorithm available; store password unencrypted
-            save_pw = newPassword;
-            pw_encoding = "";
+            pw_encoding = "SHA-256";
+            save_pw = getHash(newPassword, pw_encoding);
+        } catch (Exception ex1) {
+            try {
+                pw_encoding = "MD5";
+                save_pw = getHash(newPassword, pw_encoding);
+            } catch (Exception ex2) {
+                // No encryption algorithm available; store password unencrypted
+                pw_encoding = "";
+                save_pw = newPassword;
+            }
         }
         setUserProperties(userId,
                           new String[] { PROP_PASSWORD, PROP_PW_ENCODING },
@@ -486,14 +492,18 @@ public class UserManagerImpl implements UserManager
         if ((pw_encoding == null) || pw_encoding.trim().equals("")) {
             // Password was stored unencrypted
             return password.equals(saved_pw);
-        } else if (pw_encoding.equalsIgnoreCase("MD5")) {
-            try {
-                return getMD5Hash(password).equals(saved_pw);
-            } catch (Exception ex) {
-                throw new DocRuntimeException(ex);
+        } else { 
+            // Password is encrypted
+            pw_encoding = pw_encoding.trim().toUpperCase();
+            if (pw_encoding.equals("SHA-256") || pw_encoding.equals("MD5")) {
+                try {
+                    return getHash(password, pw_encoding).equals(saved_pw);
+                } catch (Exception ex) {
+                    throw new DocRuntimeException(ex);
+                }
+            } else {
+                throw new DocRuntimeException("Unsupported password encryption method: " + pw_encoding);
             }
-        } else {
-            throw new DocRuntimeException("Unknown password encryption method: " + pw_encoding);
         }
     }
 

@@ -479,20 +479,41 @@
     <xsl:choose>
       <xsl:when test="$docma_output_type = 'print'">
         <xsl:variable name="style_val" select="concat(@style, ';')" />
-        <xsl:variable name="is_pwidth" select="contains($style_val, 'print-width:')" />
-        <xsl:variable name="is_pheight" select="contains($style_val, 'print-height:')" />
+        <xsl:variable name="is_pwidth1" select="contains($style_val, 'print-width:')" />
+        <xsl:variable name="is_pheight1" select="contains($style_val, 'print-height:')" />
+        <xsl:variable name="cls_val" select="concat(' ', @class, ' ')" />
+        <xsl:variable name="is_pwidth2" select="contains($cls_val, ' print_width_')" />
+        <xsl:variable name="is_pheight2" select="contains($cls_val, ' print_height_')" />
         <xsl:choose>
-          <xsl:when test="$is_pwidth or $is_pheight">
-            <xsl:if test="$is_pwidth">
-              <xsl:attribute name="width"><xsl:value-of
-                select="normalize-space(substring-before(substring-after($style_val, 'print-width:'), ';'))" />
-              </xsl:attribute>
-            </xsl:if>
-            <xsl:if test="$is_pheight">
-              <xsl:attribute name="depth"><xsl:value-of
-                select="normalize-space(substring-before(substring-after($style_val, 'print-height:'), ';'))" />
-              </xsl:attribute>
-            </xsl:if>
+          <xsl:when test="$is_pwidth1 or $is_pheight1 or $is_pwidth2 or $is_pheight2">
+            <xsl:choose>
+              <xsl:when test="$is_pwidth2">
+                <xsl:attribute name="width">
+                  <xsl:call-template name="docma_size_from_cls" >
+                    <xsl:with-param name="size_val" select="translate(substring-before(substring-after($cls_val, ' print_width_'), ' '), '_', '.')" />
+                  </xsl:call-template>
+                </xsl:attribute>
+              </xsl:when>
+              <xsl:when test="$is_pwidth1">
+                <xsl:attribute name="width"><xsl:value-of
+                  select="normalize-space(substring-before(substring-after($style_val, 'print-width:'), ';'))" />
+                </xsl:attribute>
+              </xsl:when>
+            </xsl:choose>
+            <xsl:choose>
+              <xsl:when test="$is_pheight2">
+                <xsl:attribute name="depth">
+                  <xsl:call-template name="docma_size_from_cls" >
+                    <xsl:with-param name="size_val" select="translate(substring-before(substring-after($cls_val, ' print_height_'), ' '), '_', '.')" />
+                  </xsl:call-template>
+                </xsl:attribute>
+              </xsl:when>
+              <xsl:when test="$is_pheight1">
+                <xsl:attribute name="depth"><xsl:value-of
+                  select="normalize-space(substring-before(substring-after($style_val, 'print-height:'), ';'))" />
+                </xsl:attribute>
+              </xsl:when>
+            </xsl:choose>
           </xsl:when>
           <xsl:otherwise>
             <xsl:call-template name="docma_simple_image_size" >
@@ -505,6 +526,19 @@
         <xsl:call-template name="docma_simple_image_size" >
           <xsl:with-param name="is_inline" select="$is_inline" />
         </xsl:call-template>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+
+  <xsl:template name="docma_size_from_cls">
+    <xsl:param name="size_val" />
+    
+    <xsl:choose>
+      <xsl:when test="string(number($size_val)) = 'NaN'"> <!-- Unit is already included, e.g. pt, px, ... -->
+        <xsl:value-of select="$size_val" />
+      </xsl:when>
+      <xsl:otherwise> <!-- A number without unit is interpreted as percent value -->
+        <xsl:value-of select="concat($size_val, '%')" />
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>

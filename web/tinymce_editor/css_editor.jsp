@@ -1,10 +1,6 @@
-<%@page contentType="text/html"%>
-<%@page pageEncoding="UTF-8"%>
-<%@page session="true"%>
-<%@page import="java.util.*"%>
-<%@page import="org.docma.webapp.*"%>
-<%@page import="org.docma.app.*"%>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<%@page contentType="text/html" pageEncoding="UTF-8" session="true"
+        import="java.util.*,org.docma.webapp.*,org.docma.app.*" 
+%><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"  style="margin:0;padding:0;">
 <%
     String deskid = request.getParameter("desk");
@@ -51,7 +47,7 @@
     });
 
     var initDone = false;
-    var resultCssText = "<%= css %>";
+    var resultCssText = "<%= WebUtil.escapeDoubleQuotedJsString(css) %>";
 
     function initCSSCloseHandler() {
       if (initDone) return;
@@ -116,11 +112,11 @@
 <% 
     if (isInlineStyle) {
 %>
-    <span id="stylesel" style="<%= css %>">Abc def...</span><span id="nosel"></span>
+<span id="stylesel" style="<%= WebUtil.escapeDoubleQuotedXMLAttribute(css) %>">Abc def...</span><span id="nosel"></span>
 <% 
     } else {
 %>
-    <div id="stylesel" style="<%= css %>">Abc def...<span id="nosel"></span></div>
+    <div id="stylesel" style="<%= WebUtil.escapeDoubleQuotedXMLAttribute(css) %>">Abc def...<span id="nosel"></span></div>
 <%
     }
 %>

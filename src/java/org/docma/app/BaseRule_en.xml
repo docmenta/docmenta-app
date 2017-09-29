@@ -7,6 +7,7 @@
   <entry key="broken_inline_inclusion.title">Logs broken inline inclusions</entry>
   <entry key="broken_link.title">Logs broken links</entry>
   <entry key="content_required.title">Logs or removes empty elements</entry>
+  <entry key="embedded_image.title">Logs or saves base64-encoded images embedded in the src attribute of img elements</entry>
   <entry key="invalid_image_src.title">Logs image elements with invalid src attribute</entry>
   <entry key="invalid_style.title">Logs usage of non-existing style identifiers</entry>
   <entry key="invalid_target_type.title">Logs links with invalid target type</entry>
@@ -44,6 +45,9 @@
   <entry key="msgTagAttribMissingDefault">Found ''{0}'' with missing ''{1}'' attribute. Enable auto-correct to set default</entry>
   <entry key="msgForbiddenAttribRemoved">Removed forbidden ''{1}'' attribute from ''{0}'' element</entry>
   <entry key="msgTagWithForbiddenAttrib">Found ''{0}'' with forbidden attribute ''{1}''</entry>
+  <entry key="msgEmbeddedImage">Src attribute of image contains embedded image data: {0}. This is not supported by all output formats.</entry>
+  <entry key="msgEmbeddedImageCorrected">Embedded image ''{0}'' has been replaced by reference to image-alias ''{1}''</entry>
+  <entry key="msgEmbeddedImageExists">Cannot store embedded image, because alias ''{0}'' already exists.</entry>
   <!-- Other labels -->
   <entry key="headStyleStatistics">Style counts</entry>
   <entry key="headValidStyles">Valid styles:</entry>
@@ -61,6 +65,7 @@
     <li><a href="#broken_inline_inclusion">broken_inline_inclusion</a></li>
     <li><a href="#broken_link">broken_link</a></li>
     <li><a href="#content_required">content_required</a></li>
+    <li><a href="#embedded_image">embedded_image</a></li>
     <li><a href="#invalid_image_src">invalid_image_src</a></li>
     <li><a href="#invalid_style">invalid_style</a></li>
     <li><a href="#invalid_target_type">invalid_target_type</a></li>
@@ -238,6 +243,25 @@
     </p>
   </div>
 
+  <a name="embedded_image" />
+  <big><strong>embedded_image</strong></big>
+  <div style="margin-left:16pt;">
+    <p>
+      <b>Arguments:</b> <em>none</em>
+    </p>
+    <p>
+      <b>Description:</b><br/>
+      This check logs base64-encoded images that are embedded in the 
+      <tt>src</tt> attribute of <tt>img</tt> elements.
+      If auto-correction is enabled, then embedded images are automatically 
+      converted to image-nodes with an auto-generated alias. 
+      To assure that the alias is unique, the generated alias includes the MD5 
+      checksum of the image. The images are stored in the first image-folder
+      that is found on the same level as the content-node. If no such 
+      image-folder exists, then a new image-folder is automatically created. 
+    </p>
+  </div>
+      
   <a name="invalid_image_src" />
   <big><strong>invalid_image_src</strong></big>
   <div style="margin-left:16pt;">

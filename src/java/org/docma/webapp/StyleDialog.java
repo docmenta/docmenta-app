@@ -415,10 +415,14 @@ public class StyleDialog extends Window
         toolbtn.setTooltiptext("Delete");
         toolbtn.setImage("img/del_css_prop.gif");
         toolbtn.setHeight("16px");
+        toolbtn.setWidth("18px");
+        // toolbtn.setHflex("min");
         toolbtn.addForward("onClick", this, "onDeleteCSSProperty", pname);
         Hbox hb = new Hbox();
         hb.setHflex("1");
+        hb.setPack("stretch");
         hb.setAlign("center");
+        hb.setSpacing("3px");
         hb.appendChild(txtbox);
         // if (pi.getType() == CSSPropInfo.TYPE_COLOR) {
         //     hb.appendChild(new Colorbox());

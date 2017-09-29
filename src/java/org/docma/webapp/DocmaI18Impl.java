@@ -54,7 +54,7 @@ public class DocmaI18Impl implements DocmaI18, LabelProvider
 
     public String getLabel(String key, Object... args) 
     {
-        if (args.length == 0) {
+        if ((args == null) || (args.length == 0)) {
             return Labels.getLabel(key, key);
         } else {
             return Labels.getLabel(key, key, args);

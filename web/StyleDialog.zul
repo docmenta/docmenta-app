@@ -21,7 +21,7 @@
       </hbox>
       <!-- <label id="StyleIdNoteLabel" style="font-style:italic;">To create a header / formal-block style, use ID with prefix 'header' / 'formal'.</label> -->
       <separator spacing="2px"/>
-      <hbox hflex="1" pack="stretch" align="end">
+      <hbox hflex="1" pack="stretch" align="end" spacing="5px">
         <vbox hflex="1" height="170px" align="stretch">
             <groupbox id="StylePreviewGroupbox" hflex="1">
                 <caption label="${c:l('label.style.preview')}"  style="font-weight:bold;"/>
@@ -36,11 +36,10 @@
                     w:onClick="showCSSEditor();" />
                     <!-- action="onclick:window.frames['csseditorfrm'].showCSSEditor();" -->
         </vbox>
-        <space spacing="5px" />
         <grid id="StyleCSSPropsGrid" hflex="1" height="170px" sizedByContent="false" >
             <columns sizable="true">
               <column label="CSS-Property" width="165px" />
-              <column label="Value" width="150px" />
+              <column label="Value" />
             </columns>
             <rows></rows>
         </grid>

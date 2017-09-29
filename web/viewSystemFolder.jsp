@@ -84,11 +84,11 @@ table.toolbar { width:100%; margin-bottom:4px; position:fixed; top:0px; left:0px
             node_id[i] = childnode.getId();
             boolean is_file = childnode.isFileContent();
             boolean is_image = childnode.isImageContent();
+            node_icon[i] = GUIUtil.getNodeIconPath(childnode);
             thumb_url[i] = null;
             img_url[i] = null;
             if (is_file || is_image) {
                 file_cnt++;
-                node_icon[i] = is_image ? "img/image_icon.gif" : "img/file_icon.gif";
                 node_filename[i] = childnode.getDefaultFileName();
                 java.util.Date lastmoddate = childnode.getLastModifiedDate();
                 long lastmod = (lastmoddate != null) ? lastmoddate.getTime() : System.currentTimeMillis();
@@ -110,15 +110,12 @@ table.toolbar { width:100%; margin-bottom:4px; position:fixed; top:0px; left:0px
                 }
             } else
             if (childnode.isContent()) {  // other content
-                node_icon[i] = "img/doc_icon.gif";
                 node_filename[i] = childnode.getTitleEntityEncoded();
                 open_url[i] = "javascript:previewNode('" + node_id[i] + "');";
                 target[i] = "";
                 cont_size_str[i] = "-";
             } else
             if (childnode.isFolder()) {
-                node_icon[i] = childnode.isImageFolder() ? "img/img_folder_icon.gif" :
-                                                        "img/folderclosed.gif";
                 node_filename[i] = childnode.getTitleEntityEncoded();
                 open_url[i] = "javascript:previewNode('" + node_id[i] + "');";
                 target[i] = "";

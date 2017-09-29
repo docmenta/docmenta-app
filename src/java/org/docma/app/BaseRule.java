@@ -13,7 +13,10 @@
  */
 package org.docma.app;
 
+import java.math.BigInteger;
+import java.security.MessageDigest;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -23,8 +26,13 @@ import java.util.SortedSet;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import javax.xml.bind.DatatypeConverter;
+
 import org.docma.plugin.Content;
 import org.docma.plugin.FileContent;
+import org.docma.plugin.Folder;
+import org.docma.plugin.FolderType;
+import org.docma.plugin.Group;
 import org.docma.plugin.ImageFile;
 
 import org.docma.plugin.LogLevel;
@@ -61,6 +69,7 @@ public class BaseRule implements HTMLRule, XMLElementHandler
     // Link checks
     public static final String CHECK_ID_BROKEN_INLINE_INCLUSION = "broken_inline_inclusion";
     public static final String CHECK_ID_BROKEN_LINK = "broken_link";
+    public static final String CHECK_ID_EMBEDDED_IMAGE = "embedded_image";
     public static final String CHECK_ID_INVALID_TARGET_TYPE = "invalid_target_type";
     public static final String CHECK_ID_INVALID_IMAGE_SRC = "invalid_image_src";
 
@@ -114,6 +123,7 @@ public class BaseRule implements HTMLRule, XMLElementHandler
           CHECK_ID_BROKEN_INLINE_INCLUSION,
           CHECK_ID_BROKEN_LINK,
           CHECK_ID_CONTENT_REQUIRED, 
+          CHECK_ID_EMBEDDED_IMAGE,
           CHECK_ID_INVALID_IMAGE_SRC,
           CHECK_ID_INVALID_STYLE,
           CHECK_ID_INVALID_TARGET_TYPE,
@@ -133,6 +143,7 @@ public class BaseRule implements HTMLRule, XMLElementHandler
         debug("BaseRule.supportsAutoCorrection()");
         return checkId.equals(CHECK_ID_ATTRIBUTE_REQUIRED) ||
                checkId.equals(CHECK_ID_CONTENT_REQUIRED) ||
+               checkId.equals(CHECK_ID_EMBEDDED_IMAGE) ||
                checkId.equals(CHECK_ID_TRIM_EMPTY_PARAS) || 
                checkId.equals(CHECK_ID_TRIM_FIGURE_SPACES);
     }
@@ -142,6 +153,7 @@ public class BaseRule implements HTMLRule, XMLElementHandler
         debug("BaseRule.getDefaultLogLevel()");
         if (checkId.equals(CHECK_ID_BROKEN_INLINE_INCLUSION) ||
             checkId.equals(CHECK_ID_BROKEN_LINK) || 
+            checkId.equals(CHECK_ID_EMBEDDED_IMAGE) || 
             checkId.equals(CHECK_ID_INVALID_IMAGE_SRC) || 
             checkId.equals(CHECK_ID_INVALID_STYLE) ||
             checkId.equals(CHECK_ID_INVALID_TARGET_TYPE)) {
@@ -303,17 +315,19 @@ public class BaseRule implements HTMLRule, XMLElementHandler
         boolean chk_cont_required = ctx.isEnabled(CHECK_ID_CONTENT_REQUIRED);
         boolean chk_att_required = ctx.isEnabled(CHECK_ID_ATTRIBUTE_REQUIRED);
         boolean chk_broken_link = ctx.isEnabled(CHECK_ID_BROKEN_LINK);
+        boolean chk_embedded_image = ctx.isEnabled(CHECK_ID_EMBEDDED_IMAGE);
         boolean chk_image_src = ctx.isEnabled(CHECK_ID_INVALID_IMAGE_SRC);
         boolean chk_invalid_style = ctx.isEnabled(CHECK_ID_INVALID_STYLE);
         boolean chk_target_type = ctx.isEnabled(CHECK_ID_INVALID_TARGET_TYPE);
         
         boolean has_enabled = chk_cont_required || chk_att_required || 
-                              chk_broken_link || chk_image_src || 
-                              chk_invalid_style ||chk_target_type;  
+                              chk_broken_link || chk_embedded_image || 
+                              chk_image_src || chk_invalid_style ||chk_target_type;  
         
         if (has_enabled) {   // if one or more checks are enabled
             boolean has_correct = ctx.isAutoCorrect(CHECK_ID_CONTENT_REQUIRED) || 
-                                  ctx.isAutoCorrect(CHECK_ID_ATTRIBUTE_REQUIRED);
+                                  ctx.isAutoCorrect(CHECK_ID_ATTRIBUTE_REQUIRED) || 
+                                  ctx.isAutoCorrect(CHECK_ID_EMBEDDED_IMAGE);
             XMLProcessor xmlproc = XMLProcessorFactory.newInstance();
             xmlproc.setCheckWellformed(true);
             xmlproc.setIgnoreElementCase(true);
@@ -323,7 +337,7 @@ public class BaseRule implements HTMLRule, XMLElementHandler
                 if (chk_broken_link || chk_target_type) {
                     xmlproc.setElementHandler("a", this);
                 }
-                if (chk_image_src || chk_target_type) {
+                if (chk_embedded_image || chk_image_src || chk_target_type) {
                     xmlproc.setElementHandler("img", this);
                 }
                 // Register all elements configured for 
@@ -399,7 +413,8 @@ public class BaseRule implements HTMLRule, XMLElementHandler
         // Check image references: CHECK_ID_IMAGE_SRC, CHECK_ID_TARGET_TYPE
         //
         if (ename.equals("img")) {
-            if (ruleCtx.isEnabled(CHECK_ID_INVALID_IMAGE_SRC) || chkTargetType) {
+            if (ruleCtx.isEnabled(CHECK_ID_EMBEDDED_IMAGE) ||
+                ruleCtx.isEnabled(CHECK_ID_INVALID_IMAGE_SRC) || chkTargetType) {
                 checkImageSrc(elemCtx, pos);
             }
         }
@@ -657,6 +672,8 @@ public class BaseRule implements HTMLRule, XMLElementHandler
     
     private void checkImageSrc(XMLElementContext elemCtx, int pos)
     {
+        final String DATA_PREFIX = "data:";
+        final String DATA_IMAGE_PREFIX = "data:image/";
         String src = elemCtx.getAttributeValue("src");
         if (src == null) {
             ruleCtx.log(CHECK_ID_INVALID_IMAGE_SRC, pos, label("msgMissingImageSrcAttribute"));
@@ -675,9 +692,146 @@ public class BaseRule implements HTMLRule, XMLElementHandler
                         ruleCtx.log(CHECK_ID_INVALID_TARGET_TYPE, pos, label("msgImageSrcToNonSupportedImage", target_alias));
                     }
                 }
+            } else if (src.startsWith(DATA_IMAGE_PREFIX)) {
+                String imgAlias = null;
+                String extract = (src.length() < 40) ? src : src.substring(0, 37) + "...";
+                if (ruleCtx.isAutoCorrect(CHECK_ID_EMBEDDED_IMAGE)) {
+                    int p = src.indexOf(';');
+                    if (p > 0) {
+                        String mime = src.substring(DATA_PREFIX.length(), p).toLowerCase();
+                        String ext = ImageUtil.guessExtByMIMEType(mime);
+                        int p2 = src.indexOf(',', p);
+                        if ((ext != null) && (p2 > p)) {
+                            String encoding = src.substring(p + 1, p2).trim().toLowerCase();
+                            if (encoding.equals("base64")) {
+                                String data = src.substring(p2 + 1).trim();
+                                imgAlias = storeBase64Image(ext, data, pos);
+                                if (imgAlias != null) {
+                                    elemCtx.setAttribute("src", IMAGE_PREFIX + imgAlias);
+                                    corrected = true;
+                                }
+                            }
+                        }
+                    }
+                }
+                if (imgAlias != null) {
+                    ruleCtx.logInfo(CHECK_ID_EMBEDDED_IMAGE, pos, label("msgEmbeddedImageCorrected", extract, imgAlias));
+                } else {
+                    ruleCtx.log(CHECK_ID_EMBEDDED_IMAGE, pos, label("msgEmbeddedImage", extract));
+                }
             } else {
                 ruleCtx.log(CHECK_ID_INVALID_IMAGE_SRC, pos, label("msgInvalidImageSrc", src));
             }
+        }
+    }
+    
+    private String storeBase64Image(String ext, String data, int elemPos)
+    {
+        try {
+            String nodeId = ruleCtx.getNodeId();
+            if (nodeId != null) {
+                StoreConnection con = ruleCtx.getStoreConnection();
+                Folder folder = getNearestImageFolder(con, nodeId);
+                byte[] imgData = parseBase64(data);
+                String imgAlias = createUniqueImageAlias(con, imgData);
+                if (con.getNodeIdByAlias(imgAlias) == null) {
+                    String fname = imgAlias + "." + ext;
+                    FileContent imgNode = con.createFileContent(fname, true);
+                    imgNode.setContent(imgData);
+                    folder.addChildren(imgNode);
+                } else {
+                    ruleCtx.logInfo(CHECK_ID_EMBEDDED_IMAGE, label("msgEmbeddedImageExists", imgAlias));
+                }
+                return imgAlias;
+            } else {
+                return null;
+            }
+        } catch (Throwable ex) {
+            ruleCtx.log(LogLevel.ERROR, elemPos, ex.getMessage());
+            return null;
+        }
+    }
+    
+    private String createUniqueImageAlias(StoreConnection con, byte[] image) throws Exception
+    {
+        String md5 = getMD5Hash(image);
+        if (md5.length() > 32) {
+            md5 = md5.substring(0, 32);
+        }
+        return "image_" + md5;
+        
+        // long stamp = System.currentTimeMillis();
+        // for (int i = 0; i < 20; i++) {
+        //     String alias = "image" + stamp;
+        //     if (con.getNodeIdByAlias(alias) == null) {
+        //         return alias;
+        //     }
+        //     stamp++;
+        // }
+        // throw new Exception("Failed to store Base64 image: Could not create random image alias!");
+    }
+
+    private String getMD5Hash(byte[] data) throws Exception
+    {
+        MessageDigest md = MessageDigest.getInstance("MD5");
+        byte[] enc = md.digest(data);
+        BigInteger bigint = new BigInteger(1, enc);
+        return bigint.toString(16);
+    }
+    
+    private Folder getNearestImageFolder(StoreConnection con, String nodeId) throws Exception
+    {
+        Node node = con.getNodeById(nodeId);
+        if (node != null) {
+            Folder res = null;
+            Node parent = node.getParent();
+            if (parent instanceof Group) {
+                res = getOrCreateImageSubFolder(con, (Group) parent);
+            } else {
+                res = getMediaRoot(con);
+            }
+            if (res == null) {
+                throw new Exception("Failed to store Base64 image: Could not get image folder!");
+            }
+            return res;
+        } else {
+            throw new Exception("Failed to store Base64 image: non-existing node ID '" + 
+                                nodeId + "'!");
+        }
+    }
+    
+    private Folder getOrCreateImageSubFolder(StoreConnection con, Group parent)
+    {
+        // Return first image folder (if any)
+        for (Node nd : parent.getChildren()) {
+            if (nd instanceof Folder) {
+                Folder fold = (Folder) nd;
+                if (FolderType.IMAGE.equals(fold.getFolderType())) {
+                    return fold;
+                }
+            }
+        }
+        
+        // No image folder exists. Create image folder.
+        String fname = con.getUserSession().getLabel("label.imagefolder.title");
+        Folder fold = con.createFolder(fname, FolderType.IMAGE);
+        parent.insertChildren(0, fold);
+        return fold;
+    }
+    
+    private Folder getMediaRoot(StoreConnection con)
+    {
+        return (Folder) con.getNodeByAlias(DocmaSession.MEDIA_ROOT_ALIAS);
+    }
+    
+    private byte[] parseBase64(String data)
+    {
+        try {
+            return Base64.getDecoder().decode(data);
+        } catch (Throwable ex) {
+            // If the java.util.Base64 class does not exist (JRE 1.7 and below),
+            // then use javax.xml.bind.DatatypeConverter.
+            return DatatypeConverter.parseBase64Binary(data);
         }
     }
     

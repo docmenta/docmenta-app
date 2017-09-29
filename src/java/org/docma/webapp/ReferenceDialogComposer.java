@@ -1,7 +1,7 @@
 /*
- * ReferenceDialog.java
+ * ReferenceDialogComposer.java
  * 
- *  Copyright (C) 2013  Manfred Paula, http://www.docmenta.org
+ *  Copyright (C) 2017  Manfred Paula, http://www.docmenta.org
  *   
  *  This file is part of Docmenta. Docmenta is free software: you can 
  *  redistribute it and/or modify it under the terms of the GNU Lesser 
@@ -18,15 +18,20 @@ import java.util.*;
 
 import org.docma.coreapi.*;
 import org.docma.app.*;
-import org.zkoss.zul.*;
+import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.event.*;
+import org.zkoss.zk.ui.select.SelectorComposer;
+import org.zkoss.zk.ui.select.annotation.*;
+import org.zkoss.zul.*;
 
 /**
  *
  * @author MP
  */
-public class ReferenceDialog extends Window
+public class ReferenceDialogComposer extends SelectorComposer<Component>
 {
+    public static final String EVENT_OKAY = "onOkay";
+    
     private static final int MODE_NEW_SECTION_REF = 0;
     private static final int MODE_EDIT_SECTION_REF = 1;
     private static final int MODE_NEW_CONTENT_REF = 2;
@@ -34,118 +39,109 @@ public class ReferenceDialog extends Window
     private static final int MODE_NEW_IMAGE_REF = 10;
     private static final int MODE_EDIT_IMAGE_REF = 11;
 
-    private int modalResult = -1;
+    @Wire("#ReferenceDialog") Window referenceDialog;
+    @Wire("#RefTitleTextbox") Textbox titleBox;
+    @Wire("#RefAliasLabel") Label aliasLabel;
+    @Wire("#RefAliasCombobox") Combobox aliasBox;
+    @Wire("#RefApplicTextbox") Combobox applicBox;
+
     private int mode = -1;
-
-    private Textbox titleBox;
-    private Label aliasLabel;
-    private Combobox aliasBox;
-    private Textbox applicBox;
-
-    private boolean initialized = false;
-    private List tempList = new ArrayList(1000);
+    private Callback callback = null;
+    private final List tempList = new ArrayList(1000);
     private List all_aliases = null;
     private DocmaSession docmaSess;
-
-    private void init()
-    {
-        if (! initialized) {
-            titleBox = (Textbox) getFellow("RefTitleTextbox");
-            aliasLabel = (Label) getFellow("RefAliasLabel");
-            aliasBox = (Combobox) getFellow("RefAliasCombobox");
-            applicBox = (Textbox) getFellow("RefApplicTextbox");
-            initialized = true;
-        }
-    }
+    private String oldApplic = "";
 
     public void setMode_NewSectionRef() throws Exception
     {
-        init();
         this.mode = MODE_NEW_SECTION_REF;
-        DocmaI18 i18 = GUIUtil.i18(this);
-        setTitle(i18.getLabel("label.sectionref.dialog.new.title"));
+        DocI18n i18 = GUIUtil.getI18n(referenceDialog);
+        referenceDialog.setTitle(i18.getLabel("label.sectionref.dialog.new.title"));
         aliasLabel.setValue(i18.getLabel("label.sectionref.target"));
     }
 
     public void setMode_EditSectionRef() throws Exception
     {
-        init();
         this.mode = MODE_EDIT_SECTION_REF;
-        DocmaI18 i18 = GUIUtil.i18(this);
-        setTitle(i18.getLabel("label.sectionref.dialog.edit.title"));
+        DocI18n i18 = GUIUtil.getI18n(referenceDialog);
+        referenceDialog.setTitle(i18.getLabel("label.sectionref.dialog.edit.title"));
         aliasLabel.setValue(i18.getLabel("label.sectionref.target"));
     }
 
     public void setMode_NewContentRef() throws Exception
     {
-        init();
         this.mode = MODE_NEW_CONTENT_REF;
-        DocmaI18 i18 = GUIUtil.i18(this);
-        setTitle(i18.getLabel("label.contentref.dialog.new.title"));
+        DocI18n i18 = GUIUtil.getI18n(referenceDialog);
+        referenceDialog.setTitle(i18.getLabel("label.contentref.dialog.new.title"));
         aliasLabel.setValue(i18.getLabel("label.contentref.target"));
     }
 
     public void setMode_EditContentRef() throws Exception
     {
-        init();
         this.mode = MODE_EDIT_CONTENT_REF;
-        DocmaI18 i18 = GUIUtil.i18(this);
-        setTitle(i18.getLabel("label.contentref.dialog.edit.title"));
+        DocI18n i18 = GUIUtil.getI18n(referenceDialog);
+        referenceDialog.setTitle(i18.getLabel("label.contentref.dialog.edit.title"));
         aliasLabel.setValue(i18.getLabel("label.contentref.target"));
     }
 
     public void setMode_NewImageRef() throws Exception
     {
-        init();
         this.mode = MODE_NEW_IMAGE_REF;
-        DocmaI18 i18 = GUIUtil.i18(this);
-        setTitle(i18.getLabel("label.imageref.dialog.new.title"));
+        DocI18n i18 = GUIUtil.getI18n(referenceDialog);
+        referenceDialog.setTitle(i18.getLabel("label.imageref.dialog.new.title"));
         aliasLabel.setValue(i18.getLabel("label.imageref.target"));
     }
 
     public void setMode_EditImageRef() throws Exception
     {
-        init();
         this.mode = MODE_EDIT_IMAGE_REF;
-        DocmaI18 i18 = GUIUtil.i18(this);
-        setTitle(i18.getLabel("label.imageref.dialog.edit.title"));
+        DocI18n i18 = GUIUtil.getI18n(referenceDialog);
+        referenceDialog.setTitle(i18.getLabel("label.imageref.dialog.edit.title"));
         aliasLabel.setValue(i18.getLabel("label.imageref.target"));
     }
 
+    @Listen("onClick = #RefDialogOkayBtn")
     public void onOkayClick()
     {
-        modalResult = GUIConstants.MODAL_OKAY;
-        setVisible(false);
+        if (hasInvalidInputs()) {
+            return;  // keep dialog opened
+        }
+        if (callback != null) {
+            try {
+                callback.onEvent(EVENT_OKAY);
+            } catch (Exception ex) {
+                Messagebox.show(ex.getLocalizedMessage());
+                return;  // keep dialog opened
+            }
+        }
+        referenceDialog.setVisible(false);  // close dialog
     }
 
+    @Listen("onClick = #RefDialogCancelBtn")
     public void onCancelClick()
     {
-        modalResult = GUIConstants.MODAL_CANCEL;
-        setVisible(false);
+        referenceDialog.setVisible(false);  // close dialog
     }
 
-    public boolean doEdit(DocmaSession docmaSess) throws Exception
+    public void doEdit(DocmaNode docmaNode, DocmaSession docmaSess, Callback callback) throws Exception
     {
         this.docmaSess = docmaSess;
-        init();
-        all_aliases = null;
-        do {
-            modalResult = -1;
-            doModal();
-            if (modalResult != GUIConstants.MODAL_OKAY) {
-                return false;
-            }
-            if (hasInvalidInputs()) {
-                continue;
-            }
-            return true;
-        } while (true);
+        this.callback = callback;
+        this.all_aliases = null;
+        
+        updateGUI(docmaNode);  // if docmaNode is null, then fields are cleared
+        referenceDialog.doHighlighted();
     }
 
-    public void updateGUI(DocmaNode docmaNode)
+    private void updateGUI(DocmaNode docmaNode)
     {
-        init();
-
+        // Init applicability values
+        applicBox.getItems().clear();
+        String[] applicVals = docmaSess.getDeclaredApplics();
+        for (String appl : applicVals) {
+            applicBox.appendItem(appl);
+        }
+        
         if (docmaNode != null) {  // edit existing node
             titleBox.setValue(docmaNode.getTitle());
             aliasBox.setValue(docmaNode.getReferenceTarget());
@@ -159,7 +155,6 @@ public class ReferenceDialog extends Window
 
     public void updateModel(DocmaNode docmaNode, DocmaSession docmaSess) throws Exception
     {
-        init();
         boolean local_trans = !docmaSess.runningTransaction();
         if (local_trans) docmaSess.startTransaction();
         try {
@@ -174,6 +169,41 @@ public class ReferenceDialog extends Window
         }
     }
 
+    @Listen("onOpen = #RefApplicTextbox")
+    public void onOpenApplicItems(Event evt) 
+    {
+        if (evt instanceof OpenEvent) {
+            OpenEvent oevt = (OpenEvent) evt;
+            if (oevt.isOpen()) {
+                // Save the current applic value in oldApplic. See onSelectApplic().
+                Object value = oevt.getValue(); // combo_box.getValue();
+                oldApplic = (value == null) ? "" : value.toString();
+            }
+        }
+    }
+
+    @Listen("onSelect = #RefApplicTextbox")
+    public void onSelectApplic() 
+    {
+        Comboitem item = applicBox.getSelectedItem();
+        if (item == null) {
+            return;  // no item selected because user has manually edited text field
+        }
+        String value = item.getLabel();  // the value that user has selected from the drop-down list
+        
+        // If applic field is not empty, then append the selected item to the current value.
+        // See onOpenApplicItems().
+        String oldVal = (oldApplic == null) ? "" : oldApplic.trim();
+        if (! oldVal.equals("")) {
+            if (oldVal.endsWith("|") || oldVal.endsWith(",") || oldVal.endsWith("-")) {
+                applicBox.setValue(oldVal + " " + value);
+            } else {
+                applicBox.setValue(oldVal + " | " + value);
+            }
+        }
+    }
+
+    @Listen("onChanging = #RefAliasCombobox")
     public void onChangeRefAlias(Event evt) throws Exception
     {
         final String MORE = "...";
@@ -184,7 +214,7 @@ public class ReferenceDialog extends Window
                 return;  // do nothing; user has reached the end of the list (more entry)
             }
             if (val.length() > 0) {
-                DocmaAppUtil.listAliasesStartWith(val, getAllAliases(), tempList);
+                DocmaAppUtil.listValuesStartWith(val, getAllAliases(), tempList);
             }
             int item_cnt = aliasBox.getItemCount();
             if ((item_cnt > 0) && tempList.size() == 1) {  // exact match
@@ -232,9 +262,8 @@ public class ReferenceDialog extends Window
         return all_aliases;
     }
 
-    private boolean hasInvalidInputs() throws Exception
+    private boolean hasInvalidInputs()
     {
-        init();
         String alias = aliasBox.getValue().trim();
         if (alias.length() == 0) {
             Messagebox.show("Please enter a target alias!");

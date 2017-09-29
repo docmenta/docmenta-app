@@ -89,7 +89,7 @@ public class ConsistencyCheckComposer extends SelectorComposer<Component>
             }
         }
         DocmaSession docmaSess = webSess.getDocmaSession();
-        if (! clearFinishedUserActivities(docmaSess)) {  // Clear finished activities.
+        if (! docmaSess.clearFinishedUserActivities()) {  // Clear finished activities.
             // Should never occur because of isActivityRunning() above.
             MessageUtil.showError(mainWin, "activity.window.user_activity_exists");
             return;
@@ -111,7 +111,7 @@ public class ConsistencyCheckComposer extends SelectorComposer<Component>
 
         // Clear finished activities (just to be sure).
         DocmaSession docmaSess = webSess.getDocmaSession();
-        if (! clearFinishedUserActivities(docmaSess)) {  
+        if (! docmaSess.clearFinishedUserActivities()) {
             // Should never occur because finished activities have been cleared in showDialog().
             MessageUtil.showError(mainWin, "activity.window.user_activity_exists");
             return;
@@ -214,29 +214,6 @@ public class ConsistencyCheckComposer extends SelectorComposer<Component>
             model.addToSelection(ruleNode);
         } else {
             model.removeFromSelection(ruleNode);
-        }
-    }
-    
-    private boolean clearFinishedUserActivities(DocmaSession sess)
-    {
-        try {
-            Activity[] acts = sess.getOpenedStoreUserActivities();
-            boolean cleared = true;
-            for (Activity a : acts) {
-                if (a.isFinished()) {
-                    if (! sess.removeDocStoreActivity(sess.getStoreId(), 
-                                                      sess.getVersionId(), 
-                                                      a.getActivityId())) {
-                        cleared = false;  // finished activity could not be removed
-                    }
-                } else {
-                    cleared = false;  // running activity exists
-                }
-            }
-            return cleared;
-        } catch (Exception ex) {  // should never occur
-            ex.printStackTrace();
-            return false;
         }
     }
     

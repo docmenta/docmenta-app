@@ -44,6 +44,8 @@ public class DocmaApplication
     private final RulesManager rulesManager;
     private final List<DocmaSession> openSessions = new ArrayList<DocmaSession>();
     private Set<String> disabledStores = null;
+    private String cachedTxtExts = null;
+    private String[] cachedTxtExtArr = null;
 
     protected final ApplicationContext applicationCtx;
 
@@ -177,7 +179,13 @@ public class DocmaApplication
         if (ext_str.length() == 0) {
             return new String[0];
         } else {
-            return ext_str.split("\\s+\\.?");
+            if ((cachedTxtExtArr != null) && ext_str.equals(cachedTxtExts)) {
+                return cachedTxtExtArr;
+            } else {
+                cachedTxtExtArr = ext_str.split("\\s+\\.?");
+                cachedTxtExts = ext_str;
+                return cachedTxtExtArr;
+            }
         }
     }
     

@@ -37,6 +37,42 @@ public class DocmaAppUtil
         return ALIAS_PATTERN.matcher(name).matches();
     }
     
+    public static String getNodePathAsText(DocmaNode node, int max_length)
+    {
+        if (node == null) {
+            return "";
+        }
+        try {
+            StringBuilder sb;
+            if (node.isFileContent() || node.isImageContent()) {
+                sb = new StringBuilder(node.getDefaultFileName());
+            } else {
+                sb = new StringBuilder(node.getTitle());
+            }
+            DocmaNode n = node.getParent();
+            
+            // Add child position of file and content nodes
+            if ((n != null) && !node.isChildable()) {
+                sb.insert(0, "[" + n.getChildPos(node) + "] ");
+            }
+            
+            while (n != null) {
+                if (sb.length() > max_length) {
+                    sb.insert(0, "... / ");
+                    break;
+                }
+                sb.insert(0, n.getTitle() + " / ");
+                // if (n.isDocumentRoot()) {
+                //     break;
+                // }
+                n = n.getParent();
+            }
+            return sb.toString();
+        } catch (Exception ex) {  // should never occur
+            return "[Node path error: " + ex.getLocalizedMessage() + "]";
+        }
+    }
+    
     public static DocmaNode getNodeByPath(DocmaSession docmaSess, String path) 
     {
         String remaining = path.trim();
@@ -89,18 +125,18 @@ public class DocmaAppUtil
         return currentNode;
     }
     
-    public static List listAliasesStartWith(String alias_prefix, List aliases, List outlist)
+    public static List listValuesStartWith(String prefix, List values, List outlist)
     {
-        if (outlist == null) outlist = new ArrayList(aliases.size());
+        if (outlist == null) outlist = new ArrayList(values.size());
 
-        int pos = Collections.binarySearch(aliases, alias_prefix);
+        int pos = Collections.binarySearch(values, prefix);
         if (pos < 0) {  // if not found
             pos = -(pos + 1);  // insertion point
         }
-        while (pos < aliases.size()) {
-            String a = (String) aliases.get(pos);
-            if (a.startsWith(alias_prefix)) {
-                outlist.add(a);
+        while (pos < values.size()) {
+            Object obj = values.get(pos);
+            if (obj.toString().startsWith(prefix)) {
+                outlist.add(obj);
             } else {
                 break;
             }

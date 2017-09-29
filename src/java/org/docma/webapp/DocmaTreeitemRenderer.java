@@ -142,7 +142,25 @@ public class DocmaTreeitemRenderer implements TreeitemRenderer, EventListener
         } else
         if (model.isContent()) {
             is_file = true;
-            imgsrc = "img/file_icon.gif";
+            String ext = model.getFileExtension();
+            ext = (ext != null) ? ext.toLowerCase() : "";
+            if (ext.equals("css")) {
+                imgsrc = "img/file_css_icon.png";
+            } else if (ext.equals("js")) {
+                imgsrc = "img/file_js_icon.png";
+            } else if (ext.equals("txt")) {
+                imgsrc = "img/file_txt_icon.png";
+            } else if (ext.equals("xml")) {
+                imgsrc = "img/file_xml_icon.png";
+            } else if (ext.equals("zip")) {
+                imgsrc = "img/file_zip_icon.png";
+            } else {
+                if ((ext.length() > 0) && model.getDocmaSession().isTextFileExtension(ext)) {
+                    imgsrc = "img/file_txt_icon.png";
+                } else {
+                    imgsrc = "img/file_icon.gif";
+                }
+            }
         } else
         if (model.isSection()) {
             if (model.getId().equals(mainWin.getPreviewPubContentRoot())) {

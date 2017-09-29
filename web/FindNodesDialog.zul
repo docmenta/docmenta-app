@@ -1,22 +1,16 @@
 <window id="FindNodesDialog" title="${c:l('label.findnodes.dialog.title')}"
-        mode="overlapped" border="normal" width="600px" visible="false" sizable="true"
+        mode="overlapped" border="normal" width="740px" visible="false" sizable="true"
+        contentStyle="padding:4px 6px 4px 6px;"
         closable="true" onClose="self.visible = false; event.stopPropagation();"
-        use="org.docma.webapp.FindNodesDialog">
-<caption>
+        apply="org.docma.webapp.FindNodesComposer">
+  <caption>
     <toolbarbutton label="Help" onClick='mainWin.onHelp("help/find_nodes.html")'/>
-</caption>
-<hbox width="100%" height="100%" pack="stretch" align="stretch">
-  <space spacing="2px" />
-  <vbox spacing="1px" width="100%" height="100%" align="stretch" pack="stretch">
+  </caption>
+  <vbox spacing="1px" hflex="1" vflex="1" align="stretch" pack="stretch">
     <label id="FindNodesSearchTermLabel">${c:l('label.findnodes.searchterm.byalias')}:</label>
-    <hbox>
-      <cell width="90%" valign="middle">
-        <textbox id="FindNodesSearchTermTextbox" width="100%" onOK="FindNodesDialog.onStartSearchClick()"
-          forward="onChanging=FindNodesDialog.onSearchTermChange"/>
-      </cell>
-      <cell width="10%" align="right" valign="middle">
-        <button id="FindNodesStartButton" label="${c:l('label.findnodes.start.btn')}" onClick="FindNodesDialog.onStartSearchClick()"/>
-      </cell>
+    <hbox hflex="1" align="center">
+      <combobox id="FindNodesSearchTermTextbox" hflex="9" autodrop="true" maxlength="1000" />
+      <button id="FindNodesStartButton" label="${c:l('label.findnodes.start.btn')}" hflex="1" />
     </hbox>
     <separator spacing="2px" />
     <hbox spacing="0px">
@@ -24,19 +18,35 @@
       <label value="&#160;" />
       <label id="FindNodesSearchSummaryLabel" />
     </hbox>
-    <listbox id="FindNodesSearchResultList" width="100%" height="150px" vflex="true">
+    <listbox id="FindNodesSearchResultList" hflex="1" height="180px" vflex="1" >
       <listhead sizable="true">
-        <listheader label="${c:l('label.findnodes.searchresult.title')}" width="160px"/>
-        <listheader label="${c:l('label.findnodes.searchresult.alias')}" width="100px"/>
-        <listheader label="${c:l('label.findnodes.searchresult.path')}" />
+        <listheader label="${c:l('label.nodecolumn.title')}" width="160px"/>
+        <listheader label="" width="90px"/>
+        <listheader label="${c:l('label.nodecolumn.alias')}" width="100px"/>
+        <listheader label="${c:l('label.nodecolumn.applic')}" width="80px"/>
+        <listheader label="${c:l('label.nodecolumn.path')}" />
       </listhead>
     </listbox>
-    <separator spacing="1px" />
-    <cell width="100%" align="center">
-      <button id="FindNodesCloseButton" label="${c:l('label.findnodes.close.btn')}" width="100%" onClick="FindNodesDialog.onCloseClick()"/>
-    </cell>
-    <separator spacing="1px" />
+    <separator spacing="2px" />
+    <hbox hflex="1" id="FindNodesReplaceBar" align="center" spacing="4px">
+      <label id="FindNodesReplaceSummary" hflex="min">${c:l('label.findnodes.replace.summary')}</label>
+      <combobox id="FindNodesReplaceTextbox" hflex="1" autodrop="true" maxlength="1000" />
+      <space spacing="4px" />
+      <button id="FindNodesReplaceButton" hflex="1" label="${c:l('label.findnodes.replace.btn')}" />
+    </hbox>
+    <separator spacing="2px" />
+    <button id="FindNodesCloseButton" label="${c:l('label.findnodes.close.btn')}" hflex="1" />
+
+    <popup id="FindNodesPreviewPopup"><label value="${c:l('label.menuitem.preview')}"/></popup>
+    <popup id="FindNodesEditContentPopup"><label value="${c:l('label.menuitem.editcontent')}"/></popup>
+    <popup id="FindNodesEditPropsPopup"><label value="${c:l('label.menuitem.editproperties')}"/></popup>
+<!--
+    <menupopup id="FindNodesContextmenu">
+      <menuitem id="FindNodesPreviewMenuitem" label="${c:l('label.menuitem.preview')}" forward="FindNodesDialog.onPreviewNode"/>
+      <menuitem id="FindNodesPreviewPDFMenuitem" label="${c:l('label.menuitem.previewpdf')}" image="img/pdf_menuicon.gif" forward="FindNodesDialog.onPreviewPDF"/>
+      <menuitem id="FindNodesEditContentMenuitem" label="${c:l('label.menuitem.editcontent')}" image="img/edit.gif" forward="FindNodesDialog.onEditContent"/>
+      <menuitem id="FindNodesEditNodePropsMenuitem" label="${c:l('label.menuitem.editproperties')}" image="img/edit_props.gif" forward="FindNodesDialog.onEditNodeProps"/>
+    </menupopup>
+-->
   </vbox>
-  <space spacing="2px" />
-</hbox>
 </window>

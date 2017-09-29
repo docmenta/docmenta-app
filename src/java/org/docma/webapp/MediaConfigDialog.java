@@ -125,6 +125,9 @@ public class MediaConfigDialog extends Window
     private Listbox htmlCustomMetaBox;
     private Textbox htmlCustomFilesBox;
     private Listbox htmlOutputEncodingBox;
+    private Component htmlDocTypeArea;
+    private Checkbox htmlDocTypeCheckBox;
+    private Textbox htmlDocTypeTextBox;
     private Listbox htmlWebhelpConfigBox;
     private Listbox htmlWebhelpHeader1Box;
     private Listbox htmlWebhelpHeader2Box;
@@ -201,7 +204,7 @@ public class MediaConfigDialog extends Window
     private Set headerFooterPageTypes = null;
     private Map headerFooterContentMap = null;
 
-    private Map<String, String> oldHeaderFooterContent = new HashMap<String, String>();
+    private final Map<String, String> oldHeaderFooterContent = new HashMap<String, String>();
     
     /* -----------  Public methods  ------------------ */
 
@@ -386,6 +389,31 @@ public class MediaConfigDialog extends Window
             return null;
         }
         return nd;
+    }
+    
+    public void onCheckCustomDocType()
+    {
+        String currentFormat = getCurrentSelectedGUIFormat();
+        boolean is_webhelp = isWebHelp(currentFormat);
+        boolean is_webhelp_1 = isWebHelp1(currentFormat);
+        boolean is_webhelp_new = is_webhelp && !is_webhelp_1;
+        
+        boolean customDocType = htmlDocTypeCheckBox.isChecked();
+        // htmlDocTypeTextBox.setDisabled(! customDocType);
+        htmlDocTypeTextBox.setReadonly(! customDocType);
+        String docType;
+        if (customDocType) {
+            // Show custom DOCTYPE
+            docType = is_webhelp_new ? outConf.getHtmlCustomDocType() : "";
+            docType = (docType == null) ? "" : docType.trim();
+        } else {
+            // Show default DOCTYPE
+            docType = is_webhelp_new ? WebFormatter.DOCTYPE_INTRO_DEFAULT : "";
+        }
+        htmlDocTypeTextBox.setValue(docType);
+        if (customDocType) {
+            htmlDocTypeTextBox.setFocus(true);
+        }
     }
 
     public void onSelectPaperSize()
@@ -862,6 +890,9 @@ public class MediaConfigDialog extends Window
         htmlCustomMetaBox = (Listbox) getFellow("MediaHTMLCustomMetaListbox");
         htmlCustomFilesBox = (Textbox) getFellow("MediaHTMLCustomFilesTextbox");
         htmlOutputEncodingBox = (Listbox) getFellow("MediaHTMLOutputEncodingListbox");
+        htmlDocTypeArea = getFellow("MediaHTMLDocTypeArea");
+        htmlDocTypeCheckBox = (Checkbox) getFellow("MediaHTMLDocTypeCheckbox");
+        htmlDocTypeTextBox = (Textbox) getFellow("MediaHTMLDocTypeTextbox");
         htmlWebhelpConfigBox = (Listbox) getFellow("MediaHTMLWebhelpConfigListbox");
         htmlWebhelpHeader1Box = (Listbox) getFellow("MediaHTMLWebhelpHead1Listbox");
         htmlWebhelpHeader2Box = (Listbox) getFellow("MediaHTMLWebhelpHead2Listbox");
@@ -960,8 +991,8 @@ public class MediaConfigDialog extends Window
         }
         if (mode == MODE_NEW) {
             String[] ids = docmaSess.getOutputConfigIds();
-            for (int i = 0; i < ids.length; i++) {
-                if (id.equalsIgnoreCase(ids[i])) {
+            for (String id_value : ids) {
+                if (id.equalsIgnoreCase(id_value)) {
                     Messagebox.show("An output configuration with this ID already exists.");
                     return true;
                 }
@@ -971,9 +1002,9 @@ public class MediaConfigDialog extends Window
         if (filter.length() > 0) {
             String[] applics = filter.split("[, ]");
             List declaredList = Arrays.asList(docmaSess.getDeclaredApplics());
-            for (int i=0; i < applics.length; i++) {
-                if (! declaredList.contains(applics[i])) {
-                    Messagebox.show("Invalid filter setting. Applicability '" + applics[i] + "' is not declared.");
+            for (String applic : applics) {
+                if (!declaredList.contains(applic)) {
+                    Messagebox.show("Invalid filter setting. Applicability '" + applic + "' is not declared.");
                     return true;
                 }
             }
@@ -1347,6 +1378,20 @@ public class MediaConfigDialog extends Window
         selectItemByValue(htmlCustomJSBox, outConf.getHtmlCustomJSFilename(), 0);
         // htmlCustomJSBox.setDisabled(is_webhelp);
         selectItemByValue(htmlCustomMetaBox, outConf.getHtmlCustomMetaFilename(), 0);
+
+        String docType = is_webhelp_new ? outConf.getHtmlCustomDocType() : "";
+        docType = (docType == null) ? "" : docType.trim();
+        boolean hasCustomDocType = !docType.equals("");
+        if (is_webhelp_new && !hasCustomDocType) {
+            docType = WebFormatter.DOCTYPE_INTRO_DEFAULT;
+        }
+        htmlDocTypeCheckBox.setChecked(hasCustomDocType);
+        htmlDocTypeCheckBox.setDisabled(! is_webhelp_new);
+        htmlDocTypeTextBox.setValue(docType);
+        htmlDocTypeTextBox.setDisabled(! is_webhelp_new);
+        htmlDocTypeTextBox.setReadonly(! hasCustomDocType);
+        htmlDocTypeArea.setVisible(is_webhelp_new);
+        
         String custFiles = outConf.getHtmlCustomFiles();
         htmlCustomFilesBox.setValue((custFiles == null) ? "" : custFiles);
         selectItemByValue(htmlOutputEncodingBox, outConf.getHtmlOutputEncoding(), 0);
@@ -1448,10 +1493,8 @@ public class MediaConfigDialog extends Window
         String[] pageTypes = outConf.getPdfCustomHeaderFooterPageTypes();
         headerFooterPageTypes.addAll(Arrays.asList(pageTypes));
         final String[] regions = {"header", "footer"};
-        for (int i=0; i < pageTypes.length; i++) {
-            String ptype = pageTypes[i];
-            for (int r = 0; r < regions.length; r++) {
-                String region = regions[r];
+        for (String ptype : pageTypes) {
+            for (String region : regions) {
                 for (int col = 1; col <= 3; col++) {
                     for (int row = 1; row <= MAX_PDF_HEADER_FOOTER_ROWS; row++) {
                         String cont = outConf.getPdfHeaderFooterContent(ptype, region, col, row);
@@ -1708,11 +1751,10 @@ public class MediaConfigDialog extends Window
         // }
         final String[] colNames = { "Left", "Center", "Right"};
         final String[] regionNames = { "Header", "Footer"};
-        for (int i = 0; i < colNames.length; i++) {
-            for (int k = 0; k < regionNames.length; k++) {
-                String reg = regionNames[k];
+        for (String colName : colNames) {
+            for (String reg : regionNames) {
                 for (int r = 1; r <= MAX_PDF_HEADER_FOOTER_ROWS; r++) {
-                    String box_id = "Media" + reg + "Content" + colNames[i] + Integer.toString(r) + "Combobox";
+                    String box_id = "Media" + reg + "Content" + colName + Integer.toString(r) + "Combobox";
                     Combobox combo = (Combobox) getFellow(box_id);
                     combo.setDisabled(disabled);
                 }
@@ -1890,12 +1932,16 @@ public class MediaConfigDialog extends Window
             String jsfn = (jsitem != null) ? jsitem.getValue().toString() : "";
             String metafn = (metaitem != null) ? metaitem.getValue().toString() : "";
             String outenc = (encodingitem != null) ? encodingitem.getValue().toString() : "";
+            boolean hasCustomDocType = (! htmlDocTypeCheckBox.isDisabled()) && 
+                                       htmlDocTypeCheckBox.isChecked();
+            String docType = hasCustomDocType ? htmlDocTypeTextBox.getValue().trim() : "";
             String webconfigfolder = (webconfigitem != null) ? webconfigitem.getValue().toString() : "";
             outConf.setHtmlCustomCSSFilename(cssfn);
             outConf.setHtmlCustomJSFilename(jsfn);
             outConf.setHtmlCustomMetaFilename(metafn);
             outConf.setHtmlCustomFiles(htmlCustomFilesBox.getValue());
             outConf.setHtmlOutputEncoding(outenc);
+            outConf.setHtmlCustomDocType(docType);
             outConf.setHtmlWebhelpConfigFolder(webconfigfolder);
             outConf.setHtmlWebhelpHeader1((webhead1item != null) ? webhead1item.getValue().toString() : "");
             outConf.setHtmlWebhelpHeader2((webhead2item != null) ? webhead2item.getValue().toString() : "");
@@ -1964,14 +2010,13 @@ public class MediaConfigDialog extends Window
             String[] ptypes =  (headerFooterPageTypes == null) ?  
                 new String[0] : (String[]) headerFooterPageTypes.toArray(new String[headerFooterPageTypes.size()]);
             outConf.setPdfCustomHeaderFooterPageTypes(ptypes);
-            for (int i = 0; i < ptypes.length; i++) {
-                String pageType = ptypes[i];
+            for (String pageType : ptypes) {
                 for (int col = 1; col <= 3; col++) {
                     for (int row = 1; row <= MAX_PDF_HEADER_FOOTER_ROWS; row++) {
-                        String head_val = (String) 
-                            headerFooterContentMap.get(getHeaderFooterContentKey(pageType, "header", col, row));
-                        String foot_val = (String) 
-                            headerFooterContentMap.get(getHeaderFooterContentKey(pageType, "footer", col, row));
+                        String head_val = (String)
+                                headerFooterContentMap.get(getHeaderFooterContentKey(pageType, "header", col, row));
+                        String foot_val = (String)
+                                headerFooterContentMap.get(getHeaderFooterContentKey(pageType, "footer", col, row));
                         outConf.setPdfHeaderFooterContent(pageType, "header", col, row, head_val);
                         outConf.setPdfHeaderFooterContent(pageType, "footer", col, row, foot_val);
                     }

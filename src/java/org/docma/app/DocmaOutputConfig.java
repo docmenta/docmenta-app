@@ -82,6 +82,7 @@ public class DocmaOutputConfig
     private static final String PROP_VERSION_HTMLCONFIG_CUSTOMMETA = "docversion.htmlconfig.custommeta";
     private static final String PROP_VERSION_HTMLCONFIG_CUSTOMFILES = "docversion.htmlconfig.customfiles";
     private static final String PROP_VERSION_HTMLCONFIG_OUTPUTENCODING = "docversion.htmlconfig.outputencoding";
+    private static final String PROP_VERSION_HTMLCONFIG_CUSTOMDOCTYPE = "docversion.htmlconfig.customdoctype";
     // private static final String PROP_VERSION_HTMLCONFIG_COVERIMAGE = "docversion.htmlconfig.coverimage";
     private static final String PROP_VERSION_HTMLCONFIG_WEBHELPCONFIG = "docversion.htmlconfig.webhelpconfig";
     private static final String PROP_VERSION_HTMLCONFIG_WEBHELPHEADER1 = "docversion.htmlconfig.webhelpheader1";
@@ -178,6 +179,7 @@ public class DocmaOutputConfig
     private String  htmlCustomMetaFilename = null;
     private String  htmlCustomFiles = null;
     private String  htmlOutputEncoding = null;
+    private String  htmlCustomDocType = null;
     // private String  htmlCoverImage = null;
     private String  htmlWebhelpConfig = null;
     private String  htmlWebhelpHeader1 = "upper";
@@ -357,6 +359,7 @@ public class DocmaOutputConfig
             htmlCustomMetaFilename= getStringProp(docmaSess, PROP_VERSION_HTMLCONFIG_CUSTOMMETA);
             htmlCustomFiles       = getStringProp(docmaSess, PROP_VERSION_HTMLCONFIG_CUSTOMFILES);
             htmlOutputEncoding    = getStringProp(docmaSess, PROP_VERSION_HTMLCONFIG_OUTPUTENCODING);
+            htmlCustomDocType     = getStringProp(docmaSess, PROP_VERSION_HTMLCONFIG_CUSTOMDOCTYPE);
             // htmlCoverImage        = getStringProp(docmaSess, PROP_VERSION_HTMLCONFIG_COVERIMAGE);
             htmlWebhelpConfig     = getStringProp(docmaSess, PROP_VERSION_HTMLCONFIG_WEBHELPCONFIG);
             htmlWebhelpHeader1    = getStringProp(docmaSess, PROP_VERSION_HTMLCONFIG_WEBHELPHEADER1);
@@ -462,6 +465,7 @@ public class DocmaOutputConfig
             addProp(nl, vl, PROP_VERSION_HTMLCONFIG_CUSTOMMETA, htmlCustomMetaFilename);
             addProp(nl, vl, PROP_VERSION_HTMLCONFIG_CUSTOMFILES, htmlCustomFiles);
             addProp(nl, vl, PROP_VERSION_HTMLCONFIG_OUTPUTENCODING, htmlOutputEncoding);
+            addProp(nl, vl, PROP_VERSION_HTMLCONFIG_CUSTOMDOCTYPE, htmlCustomDocType);
             // addProp(nl, vl, PROP_VERSION_HTMLCONFIG_COVERIMAGE, htmlCoverImage);
             addProp(nl, vl, PROP_VERSION_HTMLCONFIG_WEBHELPCONFIG, htmlWebhelpConfig);
             addProp(nl, vl, PROP_VERSION_HTMLCONFIG_WEBHELPHEADER1, htmlWebhelpHeader1);
@@ -586,6 +590,7 @@ public class DocmaOutputConfig
         addProp(nl, vl, PROP_VERSION_HTMLCONFIG_CUSTOMMETA, null);
         addProp(nl, vl, PROP_VERSION_HTMLCONFIG_CUSTOMFILES, null);
         addProp(nl, vl, PROP_VERSION_HTMLCONFIG_OUTPUTENCODING, null);
+        addProp(nl, vl, PROP_VERSION_HTMLCONFIG_CUSTOMDOCTYPE, null);
         // addProp(nl, vl, PROP_VERSION_HTMLCONFIG_COVERIMAGE, null);
         addProp(nl, vl, PROP_VERSION_HTMLCONFIG_WEBHELPCONFIG, null);
         addProp(nl, vl, PROP_VERSION_HTMLCONFIG_WEBHELPHEADER1, null);
@@ -1035,7 +1040,15 @@ public class DocmaOutputConfig
     public void setHtmlOutputEncoding(String encoding) {
         this.htmlOutputEncoding = encoding;
     }
+    
+    public String getHtmlCustomDocType() {
+        return htmlCustomDocType;
+    }
 
+    public void setHtmlCustomDocType(String docType) {
+        this.htmlCustomDocType = docType;
+    }
+    
 //    /**
 //     * 
 //     * @return Alias of cover image.

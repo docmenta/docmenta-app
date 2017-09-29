@@ -15,7 +15,6 @@ package org.docma.plugin.implementation;
 
 import java.util.Date;
 import org.docma.app.DocmaNode;
-import org.docma.app.DocmaSession;
 import org.docma.plugin.DocmaException;
 import org.docma.plugin.Lock;
 import org.docma.plugin.Node;
