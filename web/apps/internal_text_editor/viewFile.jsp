@@ -272,6 +272,13 @@ div.docma_msg { margin: 1em; }
             displayTitle = fn;
         }
         String editComment = webSess.getLabel("texteditor.start_edit_comment");
+        String editLabel = webSess.getLabel("texteditor.edit.btn");
+        String saveLabel = webSess.getLabel("texteditor.save.btn");
+        String saveCloseLabel = webSess.getLabel("texteditor.save_close.btn").replace("&", "&amp;").replace(" ", "&#160;");
+        String closeLabel = webSess.getLabel("texteditor.close.btn");
+        String openWinLabel = webSess.getLabel("texteditor.open_in_win.btn");
+        String cancelLabel = webSess.getLabel("texteditor.cancel.btn");
+        String encodingLabel = webSess.getLabel("texteditor.encoding");
 %>
 <form name="btnform" action="<%= self_url %>" method="post" style="padding:0; margin:0; width:100%; height:100%;">
 <table border="0" cellspacing="0" cellpadding="0" style="width:100%; height:100%;">
@@ -293,23 +300,23 @@ div.docma_msg { margin: 1em; }
           <td valign="middle" nowrap>
             <button type="button" name="editBtn" onclick="doEdit();"
                     style="vertical-align:middle; height:28px;">
-                <img src="img/editfile.gif" style="vertical-align:middle;" />&nbsp;Edit
+                <img src="img/editfile.gif" style="vertical-align:middle;" />&nbsp;<%= editLabel %>
             </button>
             <button type="button" name="saveBtn" onclick="doSave();" 
                     style="display:none; vertical-align:middle; height:28px;">
-                <img src="img/save.gif" style="vertical-align:middle;" />&nbsp;Save
+                <img src="img/save.gif" style="vertical-align:middle;" />&nbsp;<%= saveLabel %>
             </button>
 <%
     if (iswin) {
 %>
             <button type="button" name="saveCloseBtn" onclick="doSaveAndClose();" 
                     style="display:none; vertical-align:middle; height:28px;">
-                <img src="img/save_and_close.gif" style="vertical-align:middle;" />&nbsp;Save&#160;&amp;&#160;Close
+                <img src="img/save_and_close.gif" style="vertical-align:middle;" />&nbsp;<%= saveCloseLabel %>
             </button>
             &nbsp;
             <button type="button" name="closeBtn" onclick="doClose();"
                     style="vertical-align:middle; height:28px;">
-                <img src="img/close.gif" style="vertical-align:middle;" />&nbsp;Close
+                <img src="img/close.gif" style="vertical-align:middle;" />&nbsp;<%= closeLabel %>
             </button>
 <%
     } else {
@@ -317,10 +324,10 @@ div.docma_msg { margin: 1em; }
             &nbsp;
             <button type="button" name="openWinBtn" onclick="openInNewWin();"
                     style="vertical-align:middle; height:28px;">
-                <img src="img/open_win.gif" style="vertical-align:middle;" />&nbsp;Open in Window</button>
+                <img src="img/open_win.gif" style="vertical-align:middle;" />&nbsp;<%= openWinLabel %></button>
             <button type="button" name="cancelBtn" onclick="cancelEdit();"
                     style="display:none; vertical-align:middle; height:28px;">
-                <img src="img/cancel.gif" style="vertical-align:middle;" />&nbsp;Cancel
+                <img src="img/cancel.gif" style="vertical-align:middle;" />&nbsp;<%= cancelLabel %>
             </button>
 <%
     }
@@ -340,7 +347,7 @@ div.docma_msg { margin: 1em; }
         out.println("</div></td>");
     }
 %>
-                <td valign="middle"><span class="labeltxt">Encoding:&nbsp;</span></td>
+                <td valign="middle"><span class="labeltxt"><%= encodingLabel %>&nbsp;</span></td>
                 <td valign="middle">
     <select name="file_encoding" size="1" onchange="changeEncoding();">
 <%

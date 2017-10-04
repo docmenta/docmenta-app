@@ -1474,7 +1474,6 @@ public class MediaConfigDialog extends Window
         
         boolean isCustom = outConf.isPdfCustomHeaderFooter();
         customHeaderFooterBox.setChecked(isCustom);
-        setHeaderFooterFieldsDisabled(! isCustom);
         
         // Header widths
         String[] hwidths = parseColumnWidths(outConf.getPdfHeaderWidths());
@@ -1514,6 +1513,8 @@ public class MediaConfigDialog extends Window
         
         // Hide header/footer element if width is set to 0%:
         updateHeaderFooterVisibility();
+        
+        setHeaderFooterFieldsDisabled(! isCustom);
         
         // Load publication preview listbox
         loadHeaderFooterPublicationPreviewList();

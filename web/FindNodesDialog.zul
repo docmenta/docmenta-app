@@ -4,7 +4,7 @@
         closable="true" onClose="self.visible = false; event.stopPropagation();"
         apply="org.docma.webapp.FindNodesComposer">
   <caption>
-    <toolbarbutton label="Help" onClick='mainWin.onHelp("help/find_nodes.html")'/>
+    <toolbarbutton label="${c:l('label.help')}" onClick='mainWin.onHelp("help/find_nodes.html")'/>
   </caption>
   <vbox spacing="1px" hflex="1" vflex="1" align="stretch" pack="stretch">
     <label id="FindNodesSearchTermLabel">${c:l('label.findnodes.searchterm.byalias')}:</label>

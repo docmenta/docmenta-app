@@ -1,5 +1,5 @@
 <window id="ConsistencyCheckDialog" title="${c:l('consistency.check.dialog.title')}"
-        border="normal" width="380px" height="400px" visible="false" contentStyle="padding:7px;"
+        border="normal" width="428px" height="400px" visible="false" contentStyle="padding:7px;"
         sizable="true" closable="true" onClose="self.visible = false; event.stopPropagation();"
         apply="org.docma.webapp.ConsistencyCheckComposer">
   <caption>

@@ -145,6 +145,7 @@ public class FindNodesComposer extends SelectorComposer<Component> implements Li
         if (model instanceof DocmaNode) {
             DocmaNode node = (DocmaNode) model;
             final String nodeId = node.getId();
+            boolean isContent = node.isContent();
             // item.setValue(pm.getId());
             
             Listcell c0 = new Listcell(node.getTitle());
@@ -164,15 +165,18 @@ public class FindNodesComposer extends SelectorComposer<Component> implements Li
                 }
             });
             
-            Toolbarbutton editBtn = new Toolbarbutton();
-            editBtn.setImage("img/edit.gif");
-            editBtn.setTooltip("FindNodesEditContentPopup");
-            editBtn.addForward("onClick", dialog, "onEditNode");
-            editBtn.addEventListener("onClick", new EventListener() {
-                public void onEvent(Event t) throws Exception {
-                    editNode(nodeId);
-                }
-            });
+            Toolbarbutton editBtn = null; 
+            if (isContent) {
+                editBtn = new Toolbarbutton();
+                editBtn.setImage("img/edit.gif");
+                editBtn.setTooltip("FindNodesEditContentPopup");
+                editBtn.addForward("onClick", dialog, "onEditNode");
+                editBtn.addEventListener("onClick", new EventListener() {
+                    public void onEvent(Event t) throws Exception {
+                        editNode(nodeId);
+                    }
+                });
+            }
             
             Toolbarbutton propsBtn = new Toolbarbutton();
             propsBtn.setImage("img/edit_props.gif");
@@ -186,7 +190,9 @@ public class FindNodesComposer extends SelectorComposer<Component> implements Li
             Hlayout hlay = new Hlayout();
             hlay.setSpacing("0px");
             hlay.appendChild(previewBtn);
-            hlay.appendChild(editBtn);
+            if (isContent) {
+                hlay.appendChild(editBtn);
+            }
             hlay.appendChild(propsBtn);
             c1.appendChild(hlay);
             

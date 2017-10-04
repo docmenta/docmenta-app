@@ -107,6 +107,7 @@ public class FormattingEngine
     private static final Map map_CSS_FO = new HashMap(200);
     // private static final Map map_FO_MIRRORED = new HashMap();
     private static final String TEMPFILE_PREFIX = "temp";
+    private static final XMLTransformErrorListener DUMMY_XML_TRANSFO_LISTENER = new XMLTransformErrorListener(null);
 
     private final File configBaseDir;
     // private final File html2DocbookXSLFile;
@@ -405,7 +406,7 @@ public class FormattingEngine
         export_log.infoMsg("Starting transformation from HTML to DocBook.");
         StreamResult docbookresult = new StreamResult(output);
         // try {
-        html2docbook(htmlPrintInstance, out_config, docbookresult);
+        html2docbook(htmlPrintInstance, out_config, docbookresult, export_log);
         // } catch (Exception ex) {
         //     ex.printStackTrace();
         //     export_log.errorMsg("Exception: " + ex.getMessage());
@@ -463,7 +464,7 @@ public class FormattingEngine
             }
         } else {
             StreamSource htmlPrintInstance = new StreamSource(new StringReader(html_in));
-            File docbookfile = html2docbook(htmlPrintInstance, out_config);
+            File docbookfile = html2docbook(htmlPrintInstance, out_config, export_log);
 
             if (is_webhelp) {
                 docbook2webhelp(docbookfile, outputDir, base_URL, pub_config, out_config, styles, export_log);
@@ -509,7 +510,7 @@ public class FormattingEngine
             throw new DocException("Invalid output configuration: wrong format.");
         }
         export_log.infoMsg("Starting transformation from HTML to DocBook.");
-        File docbookfile = html2docbook(htmlPrintInstance, out_config);
+        File docbookfile = html2docbook(htmlPrintInstance, out_config, export_log);
         export_log.infoMsg("Transformation from HTML to DocBook finished.");
         StreamSource src = new StreamSource(docbookfile);
         // src.setSystemId(htmlPrintInstance.getSystemId());  // set base path for relative image URIs
@@ -532,19 +533,20 @@ public class FormattingEngine
 
     }
 
-    private File html2docbook(StreamSource htmlPrintInstance, DocmaOutputConfig outConfig) throws Exception
+    private File html2docbook(StreamSource htmlPrintInstance, DocmaOutputConfig outConfig, ExportLog export_log) throws Exception
     {
         File docbookfile = createTempFile("xml");
         FileOutputStream docbookout = new FileOutputStream(docbookfile);
         StreamResult docbookresult = new StreamResult(docbookout);
-        html2docbook(htmlPrintInstance, outConfig, docbookresult);
+        html2docbook(htmlPrintInstance, outConfig, docbookresult, export_log);
         docbookout.close();
         return docbookfile;
     }
 
     private void html2docbook(StreamSource htmlPrintInstance,
                               DocmaOutputConfig outConfig,
-                              StreamResult output) throws Exception
+                              StreamResult output, 
+                              ExportLog export_log) throws Exception
     {
         String out_format = outConfig.getFormat();
         if (DocmaConstants.DEBUG) {
@@ -554,7 +556,7 @@ public class FormattingEngine
         String out_type = is_pdf ? "print" : "interactive";
         boolean fit_images = out_type.equals("print") && outConfig.isPdfFitImages();
         
-        Transformer htmlTransformer = acquireHtml2DocbookTransformer(is_pdf);
+        Transformer htmlTransformer = acquireHtml2DocbookTransformer(is_pdf, export_log);
         try {
             htmlTransformer.setParameter("docma_output_type", out_type);
             htmlTransformer.setParameter("docma_fit_images", fit_images ? "true" : "false");
@@ -564,7 +566,7 @@ public class FormattingEngine
         }
     }
     
-    private synchronized Transformer acquireHtml2DocbookTransformer(boolean is_pdf) throws Exception
+    private synchronized Transformer acquireHtml2DocbookTransformer(boolean is_pdf, ExportLog export_log) throws Exception
     {
         Transformer transfo;
         List<Transformer> list = is_pdf ? html2DbTransformers_PDF : html2DbTransformers_HTML;
@@ -575,11 +577,13 @@ public class FormattingEngine
         } else {
             transfo = list.remove(list.size() - 1);
         }
+        transfo.setErrorListener(new XMLTransformErrorListener(export_log));
         return transfo;
     }
     
     private synchronized void releaseHtml2DocbookTransformer(boolean is_pdf, Transformer transformer)
     {
+        transformer.setErrorListener(DUMMY_XML_TRANSFO_LISTENER);
         List<Transformer> list = is_pdf ? html2DbTransformers_PDF : html2DbTransformers_HTML;
         list.add(transformer);
     }
