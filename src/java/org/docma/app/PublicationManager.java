@@ -381,12 +381,15 @@ class PublicationManager
                     new ImageURLTransformer_PDF(docmaSess, applics, export_log, imgurl_map, direct_access);
             FileURLTransformer fileTransformer =
                     new FileURLTransformer_Default(docmaSess, applics, export_log, fileurl_map);
-            StringBuilder temp_buf = new StringBuilder(html_buf.length() + 10000);
             final boolean REMOVE_FILE_LINKS = true;
-            transformLinks(html_buf, imgTransformer, fileTransformer, null, REMOVE_FILE_LINKS, temp_buf, export_ctx);
-            html_buf.setLength(0);
-            DocmaAppUtil.transformImageURLs(temp_buf.toString(), imgTransformer, html_buf);
+            
+            // Prepare links; resolve image and file references
             String html = html_buf.toString();
+            html_buf.setLength(0);
+            FileRefsProcessor.processPublication(html, html_buf, fileTransformer, imgTransformer, export_ctx, REMOVE_FILE_LINKS);
+            // prepareLinks(html_buf, imgTransformer, fileTransformer, null, REMOVE_FILE_LINKS, temp_buf, export_ctx);
+            // FileRefsProcessor.process(temp_buf.toString(), html_buf, fileTransformer, imgTransformer, export_log);
+            html = html_buf.toString();
 
             // Write debugging output
             if (DocmaConstants.DEBUG) {
@@ -510,12 +513,15 @@ class PublicationManager
                     new ImageURLTransformer_HTML(docmaSess, applics, export_log, url_map);
             FileURLTransformer fileTransformer =
                     new FileURLTransformer_Default(docmaSess, applics, export_log, url_map);
-            StringBuilder temp_buf = new StringBuilder(html_buf.length() + 10000);
             final boolean REMOVE_FILE_LINKS = false;
-            transformLinks(html_buf, imgTransformer, fileTransformer, null, REMOVE_FILE_LINKS, temp_buf, export_ctx);
-            html_buf.setLength(0);
-            DocmaAppUtil.transformImageURLs(temp_buf.toString(), imgTransformer, html_buf);
+            
+            // Prepare links; resolve image and file references
             String html = html_buf.toString();
+            html_buf.setLength(0);
+            FileRefsProcessor.processPublication(html, html_buf, fileTransformer, imgTransformer, export_ctx, REMOVE_FILE_LINKS);
+            // prepareLinks(html_buf, imgTransformer, fileTransformer, null, REMOVE_FILE_LINKS, temp_buf, export_ctx);
+            // FileRefsProcessor.process(temp_buf.toString(), html_buf, fileTransformer, imgTransformer, export_log);
+            html = html_buf.toString();
 
             // Write debugging output
             if (DocmaConstants.DEBUG) {
@@ -524,10 +530,12 @@ class PublicationManager
             }
 
             // Set HTML header content
-            String head_cont = resolveContent(out_conf.getHtmlCustomHeaderAlias(), imgTransformer, export_ctx);
+            String head_cont = resolveContent(out_conf.getHtmlCustomHeaderAlias(), 
+                                              fileTransformer, imgTransformer, export_ctx);
             out_conf.setHtmlCustomHeaderContent(head_cont);
             // Set HTML footer content
-            String foot_cont = resolveContent(out_conf.getHtmlCustomFooterAlias(), imgTransformer, export_ctx);
+            String foot_cont = resolveContent(out_conf.getHtmlCustomFooterAlias(), 
+                                              fileTransformer, imgTransformer, export_ctx);
             out_conf.setHtmlCustomFooterContent(foot_cont);
             // Set draft watermark image
             if (pub_conf.isDraft()) {
@@ -770,12 +778,15 @@ class PublicationManager
             // Note: For DocBook, the same image URL transformation can be applied as for HTML export.
             FileURLTransformer fileTransformer =
                     new FileURLTransformer_Default(docmaSess, applics, export_log, url_map);
-            StringBuilder temp_buf = new StringBuilder(html_buf.length() + 10000);
             final boolean REMOVE_FILE_LINKS = false;
-            transformLinks(html_buf, imgTransformer, fileTransformer, null, REMOVE_FILE_LINKS, temp_buf, export_ctx);
-            html_buf.setLength(0);
-            DocmaAppUtil.transformImageURLs(temp_buf.toString(), imgTransformer, html_buf);
+            
+            // Prepare links; resolve image and file references
             String html = html_buf.toString();
+            html_buf.setLength(0);
+            FileRefsProcessor.processPublication(html, html_buf, fileTransformer, imgTransformer, export_ctx, REMOVE_FILE_LINKS);
+            // prepareLinks(html_buf, imgTransformer, fileTransformer, null, REMOVE_FILE_LINKS, temp_buf, export_ctx);
+            // FileRefsProcessor.process(temp_buf.toString(), html_buf, fileTransformer, imgTransformer, export_log);
+            html = html_buf.toString();
 
             // Write debugging output
             if (DocmaConstants.DEBUG) {
@@ -977,7 +988,8 @@ class PublicationManager
     }
     
     private String resolveContent(String node_alias,
-                                  ImageURLTransformer url_transformer,
+                                  FileURLTransformer file_transformer,
+                                  ImageURLTransformer img_transformer,
                                   DocmaExportContext export_ctx)
     {
         if ((node_alias != null) && (node_alias.length() > 0)) {
@@ -996,7 +1008,8 @@ class PublicationManager
                 ContentResolver.getContentRecursive(node, new HashSet(), export_ctx,
                                                     true, 0, null, false, null);
             StringBuilder html_buf = new StringBuilder();
-            DocmaAppUtil.transformImageURLs(cont, url_transformer, html_buf);
+            // Resolve image and file references
+            FileRefsProcessor.process(cont, html_buf, file_transformer, img_transformer, export_log);
             return html_buf.toString();
         } else {
             return null;
@@ -1437,168 +1450,187 @@ class PublicationManager
         return html_buf;
     }
 
-    private void transformLinks(StringBuilder html_in, // Set id_set,
-                                ImageURLTransformer imgTransformer,
-                                FileURLTransformer fileTransformer,
-                                String linkTarget,
-                                boolean removeFileLinks,
-                                StringBuilder html_out,
-                                DocmaExportContext export_ctx)
-    {
-        if (html_in == html_out) {
-            throw new DocRuntimeException("Input buffer is same as output buffer!");
-        }
-        ExportLog export_log = export_ctx.getExportLog();
-        // boolean has_log = (export_log != null);
-        HashSet alias_set = new HashSet();  // new HashSet((3 * id_set.size()) + 50);
-        // for (Iterator it = id_set.iterator(); it.hasNext(); ) {
-        //     String node_id = (String) it.next();
-        //     DocmaNode nd = docmaSess.getNodeById(node_id);
-        //     String link_alias = nd.getLinkAlias();
-        //     if (link_alias != null) alias_set.add(link_alias);
-        //     if (nd.isHTMLContent()) {
-        //         DocmaAnchor[] anch = nd.getContentAnchors();
-        //         for (int i=0; i < anch.length; i++) alias_set.add(anch[i].getAlias());
-        //     }
-        // }
-        ContentUtil.getIdValues(html_in, alias_set);
-        if (DocmaConstants.DEBUG) System.out.println("ID value count: " + alias_set.size());
-
-        List attNames = new ArrayList();
-        List attValues = new ArrayList();
-        int copypos = 0;   // content from 0...copypos has already been copied to html_out
-        int startpos = 0;  // continue search for next link tag at startpos
-        int len = html_in.length();
-        while (startpos < len) {
-            final String A_PATTERN = "<a";
-            int tag_start = html_in.indexOf(A_PATTERN, startpos);
-            if (tag_start < 0) break;
-
-            startpos = tag_start + 1;  // continue after this position
-            int att_start = tag_start + A_PATTERN.length();
-            if (! Character.isWhitespace(html_in.charAt(att_start))) continue;
-
-            int tag_end = XMLParser.parseTagAttributes(html_in, att_start, attNames, attValues);
-            if (tag_end < 0) continue;
-
-            startpos = tag_end + 1;  // continue search after opening tag
-
-            int href_idx = attNames.indexOf("href");
-            if (href_idx < 0) continue;
-            String href_val = (String) attValues.get(href_idx);
-            final String IMAGE_PREFIX = "image/";
-            final String FILE_PREFIX = "file/";
-            boolean isContentLink = href_val.startsWith("#");
-            boolean isImageLink = href_val.startsWith(IMAGE_PREFIX);
-            boolean isFileLink = href_val.startsWith(FILE_PREFIX);
-
-            if (! (isContentLink || isImageLink || isFileLink)) { 
-                continue;  // do not modify external links and other unknown links
-            }
-
-            String target_alias = null;
-            if (isContentLink) target_alias = href_val.substring(1).trim();
-            else if (isImageLink) target_alias = href_val.substring(IMAGE_PREFIX.length()).trim();
-            else if (isFileLink) target_alias = href_val.substring(FILE_PREFIX.length()).trim();
-
-            final String END_PATTERN = "</a>";
-            int a_end = html_in.indexOf(END_PATTERN, tag_end);
-            if (a_end < 0) break;
-
-            int after_link = a_end + END_PATTERN.length();
-            startpos = after_link;  // continue search after closing tag
-
-            if (target_alias.equals("")) {
-                LogUtil.addWarning(export_log, html_in, tag_start, a_end, 
-                    "publication.export.missing_target_alias", href_val);
-                continue;
-            }
-
-            String link_text = html_in.substring(tag_end + 1, a_end);
-            if (isContentLink) {
-                // 1) target alias exists as ID in html_in: do not modify link
-                // 2) target alias does not exist: do not modify link, write warning
-                // 3) target alias exists but is not included in publiation: 
-                // 3.1) target alias is in referenced publication: remove link, replace link text
-                // 3.2) target alias is not(!) in referenced publication: remove link, write warning
-                if (! alias_set.contains(target_alias)) {
-                    if (docmaSess.getNodeIdByAlias(target_alias) == null) {
-                        LogUtil.addWarning(export_log, html_in, tag_start, a_end, 
-                            "publication.export.cannot_resolve_target_alias", target_alias);
-                    } else {
-                        String ref_title = export_ctx.getNodeTitleInReferencedPub(target_alias);
-                        if (ref_title != null) {
-                            link_text = ref_title;
-                        } else {
-                            LogUtil.addWarning(export_log, html_in, tag_start, a_end, 
-                                "publication.export.target_not_included_replacing_txt",
-                                target_alias, escapeTags(link_text));
-                        }
-                        // Remove the opening tag <a ... > and the closing tag </a>
-                        html_out.append(html_in, copypos, tag_start);
-                        html_out.append(link_text);
-                        copypos = after_link;
-                    }
-                }
-            } else {  // isImageLink or isFileLink
-                // 1) if removeFileLinks is true: remove link (e.g. for print output)
-                // 2) otherwise if target exists transform link
-                // 3) otherwise do not modify link, write warning
-                String url = null;
-                if (isImageLink) url = imgTransformer.getImageURLByAlias(target_alias);
-                if (isFileLink) url = fileTransformer.getFileURLByAlias(target_alias);
-
-                if (removeFileLinks) {  // Currently: is only true for print-output
-                    LogUtil.addInfo(export_log, html_in, tag_start, a_end, 
-                        "publication.export.removing_file_link", href_val);
-                    int title_idx = attNames.indexOf("title");
-                    if (title_idx >= 0) { // If link has title, ...
-                        // ... then replace link text with link title
-                        String title_val = (String) attValues.get(title_idx);
-                        if ((title_val != null) && (title_val.trim().length() > 0)) {
-                            if (title_val.contains("%target%") || title_val.contains("%target_print%")) {
-                                // If "Use target title" option is set, then use filename as title
-                                int fn_start = url.lastIndexOf('/');
-                                String fn = (fn_start < 0) ? url : url.substring(fn_start + 1);
-                                link_text = (fn.trim().length() > 0) ? fn : url;
-                            } else {
-                                link_text = title_val;
-                            }
-                        }
-                    }
-                    html_out.append(html_in, copypos, tag_start);
-                    html_out.append(link_text);
-                    copypos = after_link;
-                } else {
-                    if (url != null) {  // target_alias exists
-                        if ((linkTarget != null) && !attNames.contains("target")) {
-                            attNames.add("target");
-                            attValues.add(linkTarget);
-                        }
-                        attValues.set(href_idx, url);   // set transformed url
-                        // Write transformed link:
-                        html_out.append(html_in, copypos, tag_start);
-                        html_out.append("<a");
-                        for (int i=0; i < attNames.size(); i++) {
-                            String attname = (String) attNames.get(i);
-                            String attvalue = (String) attValues.get(i);
-                            html_out.append(" ").append(attname).append("=\"").append(attvalue).append("\"");
-                        }
-                        html_out.append(">").append(link_text).append("</a>");
-                        copypos = after_link;
-                    }
-                }
-            }  // end of isImageLink or isFileLink
-        }  // end of while loop
-        if (copypos < html_in.length()) {
-            html_out.append(html_in, copypos, html_in.length());
-        }
-    }
-
-    private static String escapeTags(String str)
-    {
-        return str.replace("<", "&lt;").replace(">", "&gt;");
-    }
+//    private void prepareLinks(StringBuilder html_in,
+//                              ImageURLTransformer imgTransformer,
+//                              FileURLTransformer fileTransformer,
+//                              String linkTarget,
+//                              boolean removeFileLinks,
+//                              StringBuilder html_out,
+//                              DocmaExportContext export_ctx)
+//    {
+//        if (html_in == html_out) {
+//            throw new DocRuntimeException("Input buffer is same as output buffer!");
+//        }
+//        ExportLog export_log = export_ctx.getExportLog();
+//        HashSet alias_set = new HashSet();
+//        ContentUtil.getIdValues(html_in, alias_set);
+//        if (DocmaConstants.DEBUG) System.out.println("ID value count: " + alias_set.size());
+//
+//        List<String> attNames = new ArrayList<String>();
+//        List<String> attValues = new ArrayList<String>();
+//        int copypos = 0;   // content from 0...copypos has already been copied to html_out
+//        int startpos = 0;  // continue search for next link tag at startpos
+//        int len = html_in.length();
+//        while (startpos < len) {
+//            int tag_start = html_in.indexOf("<", startpos);
+//            if (tag_start < 0) { 
+//                break;
+//            }
+//            startpos = tag_start + 1;  // continue after this position
+//            
+//            // Search end of tag name (first non-letter).
+//            int att_start = startpos;
+//            while ((att_start < len) && isASCIILetter(html_in.charAt(att_start))) {
+//                att_start++;
+//            }
+//            String elemName = html_in.substring(startpos, att_start);
+//            if (! elemName.equalsIgnoreCase("a")) {
+//                continue;   // process only links
+//            }
+//
+//            int tag_end = XMLParser.parseTagAttributes(html_in, att_start, attNames, attValues);
+//            if (tag_end < 0) continue;
+//            boolean isEmptyElem = (html_in.charAt(tag_end - 1) == '/');
+//
+//            startpos = tag_end + 1;  // continue search after opening tag
+//
+//            int href_idx = attNames.indexOf("href");
+//            if (href_idx < 0) continue;
+//            String href_val = attValues.get(href_idx);
+//            final String IMAGE_PREFIX = FileRefsProcessor.IMAGE_PREFIX; // "image/";
+//            final String FILE_PREFIX = FileRefsProcessor.FILE_PREFIX;   // "file/";
+//            boolean isContentLink = href_val.startsWith("#");
+//            boolean isImageLink = href_val.startsWith(IMAGE_PREFIX);
+//            boolean isFileLink = href_val.startsWith(FILE_PREFIX);
+//
+//            if (! (isContentLink || isImageLink || isFileLink)) { 
+//                continue;  // do not modify external links and other unknown links
+//            }
+//
+//            String target_alias = null;
+//            if (isContentLink) target_alias = href_val.substring(1).trim();
+//            else if (isImageLink) target_alias = href_val.substring(IMAGE_PREFIX.length()).trim();
+//            else if (isFileLink) target_alias = href_val.substring(FILE_PREFIX.length()).trim();
+//            
+//            int a_end = tag_end + 1;
+//            int after_link = a_end;
+//            if (! isEmptyElem) {
+//                //  <a href=... >Link text</a> 
+//                //  |           |         |    \
+//                //  tag_start  tag_end   a_end  after_link
+//                String END_PATTERN = "</" + elemName + ">";
+//                a_end = html_in.indexOf(END_PATTERN, tag_end);
+//                if (a_end < 0) {
+//                    continue;  // no closing a-tag found; do not process invalid link
+//                }
+//                after_link = a_end + END_PATTERN.length();
+//                startpos = after_link;  // continue search after closing tag
+//            }
+//
+//            if (target_alias.equals("")) {
+//                LogUtil.addWarning(export_log, html_in, tag_start, a_end, 
+//                    "publication.export.missing_target_alias", href_val);
+//                continue;
+//            }
+//
+//            String link_text = html_in.substring(tag_end + 1, a_end);
+//            if (isContentLink) {
+//                // 1) target alias exists as ID in html_in: do not modify link
+//                // 2) target alias does not exist: do not modify link, write warning
+//                // 3) target alias exists but is not included in publiation: 
+//                // 3.1) target alias is in referenced publication: remove link, replace link text
+//                // 3.2) target alias is not(!) in referenced publication: remove link, write warning
+//                if (! alias_set.contains(target_alias)) {
+//                    if (docmaSess.getNodeIdByAlias(target_alias) == null) {
+//                        LogUtil.addWarning(export_log, html_in, tag_start, a_end, 
+//                            "publication.export.cannot_resolve_target_alias", target_alias);
+//                    } else {
+//                        String ref_title = export_ctx.getNodeTitleInReferencedPub(target_alias);
+//                        if (ref_title != null) {
+//                            link_text = ref_title;
+//                        } else {
+//                            LogUtil.addWarning(export_log, html_in, tag_start, a_end, 
+//                                "publication.export.target_not_included_replacing_txt",
+//                                target_alias, escapeTags(link_text));
+//                        }
+//                        // Remove the opening tag <a ... > and the closing tag </a>
+//                        html_out.append(html_in, copypos, tag_start);
+//                        html_out.append(link_text);
+//                        copypos = after_link;
+//                    }
+//                }
+//            } else {  // isImageLink or isFileLink
+//                // 1) if removeFileLinks is true: remove link (e.g. for print output)
+//                // 2) otherwise if target exists transform link
+//                // 3) otherwise do not modify link, write warning
+//                String url = null;
+//                if (isImageLink) url = imgTransformer.getImageURLByAlias(target_alias);
+//                if (isFileLink) url = fileTransformer.getFileURLByAlias(target_alias);
+//
+//                if (removeFileLinks) {  // Currently: is only true for print-output
+//                    LogUtil.addInfo(export_log, html_in, tag_start, a_end, 
+//                                    "publication.export.removing_file_link", href_val);
+//                    int title_idx = attNames.indexOf("title");
+//                    if (title_idx >= 0) { // If link has title, ...
+//                        // ... then replace link text with link title
+//                        String title_val = attValues.get(title_idx);
+//                        if ((title_val != null) && (title_val.trim().length() > 0)) {
+//                            if ((url != null) && 
+//                                (title_val.contains("%target%") || 
+//                                 title_val.contains("%target_print%"))) {
+//                                // If "Use target title" option is set, then use filename as title
+//                                int fn_start = url.lastIndexOf('/');
+//                                String fn = (fn_start < 0) ? url : url.substring(fn_start + 1);
+//                                link_text = (fn.trim().length() > 0) ? fn : url;
+//                            } else {
+//                                link_text = title_val;
+//                            }
+//                        }
+//                    }
+//                    html_out.append(html_in, copypos, tag_start);
+//                    html_out.append(link_text);
+//                    copypos = after_link;
+//                } else {
+//                    if (url != null) {  // target_alias exists
+//                        if ((linkTarget != null) && !attNames.contains("target")) {
+//                            attNames.add("target");
+//                            attValues.add(linkTarget);
+//                        }
+//                        attValues.set(href_idx, url);   // set transformed url
+//                        // Write transformed link:
+//                        html_out.append(html_in, copypos, tag_start);
+//                        html_out.append("<a");
+//                        writeAttribs(html_out, attNames, attValues);
+//                        html_out.append(">").append(link_text).append("</a>");
+//                        copypos = after_link;
+//                    }
+//                }
+//            }  // end of isImageLink or isFileLink
+//        }  // end of while loop
+//        if (copypos < html_in.length()) {
+//            html_out.append(html_in, copypos, html_in.length());
+//        }
+//    }
+//    
+//    private static boolean isASCIILetter(char ch) 
+//    {
+//        return ((ch >= 'a') && (ch <= 'z')) || 
+//               ((ch >= 'A') && (ch <= 'Z'));
+//    }
+//    
+//    private static void writeAttribs(StringBuilder html_out, List<String> attNames, List<String> attValues)
+//    {
+//        for (int i=0; i < attNames.size(); i++) {
+//            String attname = attNames.get(i);
+//            String attvalue = attValues.get(i);
+//            html_out.append(" ").append(attname).append("=\"").append(attvalue).append("\"");
+//        }
+//    }
+//
+//    private static String escapeTags(String str)
+//    {
+//        return str.replace("<", "&lt;").replace(">", "&gt;");
+//    }
 
     private DocmaPublication get_Publication(String pubId)
     {

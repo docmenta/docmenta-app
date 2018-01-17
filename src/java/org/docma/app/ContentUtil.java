@@ -29,9 +29,10 @@ import org.docma.util.XMLProcessorFactory;
  */
 public class ContentUtil
 {
-    private static final String FILE_PREFIX = "file/";
-    private static final String IMAGE_PREFIX = "image/";
-    
+    private static final String FILE_PREFIX = FileRefsProcessor.FILE_PREFIX;    // "file/";
+    private static final String IMAGE_PREFIX = FileRefsProcessor.IMAGE_PREFIX;  // "image/";
+
+
     public static boolean contentIsEqual(String content1, String content2, boolean strict_compare)
     {
         if (strict_compare) {
@@ -63,66 +64,34 @@ public class ContentUtil
         // String linkAlias = DocmaAppUtil.getLinkAlias(thisAlias);
         int len = content.length();
 
-        // Find a and img tags
-        int startpos = 0;
-        while (startpos < len) {
-            int tag_start = content.indexOf("<", startpos);
-            if (tag_start < 0) break;
-
-            int tag_end = content.indexOf('>', tag_start);
-            if (tag_end < 0) break;
-
-            startpos = tag_end + 1;
-
-            // get tag name
-            int name_end = tag_start + 1;
-            while ((name_end < tag_end) && !Character.isWhitespace(content.charAt(name_end))) {
-                name_end++;
-            }
-            //p2 = content.indexOf(' ', tag_start);
-            String tagname = content.substring(tag_start + 1, name_end);
-
-            if (tagname.equals("a")) {
-                final String HREF_PATTERN = "href=\"";
-
-                int att_start = content.indexOf(HREF_PATTERN, name_end);
-                if ((att_start < 0) || (att_start > tag_end)) continue;
-                int val_start = att_start + HREF_PATTERN.length();
-
-                int val_end = content.indexOf('"', val_start);
-                if (val_end < 0) continue;
-
-                String href_alias;
-                if (content.charAt(val_start) == '#') {
-                    href_alias = content.substring(val_start + 1, val_end).trim();
-                } else if (content.regionMatches(val_start, FILE_PREFIX, 0, FILE_PREFIX.length())) {
-                    href_alias = content.substring(val_start + FILE_PREFIX.length(), val_end).trim(); 
-                } else {
-                    continue;
+        //
+        // Find referencing elements (e.g. links, images).
+        //
+        try {
+            // Check if an attribute src/href/poster exists that references the
+            // given alias.
+            XMLParser parser = new XMLParser(content);
+            Map<String, String> atts = new HashMap<String, String>();
+            int eventType;
+            do {
+                eventType = parser.next();
+                if (eventType == XMLParser.START_ELEMENT) {
+                    parser.getAttributes(atts);
+                    if (isRefAtt(atts.get("href"), alias) || 
+                        isRefAtt(atts.get("src"), alias) ||
+                        isRefAtt(atts.get("poster"), alias)) {
+                        return true;
+                    }
                 }
-                if (href_alias.equals(alias)) {
-                      return true;
-                }
-            } else
-            if (tagname.equals("img")) {
-                final String SRC_PATTERN = "src=\"image/";
-
-                int att_start = content.indexOf(SRC_PATTERN, name_end);
-                if ((att_start < 0) || (att_start > tag_end)) continue;
-                int alias_start = att_start + SRC_PATTERN.length();
-
-                int alias_end = content.indexOf('"', alias_start);
-                if (alias_end < 0) continue;
-
-                String src_alias = content.substring(alias_start, alias_end).trim();
-                if (src_alias.equals(alias)) {
-                    return true;
-                }
-            }
+            } while (eventType != XMLParser.FINISHED);
+        } catch (Exception ex) {  
+            // Content cannot be parsed.
         }
         
-        // Find inclusions
-        startpos = 0;
+        //
+        // Find inclusions.
+        //
+        int startpos = 0;
         while (startpos < len) {
             int p1 = content.indexOf("[#", startpos);
             if (p1 < 0) {  // no inclusion found
@@ -145,7 +114,26 @@ public class ContentUtil
         }
         return false;
     }
-    
+
+    private static boolean isRefAtt(String value, String alias)
+    {
+        if (value == null) {
+            return false;
+        }        
+        value = value.trim();
+        
+        String ref_alias = null;
+        if (value.startsWith("#")) {
+            ref_alias = value.substring(1);
+        } else if (value.startsWith(IMAGE_PREFIX)) {
+            ref_alias = value.substring(IMAGE_PREFIX.length()).trim();
+        } else if (value.startsWith(FILE_PREFIX)) {
+            ref_alias = value.substring(FILE_PREFIX.length()).trim();
+        }
+        
+        return (ref_alias != null) ? ref_alias.equals(alias) : false;
+    }
+
     public static String replaceAliasInReferences(final String content, 
                                                   final String currentAlias, 
                                                   final String newAlias, 
@@ -543,6 +531,41 @@ public class ContentUtil
     }
 
 
+    public static void getIdValues(String content, Set id_values)
+    {
+        if (content == null) {
+            return;
+        }
+        try {
+            // Collect values of all id attributes.
+            XMLParser parser = new XMLParser(content);
+            Map<String, String> atts = new HashMap<String, String>();
+            int eventType;
+            do {
+                eventType = parser.next();
+                if (eventType == XMLParser.START_ELEMENT) {
+                    parser.getAttributes(atts);
+                    String val = atts.get("id");
+                    if (val == null) {
+                        val = atts.get("ID");
+                    }
+                    if ((val != null) && !val.equals("")) {
+                        id_values.add(val);
+                    }
+                }
+            } while (eventType != XMLParser.FINISHED);
+        } catch (Exception ex) {
+            // Content cannot be parsed.
+        }
+    }
+ 
+    /**
+     * Quick and dirty implementation. Should be replaced by implementation
+     * given above.
+     * 
+     * @param content
+     * @param id_values 
+     */
     public static void getIdValues(StringBuilder content, Set id_values)
     {
         if (content == null) {

@@ -1,5 +1,5 @@
 <%@page contentType="text/html" pageEncoding="UTF-8" session="true"
-        import="java.io.*,org.docma.plugin.*,org.docma.plugin.web.*,org.docma.coreapi.*,org.docma.plugin.tinymce.*"%>
+        import="java.io.*,org.docma.plugin.*,org.docma.plugin.web.*,org.docma.plugin.internals.*,org.docma.coreapi.*,org.docma.plugin.tinymce.*"%>
 <% 
     int error_code = 0;  // no error
     String error_msg = "";
@@ -122,31 +122,13 @@
 
     if (! isCancel) {
         // Save window position and size:
-        if (win_xpos == null) win_xpos = "";
-        if (win_ypos == null) win_ypos = "";
-        if (win_width == null) win_width = "";
-        if (win_height == null) win_height = "";
         try {
-            // Save window position in session object
-            if (! (win_xpos.equals("") || win_ypos.equals(""))) {
-                try {
-                    session.setAttribute(DefaultContentAppHandler.ATTRIBUTE_EDITOR_POS_X, new Integer(win_xpos));
-                    session.setAttribute(DefaultContentAppHandler.ATTRIBUTE_EDITOR_POS_Y, new Integer(win_ypos));
-                } catch (Exception nfe) {}
-            }
-
-            // Save window size as user property:
-            User usr = webSess.getUser();
-            String old_width = usr.getProperty(DefaultContentAppHandler.USER_PROPERTY_EDIT_WIN_WIDTH);
-            String old_height = usr.getProperty(DefaultContentAppHandler.USER_PROPERTY_EDIT_WIN_HEIGHT);
-            if (! (win_width.equals(old_width) && win_height.equals(old_height))) {
-                if (DocConstants.DEBUG) {
-                    System.out.println("Saving edit window size:" + win_width + "," + win_height);
-                }
-                String[] p_names = { DefaultContentAppHandler.USER_PROPERTY_EDIT_WIN_WIDTH, 
-                                     DefaultContentAppHandler.USER_PROPERTY_EDIT_WIN_HEIGHT };
-                String[] p_vals = { win_width, win_height };
-                usr.setProperties(p_names, p_vals);
+            ContentAppHandler apphandler = webSess.getContentAppHandler(editorId);
+            if (apphandler instanceof WindowPositionStorage) {
+                ((WindowPositionStorage) apphandler).setWindowPos(webSess, win_xpos, win_ypos);
+            } 
+            if (apphandler instanceof WindowSizeStorage) {
+                ((WindowSizeStorage) apphandler).setWindowSize(webSess, win_width, win_height);
             }
         } catch (Exception ex) {
             ex.printStackTrace();

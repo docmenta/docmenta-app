@@ -40,6 +40,8 @@ pre { font-size:medium }
 .errormsg { font-size:12px; font-weight:bold; color:red; }
 </style>
 <script type="text/javascript">
+    var savedContent = null;
+    
     function docmaInit() {
         <%= hasError ? "" : "parent.initAfterLoad(); " + TextFileHandler.getJSOnLoad(webSess, ext) %>
     }
@@ -54,11 +56,18 @@ pre { font-size:medium }
         return true;
     }
 
+    function docmaAfterSave() {
+        savedContent = getTextAreaValue();
+    }
+
     function docmaEnterEdit() {
         var ef = document.forms["editform"];
         ef.file_content.readOnly = false;
         ef.file_content.style.backgroundColor = "#FFFFFF";
         ef.file_content.focus();
+        if (savedContent == null) {
+            savedContent = getTextAreaValue();
+        }
         try {
             <%= TextFileHandler.getJSEnterEdit(webSess, ext) %>
         } catch (err) {}
@@ -72,6 +81,14 @@ pre { font-size:medium }
             <%= TextFileHandler.getJSEnterView(webSess, ext) %>
         } catch (err) {}
     }
+    
+    function getTextAreaValue() {
+        return document.forms["editform"].file_content.value;
+    }
+    
+    function isContentChanged() {
+        return (savedContent != null) && (savedContent != getTextAreaValue());
+    }
 </script>
 <%= TextFileHandler.getHTMLHead(webSess, ext) %>
 </head>
@@ -84,8 +101,10 @@ pre { font-size:medium }
     } else {
         out.println(TextFileHandler.getHTMLBodyStart(webSess, ext));
 %>
-<form name="editform" action="<%= save_url %>" method="post" target="filesave_frm" style="padding:0; margin:0; width:100%; height:100%;">
-<textarea id="file_content" name="file_content" wrap="off" style="width:100%; height:100%; background-color:#F4F4F4; border-width:0px;" readonly><%
+<form name="editform" action="<%= save_url %>" method="post" target="filesave_frm" 
+      style="padding:0; margin:0; position:absolute; top:0; left:0; right:0; bottom:0;">
+<textarea id="file_content" name="file_content" wrap="off" 
+          style="width:100%; height:100%; background-color:#F4F4F4; border-width:0px; resize:none;" readonly><%
     String str = ((Content) node).getContentString();
     if (str != null) {
         out.print(str.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;"));

@@ -23,6 +23,8 @@ import org.docma.plugin.web.WebUserSession;
 import org.docma.plugin.web.ContentAppHandler;
 import org.docma.plugin.web.DefaultContentAppHandler;
 import org.docma.plugin.implementation.WebUserSessionImpl;
+import org.docma.plugin.internals.WindowPositionStorage;
+import org.docma.plugin.internals.WindowSizeStorage;
 import org.zkoss.util.Locales;
 import org.zkoss.web.Attributes;
 import org.zkoss.zk.ui.Component;
@@ -102,6 +104,13 @@ public class DocmaWebSession
     {
         this.previewLog = preview_log;
     }
+    
+    public String getServMediaBasePath()
+    {
+        return "servmedia/" + docmaSess.getSessionId() + "/" +
+               docmaSess.getStoreId() + "/" + docmaSess.getVersionId() +
+               "/" + docmaSess.getLanguageCode();
+    }
 
     Locale getCurrentLocale()
     {
@@ -133,49 +142,55 @@ public class DocmaWebSession
 
     public int getEditorPositionX()
     {
-        Object posx = getHttpSession().getAttribute(DefaultContentAppHandler.ATTRIBUTE_EDITOR_POS_X);
-        if (posx instanceof Integer) {
-            return (Integer) posx;
-        } else {
-            return DefaultContentAppHandler.WINDOW_DEFAULT_POSITION_X;
+        ContentAppHandler handler = getContentEditorHandler();
+        int posx = -1;
+        if ((handler instanceof WindowPositionStorage) && (pluginWebSess != null)) {
+            String xstr = ((WindowPositionStorage) handler).getWindowPosLeft(pluginWebSess);
+            try {
+                posx = Integer.parseInt(xstr);
+            } catch (Exception ex) {}
         }
+        return (posx >= 0) ? posx : DefaultContentAppHandler.WINDOW_DEFAULT_POSITION_X;
     }
-
-//    public void setEditorPositionX(int x)
-//    {
-//        this.editorPosX = (x < 0) ? 0 : x;
-//    }
-//    
-//    public void setEditorPositionX(String posX)
-//    {
-//        try {
-//            int x = Integer.parseInt(posX);
-//            setEditorPositionX(x);
-//        } catch (Exception ex) {}
-//    }
 
     public int getEditorPositionY()
     {
-        Object posy = getHttpSession().getAttribute(DefaultContentAppHandler.ATTRIBUTE_EDITOR_POS_Y);
-        if (posy instanceof Integer) {
-            return (Integer) posy;
-        } else {
-            return DefaultContentAppHandler.WINDOW_DEFAULT_POSITION_Y;
+        ContentAppHandler handler = getContentEditorHandler();
+        int posy = -1;
+        if ((handler instanceof WindowPositionStorage) && (pluginWebSess != null)) {
+            String ystr = ((WindowPositionStorage) handler).getWindowPosTop(pluginWebSess);
+            try {
+                posy = Integer.parseInt(ystr);
+            } catch (Exception ex) {}
         }
+        return (posy >= 0) ? posy : DefaultContentAppHandler.WINDOW_DEFAULT_POSITION_Y;
     }
-
-//    public void setEditorPositionY(int y)
-//    {
-//        this.editorPosY = (y < 0) ? 0 : y;
-//    }
-//    
-//    public void setEditorPositionY(String posY)
-//    {
-//        try {
-//            int y = Integer.parseInt(posY);
-//            setEditorPositionY(y);
-//        } catch (Exception ex) {}
-//    }
+    
+    public int getEditorWidth()
+    {
+        ContentAppHandler handler = getContentEditorHandler();
+        int width = -1;
+        if ((handler instanceof WindowSizeStorage) && (pluginWebSess != null)) {
+            String s = ((WindowSizeStorage) handler).getWindowWidth(pluginWebSess);
+            try {
+                width = Integer.parseInt(s);
+            } catch (Exception ex) {}
+        }
+        return (width > 0) ? width : DefaultContentAppHandler.WINDOW_DEFAULT_WIDTH;
+    }
+    
+    public int getEditorHeight()
+    {
+        ContentAppHandler handler = getContentEditorHandler();
+        int height = -1;
+        if ((handler instanceof WindowSizeStorage) && (pluginWebSess != null)) {
+            String s = ((WindowSizeStorage) handler).getWindowWidth(pluginWebSess);
+            try {
+                height = Integer.parseInt(s);
+            } catch (Exception ex) {}
+        }
+        return (height > 0) ? height : DefaultContentAppHandler.WINDOW_DEFAULT_HEIGHT;
+    }
     
     public int getPdfPreviewPositionX()
     {
@@ -200,8 +215,9 @@ public class DocmaWebSession
         int h = GUIConstants.EDIT_WIN_DEFAULT_HEIGHT;
         int max_height = getScreenHeight();
         if (max_height <= 0) {
-            if (docmaSess != null) {
-                String hstr = docmaSess.getUserProperty(GUIConstants.PROP_USER_EDIT_WIN_HEIGHT);
+            ContentAppHandler handler = getContentEditorHandler();
+            if ((handler instanceof WindowSizeStorage) && (pluginWebSess != null)) {
+                String hstr = ((WindowSizeStorage) handler).getWindowHeight(pluginWebSess);
                 if ((hstr != null) && !hstr.equals("")) {
                     try { 
                         h = Integer.parseInt(hstr);

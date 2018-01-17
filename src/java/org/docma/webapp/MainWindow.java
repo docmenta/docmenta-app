@@ -54,6 +54,7 @@ import org.zkoss.zul.Tabbox;
 import org.zkoss.zul.Tab;
 import org.zkoss.zul.Timer;
 import org.zkoss.zul.Toolbar;
+import org.zkoss.zul.Toolbarbutton;
 import org.zkoss.zul.Borderlayout;
 import org.zkoss.zul.LayoutRegion;
 import org.zkoss.zul.North;
@@ -387,6 +388,7 @@ public class MainWindow extends Window implements EventListener
         }
 
         // Load preview settings
+        loadViewSourceState(docmaSess, storeId);
         String last_format = getLastSelectedFormat(docmaSess, storeId);
         if ((last_format == null) || last_format.equals("")) {
             last_format = "html";  // use HTML preview as default
@@ -814,6 +816,19 @@ public class MainWindow extends Window implements EventListener
     private void setLanguageSelectionEnabled(boolean is_enabled)
     {
         language_select_list.setDisabled(!is_enabled);
+    }
+
+    private boolean isViewSource()
+    {
+        Toolbarbutton btn = (Toolbarbutton) getFellow("previewSrcBtn");
+        return btn.isChecked();
+    }
+    
+    private void loadViewSourceState(DocmaSession docmaSess, String storeId)
+    {
+        String val = docmaSess.getUserProperty(GUIConstants.PROP_USER_PREVIEW_SOURCE + "." + storeId);
+        Toolbarbutton btn = (Toolbarbutton) getFellow("previewSrcBtn");
+        btn.setChecked((val != null) && val.equalsIgnoreCase("true"));
     }
 
     private DocmaOutputConfig getDefaultHTMLConfig()
@@ -1718,6 +1733,26 @@ public class MainWindow extends Window implements EventListener
         }
     }
 
+    public void onToggleViewSource() throws Exception
+    {
+        // Save state 
+        DocmaSession docmaSess = getDocmaSession();
+        String storeId = docmaSess.getStoreId();
+        boolean switchToSource = isViewSource();
+        String val = switchToSource ? "true" : "false";
+        docmaSess.setUserProperty(GUIConstants.PROP_USER_PREVIEW_SOURCE + "." + storeId, val);
+        
+        // Refresh preview frame
+        if (switchToSource) {
+            // Switch from preview to source.
+            onDocTreeSelect();
+        } else {
+            // Switch from source to preview.
+            // Save any unsaved changes on client side and then call onDocTreeSelect:
+            Clients.evalJavaScript("saveAndReselectNode();");
+        }
+    }
+
     public void onSelectPreviewFormat() throws Exception
     {
         DocmaSession docmaSess = getDocmaSession();
@@ -2041,20 +2076,16 @@ public class MainWindow extends Window implements EventListener
             } else 
             if (node.isFileContent()) {
                 String ext = node.getFileExtension();
-                if ((ext != null) && !ext.equals("")) {
-                    // Get assigned viewer application for this file extension
-                    DocmaWebSession webSess = getDocmaWebSession();
-                    String appid = webSess.getFileViewerId(ext);
-                    if (appid == null) {
-                        // If the file has no configured text-file extension, 
-                        // then the system default text editor shows a hint that
-                        // file extension needs to be configured.
-                        appid = webSess.getDocmaWebApplication().getSystemDefaultTextEditor();
-                    }
-                    if (appid != null) {
-                        view_url = webSess.getPreviewURL(appid, node.getId());
-                    }
+                if (VideoUtil.isSupportedVideoExtension(ext)) {
+                    view_url = getDesktop().getExecution().encodeURL("viewVideo.jsp?nodeid=" +
+                               node.getId() + "&desk=" + deskId + stamp);
+                } else {
+                    view_url = getPreviewURL(ext, node.getId());
                 }
+            } else 
+            if (isViewSource() && node.isContent()) {
+                String ext = node.isHTMLContent() ? "html" : node.getFileExtension();
+                view_url = getPreviewURL(node.getFileExtension(), node.getId());
             } else {
                 String pubId = getPreviewPubConfigId();
                 String pubParam = (pubId != null) ? ("&pub=" + pubId) : "";
@@ -2083,6 +2114,25 @@ public class MainWindow extends Window implements EventListener
 
         SearchReplaceDialog dialog = (SearchReplaceDialog) getPage().getFellow("SearchReplaceDialog");
         dialog.nodeChanged();
+    }
+    
+    private String getPreviewURL(String ext, String nodeId)
+    {
+        if ((ext != null) && !ext.equals("")) {
+            // Get assigned viewer application for this file extension
+            DocmaWebSession webSess = getDocmaWebSession();
+            String appid = webSess.getFileViewerId(ext);
+            if (appid == null) {
+                // If the file has no configured text-file extension, 
+                // then the system default text editor shows a hint that
+                // file extension needs to be configured.
+                appid = webSess.getDocmaWebApplication().getSystemDefaultTextEditor();
+            }
+            if (appid != null) {
+                return webSess.getPreviewURL(appid, nodeId);
+            }
+        }
+        return null;  // invalid extension or missing viewer application
     }
 
     public void onResizeContentTreeRegion(Event evt)

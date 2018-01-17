@@ -14,15 +14,16 @@
 
 package org.docma.plugin.implementation;
 
-import javax.servlet.http.HttpSession;
-        
 import org.docma.coreapi.DocConstants;
 import org.docma.plugin.FileContent;
 import org.docma.plugin.Node;
 import org.docma.plugin.PubContent;
 import org.docma.plugin.StoreConnection;
-import org.docma.plugin.User;
 import org.docma.plugin.VersionId;
+import org.docma.plugin.internals.EmbeddedContentEditor;
+import org.docma.plugin.internals.WindowPositionStorage;
+import org.docma.plugin.internals.WindowSizeStorage;
+import org.docma.plugin.web.ContentAppHandler;
 import org.docma.plugin.web.WebPluginUtil;
 import org.docma.plugin.web.WebUserSession;
 import org.docma.plugin.web.DefaultContentAppHandler;
@@ -75,8 +76,15 @@ public class EditComposer implements Composer
         // hide frame by setting frame-background to background-color of window:
         result_frm.setStyle(webSess.getThemeProperty("popupwin.bgcolor.css"));
 
-        String url = "tinymce_editor/iframe_content.jsp?docsess=" + docsess + 
-                     "&nodeid=" + nodeid + "&appid=" + editorid;
+        ContentAppHandler appHandler = (editorid == null) ? null : webSess.getContentAppHandler(editorid);
+        String url = null;
+        if (appHandler instanceof EmbeddedContentEditor) {
+            url = ((EmbeddedContentEditor) appHandler).getIFrameURL(webSess, nodeid);
+        }
+        if (url == null) {
+            url = ""; // "tinymce_editor/iframe_content.jsp?docsess=" + docsess + 
+                      // "&nodeid=" + nodeid + "&appid=" + editorid;
+        }
         // url = exec.encodeURL(url);
         Iframe frm = (Iframe) win.getFellow("contentfrm");
         frm.setSrc(url);
@@ -107,21 +115,32 @@ public class EditComposer implements Composer
         prodLang.setValue(lang);
         contProgress.setCurpos((node != null) ? node.getProgress() : 0);
 
-        HttpSession httpsess = webSess.getHttpSession();
-        Object objx = httpsess.getAttribute(DefaultContentAppHandler.ATTRIBUTE_EDITOR_POS_X);
-        Object objy = httpsess.getAttribute(DefaultContentAppHandler.ATTRIBUTE_EDITOR_POS_Y);
-        int win_x = (objx instanceof Integer) ? (Integer) objx : DefaultContentAppHandler.WINDOW_DEFAULT_POSITION_X;
-        int win_y = (objy instanceof Integer) ? (Integer) objy : DefaultContentAppHandler.WINDOW_DEFAULT_POSITION_Y;
-
-        User usr = webSess.getUser();
-        String win_width = usr.getProperty(DefaultContentAppHandler.USER_PROPERTY_EDIT_WIN_WIDTH);
-        String win_height = usr.getProperty(DefaultContentAppHandler.USER_PROPERTY_EDIT_WIN_HEIGHT);
-        // if (win_x == null) win_x = "";
-        // if (win_y == null) win_y = "";
+        String win_x = null;
+        String win_y = null;
+        String win_width = null;
+        String win_height = null;
+        if (appHandler instanceof WindowPositionStorage) {
+            WindowPositionStorage wps = (WindowPositionStorage) appHandler;
+            win_x = wps.getWindowPosLeft(webSess);
+            win_y = wps.getWindowPosTop(webSess);
+        }
+        if (appHandler instanceof WindowSizeStorage) {
+            WindowSizeStorage wss = (WindowSizeStorage) appHandler;
+            win_width = wss.getWindowWidth(webSess);
+            win_height = wss.getWindowHeight(webSess);
+        }
+        
+        if ((win_x == null) || win_x.equals("")) {
+            win_x = "" + DefaultContentAppHandler.WINDOW_DEFAULT_POSITION_X;
+        }
+        if ((win_y == null) || win_y.equals("")) { 
+            win_y = "" + DefaultContentAppHandler.WINDOW_DEFAULT_POSITION_Y;
+        }
         String fix_pos_js = "fixWinPos('" + win_x + "', '" + win_y + "');";
         if (DocConstants.DEBUG) {
             System.out.println(fix_pos_js);
         }
+        
         if (win_width == null) win_width = "";
         if (win_height == null) win_height = "";
         String fix_size_js = "";
@@ -132,7 +151,10 @@ public class EditComposer implements Composer
             }
         }
 
-        Clients.evalJavaScript("setUnloadMsg('Discard any unsaved changes?');" + fix_size_js + fix_pos_js);
+        String unload_js = "setUnloadMsg('" + 
+                           webSess.getLabel("confirm.discard_unsaved").replace("'", " ") +
+                           "');";
+        Clients.evalJavaScript(unload_js + fix_size_js + fix_pos_js);
     }
 
 }

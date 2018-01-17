@@ -147,13 +147,16 @@
 </head>
 <body>
 <%
-    if (! showImages) {
-        ImageURLTransformer transformer = new ImageURLTransformer_Constant("");
-        String html = buf.toString();
-        buf.setLength(0);
-        DocmaAppUtil.transformImageURLs(html, transformer, buf);
-    }
-    out.print(buf.toString());
+            if (! showImages) {
+                ImageURLTransformer transformer = new ImageURLTransformer_Constant("");
+                String html = buf.toString();
+                buf.setLength(0);
+
+                // Remove image URLs:
+                // DocmaAppUtil.transformImageURLs(html, transformer, buf);
+                FileRefsProcessor.process(html, buf, null, transformer, null);
+            }
+            out.print(buf.toString());
 %>
 </body>
 </html>
@@ -238,7 +241,8 @@
                 transformer = new ImageURLTransformer_Constant(""); // hide images
             }
             buf.setLength(0);
-            DocmaAppUtil.transformImageURLs(sout.toString(), transformer, buf);
+            // DocmaAppUtil.transformImageURLs(sout.toString(), transformer, buf);
+            FileRefsProcessor.process(sout.toString(), buf, null, transformer, null);
 
             // Skip XML declaration and DOCTYPE
             int p = 0;

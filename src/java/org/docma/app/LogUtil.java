@@ -58,6 +58,18 @@ public class LogUtil
         }
     }
     
+    public static void addInfo(ExportLog log, 
+                               String content, 
+                               int pos_start, 
+                               int pos_end, 
+                               String message_key, 
+                               Object... args)
+    {
+        if ((log != null) && (content != null)) {
+            log.info(getContentContext(content, pos_start, pos_end), message_key, args);
+        }
+    }
+    
     public static void addWarning(ExportLog log, 
                                   StringBuilder content, 
                                   int pos_start, 
@@ -70,8 +82,32 @@ public class LogUtil
         }
     }
     
+    public static void addWarning(ExportLog log, 
+                                  String content, 
+                                  int pos_start, 
+                                  int pos_end, 
+                                  String message_key, 
+                                  Object... args)
+    {
+        if ((log != null) && (content != null)) {
+            log.warning(getContentContext(content, pos_start, pos_end), message_key, args);
+        }
+    }
+    
     public static void addError(ExportLog log, 
                                 StringBuilder content, 
+                                int pos_start, 
+                                int pos_end, 
+                                String message_key, 
+                                Object... args)
+    {
+        if ((log != null) && (content != null)) {
+            log.error(getContentContext(content, pos_start, pos_end), message_key, args);
+        }
+    }
+
+    public static void addError(ExportLog log, 
+                                String content, 
                                 int pos_start, 
                                 int pos_end, 
                                 String message_key, 
@@ -115,7 +151,125 @@ public class LogUtil
         }
     }
 
+    /**
+     * See also <code>getContentContext(String, ...)</code>.
+     * 
+     * @param content
+     * @param cont_start
+     * @param cont_end
+     * @return  extract of content for log output
+     */
     private static String getContentContext(StringBuilder content, int cont_start, int cont_end)
+    {
+        if (cont_start < 0) {
+            cont_start = 0;
+        }
+        if (cont_end < cont_start) {
+            cont_end = cont_start;
+        }
+        
+        // Find previous header (h1...h6).
+        final String HPATTERN = "<h";
+        int pos = cont_start - HPATTERN.length() - 1;
+        int hpos = 0;
+        boolean header_found = false;
+        while (pos >= 0) {
+            hpos = content.lastIndexOf(HPATTERN, pos);
+            if (hpos < 0) {
+                break;
+            }
+            if (Character.isDigit(content.charAt(hpos + HPATTERN.length()))) {
+                header_found = true;
+                break;
+            }
+            pos = hpos - 1;
+        }
+        
+        // Extract header text
+        String htxt = null;
+        if (header_found) {
+            int txtstart = content.indexOf(">", hpos);
+            if (txtstart > 0) {
+                int txtend = content.indexOf("</h", txtstart);
+                if (txtend > 0) {
+                    final int MAX_POS = txtstart + 200;
+                    if (txtend > MAX_POS) {
+                        htxt = content.substring(txtstart + 1, MAX_POS) + "...";
+                    } else {
+                        htxt = content.substring(txtstart + 1, txtend);
+                    }
+                }
+            }
+        }
+        
+        final int CONTEXT_SIZE = 24;  // Show at least 24 characters before and after the given position
+        int ctx_start = Math.max(0, cont_start - CONTEXT_SIZE);
+        int ctx_end = Math.min(content.length(), cont_end + CONTEXT_SIZE);
+        
+        // Search tag boundary within previous 32 characters 
+        for (int i = 0; i < 32; i++) {
+            if (ctx_start == 0) {
+                break;
+            }
+            char ch = content.charAt(ctx_start);
+            // if (ch == '<') {
+            //     break;
+            // }
+            if (ch == '>') {
+                ctx_start++;
+                break;
+            }
+            ctx_start--;
+        }
+        
+        // Search end of tag within next 20 characters 
+        for (int i = 0; i < 20; i++) {
+            if (ctx_end >= content.length()) {
+                break;
+            }
+            char ch = content.charAt(ctx_end++);
+            if (ch == '>') {
+                break;
+            }
+        }
+        
+        // Append header text
+        int bufsize = 50 + (ctx_end - ctx_start) + ((htxt == null) ? 0 : htxt.length());
+        StringBuilder sb = new StringBuilder(bufsize);
+        sb.append("At position ");
+        if (htxt != null) {
+            sb.append("[").append(htxt).append("] ");
+        }
+        
+        // Append content context
+        sb.append("...");
+        pos = ctx_start;
+        while (pos < ctx_end) {
+            char ch = content.charAt(pos++);
+            if (Character.isWhitespace(ch)) {
+                    sb.append(' ');
+            } else {
+                    sb.append(ch);
+            }
+        }
+        sb.append("...");
+        
+        return sb.toString();
+    }
+
+    /**
+     * Quick and dirty implementation: this is a copy of the 
+     * <code>getContentContext(StringBuilder content, ...)</code>
+     * method, but uses <code>String</code> instead of 
+     * <code>StringBuilder</code>. To reduce code redundancy, this should be
+     * replaced by using a callback interface.
+     * 
+     * @param content
+     * @param cont_start
+     * @param cont_end
+     * @return  extract of content for log output
+     */
+    private static String getContentContext(String content, int cont_start, int cont_end)
     {
         if (cont_start < 0) {
             cont_start = 0;

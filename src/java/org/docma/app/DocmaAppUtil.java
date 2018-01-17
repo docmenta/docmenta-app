@@ -676,40 +676,6 @@ public class DocmaAppUtil
         return applics;
     }
 
-    public static void transformImageURLs(String html,
-                                          ImageURLTransformer transformer,
-                                          StringBuilder out)
-    {
-        final String MATCH_IMGSRC = " src=\"image/";
-
-        int copy_pos = 0;
-        int pos = 0;
-        while (true) {
-            pos = html.indexOf("<img ", pos);
-            if (pos < 0) break;
-            pos += 4;
-            int pos2 = html.indexOf(MATCH_IMGSRC, pos);
-            if (pos2 < 0) break;
-            int alias_start = pos2 + MATCH_IMGSRC.length();
-            int alias_end = html.indexOf('"', alias_start);
-            if (alias_end < 0) break;
-
-            String img_alias = html.substring(alias_start, alias_end);
-            String new_url = transformer.getImageURLByAlias(img_alias);
-            if (new_url != null) {
-                out.append(html.substring(copy_pos, pos2));
-                out.append(" src=\"").append(new_url);
-
-                copy_pos = alias_end;
-            }
-
-            pos = alias_end;
-        }
-        if (copy_pos < html.length()) {
-            out.append(html.substring(copy_pos));
-        }
-    }
-
     /**
      * Get HTML preview of node. E.g. used for diffing of nodes.
      * 

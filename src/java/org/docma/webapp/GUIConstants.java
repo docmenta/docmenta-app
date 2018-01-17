@@ -48,8 +48,9 @@ public class GUIConstants
     public static final String PROP_USER_PREVIEW_OUTCONF_HTML = "previewoutconfhtml";
     public static final String PROP_USER_PREVIEW_OUTCONF_PDF = "previewoutconfpdf";
     public static final String PROP_USER_PREVIEW_PATH_OPENED = "previewpath.opened";
-    public static final String PROP_USER_EDIT_WIN_WIDTH = DefaultContentAppHandler.USER_PROPERTY_EDIT_WIN_WIDTH;
-    public static final String PROP_USER_EDIT_WIN_HEIGHT = DefaultContentAppHandler.USER_PROPERTY_EDIT_WIN_HEIGHT;
+    public static final String PROP_USER_PREVIEW_SOURCE = "preview.source";
+    // public static final String PROP_USER_EDIT_WIN_WIDTH = DefaultContentAppHandler.USER_PROPERTY_EDIT_WIN_WIDTH;
+    // public static final String PROP_USER_EDIT_WIN_HEIGHT = DefaultContentAppHandler.USER_PROPERTY_EDIT_WIN_HEIGHT;
     public static final String PROP_USER_IMAGE_PREVIEW_MODE = "imagepreviewmode";
     public static final String PROP_USER_EDITOR_ID = "editor.id";
     public static final String PROP_USER_TXT_EDITOR_ID = "txteditor.id";
@@ -65,7 +66,7 @@ public class GUIConstants
     public static final String IMAGE_PREVIEW_MODE_GALLERY_BIG = "gallery_big";
     public static final String IMAGE_PREVIEW_MODE_LIST = "list";
     public static final String IMAGE_PREVIEW_MODE_LIST_BIG = "list_big";
-    public static final String CONTENT_EDITOR_DEFAULT_ID = "tinymce_3_5_11_b";
+    public static final String CONTENT_EDITOR_DEFAULT_ID = "tinymce_3_5_11_c";
     public static final String TEXT_EDITOR_DEFAULT_ID = "internal_text_editor";
 
 }

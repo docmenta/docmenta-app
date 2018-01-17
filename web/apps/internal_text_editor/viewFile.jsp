@@ -12,6 +12,8 @@
 div.docma_msg { margin: 1em; }
 .labeltxt { font-size:12px; }
 .hint_msg { color:#909090; }
+.comment { }
+.commentHidden { display:none; }
 #filenameBox { float: left; font-weight:bold; font-size: 13px; }
 #commentBox { float: right; color:#909090; }
 #docmaPlugToolbar { margin-right: 14px; }
@@ -84,11 +86,24 @@ div.docma_msg { margin: 1em; }
         start_edit = false;
         readonly_msg = ex.getLocalizedMessage();
     }
+    
+    String unsaved_msg = webSess.getLabel("confirm.discard_unsaved").replace('"', ' ');
 %>
 <script type="text/javascript">
     var currentStatus = 'view';
     var closeAfterSave = false;
+    var reselectAfterSave = false;
     var isWin = <%= iswin ? "true" : "false" %>;
+
+    function isUnsaved() {
+        return (currentStatus == 'edit') && getEditTxtFrame().isContentChanged();
+    }
+
+    function doBeforeUnload() {
+        if (isUnsaved()) {
+            return "<%= unsaved_msg %>";
+        }
+    }
 
     function initAfterLoad() {
       <%=  start_edit ? "doEdit();" : "switchToViewMode();" %>
@@ -114,14 +129,16 @@ div.docma_msg { margin: 1em; }
             document.forms["btnform"].openWinBtn.style.display = 'none';
         }
         currentStatus = 'edit';
-        document.getElementById("commentBox").style.visibility = 'hidden';
+        document.getElementById("commentBox").className = 'commentHidden';
+        
+        window.onbeforeunload = doBeforeUnload;
     }
 <% 
   }
 %>
-    function doSave() {
+    function startSave() {
         getEditTxtFrame().docmaBeforeSave();
-        var editform = window.frames['edit_txt_frame'].document.forms["editform"];
+        var editform = getEditTxtFrame().document.forms["editform"];
         var sel = document.forms["btnform"].file_encoding;
         editform.charset_name.value = sel.options[sel.selectedIndex].value;
         editform.submit();
@@ -129,14 +146,27 @@ div.docma_msg { margin: 1em; }
         if (isWin) {
           document.forms["btnform"].saveCloseBtn.disabled = true;
         }
+    }
+    
+    function doSave() {
         closeAfterSave = false;
+        reselectAfterSave = false;
+        startSave();
     }
     
     function doSaveAndClose() {
-        doSave();
         closeAfterSave = true;
+        reselectAfterSave = false;
+        startSave();
     }
 
+    function saveAndReselect() 
+    {
+        closeAfterSave = false;
+        reselectAfterSave = true;
+        startSave();
+    }
+    
     function doClose() {
         // if (currentStatus == 'edit') {
         //     var check = window.confirm("Close without saving?");
@@ -145,8 +175,8 @@ div.docma_msg { margin: 1em; }
         window.close();
     }
 
-    function cancelEdit()
-    {
+    function cancelEdit() {
+        window.onbeforeunload = null;  // disable unsaved changes message 
         window.location.replace('<%= self_url %>');
     }
     
@@ -171,13 +201,14 @@ div.docma_msg { margin: 1em; }
             return;
         }
 
-
+        // Save was successful
         if (isWin) {
             setLabelMsg(window.frames['filesave_frm'].getSaveMsg());
             window.setTimeout("setLabelMsg('')", 10000);  // clear after 10 sec
         } else {
             switchToViewMode();
         }
+        getEditTxtFrame().docmaAfterSave();
 
         var main_win;
         if (isWin) {
@@ -199,6 +230,11 @@ div.docma_msg { margin: 1em; }
             }
         }
         
+        if (reselectAfterSave) {
+            reselectAfterSave = false;
+            main_win.reselectTreeNode();
+        }
+        
         if (closeAfterSave) {
             doClose();
         }
@@ -218,7 +254,7 @@ div.docma_msg { margin: 1em; }
             document.forms["btnform"].openWinBtn.style.display = 'inline';
         }
         currentStatus = 'view';
-        document.getElementById("commentBox").style.visibility = 'visible';
+        document.getElementById("commentBox").className = 'comment';
     }
 
     function changeEncoding() {
@@ -285,12 +321,12 @@ div.docma_msg { margin: 1em; }
 <tr>
     <td height="28" valign="middle" style="padding:4px 5px 4px 5px; border-bottom:1px solid #D0D0D0;">
         <div id="filenameBox"><%= displayTitle %></div>
-        <div id="commentBox"><%= editComment %></div>
+        <div id="commentBox" class="commentHidden"><%= editComment %></div>
     </td>
 </tr>
 <tr>
     <td style="padding:0 0 1px 0; width:100%;">
-        <iframe name="edit_txt_frame" src="<%= content_url %>" width="100%" height="100%"></iframe>
+        <iframe name="edit_txt_frame" src="<%= content_url %>" width="100%" height="100%" style="border-width:1px;"></iframe>
     </td>
 </tr>
 <tr>

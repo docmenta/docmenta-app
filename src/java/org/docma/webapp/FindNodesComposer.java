@@ -842,16 +842,18 @@ public class FindNodesComposer extends SelectorComposer<Component> implements Li
     {
         String sterm = searchTermBox.getValue().trim();
         DocI18n i18n = docmaSess.getI18n();
+        boolean allowReplace = true;
         String txt;
         if (mode == MODE_REFERENCING_ALIAS) {
             txt = i18n.getLabel("label.findnodes.replace_refs.summary", sterm);
         } else if (mode == MODE_STYLE) {
             txt = i18n.getLabel("label.findnodes.replace_style.summary", sterm);
         } else {
+            allowReplace = false;
             txt = "";
         }
         Integer cnt = resultListbox.getSelectedCount();
-        boolean visible = !sterm.equals("");
+        boolean visible = allowReplace && !sterm.equals("");
         replaceBar.setVisible(visible);
         replaceTextbox.setDisabled(! visible);
         replaceBtn.setDisabled(cnt == 0);

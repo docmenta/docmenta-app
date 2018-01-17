@@ -1,5 +1,5 @@
 <%@page contentType="text/html" pageEncoding="UTF-8" session="true"
-        import="java.io.*,org.docma.util.*,org.docma.webapp.*,org.docma.app.*,org.zkoss.zul.*,org.zkoss.zkplus.embed.*"
+        import="java.io.*,org.docma.util.*,org.docma.webapp.*,org.docma.app.*,org.docma.coreapi.*,org.zkoss.zul.*,org.zkoss.zkplus.embed.*"
 %><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
@@ -32,22 +32,19 @@
                                          "&nodeid=" + nodeid +
                                          "&stamp=" + System.currentTimeMillis());
 
-    String serv_url = "servmedia/" + docmaSess.getSessionId() + "/" +
-                      docmaSess.getStoreId() + "/" + docmaSess.getVersionId() +
-                      "/" + docmaSess.getLanguageCode();
-
-    DocmaNode node = docmaSess.getNodeById(nodeid);
-
     Menupopup contextMenu = MenuUtil.createFileViewContextMenu(docmaWebSess);
     String contextMenuId = contextMenu.getId();
     int contextItemCount = contextMenu.getChildren().size();
+
+    DocmaNode node = docmaSess.getNodeById(nodeid);
+    DocI18n i18n = docmaSess.getI18n();
 %>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <meta http-equiv="expires" content="0" />
 <meta http-equiv="cache-control" content="no-cache" />
 <meta http-equiv="pragma" content="no-cache" />
-<title>Image folder</title>
+<title>Media folder</title>
 <style type="text/css">
 body {background: #EAEAEA; margin:0px 15px 8px 15px; }
 form {padding:0; margin:0;}
@@ -107,72 +104,84 @@ table.toolbar { width:100%; margin-bottom:4px; position:fixed; top:0px; left:0px
       <form name="filelistform" style="margin:45px 0 0 0; padding:0;">
 <%
         if (isList) {
+            String head_fn_title = i18n.getLabel("folder.column_header.filename") + " / " + 
+                                   i18n.getLabel("folder.column_header.title");
 %>
           <table border="0" cellspacing="2" cellpadding="0" width="100%" style="width:100%;">
               <tr oncontextmenu="return showDocmaContext(event);">
-                  <th width="*" colspan="2">Alias / Title</th>
-                  <% if (isTransMode) out.print("<th width=\"20\">Lang</th>"); %>
-                  <th width="30">Format</th>
-                  <th width="50">Size</th>
-                  <th width="<%= thumbDim.getBoxWidth() %>">Preview</th>
+                  <th width="*" colspan="2"><%= head_fn_title %></th>
+                  <% 
+                      if (isTransMode) { 
+                          out.print("<th width=\"20\">");
+                          out.print(i18n.getLabel("folder.column_header.lang"));
+                          out.print("</th>");
+                      }
+                  %>
+                  <th><%= i18n.getLabel("folder.column_header.alias") %></th>
+                  <th width="50"><%= i18n.getLabel("folder.column_header.filesize") %></th>
+                  <th width="<%= thumbDim.getBoxWidth() %>"><%= i18n.getLabel("folder.column_header.preview") %></th>
               </tr>
 <%
         }
+
+        String serv_url = docmaWebSess.getServMediaBasePath();
         int cnt = 0;
         long total_size = 0;
-        for (int i=0; i < node.getChildCount(); i++) {
-            DocmaNode imgnode = node.getChild(i);
-            String child_id = imgnode.getId();
+        int child_count = node.getChildCount();
+        for (int i=0; i < child_count; i++) {
+            WebFolderEntry fe = new WebFolderEntry(node.getChild(i), deskid, serv_url);
+            String row_cls = "row_normal"; // ((cnt % 2) == 0) ? "row_even" : "row_odd";
+            String child_id = fe.getNodeId();
             String pos_id = "pos_" + child_id;
-            if (imgnode.isImageContent()) {
+            if (fe.isImage() || fe.isFile()) {
                 cnt++;
-                long img_size = imgnode.getContentLength();
-                String img_size_str = DocmaUtil.formatByteSize(img_size);
-                total_size += img_size;
-                java.util.Date lastmoddate = imgnode.getLastModifiedDate();
-                long lastmod = (lastmoddate != null) ? lastmoddate.getTime() : System.currentTimeMillis();
-                String alias = imgnode.getAlias();
-                String applic = imgnode.getApplicability();
-                String title = imgnode.getTitleEntityEncoded();
-                if (title == null) title = "";
-                String cont_filename = imgnode.getDefaultFileName();
-                String thumb_url = response.encodeURL("thumb.jsp?desk=" + deskid +
-                                                      "&nodeid=" + child_id +
-                                                      "&lastmod=" + lastmod + 
-                                                      "&size=" + thumbDim.getSize());
-                String open_url = response.encodeURL("image.jsp?desk=" + deskid +
-                                                     "&nodeid=" + child_id +
-                                                     "&lastmod=" + lastmod);
-                String download_url = response.encodeURL(serv_url + "/download/" +
-                                                         child_id + "/" +
-                                                         lastmod + "/" +
-                                                         cont_filename);
+                total_size += fe.getFileSize();
+
+                String download_url = response.encodeURL(fe.getDownloadURL());
+                String preview_tag = "";
+                String img_title = "";
+                if (fe.isImage()) {
+                    String thumb_url = response.encodeURL(fe.getThumbURL(thumbDim));
+                    String img_url = response.encodeURL(fe.getImgURL());
+                    img_title = fe.getTitleEntityEncoded();
+                    String titleAtt = img_title.equals("") ? 
+                        "" : ("title=\"" + img_title.replace('"', ' ').replace('\\', ' ') + "\" ");
+                    preview_tag = "<a href=\"" + img_url + 
+                                  "\" target=\"_blank\"><img src=\"" + thumb_url + 
+                                  "\" " + titleAtt + "/></a>";
+                } else if (fe.isVideo()) {
+                    preview_tag = "<video src=\"" + download_url + "\" width=\"" + 
+                                  thumbDim.getSize() + 
+                                  "\" preload=\"metadata\" controls=\"controls\" ></video>";
+                }
+                String langstr = null;
+                if (isTransMode) {
+                    langstr = fe.isTranslated() ? lang.toUpperCase() : "-";
+                }
+
                 if (isList) {
-                    String format = imgnode.getFileExtension();
-                    if (format == null) format = "";
-                    if (format.startsWith(".")) format = format.substring(1);
-                    format = format.toUpperCase();
+                    String title_tag = "";
+                    if (! img_title.equals("")) {
+                        title_tag = "<span class=\"imgtitle\">" + img_title + "</span>";
+                    }
 %>
-<tr class="row_normal" id="node_<%= child_id %>" ondblclick="dblClickRow('<%= child_id %>')"
+<tr class="<%= row_cls %>" id="node_<%= child_id %>" ondblclick="dblClickRow('<%= child_id %>')"
     onmouseover="enterRow(this)" onmouseout="leaveRow(this, true)" oncontextmenu="return showDocmaNodeContext('<%= child_id %>', event);">
     <td class="fecell" width="20"><input type="checkbox" name="selbox" value="<%= child_id %>"
         onclick="return changeSelection('<%= child_id %>', event);"/></td>
     <td class="fecell" onclick="selectClick('<%= child_id %>', event);"><a class="fileref" 
-        href="<%= download_url %>"><%= alias %></a>&nbsp;<a class="blindlink"
+        href="<%= download_url %>"><%= fe.getFileName() %></a>&nbsp;<a class="blindlink"
         href="javascript:editProps('<%= child_id %>');"><img src="img/edit_props.gif" height="17" border="0"
-        style="vertical-align:text-bottom;" title="Edit properties" alt="Edit properties" />&nbsp;</a><br />
-    <span class="imgtitle"><%= title %></span></td>
+        style="vertical-align:text-bottom;" title="Edit properties" alt="Edit properties" />&nbsp;</a><br /><%= title_tag %></td>
     <%
         if (isTransMode) {
-            String langstr = imgnode.isTranslated() ? lang.toUpperCase() : "-";
             out.print("<td class=\"fecell\">" + langstr + "</td>");
         }
     %>
-    <td class="fecell" onclick="selectClick('<%= child_id %>', event);"><%= format %></td>
-    <td class="fecell" onclick="selectClick('<%= child_id %>', event);"><%= img_size_str %></td>
+    <td class="fecell" onclick="selectClick('<%= child_id %>', event);"><%= fe.getAlias() %></td>
+    <td class="fecell" onclick="selectClick('<%= child_id %>', event);"><%= fe.getFileSizeFormatted() %></td>
     <td class="fecell" align="center">
-        <div class="listpic"><a name="<%= pos_id %>" id="<%= pos_id %>"></a><a
-             href="<%= open_url %>" target="_blank"><img src="<%= thumb_url %>" /></a></div>
+        <div class="listpic"><a name="<%= pos_id %>" id="<%= pos_id %>"></a><%= preview_tag %></div>
     </td>
 </tr>
 <%
@@ -180,10 +189,8 @@ table.toolbar { width:100%; margin-bottom:4px; position:fixed; top:0px; left:0px
 %>
 <div class="pic" id="node_<%= child_id %>" ondblclick="dblClickRow('<%= child_id %>')"
      oncontextmenu="return showDocmaNodeContext('<%= child_id %>', event);"><ul>
-<li class="title"><a href="<%= download_url %>" class="fileref"><%= alias %></a></li>
-</ul><div class="viewport" align="center"><a name="<%= pos_id %>" id="<%= pos_id %>"></a><a
-    href="<%= open_url %>" target="_blank"><img src="<%= thumb_url %>"
-    title="<%= title.replace('"', ' ').replace('\\', ' ') %>" /></a></div>
+<li class="title"><a href="<%= download_url %>" class="fileref"><%= fe.getFileName() %></a></li>
+</ul><div class="viewport" align="center"><a name="<%= pos_id %>" id="<%= pos_id %>"></a><%= preview_tag %></div>
     <div class="picfoot"><input type="checkbox" name="selbox" value="<%= child_id %>"
         onclick="return changeSelection('<%= child_id %>', event);" /></div><%-- <ul>
 <li class="imgsize"><%= img_size_str %></li>
@@ -203,11 +210,11 @@ table.toolbar { width:100%; margin-bottom:4px; position:fixed; top:0px; left:0px
   <div width="100%" oncontextmenu="return showDocmaContext(event);" style="text-align:left;" >
     <table style="clear: both; margin-top: 0.8em;">
       <tr>
-          <td class="summary" align="right">Number of Files:</td>
+          <td class="summary" align="right"><%= i18n.getLabel("folder.number_of_files") %>:</td>
           <td class="summary" style="padding-left:3px;"><%= cnt %></td>
       </tr>
       <tr>
-          <td class="summary" align="right">Total size:</td>
+          <td class="summary" align="right"><%= i18n.getLabel("folder.total_filesize") %>:</td>
           <td class="summary" style="padding-left:3px;"><%= DocmaUtil.formatByteSize(total_size) %></td>
       </tr>
     </table>

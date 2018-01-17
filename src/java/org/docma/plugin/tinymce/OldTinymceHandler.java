@@ -14,6 +14,7 @@
 package org.docma.plugin.tinymce;
 
 import java.io.File;
+import java.net.URLEncoder;
 import java.util.Properties;
 import javax.servlet.http.HttpSession;
 import org.docma.plugin.CharEntity;
@@ -21,6 +22,9 @@ import org.docma.plugin.CharEntity;
 import org.docma.plugin.Node;
 import org.docma.plugin.Lock;
 import org.docma.plugin.User;
+import org.docma.plugin.internals.EmbeddedContentEditor;
+import org.docma.plugin.internals.WindowPositionStorage;
+import org.docma.plugin.internals.WindowSizeStorage;
 import org.docma.plugin.web.ButtonType;
 import org.docma.plugin.web.ContentAppHandler;
 import org.docma.plugin.web.DefaultContentAppHandler;
@@ -33,8 +37,17 @@ import org.docma.plugin.web.WebUserSession;
  *
  * @author MP
  */
-public class OldTinymceHandler implements ContentAppHandler
+public class OldTinymceHandler implements ContentAppHandler, EmbeddedContentEditor, 
+                                          WindowSizeStorage, WindowPositionStorage
 {
+    // HTTP session attributes used to store the window position. 
+    public static final String ATTRIBUTE_EDITOR_POS_X = WebUserSession.class.getName() + ".editor_pos_x";
+    public static final String ATTRIBUTE_EDITOR_POS_Y = WebUserSession.class.getName() + ".editor_pos_y";
+    
+    // User properties used to store the window size.
+    public static final String USER_PROPERTY_EDIT_WIN_WIDTH = "editwin.width";
+    public static final String USER_PROPERTY_EDIT_WIN_HEIGHT = "editwin.height";
+    
     private File webBasePath;
     private File contentAppPath;
     private String contentAppRelativePath;
@@ -94,8 +107,8 @@ public class OldTinymceHandler implements ContentAppHandler
             String usr_id = lock.getUserId();
             if ((usr_id != null) && usr_id.equals(sessUser.getId())) {
                 webSess.showMessage(
-                    "This content is already locked by you! Continue?", 
-                    "Continue?", MessageType.QUESTION, 
+                    webSess.getLabel("text.confirm_self_locked"), 
+                    webSess.getLabel("question.continue"), MessageType.QUESTION, 
                     new ButtonType[] { ButtonType.OK, ButtonType.CANCEL }, 
                     ButtonType.OK, 
                     new UIListener() {
@@ -119,14 +132,14 @@ public class OldTinymceHandler implements ContentAppHandler
                 } else {
                     usr_name = "'" + usr_name + "' [" + usr_id + "]";
                 }
-                webSess.showMessage("This content is locked by user " + usr_name + ".");
+                webSess.showMessage(webSess.getLabel("text.locked_by_user", usr_name));
                 return;
             }
         }
         
         // Set lock
         if (! node.setLock()) {
-            webSess.showMessage("Could not set lock! Content may be locked by another user.");
+            webSess.showMessage(webSess.getLabel("text.could_not_set_lock"));
             return;
         }
         openEditWindow(webSess, sessUser, nodeId);
@@ -142,20 +155,110 @@ public class OldTinymceHandler implements ContentAppHandler
         tinyEntities.setCharEntities(entities);
     }
  
+    /* -------------   Interface EmbeddedContentEditor --------------- */
+
+    public String getIFrameURL(WebUserSession webSess, String nodeId)
+    {
+        return "tinymce_editor/iframe_content.jsp?docsess=" + webSess.getSessionId() + 
+               "&nodeid=" + nodeId + "&appid=" + urlEncode(getApplicationId());
+    }
+    
+    /* -------------   Interface WindowSizeStorage --------------- */
+    
+    public String getWindowWidth(WebUserSession webSess)
+    {
+        User sessUser = webSess.getUser();
+        String win_width = sessUser.getProperty(USER_PROPERTY_EDIT_WIN_WIDTH);
+        if ((win_width == null) || win_width.equals("")) {
+            win_width = "" + DefaultContentAppHandler.WINDOW_DEFAULT_WIDTH;
+        }
+        return win_width;
+    }
+
+    public String getWindowHeight(WebUserSession webSess)
+    {
+        User sessUser = webSess.getUser();
+        String win_height = sessUser.getProperty(USER_PROPERTY_EDIT_WIN_HEIGHT);
+        if ((win_height == null) || win_height.equals("")) {
+            win_height = "" + DefaultContentAppHandler.WINDOW_DEFAULT_HEIGHT;
+        }
+        return win_height;
+    }
+
+    public void setWindowSize(WebUserSession webSess, String win_width, String win_height)
+    {
+        if (win_width == null) win_width = "";
+        if (win_height == null) win_height = "";
+        try {
+            // Save window size as user property:
+            User usr = webSess.getUser();
+            String old_width = usr.getProperty(USER_PROPERTY_EDIT_WIN_WIDTH);
+            String old_height = usr.getProperty(USER_PROPERTY_EDIT_WIN_HEIGHT);
+            if (! (win_width.equals(old_width) && win_height.equals(old_height))) {
+                String[] p_names = { USER_PROPERTY_EDIT_WIN_WIDTH, USER_PROPERTY_EDIT_WIN_HEIGHT };
+                String[] p_vals = { win_width, win_height };
+                usr.setProperties(p_names, p_vals);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+    
+    /* -------------   Interface WindowPositionStorage --------------- */
+
+    public String getWindowPosLeft(WebUserSession webSess)
+    {
+        HttpSession hsess = webSess.getHttpSession();
+        Object posx = hsess.getAttribute(ATTRIBUTE_EDITOR_POS_X);
+        return (posx instanceof Integer) ? posx.toString() : "" + DefaultContentAppHandler.WINDOW_DEFAULT_POSITION_X;
+    }
+
+    public String getWindowPosTop(WebUserSession webSess)
+    {
+        HttpSession hsess = webSess.getHttpSession();
+        Object posy = hsess.getAttribute(ATTRIBUTE_EDITOR_POS_Y);
+        return (posy instanceof Integer) ? posy.toString() : "" + DefaultContentAppHandler.WINDOW_DEFAULT_POSITION_Y;
+    }
+    
+    public void setWindowPos(WebUserSession webSess, String win_xpos, String win_ypos)
+    {
+        if (win_xpos == null) win_xpos = "";
+        if (win_ypos == null) win_ypos = "";
+        try {
+            // Save window position in session object
+            if (! (win_xpos.equals("") || win_ypos.equals(""))) {
+                HttpSession hsess = webSess.getHttpSession();
+                hsess.setAttribute(ATTRIBUTE_EDITOR_POS_X, new Integer(win_xpos));
+                hsess.setAttribute(ATTRIBUTE_EDITOR_POS_Y, new Integer(win_ypos));
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
     /* -------------   Other methods   --------------- */
+    
+    private String urlEncode(String s) 
+    {
+        try {
+            return URLEncoder.encode(s, "UTF-8");
+        } catch (Exception ex) {
+            return s;
+        }
+    }
     
     private void openEditWindow(WebUserSession webSess, User sessUser, String nodeId)
     {
         // Get editor position 
         HttpSession hsess = webSess.getHttpSession();
-        Object posx = hsess.getAttribute(DefaultContentAppHandler.ATTRIBUTE_EDITOR_POS_X);
-        Object posy = hsess.getAttribute(DefaultContentAppHandler.ATTRIBUTE_EDITOR_POS_Y);
+        Object posx = hsess.getAttribute(ATTRIBUTE_EDITOR_POS_X);
+        Object posy = hsess.getAttribute(ATTRIBUTE_EDITOR_POS_Y);
         int win_left = (posx instanceof Integer) ? (Integer) posx : DefaultContentAppHandler.WINDOW_DEFAULT_POSITION_X;
         int win_top = (posy instanceof Integer) ? (Integer) posy : DefaultContentAppHandler.WINDOW_DEFAULT_POSITION_Y;
         
         // Get editor width and height
-        String win_width = sessUser.getProperty(DefaultContentAppHandler.USER_PROPERTY_EDIT_WIN_WIDTH);
-        String win_height = sessUser.getProperty(DefaultContentAppHandler.USER_PROPERTY_EDIT_WIN_HEIGHT);
+        String win_width = sessUser.getProperty(USER_PROPERTY_EDIT_WIN_WIDTH);
+        String win_height = sessUser.getProperty(USER_PROPERTY_EDIT_WIN_HEIGHT);
         if ((win_width == null) || win_width.equals("")) {
             win_width = "" + DefaultContentAppHandler.WINDOW_DEFAULT_WIDTH;
         }
@@ -165,7 +268,7 @@ public class OldTinymceHandler implements ContentAppHandler
         
         // Desktop desk = getDesktop();
         String sessId = webSess.getSessionId();
-        String edit_url = webSess.encodeURL("tinyedit.zul?docsess=" + sessId +
+        String edit_url = webSess.encodeURL("edit.zul?docsess=" + sessId +
                           "&nodeid=" + nodeId + "&appid=" + getApplicationId());
         // String win_name = "docmawin_" + docmaSess.getStoreId() + "_" + docmaSess.getVersionId() +
         //                   "_" + node.getId();

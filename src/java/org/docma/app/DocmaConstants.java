@@ -32,16 +32,16 @@ public class DocmaConstants
     public static final boolean DEBUG = DocConstants.DEBUG;
     public static final String DEBUG_DIR = DocConstants.DEBUG_DIR;
     public static final String DISPLAY_APP_SHORTVERSION = "1.9";
-    public static final String DISPLAY_APP_VERSION = "1.9.1";
+    public static final String DISPLAY_APP_VERSION = "1.9.2beta";
     public static final String DISPLAY_APP_SHORTNAME = "Docmenta";
     public static final String DISPLAY_APP_NAME_BASEEDITION = "Docmenta Publishing System";
-    public static final String DISPLAY_APP_COPYRIGHT = "\u00A9 2017";
+    public static final String DISPLAY_APP_COPYRIGHT = "\u00A9 2018";
     public static final String DISPLAY_APP_HOMEPAGE = "http://www.docmenta.org";
     public static final String DISPLAY_APP_EMAIL = "info@docmenta.org";
     public static final String DISPLAY_APP_CREDIT = "Produced with " + 
                                                     DISPLAY_APP_NAME_BASEEDITION +
                                                     " V" + DISPLAY_APP_SHORTVERSION + 
-                                                    " &#169; 2017 (www.docmenta.org)";
+                                                    " &#169; 2018 (www.docmenta.org)";
 
     //
     // Application properties

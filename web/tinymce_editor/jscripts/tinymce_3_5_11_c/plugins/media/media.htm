@@ -37,7 +37,7 @@
 								<td>
 									<table role="presentation" border="0" cellspacing="0" cellpadding="0">
 									<tr>
-										<td><input id="src" name="src" type="text" value="" class="mceFocus" onchange="Media.formToData();" /></td>
+										<td><input id="src" name="src" type="text" value="file/" class="mceFocus" onchange="Media.formToData();" /></td>
 										<td id="filebrowsercontainer">&nbsp;</td>
 									</tr>
 									</table>
@@ -156,9 +156,9 @@
 							<td><label for="video_preload">{#media_dlg.preload}</label></td>
 							<td>
 								<select id="video_preload" name="video_preload" onchange="Media.formToData();">
-									<option value="none">{#media_dlg.preload_none}</option> 
 									<option value="metadata">{#media_dlg.preload_metadata}</option>
 									<option value="auto">{#media_dlg.preload_auto}</option>
+									<option value="none">{#media_dlg.preload_none}</option> 
 								</select>
 							</td>
 						</tr>

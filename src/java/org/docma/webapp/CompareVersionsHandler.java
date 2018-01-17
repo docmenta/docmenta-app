@@ -25,7 +25,7 @@ import org.zkoss.zul.Messagebox;
  */
 public class CompareVersionsHandler
 {
-    private MainWindow mainwin;
+    private final MainWindow mainwin;
 
 
     public CompareVersionsHandler(MainWindow mainwin)
@@ -45,11 +45,9 @@ public class CompareVersionsHandler
         DocmaWebSession webSess = GUIUtil.getDocmaWebSession(mainwin);
         int win_left = 0; // webSess.getEditorPositionX();
         int win_top = webSess.getEditorPositionY();
-        int win_width = 800; // docmaSess.getUserProperty(GUIConstants.PROP_USER_EDIT_WIN_WIDTH);
-        String win_height = docmaSess.getUserProperty(GUIConstants.PROP_USER_EDIT_WIN_HEIGHT);
-        if ((win_height == null) || win_height.equals("")) {
-            win_height = "" + GUIConstants.EDIT_WIN_DEFAULT_HEIGHT;
-        }
+        int win_width = 800; // webSess.getEditorWidth();
+        int win_height = webSess.getEditorHeight();
+
         // Set minimum window width
         // try {
         //     int width_int = Integer.parseInt(win_width);

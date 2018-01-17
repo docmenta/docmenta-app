@@ -99,6 +99,10 @@ div.z-listheader-cnt { height:16px; max-height:16px; color:#000000; font-weight:
           <space spacing="2px" />
           <toolbarbutton id="previewRefreshBtn" image="img/refresh_icon.gif" w:onClick="previewRefresh();" />
           <space spacing="2px" />
+          <toolbarbutton id="previewSrcBtn" image="img/source_icon.png"  
+                         mode="toggle" tooltiptext="${c:l('tooltip.view.source')}" 
+                         onCheck="mainWin.onToggleViewSource()" sclass="doctoolbtn" />
+          <space spacing="2px" />
           <label style="font-weight:bold;">${c:l('label.contenttoolbar.preview')}</label>
           <listbox id="previewFormatList" mold="select" rows="1" onSelect="mainWin.onSelectPreviewFormat()">
             <listitem label="HTML" value="html"/>
@@ -928,9 +932,23 @@ div.z-listheader-cnt { height:16px; max-height:16px; color:#000000; font-weight:
 
         function previewContentRefresh() {
             var p_url = window.frames['viewcontentfrm'].location.href;
-            if ((p_url.indexOf('viewContent.jsp') >= 0) || (p_url.indexOf('viewPDF.jsp') >= 0)) {
+            if ((p_url.indexOf('viewContent.jsp') >= 0) || (p_url.indexOf('viewPDF.jsp') >= 0) ||
+                (p_url.indexOf('viewFile.jsp') >= 0)) {
                 window.frames['viewcontentfrm'].location.reload();
             }
+        }
+
+        function saveAndReselectNode() {
+            var frm_win = window.frames['viewcontentfrm'];
+            if (frm_win.isUnsaved && frm_win.saveAndReselect && frm_win.isUnsaved()) {
+                frm_win.saveAndReselect();
+            } else {
+                reselectTreeNode();
+            }
+        }
+
+        function reselectTreeNode() {
+            zAu.send(new zk.Event(zk.Widget.$('$mainWin'), 'onDocTreeSelect', null));
         }
 
         var docma_client_props = new Object();

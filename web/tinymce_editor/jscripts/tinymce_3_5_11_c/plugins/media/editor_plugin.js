@@ -180,7 +180,7 @@
 
 				if (!data) {
 					data = {
-						type : 'flash',
+						type : 'video',
 						video: {sources:[]},
 						params: {}
 					};

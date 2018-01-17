@@ -911,6 +911,38 @@
   </xsl:template>
 -->
 
+  <xsl:template match="video">
+    <xsl:choose>
+      <xsl:when test="boolean(@poster) and $docma_output_type = 'print'">
+        <informalfigure>
+          <xsl:if test="boolean(@id)"><xsl:attribute name="id"><xsl:value-of select="@id" /></xsl:attribute></xsl:if>
+          <xsl:if test="boolean(@style) and contains(@style, 'float:')">
+            <xsl:attribute name="float"><xsl:value-of
+              select="normalize-space(substring-before(substring-after(@style, 'float:'), ';'))" />
+            </xsl:attribute>
+          </xsl:if>
+          <mediaobject>
+            <xsl:if test="boolean(@class)"><xsl:attribute name="role"><xsl:value-of select="@class" /></xsl:attribute></xsl:if>
+            <imageobject>
+              <imagedata fileref="{@poster}" ><xsl:call-template name="docma_image_size" /></imagedata>
+            </imageobject>
+          </mediaobject>
+        </informalfigure>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:variable name="subcont" ><xsl:apply-templates /></xsl:variable>
+        <xsl:choose>
+          <xsl:when test="string-length(normalize-space($subcont)) > 0">
+            <para><xsl:copy-of select="$subcont" /></para>
+          </xsl:when>
+          <xsl:otherwise>
+             <para><xsl:text>Video: </xsl:text><ulink url="{@src}"><xsl:value-of select="@src" /></ulink></para>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+
   <xsl:template match="@*">
     <xsl:copy />
   </xsl:template>

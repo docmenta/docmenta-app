@@ -115,6 +115,9 @@ public class MediaServlet extends HttpServlet
             if (mediaType.equals("linklist")) {
                 serveLinkList(response, docmaSess);
             } else
+            if (mediaType.equals("videolist")) {
+                serveVideoList(response, docmaSess);
+            } else
             if (mediaType.equals("css")) {
                 MainWindow mainWin = docmaWebSess.getMainWindow();
                 DocmaOutputConfig out_conf = mainWin.getPreviewHTMLConfig();
@@ -280,7 +283,7 @@ public class MediaServlet extends HttpServlet
     throws IOException
     {
         response.setContentType("text/javascript");
-        // response.setCharacterEncoding("UTF-8");
+        response.setCharacterEncoding("UTF-8");
         disableBrowserCache(response);
 
         List<NodeInfo> infos = docmaSess.listImageInfos();
@@ -310,13 +313,61 @@ public class MediaServlet extends HttpServlet
         out.println(");");
     }
 
+    private void serveVideoList(HttpServletResponse response,
+                                DocmaSession docmaSess)
+    throws IOException
+    {
+        response.setContentType("text/javascript");
+        response.setCharacterEncoding("UTF-8");
+        disableBrowserCache(response);
+        
+        List<String> resultList = new ArrayList<String>(1000);
+        getVideoListRecursive(docmaSess.getRoot(), resultList);
+        Collections.sort(resultList);
+
+        PrintWriter out = response.getWriter();
+        out.println("var tinyMCEMediaList = new Array(");
+        boolean notfirst = false;
+        for (String line : resultList) {
+            if (notfirst) out.println(",");
+            else notfirst = true;
+            out.print(line);
+        }
+        out.println(");");
+    }
+
+    private void getVideoListRecursive(DocmaNode parentNode, List<String> resultList)
+    {
+        int cnt = parentNode.getChildCount();
+        for (int i=0; i < cnt; i++) {
+            DocmaNode nd = parentNode.getChild(i);
+            if (nd.isFileContent()) {
+                String alias = nd.getLinkAlias();
+                if (alias != null) {
+                    String ext = nd.getFileExtension();
+                    if (VideoUtil.isSupportedVideoExtension(ext)) {
+                        resultList.add(jsVideoLine(nd.getDefaultFileName(), alias));
+                    }
+                }
+            } else
+            if (nd.isChildable()) {
+                getVideoListRecursive(nd, resultList);
+            }
+        }
+    }
+
+    private String jsVideoLine(String filepath, String link_alias)
+    {
+        filepath = filepath.replace('"', ' ').replace('\\', ' ');
+        return "[\"" + filepath + "\", \"file/" + link_alias + "\"]";
+    }
 
     private void serveLinkList(HttpServletResponse response,
                                DocmaSession docmaSess)
     throws IOException
     {
         response.setContentType("text/javascript");
-        // response.setCharacterEncoding("UTF-8");
+        response.setCharacterEncoding("UTF-8");
         disableBrowserCache(response);
 
         List<String> resultList = new ArrayList<String>(1000);
@@ -419,7 +470,7 @@ public class MediaServlet extends HttpServlet
     throws IOException
     {
         response.setContentType("text/javascript");
-        // response.setCharacterEncoding("UTF-8");
+        response.setCharacterEncoding("UTF-8");
         disableBrowserCache(response);
 
         DocmaNode templates_folder = docmaSess.getTemplatesFolder();

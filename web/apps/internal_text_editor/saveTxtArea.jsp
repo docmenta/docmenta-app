@@ -76,6 +76,13 @@
                 if (file_content.equals(old_cont)) {
                     save_msg = "No changes!";
                 } else {
+                    Lock lock = cont.getLock();
+                    if (lock != null) {
+                        String lock_uid = lock.getUserId();
+                        if ((lock_uid != null) && !lock_uid.equals(webSess.getUser().getId())) {
+                            throw new Exception(webSess.getLabel("text.locked_by_user", lock_uid));
+                        }
+                    }
                     cont.makeRevision();
                     cont.setContentString(file_content);
                     save_msg = "Saving OK!";

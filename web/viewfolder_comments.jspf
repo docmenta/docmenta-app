@@ -1,5 +1,5 @@
 <%@ page pageEncoding="UTF-8" %>
 <div style="font-family:Verdana, sans-serif; font-size:small; color:#808080; margin:20px 0 0 8px;">
-    Press <tt>Ctrl</tt>-key for multiple-selection or <tt>Shift</tt>-key for range-selection.<br/>
-    Press <tt>Ctrl</tt>-key and right-click to open context-menu for multiple selected entries. 
+    <%= i18n.getLabel("folder.select_comment1") %><br/>
+    <%= i18n.getLabel("folder.select_comment2") %>
 </div>

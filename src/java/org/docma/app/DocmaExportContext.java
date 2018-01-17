@@ -400,7 +400,8 @@ public class DocmaExportContext implements ExportContext
         PublicationManager pm = docmaSess.getPublicationManager();
         StringBuilder html_buf = pm.getPrintInstance(rootNode, temp_ctx);
         HashSet<String> alias_set = new HashSet<String>();
-        ContentUtil.getIdValues(html_buf, alias_set);
+        // ContentUtil.getIdValues(html_buf, alias_set);
+        ContentUtil.getIdValues(html_buf.toString(), alias_set);
         return alias_set;
     }
     

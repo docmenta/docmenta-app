@@ -31,6 +31,8 @@
                                               "&expire=" + stamp);
     String linklist_url = response.encodeURL("linklist/linklist.js?nodeid=" + nodeid +
                                              "&expire=" + stamp);
+    String videolist_url = response.encodeURL("videolist/videolist.js?nodeid=" + nodeid +
+                                              "&expire=" + stamp);
     String templatelist_url = response.encodeURL("templatelist/tmplist.js?nodeid=" + nodeid +
                                                  "&expire=" + stamp);
 
@@ -90,7 +92,7 @@
 
     // Theme options
     theme_advanced_buttons1 : "save,bold,italic,underline,strikethrough,|,sub,sup,|,justifyleft,justifycenter,justifyright,justifyfull,|,bullist,numlist,|,outdent,indent,|,removeformat,attribs,visualchars,|,styleselect",
-    theme_advanced_buttons2 : "cut,copy,paste,pastetext,|,search,replace,|,undo,redo,|,link,unlink,cite,image,charmap,nonbreaking,template,|,code,|,print",
+    theme_advanced_buttons2 : "cut,copy,paste,pastetext,|,search,replace,|,undo,redo,|,link,unlink,cite,image,media,charmap,nonbreaking,template,|,code,|,print",
     theme_advanced_buttons3 : "tablecontrols,|,visualaid,|,del,ins,|,iespell,|,ltr,rtl<%= doc_buttons3 %>",
     theme_advanced_buttons4 : "<%= doc_buttons4 %>",
     theme_advanced_toolbar_location : "top",
@@ -106,7 +108,7 @@
     template_external_list_url : "<%= templatelist_url %>",
     external_link_list_url : "<%= linklist_url %>",
     external_image_list_url : "<%= imagelist_url %>",
-    media_external_list_url : "",
+    media_external_list_url : "<%= videolist_url %>",
 
     // Style formats
     style_formats : [
