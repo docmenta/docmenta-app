@@ -165,6 +165,7 @@ public class MediaConfigDialog extends Window
     private Checkbox pdfBookmarksBox;
     private Checkbox pdfNumbersInRefsBox;
     private Checkbox pdfExportFilesBox;
+    private Checkbox pdfRemoveFileLinksBox;
     private Checkbox pdfFitImagesBox;
     private Checkbox pdfShowExternalHRefBox;
     private Listbox pdfShowExternalHRefTypeBox;
@@ -930,6 +931,7 @@ public class MediaConfigDialog extends Window
         pdfBookmarksBox = (Checkbox) getFellow("MediaPDFBookmarksCheckbox");
         pdfNumbersInRefsBox = (Checkbox) getFellow("MediaPDFPageNumbersInRefsCheckbox");
         pdfExportFilesBox = (Checkbox) getFellow("MediaPDFExportFilesCheckbox");
+        pdfRemoveFileLinksBox = (Checkbox) getFellow("MediaPDFRemoveFileLinksCheckbox");
         pdfFitImagesBox = (Checkbox) getFellow("MediaPDFFitImagesCheckbox");
         pdfShowExternalHRefBox = (Checkbox) getFellow("MediaPDFShowExternalHRefCheckbox");
         pdfShowExternalHRefTypeBox = (Listbox) getFellow("MediaPDFShowExternalHRefTypeListbox");
@@ -1436,6 +1438,7 @@ public class MediaConfigDialog extends Window
         pdfBookmarksBox.setChecked(outConf.isPdfBookmarks());
         pdfNumbersInRefsBox.setChecked(outConf.isPdfNumbersInRefs());
         pdfExportFilesBox.setChecked(outConf.isPdfExportReferencedFiles());
+        pdfRemoveFileLinksBox.setChecked(outConf.isPdfRemoveFileLinks());
         pdfFitImagesBox.setChecked(outConf.isPdfFitImages());
         String showExtHRef = outConf.getPdfShowExternalHRef();
         boolean is_showExtHref = (showExtHRef != null) && (!showExtHRef.trim().equals("")) &&
@@ -1973,6 +1976,7 @@ public class MediaConfigDialog extends Window
             outConf.setPdfBookmarks(pdfBookmarksBox.isChecked());
             outConf.setPdfNumbersInRefs(pdfNumbersInRefsBox.isChecked());
             outConf.setPdfExportReferencedFiles(pdfExportFilesBox.isChecked());
+            outConf.setPdfRemoveFileLinks(pdfRemoveFileLinksBox.isChecked());
             outConf.setPdfFitImages(pdfFitImagesBox.isChecked());
             String showExtHRef = "no";
             if (pdfShowExternalHRefBox.isChecked()) {

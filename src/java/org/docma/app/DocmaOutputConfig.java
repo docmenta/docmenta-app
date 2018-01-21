@@ -107,6 +107,7 @@ public class DocmaOutputConfig
     private static final String PROP_VERSION_PDFCONFIG_BOOKMARKS = "docversion.pdfconfig.bookmarks";
     private static final String PROP_VERSION_PDFCONFIG_NUMBERSINREFS = "docversion.pdfconfig.numbersinrefs";
     private static final String PROP_VERSION_PDFCONFIG_EXPORTFILES = "docversion.pdfconfig.exportfiles";
+    private static final String PROP_VERSION_PDFCONFIG_REMOVEFILELINKS = "docversion.pdfconfig.removefilelinks";
     private static final String PROP_VERSION_PDFCONFIG_FITIMAGES = "docversion.pdfconfig.fitimages";
     private static final String PROP_VERSION_PDFCONFIG_SHOWEXTERNALHREF = "docversion.pdfconfig.showexternalhref";
     private static final String PROP_VERSION_PDFCONFIG_SOURCERESOLUTION = "docversion.pdfconfig.sourceresolution";
@@ -203,6 +204,7 @@ public class DocmaOutputConfig
     private boolean pdfBookmarks = true;
     private boolean pdfNumbersInRefs = false;
     private boolean pdfExportFiles = false;
+    private boolean pdfRemoveFileLinks = false;
     private boolean pdfFitImages = true;
     private String  pdfShowExternalHRef = "bracket";  // allowed values: no, bracket, footnote
     private int     pdfSourceResolution = 96;  // dpi
@@ -385,6 +387,7 @@ public class DocmaOutputConfig
             pdfBookmarks          = getBoolProp(docmaSess, PROP_VERSION_PDFCONFIG_BOOKMARKS);
             pdfNumbersInRefs      = getBoolProp(docmaSess, PROP_VERSION_PDFCONFIG_NUMBERSINREFS);
             pdfExportFiles        = getBoolProp(docmaSess, PROP_VERSION_PDFCONFIG_EXPORTFILES);
+            pdfRemoveFileLinks    = getBoolProp(docmaSess, PROP_VERSION_PDFCONFIG_REMOVEFILELINKS);
             pdfFitImages          = getBoolProp(docmaSess, PROP_VERSION_PDFCONFIG_FITIMAGES);
             pdfShowExternalHRef   = getStringProp(docmaSess, PROP_VERSION_PDFCONFIG_SHOWEXTERNALHREF);
             pdfSourceResolution   = getIntProp(docmaSess, PROP_VERSION_PDFCONFIG_SOURCERESOLUTION);
@@ -490,6 +493,7 @@ public class DocmaOutputConfig
             addProp(nl, vl, PROP_VERSION_PDFCONFIG_BOOKMARKS, "" + pdfBookmarks);
             addProp(nl, vl, PROP_VERSION_PDFCONFIG_NUMBERSINREFS, "" + pdfNumbersInRefs);
             addProp(nl, vl, PROP_VERSION_PDFCONFIG_EXPORTFILES, "" + pdfExportFiles);
+            addProp(nl, vl, PROP_VERSION_PDFCONFIG_REMOVEFILELINKS, "" + pdfRemoveFileLinks);
             addProp(nl, vl, PROP_VERSION_PDFCONFIG_FITIMAGES, "" + pdfFitImages);
             addProp(nl, vl, PROP_VERSION_PDFCONFIG_SHOWEXTERNALHREF, pdfShowExternalHRef);
             addProp(nl, vl, PROP_VERSION_PDFCONFIG_SOURCERESOLUTION, "" + pdfSourceResolution);
@@ -614,6 +618,7 @@ public class DocmaOutputConfig
         addProp(nl, vl, PROP_VERSION_PDFCONFIG_BOOKMARKS, null);
         addProp(nl, vl, PROP_VERSION_PDFCONFIG_NUMBERSINREFS, null);
         addProp(nl, vl, PROP_VERSION_PDFCONFIG_EXPORTFILES, null);
+        addProp(nl, vl, PROP_VERSION_PDFCONFIG_REMOVEFILELINKS, null);
         addProp(nl, vl, PROP_VERSION_PDFCONFIG_FITIMAGES, null);
         addProp(nl, vl, PROP_VERSION_PDFCONFIG_SHOWEXTERNALHREF, null);
         addProp(nl, vl, PROP_VERSION_PDFCONFIG_SOURCERESOLUTION, null);
@@ -1243,6 +1248,14 @@ public class DocmaOutputConfig
 
     public void setPdfExportReferencedFiles(boolean pdfExportFiles) {
         this.pdfExportFiles = pdfExportFiles;
+    }
+
+    public boolean isPdfRemoveFileLinks() {
+        return pdfRemoveFileLinks;
+    }
+
+    public void setPdfRemoveFileLinks(boolean pdfRemoveFileLinks) {
+        this.pdfRemoveFileLinks = pdfRemoveFileLinks;
     }
 
     public boolean isPdfFitImages() {

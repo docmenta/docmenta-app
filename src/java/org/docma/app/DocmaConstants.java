@@ -32,7 +32,7 @@ public class DocmaConstants
     public static final boolean DEBUG = DocConstants.DEBUG;
     public static final String DEBUG_DIR = DocConstants.DEBUG_DIR;
     public static final String DISPLAY_APP_SHORTVERSION = "1.9";
-    public static final String DISPLAY_APP_VERSION = "1.9.2beta";
+    public static final String DISPLAY_APP_VERSION = "1.9.2";
     public static final String DISPLAY_APP_SHORTNAME = "Docmenta";
     public static final String DISPLAY_APP_NAME_BASEEDITION = "Docmenta Publishing System";
     public static final String DISPLAY_APP_COPYRIGHT = "\u00A9 2018";

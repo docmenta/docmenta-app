@@ -279,6 +279,7 @@
               </listbox>
             </hbox>
             <checkbox id="MediaPDFExportFilesCheckbox" label="Export referenced files"/>
+            <checkbox id="MediaPDFRemoveFileLinksCheckbox" label="Render file-links as static text"/>
           </vlayout>
         </groupbox>
         <groupbox width="100%">

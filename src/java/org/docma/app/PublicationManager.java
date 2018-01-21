@@ -381,7 +381,7 @@ class PublicationManager
                     new ImageURLTransformer_PDF(docmaSess, applics, export_log, imgurl_map, direct_access);
             FileURLTransformer fileTransformer =
                     new FileURLTransformer_Default(docmaSess, applics, export_log, fileurl_map);
-            final boolean REMOVE_FILE_LINKS = true;
+            final boolean REMOVE_FILE_LINKS = out_conf.isPdfRemoveFileLinks();
             
             // Prepare links; resolve image and file references
             String html = html_buf.toString();
