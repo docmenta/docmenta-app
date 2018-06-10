@@ -1,7 +1,5 @@
 <window id="FindNodesDialog" title="${c:l('label.findnodes.dialog.title')}"
-        mode="overlapped" border="normal" width="740px" visible="false" sizable="true"
-        contentStyle="padding:4px 6px 4px 6px;"
-        closable="true" onClose="self.visible = false; event.stopPropagation();"
+        mode="${arg.winmode}" contentStyle="padding:4px 6px 4px 6px;"
         apply="org.docma.webapp.FindNodesComposer">
   <caption>
     <toolbarbutton label="${c:l('label.help')}" onClick='mainWin.onHelp("help/find_nodes.html")'/>

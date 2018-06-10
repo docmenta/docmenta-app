@@ -180,44 +180,7 @@ class PublicationManager
         OutputStream pub_out = null;  // archive output stream
         try {
             if (is_pdf) {
-                if (outConf.isPdfExportReferencedFiles()) {
-                    File pdf_file = docmaSess.getFormatter().createTempFile("pdf");
-                    FileOutputStream fout = new FileOutputStream(pdf_file);
-                    try {
-                        OutputStream buf_out = new BufferedOutputStream(fout, 256*1024);
-                        SortedMap fileurl_map = new TreeMap();
-                        try {
-                            exportPDF(buf_out, null, export_ctx, fileurl_map);
-                        } finally {
-                            buf_out.close(); // this closes fout as well
-                        }
-                        if (fileurl_map.isEmpty()) {
-                            // No files are referenced. Put PDF into archive.
-                            pub_out = archive.openPublicationOutputStream(publicationId);
-                            FileInputStream fin = new FileInputStream(pdf_file);
-                            DocmaUtil.copyStream(fin, pub_out);
-                            fin.close();
-                        } else {
-                            // Add PDF and referenced files to zip. Put zip into archive.
-                            String pdf_filename = pub.getFilename();
-                            int pos = pdf_filename.lastIndexOf('.');
-                            String base_name = (pos < 0) ? pdf_filename 
-                                                         : pdf_filename.substring(0, pos);
-                            pub.setFilename(base_name + ".zip");
-                            
-                            pub_out = archive.openPublicationOutputStream(publicationId);
-                            ZipOutputStream zipout = new ZipOutputStream(pub_out);
-                            ZipUtil.addFileToZip(zipout, pdf_file, pdf_filename);
-                            addReferencedFilesToZip(fileurl_map, zipout);
-                            zipout.close();
-                        }
-                    } finally {
-                        pdf_file.delete();
-                    }
-                } else {
-                    pub_out = archive.openPublicationOutputStream(publicationId);
-                    exportPDF(pub_out, null, export_ctx);  // Put PDF into archive
-                }
+                pub_out = exportPDFToArchive(pub, outConf, export_ctx);
             } else
             if (is_html) {
                 pub_out = archive.openPublicationOutputStream(publicationId);
@@ -270,6 +233,82 @@ class PublicationManager
         removeFromGlobalExportQueue(publicationId);
     }
 
+    private OutputStream exportPDFToArchive(DocmaPublication pub, 
+                                            DocmaOutputConfig outConf, 
+                                            DocmaExportContext exportCtx) throws Exception
+    {
+        OutputStream pub_out = null;
+        String custFileList = outConf.getCustomFiles();
+        boolean exportRefs = outConf.isPdfExportReferencedFiles();
+        boolean exportCust = (custFileList != null) && !custFileList.trim().equals("");
+        if (exportRefs || exportCust) {
+            File tempDir = docmaSess.getFormatter().createTempDir();
+            String pdf_filename = pub.getFilename();
+            File pdf_file = new File(tempDir, pdf_filename);
+            FileOutputStream fout = new FileOutputStream(pdf_file);
+            try {
+                // Export PDF to pdf_file
+                OutputStream buf_out = new BufferedOutputStream(fout, 256*1024);
+                SortedMap<String, DocmaNode> fileurl_map = new TreeMap<String, DocmaNode>();
+                try {
+                    exportPDF(buf_out, null, exportCtx, fileurl_map);
+                } finally {
+                    buf_out.close(); // this closes fout as well
+                }
+
+                if (fileurl_map.isEmpty() && !exportCust) {
+                    // No files are referenced and no custom files. Put PDF into archive.
+                    pub_out = archive.openPublicationOutputStream(pub.getId());
+                    FileInputStream fin = new FileInputStream(pdf_file);
+                    DocmaUtil.copyStream(fin, pub_out);
+                    fin.close();
+                } else {
+                    // Write custom files to export directory (tempDir)
+                    if (exportCust) {
+                        FormatterUtil.writeCustomOutputFiles(tempDir, outConf, docmaSess, exportCtx);
+
+                        // Remove files from reference map that have 
+                        // already been exported to tempDir.
+                        cleanReferenceMap(fileurl_map, tempDir);
+                    }
+                    // Add PDF and referenced files to zip. Put zip into archive.
+                    int pos = pdf_filename.lastIndexOf('.');
+                    String base_name = (pos < 0) ? pdf_filename 
+                                                 : pdf_filename.substring(0, pos);
+                    pub.setFilename(base_name + ".zip");
+
+                    pub_out = archive.openPublicationOutputStream(pub.getId());
+                    ZipOutputStream zipout = new ZipOutputStream(pub_out);
+                    ZipUtil.addDirectoryToZip(zipout, tempDir);
+                    addReferencedFilesToZip(fileurl_map, zipout);
+                    zipout.close();
+                }
+            } finally {
+                DocmaUtil.recursiveFileDelete(tempDir);  // pdf_file.delete();
+            }
+        } else {  // Export PDF file only
+            pub_out = archive.openPublicationOutputStream(pub.getId());
+            exportPDF(pub_out, null, exportCtx);  // Put PDF into archive
+        }
+        return pub_out;
+    }
+    
+    /**
+     * Remove files from map that have already been exported to dir.
+     */
+    private void cleanReferenceMap(Map<String, DocmaNode> fileurl_map, File dir)
+    {
+        Iterator<Map.Entry<String, DocmaNode>> it = fileurl_map.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry<String, DocmaNode> entry = it.next();
+            String furl = entry.getKey();
+            File f = new File(dir, furl.replace('/', File.separatorChar));
+            if (f.exists()) {
+                it.remove();
+            }
+        }
+    }
+    
     void deletePublication(String publicationId)
     {
         openPublicationArchive();
@@ -343,6 +382,8 @@ class PublicationManager
 
             String[] applics = DocmaAppUtil.getFilterApplics(pub_conf, out_conf);
             out_conf.setEffectiveFilterApplics(applics);
+            
+            out_conf.setCharEntities(docmaSess.getCharEntities());
 
             if (node_id == null) node_id = pub_conf.getContentRoot();
             else {
@@ -451,9 +492,7 @@ class PublicationManager
                 image_base_URL = img_temp_dir.getAbsoluteFile().toURI().toURL().toString();
             }
 
-            StreamSource instream = new StreamSource(new StringReader(html));
-            // instream.setSystemId(imagepath);
-            formatter.formatHTML2PDF(instream, outstream, image_base_URL, pub_conf, out_conf, styles, export_log);
+            formatter.formatHTML2PDF(html, outstream, image_base_URL, pub_conf, out_conf, styles, export_log);
             // outstream.close();
             
             if (! direct_access) {  // delete temporary folder
@@ -502,6 +541,8 @@ class PublicationManager
 
             String[] applics = DocmaAppUtil.getFilterApplics(pub_conf, out_conf);
             out_conf.setEffectiveFilterApplics(applics);
+            
+            out_conf.setCharEntities(docmaSess.getCharEntities());
 
             if (node_id == null) node_id = pub_conf.getContentRoot();
             DocmaNode node = docmaSess.getNodeById(node_id);
@@ -766,6 +807,8 @@ class PublicationManager
 
             String[] applics = DocmaAppUtil.getFilterApplics(pub_conf, out_conf);
             out_conf.setEffectiveFilterApplics(applics);
+            
+            out_conf.setCharEntities(docmaSess.getCharEntities());
 
             if (node_id == null) node_id = pub_conf.getContentRoot();
             DocmaNode node = docmaSess.getNodeById(node_id);
@@ -794,15 +837,27 @@ class PublicationManager
                 fw.write(html); fw.close();
             }
 
+            // Export custom files to tempDir
+            String custFileList = out_conf.getCustomFiles();
+            boolean exportCust = (custFileList != null) && !custFileList.trim().equals("");
+            File tempDir = null;
+            if (exportCust) {
+                tempDir = docmaSess.getFormatter().createTempDir();
+                FormatterUtil.writeCustomOutputFiles(tempDir, out_conf, docmaSess, export_ctx);
+                // Remove files from reference map that have already been exported to tempDir.
+                cleanReferenceMap(url_map, tempDir);
+            }
+            
             ZipOutputStream zipout = new ZipOutputStream(outstream);
+            if (tempDir != null) {  // Add custom files to zip
+                ZipUtil.addDirectoryToZip(zipout, tempDir);
+            }
 
             // Add DocBook file to zip
             ZipEntry ze = new ZipEntry("docbook.xml");
             zipout.putNextEntry(ze);
-            // Transform print instance to HTML
-            StreamSource instream = new StreamSource(new StringReader(html));
-            // instream.setSystemId(imagepath);
-            formatter.formatHTML2DocBook(instream, zipout, pub_conf, out_conf, export_log);
+            // Transform print instance to DocBook
+            formatter.formatHTML2DocBook(html, zipout, pub_conf, out_conf, export_log);
             zipout.closeEntry();
 
             // Add CSS file to zip
@@ -818,6 +873,10 @@ class PublicationManager
 
             zipout.close();
             // outstream.close();
+            
+            if (tempDir != null) {  // Delete temporary files
+                DocmaUtil.recursiveFileDelete(tempDir);
+            }
         } catch (Exception ex) {
             if (ex instanceof DocException) throw (DocException) ex;
             else throw new DocRuntimeException(ex);

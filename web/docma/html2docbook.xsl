@@ -5,6 +5,7 @@
 
   <xsl:param name="docma_output_type" select="''" />
   <xsl:param name="docma_fit_images" select="''" />
+  <xsl:param name="docma_img_to_figure" select="''" />
 
   <xsl:template match="body">
     <book>
@@ -423,24 +424,44 @@
   </xsl:template>
 
   <xsl:template match="img">
+    <xsl:variable name="is_fig_elem" select="boolean(ancestor::figure)" />
     <xsl:choose>
-      <xsl:when test="boolean(@title) and (string-length(@title) > 0)">
+      <xsl:when test="(($docma_img_to_figure = 'true') and boolean(@title)) or $is_fig_elem">
         <figure>
-          <xsl:if test="boolean(@id)"><xsl:attribute name="id"><xsl:value-of select="@id" /></xsl:attribute></xsl:if>
-          <xsl:if test="boolean(@style) and contains(@style, 'float:') and ($docma_output_type != 'print')">
+          <xsl:variable name="title_val">
+            <xsl:choose>
+              <xsl:when test="$is_fig_elem and boolean(ancestor::figure[1]/figcaption)"><xsl:apply-templates select="ancestor::figure[1]/figcaption/node()" /></xsl:when>
+              <xsl:when test="boolean(@title)"><xsl:value-of select="@title" /></xsl:when>
+            </xsl:choose>
+          </xsl:variable>
+          <xsl:variable name="id_val">
+            <xsl:choose>
+              <xsl:when test="$is_fig_elem and boolean(ancestor::figure[@id])"><xsl:value-of select="ancestor::figure[@id]/@id" /></xsl:when>
+              <xsl:when test="boolean(@id)"><xsl:value-of select="@id" /></xsl:when>
+            </xsl:choose>
+          </xsl:variable>
+          <xsl:variable name="style_val">
+            <xsl:choose>
+                <xsl:when test="$is_fig_elem and boolean(ancestor::figure[@style])"><xsl:value-of select="ancestor::figure[@style]/@style" /></xsl:when>
+                <xsl:when test="boolean(@style)"><xsl:value-of select="@style" /></xsl:when>
+            </xsl:choose>
+          </xsl:variable>
+          <xsl:if test="boolean($id_val)"><xsl:attribute name="id"><xsl:value-of select="$id_val" /></xsl:attribute></xsl:if>
+          <xsl:if test="contains($style_val, 'float:') and ($docma_output_type != 'print')">
             <!-- Note: As Apache FOP does not support float, suppress float for print output. Otherwise figure is not rendered. -->
             <xsl:attribute name="float"><xsl:value-of
-              select="normalize-space(substring-before(substring-after(@style, 'float:'), ';'))" />
+              select="normalize-space(substring-before(substring-after(concat($style_val, ';'), 'float:'), ';'))" />
             </xsl:attribute>
           </xsl:if>
+          <xsl:if test="$is_fig_elem and boolean(ancestor::figure[@class])"><xsl:attribute name="role"><xsl:value-of select="ancestor::figure[@class]/@class" /></xsl:attribute></xsl:if>
           <mediaobject>
             <xsl:if test="boolean(@class)"><xsl:attribute name="role"><xsl:value-of select="@class" /></xsl:attribute></xsl:if>
             <imageobject>
               <imagedata fileref="{@src}" ><xsl:call-template name="docma_image_size" /></imagedata>
             </imageobject>
           </mediaobject>
-          <xsl:if test="string-length(normalize-space(@title)) > 0">
-            <title><xsl:value-of select="@title" /></title>
+          <xsl:if test="string-length(normalize-space($title_val)) &gt; 0">
+            <title><xsl:value-of select="$title_val" /></title>
           </xsl:if>
         </figure>
       </xsl:when>
@@ -448,7 +469,7 @@
         <informalfigure>
           <xsl:if test="boolean(@id)"><xsl:attribute name="id"><xsl:value-of select="@id" /></xsl:attribute></xsl:if>
           <xsl:attribute name="float"><xsl:value-of
-            select="normalize-space(substring-before(substring-after(@style, 'float:'), ';'))" />
+            select="normalize-space(substring-before(substring-after(concat(@style, ';'), 'float:'), ';'))" />
           </xsl:attribute>
           <mediaobject>
             <xsl:if test="boolean(@class)"><xsl:attribute name="role"><xsl:value-of select="@class" /></xsl:attribute></xsl:if>
@@ -481,7 +502,7 @@
         <xsl:variable name="style_val" select="concat(@style, ';')" />
         <xsl:variable name="is_pwidth1" select="contains($style_val, 'print-width:')" />
         <xsl:variable name="is_pheight1" select="contains($style_val, 'print-height:')" />
-        <xsl:variable name="cls_val" select="concat(' ', @class, ' ')" />
+        <xsl:variable name="cls_val" select="concat(' ', ancestor::figure[@class]/@class, ' ', @class, ' ')" />
         <xsl:variable name="is_pwidth2" select="contains($cls_val, ' print_width_')" />
         <xsl:variable name="is_pheight2" select="contains($cls_val, ' print_height_')" />
         <xsl:choose>

@@ -20,10 +20,12 @@
     String lang = storeConn.getTranslationMode();
     String lang_param = (lang == null) ? "" : "&lang=" + lang;
 
-    String post_url = response.encodeURL("saveContent.jsp?" + node_params +
-                                         "&docsess=" + docsess + lang_param);
     String serv_url = request.getContextPath();
-    if (! serv_url.endsWith("/")) serv_url += "/";
+    if (! serv_url.endsWith("/")) { 
+        serv_url += "/"; 
+    }
+    String post_url = response.encodeURL(serv_url + "saveContent.jsp?" + node_params +
+                                         "&docsess=" + docsess + lang_param);
     String base_url = serv_url + "servmedia/" + docsess + "/" + storeid + "/" + verid +
                       "/" + storeConn.getCurrentLanguage().getCode() + "/";
     String css_url = response.encodeURL("css/content.css?mode=edit&expire=" + stamp);

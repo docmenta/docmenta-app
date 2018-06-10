@@ -78,14 +78,15 @@
   <div style="margin-left:16pt;">
     <p>
       <b>Arguments:</b>
-      <dl>
+    </p>
+    <dl>
         <dt><b><tt>attribute_required=<i>tag1,tag2</i>[<i>att1</i>|<i>att2</i>+<i>att3</i>=<i>default</i>+!<i>att4</i>...|...],...</tt></b></dt>
         <dd>
           <p>
             A comma separated list of element expressions. Note that space is 
             used as argument separator. Therefore, no space is allowed 
             within the list of element expressions. 
-            An element expression is an element name optionally  
+            An element expression is an element name, optionally  
             followed by an attributes expression in square brackets.
             The attributes expression is a list of attribute conditions separated 
             by the <tt>+</tt> or <tt>|</tt> operators. The <tt>+</tt> operator
@@ -125,9 +126,9 @@
             To insert these characters in a value definition, the 
             Unicode escape sequence <tt>\u<i>nnnn</i></tt> can be used, where 
             <tt><i>nnnn</i></tt> is a decimal Unicode number.
+          </p>
         </dd>
-      </dl>
-    </p>
+    </dl>
     <p>
       <b>Description:</b><br/>
       Each element expression in the argument checks the existance 
@@ -201,7 +202,7 @@
     </p>
     <p>
       <b>Description:</b><br/>
-      This check logs broken links, which are defined by <tt>a</tt> elements
+      This check logs broken links of <tt>a</tt> elements
       that specify the target through the <tt>href</tt> attribute. This check
       only validates internal links, where the <tt>href</tt> attribute starts 
       with <tt>"#"</tt>, <tt>"image/"</tt> or <tt>"file/"</tt>. A link is
@@ -270,11 +271,10 @@
     </p>
     <p>
       <b>Description:</b><br/>
-      This check logs broken image references, which are defined by <tt>img</tt> 
-      elements. The inserted image is specified through the <tt>src</tt>
-      attribute. An image reference is broken if the <tt>src</tt> attribute
-      does not exist, or does not start with <tt>"image/"</tt>, or does not 
-      specify a valid image alias.
+      This check logs broken image references of <tt>img</tt> elements. 
+      An image reference is broken, if the <tt>src</tt> attribute
+      does not exist, or the attribute value does not start with 
+      <tt>"image/"</tt>, or does not reference a valid image alias.
     </p>
   </div>
 
@@ -323,9 +323,15 @@
     </p>
     <p>
       <b>Description:</b><br/>
-      This check searches for an empty paragraph at the end of content nodes. 
+      This logs empty paragraphs at the end of content nodes. 
       If auto-correction is enabled, then an empty paragraph at the end of 
-      content nodes is removed.
+      content nodes is removed. 
+    </p>
+    <p>
+      When the user places the cursor after the last paragraph within the 
+      content editor, then most editors insert an empty paragraph at the end of  
+      the content. The auto-correction functionality of this rule can be used to 
+      remove such empty paragraphs (for example, when content is saved).
     </p>
     <p>
       Following HTML fragments are recognized as empty paragraphs:
@@ -353,7 +359,7 @@
       If auto-correction is enabled, then the whitespace is removed.
     </p>
     <p>
-      A figure is cosidered to be an HTML <tt>img</tt> element that has
+      A figure is considered to be an HTML <tt>img</tt> element that has
       a <tt>title</tt> attribute assigned. In Docmenta, figures should be
       placed as a single element inside of paragraphs, 
       as shown by the following HTML fragment: 

@@ -417,7 +417,11 @@ public class DocmaNode
             if (astr == null) {
                 alias = "";  // avoid reloading from backendNode by setting to empty string
             } else {
-                alias = hasContentAnchor(astr) ? "" : astr;
+                try {  // hasContentAnchor throws an exception if content is no well-formed XML
+                    alias = hasContentAnchor(astr) ? "" : astr;
+                } catch (Exception ex) {
+                    alias = astr;  // assume that astr is no content anchor
+                }
             }
         }
         if (alias.equals("")) return null;
@@ -1124,6 +1128,23 @@ public class DocmaNode
             }
         }
         return contentType;
+    }
+
+    public void setContentType(String mime)
+    {
+        if (isTranslationMode()) {
+            throw new DocRuntimeException("Setting the content type in translation mode is not allowed.");
+        }
+        
+        // Clear all cached fields that may be affected 
+        contentType = null;    // clear cached file-extension
+        
+        if (backendNode instanceof DocContent) {
+            ((DocContent) backendNode).setContentType(mime);
+        } else {
+            throw new DocRuntimeException("setContentType not allowed for node of type " +
+                backendNode.getClass().getName());
+        }
     }
 
     public String getFileExtension()

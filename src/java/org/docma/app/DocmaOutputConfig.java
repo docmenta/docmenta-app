@@ -14,9 +14,15 @@
 
 package org.docma.app;
 
-import org.docma.coreapi.*;
-import org.docma.util.*;
+import java.beans.BeanInfo;
+import java.beans.Introspector;
+import java.beans.PropertyDescriptor;
+import java.lang.reflect.Method;
 import java.util.*;
+
+import org.docma.coreapi.*;
+import org.docma.plugin.CharEntity;
+import org.docma.util.*;
 
 /**
  *
@@ -46,6 +52,8 @@ public class DocmaOutputConfig
     private static final String PROP_VERSION_OUTCONFIG_LISTINDENT = "docversion.outconfig.listindent";
     private static final String PROP_VERSION_OUTCONFIG_ORDEREDLISTLABELWIDTH = "docversion.outconfig.orderedlistlabelwidth";
     private static final String PROP_VERSION_OUTCONFIG_TITLEPLACEMENT = "docversion.outconfig.titleplacement";
+    private static final String PROP_VERSION_OUTCONFIG_IMGTOFIGURE = "docversion.outconfig.imgtofigure";
+    private static final String PROP_VERSION_OUTCONFIG_CUSTOMFILES = "docversion.outconfig.customfiles";
     
     // Numbering options
     private static final String PROP_VERSION_OUTCONFIG_RENDER1STLEVEL = "docversion.outconfig.render1stlevel";
@@ -87,6 +95,7 @@ public class DocmaOutputConfig
     private static final String PROP_VERSION_HTMLCONFIG_WEBHELPCONFIG = "docversion.htmlconfig.webhelpconfig";
     private static final String PROP_VERSION_HTMLCONFIG_WEBHELPHEADER1 = "docversion.htmlconfig.webhelpheader1";
     private static final String PROP_VERSION_HTMLCONFIG_WEBHELPHEADER2 = "docversion.htmlconfig.webhelpheader2";
+    private static final String PROP_VERSION_HTMLCONFIG_FIGURETAG = "docversion.htmlconfig.figuretag";
     
     // Properties to store PDF options
     private static final String PROP_VERSION_PDFCONFIG_PAPERSIZE = "docversion.pdfconfig.papersize";
@@ -124,6 +133,12 @@ public class DocmaOutputConfig
     private static final String PROP_VERSION_PDFCONFIG_REGION = "docversion.pdfconfig.region";
     private static final String PROP_VERSION_PDFCONFIG_MARKERSECTIONLEVEL = "docversion.pdfconfig.markersectionlevel";
 
+    // Prefix used to store generic properties 
+    private static final String PREFIX_GENERIC_PROP = "docversion.outconfig.ext.";
+    
+    // Bean information about all get/set methods (see methods getProperty / setProperty)
+    private static final Map<String, PropertyDescriptor> PROP_DESCRIPTORS; // map property name to property descriptor
+    
     // General output options
     private String  id;
     private String  filterSetting = "";
@@ -146,6 +161,8 @@ public class DocmaOutputConfig
     private String  listIndent = DocmaConstants.DEFAULT_LIST_INDENT; // "2em";
     private String  orderedListLabelWidth = "";                    // undefined; use output dependent default
     private String  titlePlacement = "after";
+    private boolean imgToFigure = true;  // handle img with title as (formal) figure
+    private String  customFiles = null;
     // Numbering options
     private String  render1stLevel = "chapter";
     private String  partNumbering = "I";
@@ -185,6 +202,7 @@ public class DocmaOutputConfig
     private String  htmlWebhelpConfig = null;
     private String  htmlWebhelpHeader1 = "upper";
     private String  htmlWebhelpHeader2 = "current";
+    private boolean htmlFigureTag = false;  // whether to use HTML5 figure tag for figure output
     // PDF options
     private String  pdfPaperSize = "A4";
     private String  pdfPageWidth = "cm";
@@ -221,6 +239,9 @@ public class DocmaOutputConfig
     private Set<String> pdfCustomPageTypes = null;
     private Map<HeaderFooterKey, String> pdfHeaderFooterContent = null;
 
+    // Generic properties
+    private SortedMap<String, String> genericProps = null;
+    
     // transient package local options (used to control the formatter)
     private String languageCode = "en";   // English is default
     private String draftImagePath = "";
@@ -229,6 +250,7 @@ public class DocmaOutputConfig
     private boolean showIndexTerms = false;
     private String[] effectiveFilterApplics = null;
     private ApplicEvaluator applicEvaluator = null;
+    private CharEntity[] charEntities = null;
     private String htmlCustomHeaderContent = null;
     private String htmlCustomFooterContent = null;
     private String htmlCustomHeadTags = null;
@@ -237,6 +259,39 @@ public class DocmaOutputConfig
     private String pdfCustomHeaderFooterXsl = null;
     private String pdfCustomFOPConfig = null;
 
+    /* --------------  Static initialization  --------------- */
+    
+    static 
+    {
+        PROP_DESCRIPTORS = new HashMap<String, PropertyDescriptor>();
+        try {
+            StringBuilder sb = null;
+            if (DocmaConstants.DEBUG) {
+                sb = new StringBuilder("Output configuration properties: \n");
+            }
+            Set<String> skipProps = new HashSet<String>();
+            skipProps.add("id");
+            skipProps.add("property");
+            skipProps.add("genericProperty");
+            skipProps.add("format");
+            skipProps.add("subformat");
+            BeanInfo binfo = Introspector.getBeanInfo(DocmaOutputConfig.class, Object.class);
+            for (PropertyDescriptor pd : binfo.getPropertyDescriptors()) {
+                String name = pd.getName();
+                if (! skipProps.contains(name)) {
+                    PROP_DESCRIPTORS.put(name, pd);
+                    if (sb != null) {  // debug
+                        sb.append(name).append("\n");
+                    }
+                }
+            }
+            if (sb != null) {  // debug
+                Log.info(sb.toString());
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
 
     /* -----------  Public constructor  ------------------ */
 
@@ -326,6 +381,8 @@ public class DocmaOutputConfig
         listIndent            = getStringProp(docmaSess, PROP_VERSION_OUTCONFIG_LISTINDENT);
         orderedListLabelWidth = getStringProp(docmaSess, PROP_VERSION_OUTCONFIG_ORDEREDLISTLABELWIDTH);
         titlePlacement        = getStringProp(docmaSess, PROP_VERSION_OUTCONFIG_TITLEPLACEMENT);
+        imgToFigure           = getBoolProp(docmaSess, PROP_VERSION_OUTCONFIG_IMGTOFIGURE, true);
+        customFiles           = getStringProp(docmaSess, PROP_VERSION_OUTCONFIG_CUSTOMFILES);
         // Numbering options
         render1stLevel        = getStringProp(docmaSess, PROP_VERSION_OUTCONFIG_RENDER1STLEVEL);
         partNumbering         = getStringProp(docmaSess, PROP_VERSION_OUTCONFIG_PARTNUMBER);
@@ -366,6 +423,7 @@ public class DocmaOutputConfig
             htmlWebhelpConfig     = getStringProp(docmaSess, PROP_VERSION_HTMLCONFIG_WEBHELPCONFIG);
             htmlWebhelpHeader1    = getStringProp(docmaSess, PROP_VERSION_HTMLCONFIG_WEBHELPHEADER1);
             htmlWebhelpHeader2    = getStringProp(docmaSess, PROP_VERSION_HTMLCONFIG_WEBHELPHEADER2);
+            htmlFigureTag         = getBoolProp(docmaSess, PROP_VERSION_HTMLCONFIG_FIGURETAG);
         } else
         // PDF options
         if (format.equals("pdf")) {
@@ -404,6 +462,29 @@ public class DocmaOutputConfig
             decodePdfCustomHeaderFooterPageTypes(getStringProp(docmaSess, PROP_VERSION_PDFCONFIG_CUSTOMPAGETYPES));
             readPdfHeaderFooterConfig(docmaSess, getPdfCustomHeaderFooterPageTypes());
         }
+        
+        genericProps = loadGenericProps(docmaSess);
+    }
+    
+    private SortedMap<String, String> loadGenericProps(DocmaSession sess)
+    {
+        String storeId = sess.getStoreId();
+        DocVersionId verId = sess.getVersionId();
+        String[] arr = sess.getVersionPropertyNames(storeId, verId);
+        String suffix = "." + this.id;
+        
+        SortedMap<String, String> res = new TreeMap<String, String>();
+        for (String nm : arr) {
+            if (nm.startsWith(PREFIX_GENERIC_PROP) && nm.endsWith(suffix)) {
+                String value = sess.getVersionProperty(storeId, verId, nm);
+                if ((value != null) && !value.equals("")) {
+                    String shortname = nm.substring(PREFIX_GENERIC_PROP.length(), 
+                                                    nm.length() - suffix.length());
+                    res.put(shortname, value);
+                }
+            }
+        }
+        return res;
     }
 
     void save(DocmaSession docmaSess) throws DocException
@@ -434,6 +515,8 @@ public class DocmaOutputConfig
         addProp(nl, vl, PROP_VERSION_OUTCONFIG_LISTINDENT, listIndent);
         addProp(nl, vl, PROP_VERSION_OUTCONFIG_ORDEREDLISTLABELWIDTH, orderedListLabelWidth);
         addProp(nl, vl, PROP_VERSION_OUTCONFIG_TITLEPLACEMENT, titlePlacement);
+        addProp(nl, vl, PROP_VERSION_OUTCONFIG_IMGTOFIGURE, "" + imgToFigure);
+        addProp(nl, vl, PROP_VERSION_OUTCONFIG_CUSTOMFILES, customFiles);
         // Numbering options
         addProp(nl, vl, PROP_VERSION_OUTCONFIG_RENDER1STLEVEL, render1stLevel);
         addProp(nl, vl, PROP_VERSION_OUTCONFIG_PARTNUMBER, partNumbering);
@@ -473,6 +556,7 @@ public class DocmaOutputConfig
             addProp(nl, vl, PROP_VERSION_HTMLCONFIG_WEBHELPCONFIG, htmlWebhelpConfig);
             addProp(nl, vl, PROP_VERSION_HTMLCONFIG_WEBHELPHEADER1, htmlWebhelpHeader1);
             addProp(nl, vl, PROP_VERSION_HTMLCONFIG_WEBHELPHEADER2, htmlWebhelpHeader2);
+            addProp(nl, vl, PROP_VERSION_HTMLCONFIG_FIGURETAG, "" + htmlFigureTag);
         } else
         if (format.equals("pdf")) {  // PDF options
             addProp(nl, vl, PROP_VERSION_PDFCONFIG_PAPERSIZE, pdfPaperSize);
@@ -515,6 +599,12 @@ public class DocmaOutputConfig
                     String val = pdfHeaderFooterContent.get(key);
                     addProp(nl, vl, PROP_VERSION_PDFCONFIG_REGION + "_" + key.getKeyString(), val);
                 }
+            }
+        }
+        if (genericProps != null) {
+            for (String genName : genericProps.keySet()) {
+                nl.add(PREFIX_GENERIC_PROP + genName + "." + this.id);
+                vl.add(genericProps.get(genName));
             }
         }
         String[] p_names = new String[nl.size()];
@@ -561,6 +651,9 @@ public class DocmaOutputConfig
         addProp(nl, vl, PROP_VERSION_OUTCONFIG_LISTINDENT, null);
         addProp(nl, vl, PROP_VERSION_OUTCONFIG_ORDEREDLISTLABELWIDTH, null);
         addProp(nl, vl, PROP_VERSION_OUTCONFIG_TITLEPLACEMENT, null);
+        addProp(nl, vl, PROP_VERSION_OUTCONFIG_IMGTOFIGURE, null);
+        addProp(nl, vl, PROP_VERSION_OUTCONFIG_CUSTOMFILES, null);
+        // Numbering options
         addProp(nl, vl, PROP_VERSION_OUTCONFIG_RENDER1STLEVEL, null);
         addProp(nl, vl, PROP_VERSION_OUTCONFIG_PARTNUMBER, null);
         addProp(nl, vl, PROP_VERSION_OUTCONFIG_CHAPTERNUMBER, null);
@@ -599,6 +692,7 @@ public class DocmaOutputConfig
         addProp(nl, vl, PROP_VERSION_HTMLCONFIG_WEBHELPCONFIG, null);
         addProp(nl, vl, PROP_VERSION_HTMLCONFIG_WEBHELPHEADER1, null);
         addProp(nl, vl, PROP_VERSION_HTMLCONFIG_WEBHELPHEADER2, null);
+        addProp(nl, vl, PROP_VERSION_HTMLCONFIG_FIGURETAG, null);
         // PDF options
         addProp(nl, vl, PROP_VERSION_PDFCONFIG_PAPERSIZE, null);
         addProp(nl, vl, PROP_VERSION_PDFCONFIG_PAGEWIDTH, null);
@@ -638,6 +732,13 @@ public class DocmaOutputConfig
             while (it.hasNext()) {
                 HeaderFooterKey key = it.next();
                 addProp(nl, vl, PROP_VERSION_PDFCONFIG_REGION + "_" + key.getKeyString(), null);
+            }
+        }
+        
+        if (genericProps != null) {
+            for (String genName : genericProps.keySet()) {
+                nl.add(PREFIX_GENERIC_PROP + genName + "." + this.id);
+                vl.add(null);
             }
         }
         
@@ -718,6 +819,14 @@ public class DocmaOutputConfig
         }
     }
 
+    CharEntity[] getCharEntities() {
+        return charEntities;
+    }
+
+    void setCharEntities(CharEntity[] arr) {
+        this.charEntities = arr;
+    }
+    
     String getHtmlCustomHeaderContent() {
         return htmlCustomHeaderContent;
     }
@@ -776,6 +885,101 @@ public class DocmaOutputConfig
 
     /* -----------  Public methods  ------------------ */
 
+    public String getId() 
+    {
+        return id;
+    }
+
+    public void setId(String id) 
+    {
+        this.id = id;
+    }
+
+    public String getFormat() 
+    {
+        return format;
+    }
+
+    public void setFormat(String format) 
+    {
+        this.format = format;
+    }
+
+    public String getSubformat() 
+    {
+        if (subformat == null) {
+            return "";
+        }
+        if (subformat.equalsIgnoreCase("webhelp")) {
+            return "webhelp1";
+        } else {
+            return subformat.toLowerCase();
+        }
+    }
+
+    public void setSubformat(String subformat) 
+    {
+        this.subformat = subformat;
+    }
+
+    public String getProperty(String propName)
+    {
+        PropertyDescriptor desc = PROP_DESCRIPTORS.get(propName);
+        if (desc == null) {
+            // If no access method exists, then it may be a generic property
+            return getGenericProperty(propName);
+        } else {  // Access method exists
+            try {
+                Method m = desc.getReadMethod();
+                Object value = m.invoke(this);
+                return (value == null) ? "" : value.toString();
+            } catch (Exception ex) {  // method cannot be accessed?
+                ex.printStackTrace();
+                return "";
+            }
+        }
+    }
+    
+    public void setProperty(String propName, Object value) 
+    {
+        PropertyDescriptor desc = PROP_DESCRIPTORS.get(propName);
+        if (desc == null) {
+            setGenericProperty(propName, (value == null) ? "" : value.toString());
+        } else {  // Access method exists
+            try {
+                Method m = desc.getWriteMethod();
+                m.invoke(this, value);
+            } catch (Exception ex) {  // method cannot be accessed?
+                ex.printStackTrace();
+            }
+        }
+    }
+    
+    public String getGenericProperty(String propName)
+    {
+        if (genericProps == null) {  // should not be null (see init)
+            return "";
+        }
+        String val = genericProps.get(propName);
+        return (val == null) ? "" : val;
+    }
+    
+    public void setGenericProperty(String propName, String value) 
+    {
+        if (genericProps == null) {  // should not be null (see init)
+            genericProps = new TreeMap<String, String>();
+        }
+        genericProps.put(propName, (value == null) ? "" : value);
+    }
+    
+    public String[] listGenericPropertyNames()
+    {
+        if (genericProps == null) {  // should not be null (see init)
+            return new String[0];
+        }
+        return genericProps.keySet().toArray(new String[genericProps.size()]);
+    }
+    
     public boolean isShowIndexTerms() {
         return showIndexTerms;
     }
@@ -805,14 +1009,6 @@ public class DocmaOutputConfig
     public void setFilterSetting(String filterSetting) {
         this.filterSetting = filterSetting;
         this.applicEvaluator = null;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
     }
 
     public String getAppendixNumbering() {
@@ -847,27 +1043,36 @@ public class DocmaOutputConfig
         this.exclude1stLevelNumber = exclude1stLevelNumber;
     }
 
-    public String getFormat() {
-        return format;
+    public boolean isImgWithTitleToFigure() {
+        return imgToFigure;
     }
 
-    public void setFormat(String format) {
-        this.format = format;
+    public void setImgWithTitleToFigure(boolean enabled) {
+        this.imgToFigure = enabled;
     }
 
-    public String getSubformat() {
-        if (subformat == null) {
-            return "";
-        }
-        if (subformat.equalsIgnoreCase("webhelp")) {
-            return "webhelp1";
+    public String getCustomFiles() {
+        if ("html".equalsIgnoreCase(format)) {
+            return htmlCustomFiles;
         } else {
-            return subformat.toLowerCase();
+            return customFiles;
         }
     }
 
-    public void setSubformat(String subformat) {
-        this.subformat = subformat;
+    public void setCustomFiles(String files) {
+        if ("html".equalsIgnoreCase(format)) {
+            this.htmlCustomFiles = files;
+        } else {
+            this.customFiles = files;
+        }
+    }
+
+    public boolean isHtmlFigureTagOutput() {
+        return htmlFigureTag;
+    }
+
+    public void setHtmlFigureTagOutput(boolean enabled) {
+        this.htmlFigureTag = enabled;
     }
 
     public int getHtmlDirLevel() {
@@ -1682,16 +1887,22 @@ public class DocmaOutputConfig
     {
         String val = sess.getVersionProperty(sess.getStoreId(), sess.getVersionId(),
                                              prop_name + "." + this.id);
-        if (val == null) return false;
-        else return val.trim().equalsIgnoreCase("true");
+        return (val == null) ? false : val.trim().equalsIgnoreCase("true");
+    }
+
+    private boolean getBoolProp(DocmaSession sess, String prop_name, boolean default_value)
+    {
+        String val = sess.getVersionProperty(sess.getStoreId(), sess.getVersionId(),
+                                             prop_name + "." + this.id);
+        val = (val == null) ? "" : val.trim();
+        return val.equals("") ? default_value : val.equalsIgnoreCase("true");
     }
 
     private String getStringProp(DocmaSession sess, String prop_name)
     {
         String val = sess.getVersionProperty(sess.getStoreId(), sess.getVersionId(),
                                              prop_name + "." + this.id);
-        if (val == null) return "";
-        else return val;
+        return (val == null) ? "" : val;
     }
 
     private int getIntProp(DocmaSession sess, String prop_name)

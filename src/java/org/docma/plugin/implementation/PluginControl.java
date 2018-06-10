@@ -353,6 +353,22 @@ public class PluginControl
         savePluginProps();
     }
     
+    public boolean isDisableSupported()
+    {
+        return pluginProps.getProperty(PluginManager.PLUGIN_PROP_DISABLE_SUPPORTED, "true").equals("true");
+    }
+    
+    public boolean isPreinstalled()
+    {
+        return pluginProps.getProperty(PluginManager.PLUGIN_PROP_PREINSTALLED, "false").equals("true");
+    }
+
+    public void setPreinstalled(boolean preinstalled)
+    {
+        pluginProps.setProperty(PluginManager.PLUGIN_PROP_PREINSTALLED, preinstalled ? "true" : "false");
+        savePluginProps();
+    }
+
     public boolean hasError()
     {
         if (isInstallError()) {
@@ -397,6 +413,11 @@ public class PluginControl
     Properties getPluginProperties()
     {
         return pluginProps;
+    }
+    
+    String getPluginProperty(String name) 
+    {
+        return pluginProps.getProperty(name);
     }
     
     private void savePluginProps()

@@ -83,6 +83,9 @@ pre { font-size:medium }
     }
     
     function getTextAreaValue() {
+        if (window.syncEditForm) {   // function may be provided by plugin
+            window.syncEditForm();
+        }
         return document.forms["editform"].file_content.value;
     }
     
@@ -92,7 +95,7 @@ pre { font-size:medium }
 </script>
 <%= TextFileHandler.getHTMLHead(webSess, ext) %>
 </head>
-<body onload="docmaInit();" style="background:#E0E0E0; font-family:Arial,sans-serif; margin:0; padding:0; overflow:hidden;">
+<body onload="docmaInit();" onkeydown="return parent.shortcutSave(event)" style="background:#E0E0E0; font-family:Arial,sans-serif; margin:0; padding:0; overflow:hidden;">
 <%
     if (hasError) {
         out.print("<div class=\"errormsg\">");

@@ -56,18 +56,7 @@ public class OutputConfigImpl implements OutputConfig
     
     public String getProperty(String propName) 
     {
-        // final String verPropName = "docversion." + propName + "." + configId;
-        // String val = docmaSess.getVersionProperty(storeId, verId, verPropName);
-        // return (val == null) ? "" : val;
-        
-        String method_name = "get" + propName.substring(0, 1).toUpperCase() + propName.substring(1);
-        try {
-            Method m = docmaOutConf.getClass().getMethod(method_name);
-            Object value = m.invoke(docmaOutConf);
-            return (value == null) ? "" : value.toString();
-        } catch (Exception ex) {  // method does not exist or cannot be accessed
-            return "";
-        }
+        return docmaOutConf.getProperty(propName);
     }
 
 }

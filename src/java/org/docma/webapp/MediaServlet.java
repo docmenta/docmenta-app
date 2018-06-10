@@ -16,6 +16,7 @@ package org.docma.webapp;
 
 import org.docma.app.*;
 import org.docma.coreapi.*;
+import org.docma.plugin.ckeditor.CKEditUtils;
 import org.docma.util.*;
 
 import java.util.*;
@@ -110,13 +111,19 @@ public class MediaServlet extends HttpServlet
                 serveImage(response, docmaSess, imageAlias, applics);
             } else
             if (mediaType.equals("imagelist")) {
-                serveImageList(response, docmaSess);
+                serveImageList(response, docmaSess, extrapath.substring(endpos + 1));
             } else
             if (mediaType.equals("linklist")) {
-                serveLinkList(response, docmaSess);
+                serveLinkList(response, docmaSess, extrapath.substring(endpos + 1));
             } else
             if (mediaType.equals("videolist")) {
-                serveVideoList(response, docmaSess);
+                serveVideoList(response, docmaSess, extrapath.substring(endpos + 1));
+            } else
+            if (mediaType.equals("filelist")) {
+                serveFileList(response, docmaSess, extrapath.substring(endpos + 1));
+            } else
+            if (mediaType.equals("stylelist")) {
+                serveStyleList(response, docmaSess, extrapath.substring(endpos + 1));
             } else
             if (mediaType.equals("css")) {
                 MainWindow mainWin = docmaWebSess.getMainWindow();
@@ -219,6 +226,10 @@ public class MediaServlet extends HttpServlet
             }
             return;
         }
+        if (! node.isContent()) {
+            org.docma.util.Log.info("MediaServlet.serveImage(): Node with alias '" + imageAlias + "' is no content node.");
+            return;
+        }
 
         response.setContentType(node.getContentType());
         int len = (int) node.getContentLength();
@@ -279,45 +290,99 @@ public class MediaServlet extends HttpServlet
 
 
     private void serveImageList(HttpServletResponse response,
-                                DocmaSession docmaSess)
+                                DocmaSession docmaSess, 
+                                String listPath)
     throws IOException
     {
-        response.setContentType("text/javascript");
+        boolean isJSON = listPath.equals("json") || listPath.startsWith("json/");
+
+        response.setContentType(isJSON ? "application/json" : "text/javascript");
         response.setCharacterEncoding("UTF-8");
         disableBrowserCache(response);
 
         List<NodeInfo> infos = docmaSess.listImageInfos();
-        if (infos == null) { infos = new ArrayList<NodeInfo>(); }
+        if (infos == null) { 
+            infos = new ArrayList<NodeInfo>(); 
+        }
         Collections.sort(infos, new DocmaAppUtil.NodeInfoAliasComparator());
 
-        final String TAB = "..............."; // "            ";
         PrintWriter out = response.getWriter();
-        out.println("var tinyMCEImageList = new Array(");
+        if (isJSON) {
+            // JSON response; Used by CK editor
+            out.println("[");
+        } else {
+            // This is the response as required by TinyMCE editor
+            out.println("var tinyMCEImageList = new Array(");
+        }
+        boolean showAlias = !isJSON;  // show alias in title (for TinyMCE editor)
+        writeFileListLines(out, infos, "image/", showAlias);
+        if (isJSON) {
+            out.println("]");
+        } else {
+            out.println(");");
+        }
+    }
+
+    private void serveFileList(HttpServletResponse response,
+                                DocmaSession docmaSess, 
+                                String listPath)
+    throws IOException
+    {
+        boolean isJSON = listPath.equals("json") || listPath.startsWith("json/");
+        if (! isJSON) {
+            return;   // Currently, only JSON response is supported
+        }
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        disableBrowserCache(response);
+
+        List<NodeInfo> infos = docmaSess.listFileInfos();
+        if (infos == null) { 
+            infos = new ArrayList<NodeInfo>(); 
+        }
+        Collections.sort(infos, new DocmaAppUtil.NodeInfoAliasComparator());
+
+        PrintWriter out = response.getWriter();
+        out.println("[");
+        writeFileListLines(out, infos, "file/", false);
+        out.println("]");
+    }
+    
+    private void writeFileListLines(PrintWriter out, List<NodeInfo> infos, String urlPrefix, boolean showAlias)
+    throws IOException
+    {
+        final String TAB = "..............."; // "            ";
         boolean notfirst = false;
-        for (NodeInfo img_info : infos) {
-            String alias = img_info.getAlias();
-            if (alias == null) continue;  // skip images without alias (should not occur)
-            String txt = img_info.getTitle();
+        for (NodeInfo inf : infos) {
+            String alias = inf.getAlias();
+            if (alias == null) {
+                continue;  // skip images/files without alias
+            }
+            String txt = inf.getTitle();
             if ((txt == null) || (txt.length() == 0)) {
-                txt = alias;
+                txt = showAlias ? alias : "";
             } else {
-                String space = "..." +
-                  ((alias.length() < TAB.length()) ? TAB.substring(alias.length()) : "");
                 txt = txt.replace('"', '_').replace('\\', '_');
-                txt = alias + " " + space + txt;
+                if (showAlias) {
+                    String space = "..." +
+                      ((alias.length() < TAB.length()) ? TAB.substring(alias.length()) : "");
+                    txt = alias + " " + space + txt;
+                }
             }
             if (notfirst) out.println(",");
             else notfirst = true;
-            out.print("[\"" + txt + "\", \"image/" + alias + "\"]");
+            out.print("[\"" + txt + "\", \"" + urlPrefix + alias + "\"]");
         }
-        out.println(");");
     }
 
     private void serveVideoList(HttpServletResponse response,
-                                DocmaSession docmaSess)
+                                DocmaSession docmaSess, 
+                                String listPath)
     throws IOException
     {
-        response.setContentType("text/javascript");
+        boolean isJSON = listPath.equals("json") || listPath.startsWith("json/");
+        
+        response.setContentType(isJSON ? "application/json" : "text/javascript");
         response.setCharacterEncoding("UTF-8");
         disableBrowserCache(response);
         
@@ -326,14 +391,24 @@ public class MediaServlet extends HttpServlet
         Collections.sort(resultList);
 
         PrintWriter out = response.getWriter();
-        out.println("var tinyMCEMediaList = new Array(");
+        if (isJSON) {
+            // JSON response; Used by CK editor
+            out.println("[");
+        } else {
+            // This is the response as required by TinyMCE editor
+            out.println("var tinyMCEMediaList = new Array(");
+        }
         boolean notfirst = false;
         for (String line : resultList) {
             if (notfirst) out.println(",");
             else notfirst = true;
             out.print(line);
         }
-        out.println(");");
+        if (isJSON) {
+            out.println("]");
+        } else {
+            out.println(");");
+        }
     }
 
     private void getVideoListRecursive(DocmaNode parentNode, List<String> resultList)
@@ -363,10 +438,13 @@ public class MediaServlet extends HttpServlet
     }
 
     private void serveLinkList(HttpServletResponse response,
-                               DocmaSession docmaSess)
+                               DocmaSession docmaSess, 
+                               String listPath)
     throws IOException
     {
-        response.setContentType("text/javascript");
+        boolean isJSON = listPath.equals("json") || listPath.startsWith("json/");
+        
+        response.setContentType(isJSON ? "application/json" : "text/javascript");
         response.setCharacterEncoding("UTF-8");
         disableBrowserCache(response);
 
@@ -374,14 +452,22 @@ public class MediaServlet extends HttpServlet
         getLinkJsTocRecursive(docmaSess.getDocumentRoot(), "", resultList);
 
         PrintWriter out = response.getWriter();
-        out.println("var tinyMCELinkList = new Array(");
+        if (isJSON) {
+            out.println("[");
+        } else {
+            out.println("var tinyMCELinkList = new Array(");
+        }
         boolean notfirst = false;
         for (String tocline : resultList) {
             if (notfirst) out.println(",");
             else notfirst = true;
             out.print(tocline);
         }
-        out.println(");");
+        if (isJSON) {
+            out.println("]");
+        } else {
+            out.println(");");
+        }
     }
 
     private void getLinkJsTocRecursive(DocmaNode parentNode, String title_prefix, List<String> resultList)
@@ -438,6 +524,26 @@ public class MediaServlet extends HttpServlet
         //     txt = txt.substring(0, 42);
         // }
         return "[\"" + txt + "\", \"#" + link_alias + "\"]";
+    }
+
+
+    private void serveStyleList(HttpServletResponse response,
+                                DocmaSession docmaSess, 
+                                String listPath)
+    throws IOException
+    {
+        boolean isJSON = listPath.equals("json") || listPath.startsWith("json/");
+        if (! isJSON) {
+            return;   // Currently, only JSON response is supported
+        }
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        disableBrowserCache(response);
+
+        PrintWriter out = response.getWriter();
+        
+        // Return styles as required by CK editor
+        CKEditUtils.writeStyleList_JSON(out, docmaSess.getPluginStoreConnection());
     }
 
 

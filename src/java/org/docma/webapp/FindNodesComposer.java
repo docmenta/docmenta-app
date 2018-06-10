@@ -14,6 +14,7 @@
 
 package org.docma.webapp;
 
+import java.io.StringReader;
 import java.text.MessageFormat;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -21,13 +22,19 @@ import java.util.Arrays;
 import java.util.Deque;
 import java.util.List;
 import java.util.Set;
+import java.util.SortedSet;
 import java.util.StringTokenizer;
+import java.util.TreeSet;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpression;
 
 import org.docma.app.*;
 import org.docma.coreapi.DocI18n;
 import org.docma.plugin.web.ButtonType;
 import org.docma.plugin.web.UIEvent;
 import org.docma.plugin.web.UIListener;
+import org.docma.util.XMLUtil;
+import org.xml.sax.InputSource;
 
 import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.event.Event;
@@ -45,15 +52,18 @@ import org.zkoss.zul.*;
  */
 public class FindNodesComposer extends SelectorComposer<Component> implements ListitemRenderer
 {
-    private static final int MODE_BY_ALIAS = 1;
+    private static final int MODE_NODE_PROPS = 1;
     private static final int MODE_REFERENCING_ALIAS = 2;
     private static final int MODE_STYLE = 3;
     private static final int MODE_APPLIC = 4;
+    private static final int MODE_XPATH = 5;
 
     private static final int DIALOG_STATE_BEFORE_SEARCH = 1;
     private static final int DIALOG_STATE_EXECUTE_SEARCH = 2;
     
     private static final int BATCH_SIZE = 50;  // max number of nodes to be processed in one call
+    
+    private static final String DUMMY_XML_ROOT = "dummyroot";
 
     private int mode;
     private int dialog_state;
@@ -89,7 +99,36 @@ public class FindNodesComposer extends SelectorComposer<Component> implements Li
     private DocmaSession docmaSess;
     private DocmaWebSession docmaWebSess;
 
+    private SortedSet<String> xpathHistory = new TreeSet<String>();
+    private XPathExpression xpathExpr = null;
 
+
+    public boolean isBrowserDialog()
+    {
+        return dialog.getModeType() == Window.Mode.EMBEDDED;
+    }
+            
+    @Override
+    public void doAfterCompose(Component comp) throws Exception 
+    {
+        super.doAfterCompose(comp);
+        if (isBrowserDialog()) {
+            dialog.setBorder(false);
+            dialog.setWidth("100%");
+            dialog.setHeight("100%");
+            dialog.setVisible(true);
+            dialog.setSizable(false);
+            
+            mode = MODE_NODE_PROPS;
+        } else {
+            dialog.setBorder("normal");
+            dialog.setWidth("740px");
+            dialog.setVisible(false);
+            dialog.setSizable(true);
+            dialog.setClosable(true);
+        }
+    }
+    
     public void doFindByAlias(DocmaSession docmaSess)
     throws Exception
     {
@@ -99,7 +138,7 @@ public class FindNodesComposer extends SelectorComposer<Component> implements Li
     public void doFindByAlias(DocmaSession docmaSess, String alias)
     throws Exception
     {
-        mode = MODE_BY_ALIAS;
+        mode = MODE_NODE_PROPS;
         doFind(docmaSess, alias, null);
     }
 
@@ -120,6 +159,13 @@ public class FindNodesComposer extends SelectorComposer<Component> implements Li
     throws Exception
     {
         mode = MODE_STYLE;
+        doFind(docmaSess, "", root);
+    }
+    
+    public void doFindXPath(DocmaSession docmaSess, DocmaNode root)
+    throws Exception
+    {
+        mode = MODE_XPATH;
         doFind(docmaSess, "", root);
     }
     
@@ -328,6 +374,13 @@ public class FindNodesComposer extends SelectorComposer<Component> implements Li
         }
     }
 
+    @Listen("onClose = #FindNodesDialog")
+    public void onClose(Event evt) throws Exception
+    {
+        closeDialog();
+        evt.stopPropagation();
+    }
+
     @Listen("onClick = #FindNodesCloseButton")
     public void onCloseClick() throws Exception
     {
@@ -361,7 +414,7 @@ public class FindNodesComposer extends SelectorComposer<Component> implements Li
     public void onExecuteSearch() throws Exception
     {
         searchTerm = searchTermBox.getValue().trim();
-        if (mode == MODE_BY_ALIAS) {
+        if (mode == MODE_NODE_PROPS) {
             try {
                 executeSearchByAlias();
             } finally {
@@ -386,6 +439,25 @@ public class FindNodesComposer extends SelectorComposer<Component> implements Li
                 onSearchRefAliasRecursive();
             } else if (mode == MODE_STYLE) {
                 onSearchStyleRecursive();
+            } else if (mode == MODE_XPATH) {
+                try {
+                    String xpath;
+                    if (searchTerm.startsWith("//")) { 
+                        xpath = searchTerm;
+                    } else if (searchTerm.startsWith("/")) {  // slash but no double-slash
+                        xpath = "/" + DUMMY_XML_ROOT + searchTerm;
+                    } else {
+                        xpath = "//" + searchTerm;
+                    }
+                    xpathExpr = XMLUtil.compileXPath(xpath);
+                } catch (Exception ex) {
+                    searchFinished();
+                    MessageUtil.showError(dialog, "error.xpath.compile.exception", ex.getMessage());
+                    return;
+                }
+                xpathHistory.add(searchTerm);
+                updateXPathComboValues(searchTermBox);
+                onSearchXPathRecursive();
             } else if (mode == MODE_APPLIC) {
                 onSearchApplicRecursive();
             } else {
@@ -495,6 +567,65 @@ public class FindNodesComposer extends SelectorComposer<Component> implements Li
         }
     }
 
+    @Listen("onSearchXPathRecursive = #FindNodesDialog")
+    public void onSearchXPathRecursive()
+    {
+        try {
+            if (! dialog.isVisible()) {  // user has closed the dialog?
+                return;  // cancel search
+            }
+            if (searchStack == null) { // should never occur
+                return;
+            }
+            int cnt = 0;
+            DocmaNode node;
+            while ((node = searchStack.pollLast()) != null) {
+                if (node.isHTMLContent()) {
+                    try {
+                        String xml = node.getContentString();
+                        if (xml != null) {
+                            // Enclose content with dummy root element, to get 
+                            // a valid XML document.
+                            xml = "<" + DUMMY_XML_ROOT + ">" + xml + "</" + DUMMY_XML_ROOT + ">";
+                            Object res = xpathExpr.evaluate(new InputSource(new StringReader(xml)), XPathConstants.BOOLEAN);
+                            if (Boolean.TRUE.equals(res)) {
+                                searchResult.add(node);
+                            }
+                        }
+                    } catch (Exception xpathEx) {
+                        // Probably invalid XML. Skip content.
+                        if (DocmaConstants.DEBUG) {
+                            System.out.println("XPATH Exception: " + xpathEx.getMessage());
+                        }
+                    }
+                } else if (node.isChildable()) {
+                    DocmaNode[] childArr = node.getChildren();
+                    for (int i = childArr.length - 1; i >= 0; i--) {
+                        searchStack.addLast(childArr[i]);
+                    }
+                }
+                searchProgressCount++;
+                if (++cnt > BATCH_SIZE) {
+                    break;
+                }
+            }
+
+            if (searchStack.isEmpty()) {
+                // Search finished -> update UI
+                resultListModel.addAll(searchResult);
+                updateReplaceBar();
+                searchFinished();
+            } else {
+                // Process next batch of nodes
+                updateSearchProgress();
+                Events.echoEvent("onSearchXPathRecursive", dialog, null);
+            }
+        } catch (Throwable ex) {
+            searchFinished();
+            MessageUtil.showError(dialog, ex.getMessage());
+        }
+    }
+
     @Listen("onSearchApplicRecursive = #FindNodesDialog")
     public void onSearchApplicRecursive()
     {
@@ -556,24 +687,32 @@ public class FindNodesComposer extends SelectorComposer<Component> implements Li
     
     private void updateComboValues(Combobox box, String val)
     {
+        if (mode == MODE_XPATH) {
+            return;  // do nothing; no auto-completion for XPath expressions
+        }
+        
+        // Auto-completion for alias, style-id or applic-name
         final String MORE = "...";
         tempComboValues.clear();
         if (val.equals(MORE)) {
             return;  // do nothing; user has reached the end of the list (more entry)
         }
         if (val.length() > 0) {
-            List allValues;
-            if ((mode == MODE_BY_ALIAS) || (mode == MODE_REFERENCING_ALIAS)) {
+            List allValues = null;
+            if ((mode == MODE_NODE_PROPS) || (mode == MODE_REFERENCING_ALIAS)) {
                 allValues = getNodeAliases();
             } else if (mode == MODE_STYLE) {
                 allValues = getStyleIds();
             } else if (mode == MODE_APPLIC) {
                 allValues = getDeclaredApplics();
             } else {  // should never occur
-                allValues = new ArrayList();
+                // allValues = new ArrayList();
             }
+            
             // Note: allValues needs to be sorted!
-            DocmaAppUtil.listValuesStartWith(val, allValues, tempComboValues);
+            if (allValues != null) {  // mode != MODE_XPATH
+                DocmaAppUtil.listValuesStartWith(val, allValues, tempComboValues);
+            }
         }
         int item_cnt = box.getItemCount();
         if ((item_cnt > 0) && tempComboValues.size() == 1) {  // exact match
@@ -587,6 +726,14 @@ public class FindNodesComposer extends SelectorComposer<Component> implements Li
         }
         if (sz > max) {
             box.appendItem(MORE);
+        }
+    }
+    
+    private void updateXPathComboValues(Combobox box)
+    {
+        box.getItems().clear();
+        for (String str : xpathHistory) {
+            box.appendItem(str);
         }
     }
     
@@ -644,7 +791,7 @@ public class FindNodesComposer extends SelectorComposer<Component> implements Li
         }
 
         String term_label;
-        if (mode == MODE_BY_ALIAS) {
+        if (mode == MODE_NODE_PROPS) {
             term_label = i18n.getLabel("label.findnodes.searchterm.byalias");
         } else
         if (mode == MODE_REFERENCING_ALIAS) {
@@ -652,6 +799,9 @@ public class FindNodesComposer extends SelectorComposer<Component> implements Li
         } else
         if (mode == MODE_STYLE) {
             term_label = i18n.getLabel("label.findnodes.searchterm.style");
+        } else
+        if (mode == MODE_XPATH) {
+            term_label = i18n.getLabel("label.findnodes.searchterm.xpath");
         } else
         if (mode == MODE_APPLIC) {
             term_label = i18n.getLabel("label.findnodes.searchterm.applic");
@@ -665,8 +815,12 @@ public class FindNodesComposer extends SelectorComposer<Component> implements Li
 
         startSearchBtn.setDisabled(false);
         searchTermBox.setDisabled(false);
-        if (searchTermBox.getItemCount() > 0) {
-            searchTermBox.getItems().clear();
+        if (mode == MODE_XPATH) {
+            updateXPathComboValues(searchTermBox);
+        } else {
+            if (searchTermBox.getItemCount() > 0) {
+                searchTermBox.getItems().clear();
+            }
         }
         searchTermBox.setValue(search_term);
 

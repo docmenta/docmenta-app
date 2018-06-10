@@ -178,11 +178,7 @@
         </hbox>
         <textbox id="MediaHTMLDocTypeTextbox" multiline="true" rows="2" hflex="1" style="white-space:pre;" />
       </vbox>
-      <hbox pack="start" align="end" spacing="3px">
-        <label>Additional&#160;Output&#160;Files:</label>
-        <toolbarbutton label="Help" style="color:#0000FF" onClick='mainWin.onHelp("help/out_config_html.html")'/>
-      </hbox>
-      <textbox id="MediaHTMLCustomFilesTextbox" multiline="true" rows="3" hflex="1" style="white-space:pre;" />
+      <checkbox label="Use HTML5 figure tag" id="MediaHTMLFigureTagCheckbox" style="white-space:nowrap;"/>
      </vbox>
     </groupbox>
   </hbox>

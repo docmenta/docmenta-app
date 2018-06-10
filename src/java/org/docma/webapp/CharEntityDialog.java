@@ -111,7 +111,7 @@ public class CharEntityDialog extends Window
             Messagebox.show("Invalid numeric entity code.");
             return true;
         }
-        if (! sym.matches("&[A-Za-z]{1,6};")) {
+        if (! sym.matches("&[A-Za-z0-9]{1,32};")) {
             Messagebox.show("Invalid symbolic entity code.");
             return true;
         }

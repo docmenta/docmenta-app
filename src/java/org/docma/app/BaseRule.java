@@ -44,6 +44,7 @@ import org.docma.plugin.Reference;
 import org.docma.plugin.StoreConnection;
 import org.docma.plugin.Style;
 import org.docma.plugin.UserSession;
+import org.docma.plugin.implementation.StoreHelper;
 import org.docma.plugin.rules.HTMLRule;
 import org.docma.plugin.rules.HTMLRuleConfig;
 import org.docma.plugin.rules.HTMLRuleContext;
@@ -731,7 +732,7 @@ public class BaseRule implements HTMLRule, XMLElementHandler
             String nodeId = ruleCtx.getNodeId();
             if (nodeId != null) {
                 StoreConnection con = ruleCtx.getStoreConnection();
-                Folder folder = getNearestImageFolder(con, nodeId);
+                Folder folder = StoreHelper.getNearestImageFolder(con, nodeId);
                 byte[] imgData = parseBase64(data);
                 String imgAlias = createUniqueImageAlias(con, imgData);
                 if (con.getNodeIdByAlias(imgAlias) == null) {
@@ -747,7 +748,7 @@ public class BaseRule implements HTMLRule, XMLElementHandler
                 return null;
             }
         } catch (Throwable ex) {
-            ruleCtx.log(LogLevel.ERROR, elemPos, ex.getMessage());
+            ruleCtx.log(LogLevel.ERROR, elemPos, "Failed to store Base64 image: " + ex.getMessage());
             return null;
         }
     }
@@ -777,51 +778,6 @@ public class BaseRule implements HTMLRule, XMLElementHandler
         byte[] enc = md.digest(data);
         BigInteger bigint = new BigInteger(1, enc);
         return bigint.toString(16);
-    }
-    
-    private Folder getNearestImageFolder(StoreConnection con, String nodeId) throws Exception
-    {
-        Node node = con.getNodeById(nodeId);
-        if (node != null) {
-            Folder res = null;
-            Node parent = node.getParent();
-            if (parent instanceof Group) {
-                res = getOrCreateImageSubFolder(con, (Group) parent);
-            } else {
-                res = getMediaRoot(con);
-            }
-            if (res == null) {
-                throw new Exception("Failed to store Base64 image: Could not get image folder!");
-            }
-            return res;
-        } else {
-            throw new Exception("Failed to store Base64 image: non-existing node ID '" + 
-                                nodeId + "'!");
-        }
-    }
-    
-    private Folder getOrCreateImageSubFolder(StoreConnection con, Group parent)
-    {
-        // Return first image folder (if any)
-        for (Node nd : parent.getChildren()) {
-            if (nd instanceof Folder) {
-                Folder fold = (Folder) nd;
-                if (FolderType.IMAGE.equals(fold.getFolderType())) {
-                    return fold;
-                }
-            }
-        }
-        
-        // No image folder exists. Create image folder.
-        String fname = con.getUserSession().getLabel("label.imagefolder.title");
-        Folder fold = con.createFolder(fname, FolderType.IMAGE);
-        parent.insertChildren(0, fold);
-        return fold;
-    }
-    
-    private Folder getMediaRoot(StoreConnection con)
-    {
-        return (Folder) con.getNodeByAlias(DocmaSession.MEDIA_ROOT_ALIAS);
     }
     
     private byte[] parseBase64(String data)

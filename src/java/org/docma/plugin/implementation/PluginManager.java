@@ -44,11 +44,13 @@ public class PluginManager
     public static final String PLUGIN_PROP_REMOVE_WEBFILES = "remove_webfiles"; // true / false
     public static final String PLUGIN_PROP_LOAD_TYPE = "load_type";  // immediate, next_startup, request_restart
     public static final String PLUGIN_PROP_LOAD_CLASSES = "load_classes";
+    public static final String PLUGIN_PROP_DISABLE_SUPPORTED = "disable_supported";
     // Plugin properties used internally:
     public static final String PLUGIN_PROP_INSTALL_STATUS = "install_status";   // installation status: ok / error
     public static final String PLUGIN_PROP_INSTALL_MESSAGE = "install_message"; // message shown to user in case of error
     public static final String PLUGIN_PROP_LOAD_ON_STARTUP = "load_on_startup";   // true / false
     public static final String PLUGIN_PROP_UNINSTALL_ON_STARTUP = "uninstall_on_startup";   // true / false
+    public static final String PLUGIN_PROP_PREINSTALLED = "preinstalled";  // true / false
     // Plugin property values
     public static final String PLUGIN_INSTALL_STATUS_OK = "ok";
     public static final String PLUGIN_INSTALL_STATUS_ERROR = "error";
@@ -75,6 +77,7 @@ public class PluginManager
 
     private File pluginsDir;
     private File webAppDir;
+    private File preinstalledDir;
     private ApplicationContext appContext;
     private WebContext webContext;
 
@@ -100,8 +103,7 @@ public class PluginManager
         if (! webAppDir.exists()) {
             throw new Exception("PluginManager Exception: WebApp directory does not exist: " + webAppDir);
         }
-        
-        init();
+        preinstalledDir = new File(webAppDir, "docma" + File.separator + "preinstall_plugs");
     }
     
     public File getPluginsDir()
@@ -139,13 +141,17 @@ public class PluginManager
     /*
      * Create plugin controls. Initial state of installed plugins is "unloaded".
      */    
-    private synchronized void init()
+    public synchronized void init()
     {
         if (initialized) return;
 
         Log.info("Plugin manager: initialization started.");
         loadInstalledProps(); // read plugin manager properties
         refreshControls();    // create controls for all installed plugins; initial state is "unloaded"
+        
+        // Load preinstalled plugins
+        PreinstallHelper.preinstallAll(this, preinstalledDir);
+        
         files_restored_on_startup = checkWebFilesOnStartUp();
         if (installedWebFiles.isEmpty()) {  // if not empty then init was already done in checkWebFilesOnStartUp()
             initWebFilesMap();

@@ -15,6 +15,7 @@ package org.docma.plugin.tinymce;
 
 import org.docma.app.ContentUtil;
 import org.docma.app.DocmaConstants;
+import org.docma.app.FigureImgConverter;
 import org.docma.util.CSSUtil;
 import org.docma.util.Log;
 
@@ -31,7 +32,13 @@ public class TinyEditorUtil
 
     public static String prepareContentForEdit(String content, String editorId, String paraIndent)
     {
-        String s = fixIndentForEdit(content, editorId, paraIndent);
+        String s;
+        try {
+            s = FigureImgConverter.figureToImg(content);
+        } catch (Exception ex) {  // invalid xml?
+            s = content;
+        }
+        s = fixIndentForEdit(s, editorId, paraIndent);
         s = addEmptyPara(s);
         return s;
     }

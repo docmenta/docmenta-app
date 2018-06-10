@@ -37,10 +37,10 @@ import org.docma.app.fsimplementation.PublicationArchivesSessImpl;
 public class DocmaSession
 {
     static final String ROOT_ALIAS = "root";
-    static final String DOC_ROOT_ALIAS = "document_root";
-    static final String SYS_ROOT_ALIAS = "system_root";
-    static final String MEDIA_ROOT_ALIAS = "media_root";
-    static final String FILE_ROOT_ALIAS = "file_root";
+    public static final String DOC_ROOT_ALIAS = "document_root";
+    public static final String SYS_ROOT_ALIAS = "system_root";
+    public static final String MEDIA_ROOT_ALIAS = "media_root";
+    public static final String FILE_ROOT_ALIAS = "file_root";
     static final String TEMPLATES_ALIAS = "system_templates";
 
     private final DocmaApplication docmaApp;
@@ -668,6 +668,11 @@ public class DocmaSession
     public void setVersionProperties(String storeId, DocVersionId verId, String[] names, String[] values) throws DocException
     {
         docSess.setVersionProperties(storeId, verId, names, values);
+    }
+    
+    public String[] getVersionPropertyNames(String storeId, DocVersionId verId)
+    {
+        return docSess.getVersionPropertyNames(storeId, verId);
     }
 
     public ApplicationContext getApplicationContext()
@@ -1717,12 +1722,12 @@ public class DocmaSession
     }
 
     public String getNodeIdByAlias(String alias) {
-        if (alias == null) return null;
+        if ((alias == null) || alias.equals("")) return null;
         return docSess.getNodeIdByAlias(alias);
     }
 
     public DocmaNode getNodeByAlias(String alias) {
-        if (alias == null) return null;
+        // if ((alias == null) || alias.equals("")) return null;
         return getNodeById(getNodeIdByAlias(alias));
     }
 

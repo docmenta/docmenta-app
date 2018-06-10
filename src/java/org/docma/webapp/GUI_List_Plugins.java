@@ -307,6 +307,10 @@ public class GUI_List_Plugins implements ListitemRenderer
         PluginControl ctrl = (PluginControl) it.next();
         String msg;
         if (sel_cnt == 1) {
+            if (! ctrl.isDisableSupported()) {
+                Messagebox.show("Disable is not supported for the plugin '" + ctrl.getId() + "'.");
+                return;
+            }
             msg = "Disable plugin '" + ctrl.getId() + "'?";
         } else {
             msg = "Disable " + sel_cnt + " plugins?";
@@ -316,6 +320,9 @@ public class GUI_List_Plugins implements ListitemRenderer
             String restart_msg = null;
             while (true) {
                 try {
+                    if (! ctrl.isDisableSupported()) {
+                        continue;
+                    }
                     if (ctrl.isLoadOnStartUp()) {
                         ctrl.setLoadOnStartUp(false);  // clear flag (do not load plugin on server start-up)
                     }

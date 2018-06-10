@@ -88,6 +88,7 @@ public class DocmaWebApplication extends DocmaApplication implements WebAppPlugI
         try {
             WebContext webCtx = new WebContextImpl(this);
             pluginManager = new PluginManager(pluginsDir, this.applicationCtx, webCtx);
+            pluginManager.init();
         } catch (Exception ex) {
             throw new DocException(ex);
         }

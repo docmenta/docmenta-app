@@ -236,6 +236,23 @@ public class OldTinymceHandler implements ContentAppHandler, EmbeddedContentEdit
         }
     }
 
+    /* -------------   Other public methods   --------------- */
+    
+    public String getCharEntitiesConfigString()
+    {
+        return tinyEntities.getCharEntitiesConfigString();
+    }
+    
+    public String prepareContentForEdit(String content, String paraIndent)
+    {
+        return TinyEditorUtil.prepareContentForEdit(content, getApplicationId(), paraIndent);
+    }
+    
+    public String prepareContentForSave(String content, String paraIndent)
+    {
+        return TinyEditorUtil.prepareContentForSave(content, getApplicationId(), paraIndent);
+    }
+    
     /* -------------   Other methods   --------------- */
     
     private String urlEncode(String s) 
@@ -286,11 +303,6 @@ public class OldTinymceHandler implements ContentAppHandler, EmbeddedContentEdit
     CharEntity[] getCharEntities()
     {
         return tinyEntities.getCharEntities();
-    }
-
-    public String getCharEntitiesConfigString()
-    {
-        return tinyEntities.getCharEntitiesConfigString();
     }
 
 }

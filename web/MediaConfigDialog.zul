@@ -8,7 +8,6 @@
       <toolbarbutton label="Help" onClick='mainWin.onHelp("help/edit_output_config.html")'/>
   </caption>
   <vbox spacing="0px" hflex="1" height="100%" align="stretch" pack="stretch">
-        <!-- <cell width="100%" style="background-color:#FF0000;" > -->
         <tabbox id="MediaConfigTabbox" hflex="1" height="100%" tabscroll="true">
           <tabs >
             <tab id="MediaGeneralOptionsTab" label="General" onSelect='MediaConfigDialog.width="680px"; MediaConfigDialog.invalidate();'/>
@@ -17,6 +16,7 @@
             <tab id="PDFOptionsTab" label="Print/PDF" visible="false" onSelect='MediaConfigDialog.width="520px"; MediaConfigDialog.invalidate();'/>
             <tab id="HeaderFooterOptionsTab" label="Header/Footer" visible="false" forward="onSelect=MediaConfigDialog.onHeaderFooterTabSelected"/>
             <tab id="DocBookOptionsTab" label="DocBook" visible="false" onSelect='MediaConfigDialog.width="404px"; MediaConfigDialog.invalidate();'/>
+            <tab id="ExtendedOptionsTab" label="Extended" onSelect='MediaConfigDialog.width="500px"; MediaConfigDialog.invalidate();'/>
           </tabs>
           <tabpanels style="background-color:#FFFFFF;" height="100%">
             <tabpanel id="MediaGeneralOptionsTabpanel" height="100%">
@@ -336,17 +336,11 @@
                     <checkbox label="Omit title of single sub-section" id="MediaConfigOmitSingleSectionTitleCheckbox"/>
                     <checkbox label="Exclude 1st-Level number from section labels" id="MediaConfigExclude1stLevelNumberCheckbox"/>
                     <checkbox label="Restart numbering in each book part" id="MediaConfigRestartInPartCheckbox"/>
+                    <checkbox label="Show image title as caption line" id="MediaConfigImgToFigureCheckbox"/>
                   </vbox>
                 </groupbox>
               </hbox>
             </tabpanel>
-              <!-- <div style="height:90%;width:2px;background-color:#000000;" /> -->
-              <!-- <image src="img/greypixel.gif" height="400px" width="1px" /> -->
-              <!-- <space spacing="2px" /> -->
-        <!--
-        </groupbox>
-        <space spacing="2px" />
-        -->
             <tabpanel id="HTMLOptionsTabpanel" >
               <?component name="HTMLOutputConfiguration" inline="true" macroURI="config_media_html.zul"?>
               <HTMLOutputConfiguration />
@@ -363,24 +357,12 @@
               <?component name="DocBookOutputConfiguration" inline="true" macroURI="config_media_docbook.zul"?>
               <DocBookOutputConfiguration />
             </tabpanel>
+            <tabpanel id="ExtendedOptionsTabpanel" >
+              <?component name="ExtendedOutputConfiguration" inline="true" macroURI="config_media_extended.zul"?>
+              <ExtendedOutputConfiguration />
+            </tabpanel>
           </tabpanels>
         </tabbox>
-        <!-- </cell> -->
-        <!--
-        <groupbox>
-              <vbox spacing="3px" width="100%">
-                <separator spacing="0px"/>
-                <label value="Format:" style="font-weight:bold;color:#000000;"/>
-                <listbox id="MediaConfigFormatListbox" mold="select" rows="1" onSelect="MediaConfigDialog.onSelectFormat()">
-                    <listitem label="HTML" value="html" />
-                    <listitem label="Print / PDF" value="pdf" />
-                    <listitem label="DocBook" value="docbook" />
-                </listbox>
-                <separator spacing="1px"/>
-                <include id="MediaConfigFormat_include" src="config_media_html.zul" />
-              </vbox>
-        </groupbox>
-        -->
         <separator spacing="4px"/>
         <hbox hflex="1" pack="center">
           <hbox spacing="0px" hflex="min">

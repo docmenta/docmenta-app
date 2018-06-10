@@ -175,9 +175,9 @@ public class DocImageImpl extends DocContentImpl implements DocImage
 
     public void setContentType(String mime_type)
     {
-        if (! mime_type.startsWith("image")) {
-            throw new DocRuntimeException("MIME-Type of an image must be an image type.");
-        }
+        // if (! mime_type.startsWith("image")) {
+        //     throw new DocRuntimeException("MIME-Type of an image must be an image type.");
+        // }
         super.setContentType(mime_type);
     }
 

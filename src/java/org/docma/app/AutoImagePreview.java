@@ -17,6 +17,7 @@ package org.docma.app;
 import org.docma.plugin.*;
 import java.util.*;
 import java.io.*;
+import org.docma.util.CSSParser;
 
 /**
  *
@@ -25,6 +26,8 @@ import java.io.*;
 public class AutoImagePreview implements AutoFormat
 {
     private DocmaExportContext exportCtx;
+    private boolean showImgTitleAsCaption;
+    private boolean useFigureTag;
     private boolean isTitleAfter;
     private String titlePattern;
 
@@ -33,6 +36,8 @@ public class AutoImagePreview implements AutoFormat
     {
         exportCtx = (DocmaExportContext) ctx;
         DocmaOutputConfig outConf = exportCtx.getOutputConfig();
+        showImgTitleAsCaption = outConf.isImgWithTitleToFigure();
+        useFigureTag = outConf.isHtmlFigureTagOutput();
         isTitleAfter = outConf.getTitlePlacement().equalsIgnoreCase("after");
         titlePattern = exportCtx.getGenTextProperty("title|figure");
         if ((titlePattern == null) || titlePattern.trim().equals("")) {
@@ -47,6 +52,34 @@ public class AutoImagePreview implements AutoFormat
 
     public void transform(TransformationContext ctx) throws Exception
     {
+        // Image with title <img ... title="..." class="..." style="..." /> 
+        // is converted to:
+        //
+        // 1) Img has no style attribute or style attribute does not contain float:
+        // 1.1) Use figure output:
+        //         <figure>
+        //            <img ... class="..." style="..." />
+        //            <figcaption>...</figcaption>
+        //         </figure>
+        //
+        // 1.2) No figure output. Img element is unchanged, but title line is generated.
+        //
+        // 1.2.1) Left-aligned
+        //
+        //        <img ... />
+        //        <br /><span class="title-preview caption">...</span>     
+        //
+        // 1.2.2) Right-aligned / Centered
+        //
+        //        <img ... class="align-right" />
+        //        <div class="caption align-right">...</div>
+        //
+        // 2) Img has style attribute with float property
+        // 2.1  Use figure output:
+        //
+        // 2.2  No figure output:
+        // 
+        
         Writer out = ctx.getWriter();
         if (! ctx.getTagName().equals("img")) {
             exportCtx.logError("Cannot apply auto-format " + this.getClass().getName() +
@@ -54,6 +87,12 @@ public class AutoImagePreview implements AutoFormat
             out.write(ctx.getOuterString());  // do not change block
             return;
         }
+        
+        if (! showImgTitleAsCaption) {  // if transformation is disabled...
+            out.write(ctx.getOuterString());  // ...do not change the image
+            return;
+        }
+        
         Map<String, String> atts = ctx.getTagAttributes();
         String title = atts.get("title");
         if (title == null) {
@@ -66,18 +105,47 @@ public class AutoImagePreview implements AutoFormat
         String cls_val = atts.get("class");
         String style_val = atts.get("style");
         boolean is_float = (style_val != null) && style_val.contains("float");
+        String float_val = null;
+        String imgStyleNew = null;
         if (is_float) {
-            boolean is_left = style_val.contains("left");
-            boolean is_right = is_left ? false : style_val.contains("right");
+            SortedMap<String, String> cssprops = CSSParser.parseCSSProperties(style_val);
+            float_val = cssprops.remove("float");
+            if (float_val == null) {
+                is_float = false;
+            } else {
+                imgStyleNew = CSSParser.propertiesToString(cssprops);
+            }
+        }
+        
+        if (is_float) {
+            boolean is_left = float_val.contains("left");
+            boolean is_right = is_left ? false : float_val.contains("right");
             String float_cls = is_left ? "float_left " : (is_right ? "float_right " : "");
-            out.write("<div class=\"" + float_cls + "figure-float\" style=\"" + style_val.replace('"', ' ') + "\">");
+            
+            if (useFigureTag) {
+                out.write("<figure class=\"" + float_cls + "figure-float\" style=\"float:" + float_val.replace('"', ' ') + "\">");
+            } else {
+                out.write("<div class=\"" + float_cls + "figure-float\" style=\"float:" + float_val.replace('"', ' ') + "\">");
+            }
+        } else {
+            if (useFigureTag) {
+                out.write("<figure>");
+            }
         }
         if (! isTitleAfter) {
             writeCaption(out, title, cls_val);
             // out.write("<br />");
         }
         if (is_float) {
-            writeOuterExcludeAttribute(ctx, out, atts, "style");  // Write image tag but exclude the style attribute
+            // Write image tag, but exclude the float property from the style attribute
+            // (the float property has been moved to the enclosing div).
+            if ((imgStyleNew == null) || imgStyleNew.equals("")) {
+                atts.remove("style");
+            } else {
+                atts.put("style", imgStyleNew);
+            }
+            writeOuter(ctx, out, atts);
+            // writeOuterExcludeAttribute(ctx, out, atts, "style");  // Write image tag but exclude the style attribute
         } else {
             out.write(ctx.getOuterString());  // Write image tag unchanged
         }
@@ -85,12 +153,30 @@ public class AutoImagePreview implements AutoFormat
             // out.write("<br />");
             writeCaption(out, title, cls_val);
         }
-        if (is_float) {
+        if (useFigureTag) {
+            out.write("</figure>");
+        } else if (is_float) {
             out.write("</div>");
         }
     }
 
     private void writeCaption(Writer out, String title, String img_cls) throws Exception
+    {
+        if (useFigureTag) {
+            writeFigCaption(out, title);
+        } else {
+            writeImgCaption(out, title, img_cls);
+        }
+    }
+    
+    private void writeFigCaption(Writer out, String title) throws Exception
+    {
+            out.write("<figcaption>");
+            out.write(titlePattern.replace("%t", title));
+            out.write("</figcaption>");
+    }
+    
+    private void writeImgCaption(Writer out, String title, String img_cls) throws Exception
     {
         String align_cls = null;
         boolean is_left = false;
@@ -159,24 +245,39 @@ public class AutoImagePreview implements AutoFormat
 //        out.write(titlePattern.replace("%t", title));
 //        out.write("</p>");
 //    }
-    
-    private void writeOuterExcludeAttribute(TransformationContext ctx,
-                                            Writer out,
-                                            Map<String, String> atts, 
-                                            String excludeAtt) throws IOException
+
+    private void writeOuter(TransformationContext ctx,
+                            Writer out,
+                            Map<String, String> atts) throws IOException
     {
         out.write("<");
         out.write(ctx.getTagName());
         Iterator<String> it = atts.keySet().iterator();
         while (it.hasNext()) {
             String aname = it.next();
-            if (! aname.equals(excludeAtt)) {
-                out.write(" " + aname + "=\"" +  atts.get(aname).replace('"', ' ') + "\"");
-            }
+            out.write(" " + aname + "=\"" +  atts.get(aname).replace('"', ' ') + "\"");
         }
         out.write("/>");
         // Note: It is assumed that inner string is empty (the img element cannot contain other elements)!
     }
+    
+//    private void writeOuterExcludeAttribute(TransformationContext ctx,
+//                                            Writer out,
+//                                            Map<String, String> atts, 
+//                                            String excludeAtt) throws IOException
+//    {
+//        out.write("<");
+//        out.write(ctx.getTagName());
+//        Iterator<String> it = atts.keySet().iterator();
+//        while (it.hasNext()) {
+//            String aname = it.next();
+//            if (! aname.equals(excludeAtt)) {
+//                out.write(" " + aname + "=\"" +  atts.get(aname).replace('"', ' ') + "\"");
+//            }
+//        }
+//        out.write("/>");
+//        // Note: It is assumed that inner string is empty (the img element cannot contain other elements)!
+//    }
 
     public String getShortInfo(String languageCode)
     {
@@ -188,7 +289,7 @@ public class AutoImagePreview implements AutoFormat
         return "";
     }
 
-    private String getDefaultTitlePattern(String lang)
+    static String getDefaultTitlePattern(String lang)
     {
         if (lang == null) lang = "en";
         else lang = lang.toLowerCase();

@@ -127,6 +127,7 @@ div.z-listheader-cnt { height:16px; max-height:16px; color:#000000; font-weight:
                 <menuitem id="menuitemFindReferencesAll" label="${c:l('label.menuitem.findreferences')}" forward="mainWin.onFindReferencesAll" />
                 <menuitem id="menuitemFindStyleAll" label="${c:l('label.menuitem.findstyle')}" forward="mainWin.onFindStyleAll" />
                 <menuitem id="menuitemFindApplicAll" label="${c:l('label.menuitem.findapplic')}" forward="mainWin.onFindApplicAll" />
+                <menuitem id="menuitemFindXPathAll" label="${c:l('label.menuitem.findxpath')}" forward="mainWin.onFindXPathAll" />
                 <menuitem id="menuitemClearCutList" label="${c:l('label.menuitem.clearcutlist')}" forward="mainWin.onClearCutCopyList" />
                 <menuseparator/>
                 <menuitem id="menuitemSwitchLayout" label="${c:l('label.menuitem.switchlayout')}" forward="mainWin.onSwitchContentLayout" />
@@ -1047,7 +1048,8 @@ div.z-listheader-cnt { height:16px; max-height:16px; color:#000000; font-weight:
 <?component name="SearchReplaceDialog" inline="true" macroURI="SearchReplaceDialog.zul"?>
 <SearchReplaceDialog />
 
-<?component name="FindNodesDialog" inline="true" macroURI="FindNodesDialog.zul"?>
+<?component name="FindNodesDialog" inline="true" macroURI="FindNodesDialog.zul" 
+            winmode="overlapped"  ?>
 <FindNodesDialog />
 
 <?component name="CharEntityDialog" inline="true" macroURI="CharEntityDialog.zul"?>

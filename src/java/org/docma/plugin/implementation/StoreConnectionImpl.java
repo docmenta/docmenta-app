@@ -310,6 +310,10 @@ public class StoreConnectionImpl implements StoreConnection
                 } else {
                     nd.setFileName(filename);
                 }
+                String mime = ImageUtil.guessMIMETypeByExt(ext);
+                if (mime != null) {
+                    nd.setContentType(mime);
+                }
             } else {
                 nd = docmaSess.createFileContent();
                 nd.setFileName(filename);

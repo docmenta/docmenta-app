@@ -19,6 +19,7 @@
     String cont = request.getParameter("nodecontent");
     WebUserSession webSess = WebPluginUtil.getUserSession(application, docsess);
     StoreConnection storeConn = webSess.getOpenedStore();
+    ContentAppHandler apphandler = webSess.getContentAppHandler(editorId);
 
     // Save content or cancel (confirm discard if content changed)
     boolean isCancel = (close_str != null) &&
@@ -38,8 +39,12 @@
             throw new Exception("Store connection of user session is closed!");
         }
         
-        // Prepare content for saving (editor specific and general XHTML cleaning)
-        cont = TinyEditorUtil.prepareContentForSave(cont, editorId, para_indent);
+        // Prepare content for saving (editor specific)
+        if (apphandler instanceof OldTinymceHandler) {
+            cont = ((OldTinymceHandler) apphandler).prepareContentForSave(cont, para_indent);
+        } else if (apphandler instanceof ContentEditHandler) {
+            cont = ((ContentEditHandler) apphandler).prepareContentForSave(cont, webSess);
+        }
         StringBuilder cont_buf = new StringBuilder(cont);
 
         // Apply HTML rules (transform quick links, trim empty paragraphs,...) 
@@ -71,7 +76,7 @@
             String old_cont = node.getContentString();
             if (isCancel) {
                 // If content changed, show confirmation message
-                if (TinyEditorUtil.contentIsEqual(cont, old_cont, false)) {
+                if (ContentEditUtil.contentIsEqual(cont, old_cont, false)) {
                     node.removeLock();
                     cancelAction = "parent.doCancel();";
                 } else {
@@ -79,7 +84,7 @@
                 }
             } else {
                 // Save content
-                if (! TinyEditorUtil.contentIsEqual(cont, old_cont, true)) {
+                if (! ContentEditUtil.contentIsEqual(cont, old_cont, true)) {
                     storeConn.startTransaction();
                     try {
                         node.makeRevision();
@@ -123,7 +128,6 @@
     if (! isCancel) {
         // Save window position and size:
         try {
-            ContentAppHandler apphandler = webSess.getContentAppHandler(editorId);
             if (apphandler instanceof WindowPositionStorage) {
                 ((WindowPositionStorage) apphandler).setWindowPos(webSess, win_xpos, win_ypos);
             } 

@@ -1,0 +1,124 @@
+<?component name="ckconflabel" extends="label" style="white-space:nowrap;" ?>
+
+<window id="CKEditConfDialog" title="${labels.internal_ckeditor.config_dialog_title}" border="normal" 
+        width="628px" visible="false" contentStyle="padding:6px 12px 8px 12px;"
+        closable="true" sizable="true" onClose="self.visible = false; event.stopPropagation();"
+        apply="org.docma.plugin.ckeditor.CKEditConfComposer" 
+        xmlns:h="http://www.zkoss.org/2005/zk/native"> 
+  <caption>
+    <toolbarbutton id="CKEditConfHelpBtn" label="${labels.internal_ckeditor.btn_help}" />
+  </caption>
+
+  <vbox spacing="4px" hflex="1" align="stretch">
+
+    <hbox spacing="4px">
+        <label style="font-weight:bold; white-space:nowrap;">${labels.internal_ckeditor.app_path}:</label>
+        <label id="CKEditConfAppPath"></label>
+    </hbox>
+
+    <hbox hflex="1" vflex="min" pack="stretch" spacing="6px">
+        
+      <!-- Editor options -->
+      <groupbox hflex="1">
+        <caption label="${labels.internal_ckeditor.editor_options}: " style="font-weight:bold;"/>
+        <vbox hflex="1" align="stretch">
+          <checkbox id="CKEditConfPastePlainBox" label="${labels.internal_ckeditor.paste_plain}" />
+          <checkbox id="CKEditConfIgnoreEmptyParaBox" label="${labels.internal_ckeditor.ignore_empty_para}" />
+          <checkbox id="CKEditConfImgAltRequiredBox" label="${labels.internal_ckeditor.img_alt_required}" />
+          <checkbox id="CKEditConfImgDisableResizeBox" label="${labels.internal_ckeditor.img_disable_resize}" />
+          <checkbox id="CKEditConfDisableNativeSpellcheckBox" label="${labels.internal_ckeditor.disable_native_spellcheck}" />
+          <checkbox id="CKEditConfDisableNativeTableHandlesBox" label="${labels.internal_ckeditor.disable_native_tablehandles}" />
+          <checkbox id="CKEditConfConfirmDialogCancelBox" label="${labels.internal_ckeditor.confirm_dialog_cancel}" />
+        </vbox>
+      </groupbox>
+      
+      <!-- UI Settings -->
+      <groupbox hflex="1">
+        <caption label="${labels.internal_ckeditor.ui_settings}: " style="font-weight:bold;"/>
+        <vbox hflex="1" align="stretch">
+          <hbox hflex="1" pack="stretch" align="center" spacing="4px">
+            <label hflex="1">${labels.internal_ckeditor.skin}:</label>
+            <listbox id="CKEditConfSkinBox" mold="select" rows="1"></listbox>
+          </hbox>
+          <hbox hflex="1" pack="stretch" align="center" spacing="4px">
+            <label hflex="1">${labels.internal_ckeditor.ui_color}:</label>
+            <colorbox id="CKEditConfUIColorBox" />
+          </hbox>
+          <hbox hflex="1" pack="stretch" align="center" spacing="4px">
+            <label hflex="1">${labels.internal_ckeditor.dialog_bg_opacity}:</label>
+            <doublespinner id="CKEditConfDialogBgOpacityBox" step="0.1" value="0.5" locale="en" constraint="min 0 max 1" cols="4"/>
+          </hbox>
+          <hbox hflex="1" pack="stretch" align="center" spacing="4px">
+            <label hflex="1">${labels.internal_ckeditor.toolbar_pos}:</label>
+            <listbox id="CKEditConfToolbarPosBox" mold="select" rows="1">
+              <listitem label="${labels.internal_ckeditor.toolbar_pos_top}" value="top" />
+              <listitem label="${labels.internal_ckeditor.toolbar_pos_bottom}" value="bottom" />
+            </listbox>
+          </hbox>
+          <hbox hflex="1" pack="stretch" align="center" spacing="8px">
+            <label hflex="min">${labels.internal_ckeditor.remove_buttons}:</label>
+            <textbox id="CKEditConfRemoveButtonsBox" value="" hflex="1" maxlength="8000" />
+          </hbox>
+        </vbox>
+      </groupbox>
+
+    </hbox>
+    
+    <hbox hflex="1" vflex="min" pack="stretch" spacing="6px">
+      
+      <!-- Character Entity Settings -->
+      <groupbox hflex="1">
+        <caption label="${labels.internal_ckeditor.entity_settings}: " style="font-weight:bold;"/>
+        <vbox hflex="1" align="stretch">
+          <checkbox id="CKEditConfHTMLEntitiesBox" label="${labels.internal_ckeditor.entities_html}" />
+          <checkbox id="CKEditConfGreekEntitiesBox" label="${labels.internal_ckeditor.entities_greek}" />
+          <checkbox id="CKEditConfLatinEntitiesBox" label="${labels.internal_ckeditor.entities_latin}" />
+          <hbox align="center">
+            <checkbox id="CKEditConfUserEntitiesBox" label="${labels.internal_ckeditor.entities_user}" />
+            <listbox id="CKEditConfUserEntitiesListbox" mold="select" rows="1">
+              <listitem label="${labels.internal_ckeditor.entities_user_symbolic}" value="symbolic" />
+              <listitem label="${labels.internal_ckeditor.entities_user_numeric}" value="numeric" />
+            </listbox>
+          </hbox>
+          <checkbox id="CKEditConfNumericEntitiesBox" label="${labels.internal_ckeditor.entities_numeric}" />
+          <hbox pack="stretch" align="center">
+            <space spacing="16px" /> 
+            <listbox id="CKEditConfNumericEntitiesListbox" mold="select" rows="1">
+              <listitem label="${labels.internal_ckeditor.entities_numeric_other}" value="other" />
+              <listitem label="${labels.internal_ckeditor.entities_numeric_all}" value="all" />
+            </listbox>
+          </hbox>
+        </vbox>
+      </groupbox>
+      
+      <!-- Figure Settings -->
+      <groupbox hflex="1">
+        <caption label="${labels.internal_ckeditor.figure_tag_support}: " style="font-weight:bold;"/>
+        <vbox hflex="1" align="stretch">
+          <listbox id="CKEditConfFigTagListbox" mold="select" rows="1">
+            <listitem label="${labels.internal_ckeditor.figure_tag_off}" value="disabled" selected="true" />
+            <listitem label="${labels.internal_ckeditor.figure_tag_on}" value="enabled" />
+            <listitem label="${labels.internal_ckeditor.figure_tag_off_sel}" value="disabled_products" />
+            <listitem label="${labels.internal_ckeditor.figure_tag_on_sel}" value="enabled_products" />
+          </listbox>
+          <hbox align="start" pack="stretch">
+            <space spacing="4px" />
+            <label>${labels.internal_ckeditor.figure_products}:</label>
+            <textbox id="CKEditConfFigTagProductsBox" value="" hflex="1" rows="4" maxlength="8000" />
+          </hbox>
+          <hbox align="center">
+            <label>${labels.internal_ckeditor.figure_css_class}:</label>
+            <textbox id="CKEditConfFigTagClassBox" value="" hflex="1" maxlength="80" />
+          </hbox>
+        </vbox>
+      </groupbox>
+    </hbox>
+    
+    <separator spacing="3px"/>
+    
+    <hbox hflex="1" spacing="4px">
+      <button id="CKEditConfSaveBtn" label="${labels.internal_ckeditor.btn_okay}" image="img/save.gif" hflex="1" />
+      <button id="CKEditConfCancelBtn" label="${labels.internal_ckeditor.btn_cancel}" image="img/cancel.gif" hflex="1" />
+    </hbox>
+  </vbox>
+</window>

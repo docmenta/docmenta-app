@@ -382,7 +382,7 @@ public class FormattingEngine
         return defaultDocBookOutConfig;
     }
 
-    public void formatHTML2DocBook(StreamSource htmlPrintInstance,
+    public void formatHTML2DocBook(String htmlPrintInstance,
                                    OutputStream output,
                                    DocmaPublicationConfig pub_config,
                                    DocmaOutputConfig out_config,
@@ -463,8 +463,7 @@ public class FormattingEngine
                 if (! DocmaConstants.DEBUG) DocmaUtil.recursiveFileDelete(workDir);
             }
         } else {
-            StreamSource htmlPrintInstance = new StreamSource(new StringReader(html_in));
-            File docbookfile = html2docbook(htmlPrintInstance, out_config, export_log);
+            File docbookfile = html2docbook(html_in, out_config, export_log);
 
             if (is_webhelp) {
                 docbook2webhelp(docbookfile, outputDir, base_URL, pub_config, out_config, styles, export_log);
@@ -486,7 +485,7 @@ public class FormattingEngine
         return outputDir;
     }
 
-    public void formatHTML2PDF(StreamSource htmlPrintInstance,
+    public void formatHTML2PDF(String htmlPrintInstance,
                                OutputStream output,
                                String base_URL,
                                DocmaPublicationConfig pub_config,
@@ -533,7 +532,7 @@ public class FormattingEngine
 
     }
 
-    private File html2docbook(StreamSource htmlPrintInstance, DocmaOutputConfig outConfig, ExportLog export_log) throws Exception
+    private File html2docbook(String htmlPrintInstance, DocmaOutputConfig outConfig, ExportLog export_log) throws Exception
     {
         File docbookfile = createTempFile("xml");
         FileOutputStream docbookout = new FileOutputStream(docbookfile);
@@ -543,11 +542,18 @@ public class FormattingEngine
         return docbookfile;
     }
 
-    private void html2docbook(StreamSource htmlPrintInstance,
+    private void html2docbook(String htmlPrintInstance,
                               DocmaOutputConfig outConfig,
                               StreamResult output, 
                               ExportLog export_log) throws Exception
     {
+        // Add entity declarations for all symbolic entities referenced in
+        // htmlPrintInstance. Otherwise the XSL transformer gives an error.
+        htmlPrintInstance = 
+            FormatterUtil.insertDocTypeEntities(htmlPrintInstance, outConfig.getCharEntities(), export_log);
+        StreamSource inStream = new StreamSource(new StringReader(htmlPrintInstance));
+        // instream.setSystemId(imagepath);
+        
         String out_format = outConfig.getFormat();
         if (DocmaConstants.DEBUG) {
             System.out.println("Output configuration format: " + out_format);
@@ -555,12 +561,14 @@ public class FormattingEngine
         boolean is_pdf = outConfig.getFormat().equalsIgnoreCase("pdf");
         String out_type = is_pdf ? "print" : "interactive";
         boolean fit_images = out_type.equals("print") && outConfig.isPdfFitImages();
+        boolean img_to_fig = outConfig.isImgWithTitleToFigure();
         
         Transformer htmlTransformer = acquireHtml2DocbookTransformer(is_pdf, export_log);
         try {
             htmlTransformer.setParameter("docma_output_type", out_type);
             htmlTransformer.setParameter("docma_fit_images", fit_images ? "true" : "false");
-            htmlTransformer.transform(htmlPrintInstance, output);
+            htmlTransformer.setParameter("docma_img_to_figure", img_to_fig ? "true" : "false");
+            htmlTransformer.transform(inStream, output);
         } finally {
             releaseHtml2DocbookTransformer(is_pdf, htmlTransformer);
         }

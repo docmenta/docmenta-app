@@ -18,6 +18,7 @@ import java.io.*;
 import java.util.*;
 import org.docma.coreapi.DocVersionId;
 import org.docma.coreapi.ExportLog;
+import org.docma.plugin.CharEntity;
 import org.docma.util.DocmaUtil;
 import org.docma.util.ZipUtil;
 
@@ -27,12 +28,125 @@ import org.docma.util.ZipUtil;
  */
 public class FormatterUtil
 {
+
+    public static String insertDocTypeEntities(String html, 
+                                               CharEntity[] declaredEntities, 
+                                               ExportLog exportLog)
+    {
+        if (declaredEntities == null) {
+            return html;  // no declared character entities; nothing to do
+        }
+        SortedSet<String> foundEntities = new TreeSet<String>();
+        extractSymbolicEntities(html, foundEntities);
+        if (foundEntities.isEmpty()) {
+            return html;  // no symbolic entities in input; nothing to do
+        }
+        
+        // Create map of declared entities
+        Map<String, CharEntity> declaredMap = new HashMap<String, CharEntity>((2 * foundEntities.size()) + 15);
+        for (CharEntity ent : declaredEntities) {
+            String sym = ent.getSymbolic();
+            if (sym != null) {
+                if (sym.startsWith("&") && sym.endsWith(";")) {
+                    sym = sym.substring(1, sym.length() - 1);
+                }
+                declaredMap.put(sym, ent);
+            }
+        }
+
+        // Create DTD entity declarations for all referenced symbolic entities. 
+        StringBuilder insertEntities = new StringBuilder();
+        for (String symbol : foundEntities) {
+            CharEntity ent = declaredMap.get(symbol);
+            if (ent != null) {
+                String num = ent.getNumeric();
+                if ((num != null) && num.startsWith("&#") && num.endsWith(";")) {
+                    insertEntities.append("<!ENTITY ").append(symbol).append(" \"").append(num).append("\"> \n");
+                } else {
+                    warning(exportLog, "Entity " + symbol + " has no valid numeric representation.");
+                }
+            }
+        }
+        if (insertEntities.length() == 0) {
+            return html;  // no valid symbolic entities; nothing to do
+        }
+        
+        //
+        // Search insert position and insert entity declarations in html
+        //
+        int rootStart = html.indexOf("<html");
+        if (rootStart < 0) {
+            error(exportLog, "Invalid XHTML: root element html not found.");
+        }
+        final String DOCTYPE_START = "<!DOCTYPE";
+        int dtStart = html.lastIndexOf(DOCTYPE_START, rootStart);
+        if (dtStart < 0) {
+            // Insert DOCTYPE before root element.
+            html = html.substring(0, rootStart) + 
+                   "<!DOCTYPE html [ \n" + insertEntities + "]>\n" + 
+                   html.substring(rootStart);
+        } else {
+            // Add entity declaration to DOCTYPE.
+            // Two cases: 1) DOCTYPE has no square brackets
+            //            2) DOCTYPE has square brackets   
+            int p1 = dtStart + DOCTYPE_START.length();
+            int dtEnd = html.indexOf('>', p1);
+            if (dtEnd < 0) {
+                error(exportLog, "Invalid DOCTYPE declaration.");
+            }
+            int offset = html.substring(p1, dtEnd).indexOf("[");
+            if (offset < 0) {
+                html = html.substring(0, dtEnd) + " [\n" + insertEntities + "]" + html.substring(dtEnd);
+            } else {
+                int p2 = p1 + offset + 1;  // position after opening square bracket
+                html = html.substring(0, p2) + "\n" + insertEntities + html.substring(p2);
+            }
+        }
+        
+        return html;
+    }
+    
+    public static void extractSymbolicEntities(String str, Set<String> result) 
+    {
+        int start_pos = 0;
+        int len = str.length();
+        while (start_pos < len) {
+            int p1 = str.indexOf('&', start_pos);
+            if (p1 < 0) return;  // no more entities found
+            
+            // Read until ; or whitespace; skip numeric entities
+            int entityLen = 0;
+            int p2 = p1 + 1;
+            while (p2 < len) {
+                char ch = str.charAt(p2);
+                if ((ch == '#') || Character.isWhitespace(ch)) {
+                    // Numeric entity or whitespace before closing semicolon; 
+                    break;  // start_pos will be set to p2; search next & character
+                } else if (ch == ';') {  // Found closing semicolon (end of entity)
+                    String symbol = str.substring(p1 + 1, p2);
+                    if (! symbol.equals("")) {
+                        result.add(symbol);
+                    }
+                    break;  // start_pos will be set to p2; search next & character
+                } else if (ch == '&') {  // Found start of next entity
+                    break;  // start_pos will be set to p2
+                }
+                
+                if (++entityLen > 80) {  // If end of entity not within 80 characters, search next & character 
+                    break;
+                }
+                p2++;
+            }
+            start_pos = p2;
+        }
+    }
+
     public static void writeCustomOutputFiles(File outDir, 
                                               DocmaOutputConfig outConf,
                                               DocmaSession docmaSess, 
                                               DocmaExportContext exportCtx)
     {
-        String files_str = outConf.getHtmlCustomFiles();
+        String files_str = outConf.getCustomFiles();
         if ((files_str == null) || files_str.trim().equals("")) {
             return;
         }
@@ -415,6 +529,20 @@ public class FormatterUtil
             return "0" + s;
         } else {
             return s;
+        }
+    }
+
+    private static void error(ExportLog export_log, String msg) 
+    {
+        if (export_log != null) {
+            export_log.errorMsg(msg);
+        }
+    }
+    
+    private static void warning(ExportLog export_log, String msg) 
+    {
+        if (export_log != null) {
+            export_log.warningMsg(msg);
         }
     }
 

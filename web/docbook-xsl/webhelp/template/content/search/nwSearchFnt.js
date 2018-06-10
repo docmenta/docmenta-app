@@ -96,11 +96,26 @@ function Effectuer_recherche(expressionInput) {
      * Compare with the indexed words (in the w[] array), and push words that are in it to tempTab.
      */
     var tempTab = new Array();
-    for (var t in finalWordsList) {
-        if (w[finalWordsList[t].toString()] == undefined) {
-            txt_wordsnotfound += finalWordsList[t] + " ";
+    var finalEntries = new Array();
+    for (var i=0; i < finalWordsList.length; i++) { 
+        var aWord = finalWordsList[i];
+        var entries = getIndexEntries(aWord);
+        // If no index entry exists, remove up to 3 characters from search term to find matches that
+        // only differ by last 3 letters (fallback in case of incorrect stemmer results).
+        var deleteChars = 3;
+        var bWord = aWord;
+        while ((entries.length == 0) && (bWord.length >= 4) && (--deleteChars >= 0)) {
+            bWord = bWord.substr(0, bWord.length - 1);
+            entries = getIndexEntries(bWord);
+        }
+        if (entries.length == 0) {
+            txt_wordsnotfound += aWord + " ";
         } else {
-            tempTab.push(finalWordsList[t]);
+            for (var k = 0; k < entries.length; k++) {
+                var ent = entries[k];
+                tempTab.push(ent['idxWord']);
+                finalEntries.push(ent['fileList']);
+            }
         }
     }
     finalWordsList = tempTab;
@@ -108,7 +123,7 @@ function Effectuer_recherche(expressionInput) {
     if (finalWordsList.length) {
 
         //search 'and' and 'or' one time
-        fileAndWordList = SortResults(finalWordsList);
+        fileAndWordList = SortResults(finalWordsList, finalEntries);
 
         var cpt = fileAndWordList.length;
         for (var i = cpt - 1; i >= 0; i--) {
@@ -154,6 +169,24 @@ function Effectuer_recherche(expressionInput) {
     }
     //alert(results);
     document.getElementById('searchResults').innerHTML = results; 
+}
+
+function getIndexEntries(aWord) {
+    var res = new Array(); 
+    var found = w[aWord];
+    if (found != undefined) {
+        res.push({ 'idxWord': aWord, 'fileList': found });
+    }
+    if (aWord.length < 2) {
+        return res;
+    }
+    for (var x in w) {  // iterate over all index entries
+        // Find index entries where aWord is a substring
+        if ((x.indexOf(aWord) >= 0) && (x != aWord)) {
+            res.push({ 'idxWord': x, 'fileList': w[x]});
+        }
+    }
+    return res;
 }
 
 function tokenize(wordsList){
@@ -421,16 +454,16 @@ function indexof(tab, element, begin) {
 
  Return value: the hashtable fileAndWordList
  */
-function SortResults(mots) {
+function SortResults(mots, idx_entries) {
 
     var fileAndWordList = new Object();
     if (mots.length == 0) {
         return null;
     }
 
-    for (var t in mots) {
+    for (var t = 0; t < mots.length;  t++) {
         // get the list of the indices of the files.
-        var listNumerosDesFicStr = w[mots[t].toString()];
+        var listNumerosDesFicStr = idx_entries[t]; // w[mots[t].toString()];
         //alert ("listNumerosDesFicStr "+listNumerosDesFicStr);
         var tab = listNumerosDesFicStr.split(",");
 

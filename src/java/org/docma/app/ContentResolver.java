@@ -71,6 +71,66 @@ public class ContentResolver
                                    false, level, searchTerm, ignoreCase, matches);
     }
 
+    static String resolveSectionTitle(DocmaExportContext exportCtx, String title)
+    {
+        if ((exportCtx == null) || (title == null)) {
+            return title;
+        }
+        // Resolve title inclusions: 
+        // [# ... ] is a title inclusion.
+        int start_pos = 0;
+        String[] effectiveFilter = null;
+        while (start_pos < title.length()) {
+            int p1 = title.indexOf("[", start_pos);
+            if (p1 < 0) break;
+            start_pos = p1 + 1;
+            if (start_pos == title.length()) break;
+            char next_char = title.charAt(start_pos);
+            // if ((next_char != '#') && (next_char != '$')) {
+            //     continue;
+            // }
+            boolean isTitleInc = (next_char == '#');
+            if (isTitleInc) {
+                int name_start = p1 + 2;
+                start_pos = name_start;
+
+                int p2 = title.indexOf("]", name_start);
+                if (p2 < 0) {
+                    continue;
+                }
+
+                String name = title.substring(name_start, p2);
+                if ((name.length() == 0) || !name.matches(DocmaConstants.REGEXP_ALIAS_LINK)) { 
+                    continue;  // no valid alias
+                }
+
+                // Get referenced node
+                if (effectiveFilter == null) {
+                    DocmaOutputConfig outConf = exportCtx.getOutputConfig();
+                    effectiveFilter = (outConf == null) ? null : outConf.getEffectiveFilterApplics();  // null means unfiltered
+                }
+                DocmaSession docmaSess = exportCtx.getDocmaSession();
+                DocmaNode ref_node = docmaSess.getApplicableNodeByLinkAlias(name, effectiveFilter);
+                if (ref_node == null) {
+                    continue;
+                }
+
+                // Get title of referenced node
+                String replace_str = ref_node.getTitleEntityEncoded();
+                if (replace_str == null) { 
+                    replace_str = "";
+                }
+
+                // p1 is position of first character to be replaced.
+                // p2 is position of last character to be replaced.
+                // replace_str is the replacement string.
+                title = title.substring(0, p1) + replace_str + title.substring(p2 + 1);
+                start_pos = p1 + replace_str.length();
+            }
+        }
+        return title;
+    }
+    
     private static String getContentRecursive(DocmaNode node,
                                               Set idSet,
                                               DocmaExportContext exportCtx,

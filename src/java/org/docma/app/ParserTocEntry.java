@@ -174,6 +174,15 @@ class ParserTocEntry
         this.alias = alias;
     }
 
+    public void setAliasIfNotExists(String value) 
+    {
+        if (value != null) {
+            if ((this.alias == null) || this.alias.equals("")) {
+                this.alias = value;
+            }
+        }
+    }
+
     public String getLinkURL() 
     {
         if (this.linkURL == null) {

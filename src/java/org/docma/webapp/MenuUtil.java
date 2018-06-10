@@ -108,6 +108,7 @@ public class MenuUtil
         addItem(submenu2, clientMode, "menuitemFindReferences", i18n.getLabel("label.menuitem.findreferences"), null, "onFindReferences");
         addItem(submenu2, clientMode, "menuitemFindStyle", i18n.getLabel("label.menuitem.findstyle"), null, "onFindStyle");
         addItem(submenu2, clientMode, "menuitemFindApplic", i18n.getLabel("label.menuitem.findapplic"), null, "onFindApplic");
+        addItem(submenu2, clientMode, "menuitemFindXPath", i18n.getLabel("label.menuitem.findxpath"), null, "onFindXPath");
         addItem(submenu2, clientMode, "menuitemSortByFilename", i18n.getLabel("label.menuitem.sortbyfilename"), null, "onSortByFilename");
         addItem(submenu2, clientMode, "menuitemExportNodes", i18n.getLabel("label.menuitem.exportnodes"), "img/export_icon.gif", "onExportNodes");
         addItem(submenu2, clientMode, "menuitemImportSubNodes", i18n.getLabel("label.menuitem.importsubnodes"), "img/import_icon.gif", "onImportSubNodes");

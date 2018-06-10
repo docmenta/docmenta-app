@@ -35,6 +35,16 @@ public class PluginContextImpl implements WebPluginContext
         return pluginCtrl.getId();
     }
 
+    public String getPluginVersion() 
+    {
+        return pluginCtrl.getVersion();
+    }
+
+    public String getPluginProperty(String propName) 
+    {
+        return pluginCtrl.getPluginProperty(propName);
+    }
+
     public ApplicationContext getApplicationContext() 
     {
         return pluginCtrl.getPluginManager().getApplicationContext();

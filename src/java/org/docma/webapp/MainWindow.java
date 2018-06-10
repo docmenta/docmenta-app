@@ -3196,6 +3196,19 @@ public class MainWindow extends Window implements EventListener
         }
     }
 
+    public void onFindXPathAll() throws Exception
+    {
+        getFindNodesComposer().doFindXPath(getDocmaSession(), null);
+    }
+    
+    public void onFindXPath() throws Exception
+    {
+        DocmaNode node = getSelectedDocmaNode(true);
+        if (node != null) {
+            getFindNodesComposer().doFindXPath(getDocmaSession(), node);
+        }
+    }
+
     public void onFindApplicAll() throws Exception
     {
         getFindNodesComposer().doFindApplic(getDocmaSession(), null);

@@ -36,8 +36,13 @@ public class WebFormatter
         "<?xml version=\"1.0\" encoding=\"###encoding###\" standalone=\"no\"?>\n" + 
         "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">";
 
+    private final static String FIG_DIV_CLASS = "figure";  // CSS class used for figure div
+
     private final static String COMMON_RELATIVE_URL = "common";  // relative path from content to common
-    
+    private final static String STEMMERS_JS_CONFIGPATH = 
+        "webhelp" + File.separator + "template" + File.separator + 
+        "content" + File.separator + "search" + File.separator + "stemmers";
+
     private final static String ROOT_CHUNK_FILENAME = "index.html";
     private final static String TOC_CHUNK_FILENAME = "toc-01.html";
     private final static String INDEX_CHUNK_FILENAME = "ix-01.html";
@@ -47,6 +52,7 @@ public class WebFormatter
     
     private final File l10nDir;
     private final File tempDir;
+    private final Set<String> stemmerLangs = new HashSet<String>();
     
     private final XMLInputFactory xinFactory;
     private final XMLOutputFactory xoutFactory;
@@ -77,6 +83,17 @@ public class WebFormatter
         }
         
         readTemplates(configDir);
+        
+        File stemmersDir = new File(docbookXSLDir, STEMMERS_JS_CONFIGPATH);
+        String[] stems = stemmersDir.list();
+        if (stems != null) {
+            for (String fn : stems) {
+                int p = fn.lastIndexOf('_');
+                if (p > 0) {
+                    stemmerLangs.add(fn.substring(0, p).toLowerCase());
+                }
+            }
+        }
     }
     
     private void readTemplates(File configDir) throws Exception
@@ -907,6 +924,13 @@ public class WebFormatter
         placeholders.put("link_custom_css", "<link rel=\"stylesheet\" type=\"text/css\" href=\"" + DocmaConstants.HTML_CSS_FILENAME + "\"/>");
         placeholders.put("common_url", COMMON_RELATIVE_URL);
 
+        String stemmLang = langCode.toLowerCase();  // to lowercase just to be sure
+        if (stemmerLangs.contains(stemmLang)) {
+            placeholders.put("stemmer_js", "\n<script type=\"text/javascript\" src=\"search/stemmers/" + stemmLang + "_stemmer.js\"></script>");
+        } else {
+            placeholders.put("stemmer_js", "");
+        }
+
         // Header titles
         String head1_mode = outConfig.getHtmlWebhelpHeader1();
         String head2_mode = outConfig.getHtmlWebhelpHeader2();
@@ -1338,6 +1362,11 @@ public class WebFormatter
         int divLevel = 0;
         Stack<Integer> tocLevels = new Stack<Integer>();
         ParserTocEntry currentTocEntry = tocRoot;  // the current ToC entry
+        
+        ParserTocEntry currentFigure = null;     // Not null if inside HTML 5 figure element and 
+                                                 // figure tag is exported unchanged.
+        FigureInfo figureInfo = null;  // Not null if inside HTML 5 figure element and 
+                                       // figure tag is transformed to div.
         Stack<ParserTocEntry> currentTables = new Stack<ParserTocEntry>();
         boolean isInfoDiv = false;
         int infoDivLevel = 0;
@@ -1650,51 +1679,55 @@ public class WebFormatter
                         // special handling of span (footnotes, index entries, ...)
                         processSpan(se, xr, xw, aid, aclass, atitle, currentTocEntry, outConfig);
                     } else if (ename.equals("img")) {
-                        if ((atitle != null) && (atitle.length() > 0)) {  // figure (labeled image)
-                            ParserTocEntry entry = createFigureTocEntry(currentTocEntry, aid, atitle, figureCounters);
-                            
-                            boolean is_float = false; //(astyle != null) && astyle.contains("float");
-                            if (astyle != null) {
-                                SortedMap<String, String> cssprops = CSSParser.parseCSSProperties(astyle);
-                                String float_val = cssprops.get("float");
-                                is_float = (float_val != null);
-                                if (is_float) {
-                                    boolean is_left = float_val.contains("left");
-                                    boolean is_right = is_left ? false : float_val.contains("right");
-                                    String float_cls = (is_left ? "float_left " : (is_right ? "float_right " : "")) + 
-                                                       "figure-float";
-                                    xw.add(createStartTag("div", "class", float_cls, "style", astyle));
-                                }
-                            }
-                            // String anch_id = (aid != null) ? aid : formatAnchorId(++fallbackCounter);
-                            xw.add(createStartTag("div", "class", "figure", "title", atitle));
-                            // xw.add(createStartTag("a", "id", anch_id));
-                            // xw.add(createEndTag("a"));
-                            if (! isTitleAfter) {
-                                writeFigureTitle(xw, entry.getLabelNumber(), atitle, langCode, genTextProps);
-                            }
-                            xw.add(createStartTag("div", "class", "mediaobject"));
-                            if (is_float) {
-                                // Write original img tag, but exclude the style attribute
-                                List<Attribute> copied_atts = copyAttributesExclude(se.getAttributes(), "style");
-                                xw.add(createStartTag("img", copied_atts.iterator()));
-                                readElement(se, xr, xw, false, currentTocEntry, outConfig);  // read closing img tag
-                                xw.add(createEndTag("img"));  // write closing img tag
+                        if (currentFigure != null) {
+                            // img is inside of an HTML 5 figure element and figure is exported unchanged.
+                            // Use id of img element if the figure element has no id attribute.
+                            currentFigure.setAliasIfNotExists(aid);
+                            xw.add(e);  // write opening img tag unchanged
+                        } else if (figureInfo != null) {
+                            // img is inside of an HTML 5 figure element and figure has to be transformed to div.
+                            // Store the img attributes in figureInfo. 
+                            // Use id of img element if the figure element has no id attribute
+                            figureInfo.setAliasIfNotExists(aid);
+                            figureInfo.setImageAttribs(se.getAttributes());
+                            // The img element is written when the closing figure tag is reached.
+                            skipElement(se, xr);  // read until closing img tag
+                        } else if (outConfig.isImgWithTitleToFigure() && (atitle != null) && (atitle.length() > 0)) {
+                            // Labeled image: img element that is not inside of a figure element, but has a title attribute.
+                            if (outConfig.isHtmlFigureTagOutput()) {
+                                writeImageAsFigure(se, xr, xw, currentTocEntry, langCode, genTextProps, outConfig, figureCounters, aid, atitle, astyle);
                             } else {
-                                readElement(se, xr, xw, true, currentTocEntry, outConfig);  // write img element unchanged
-                            }
-                            xw.add(createEndTag("div"));
-                            if (isTitleAfter) {
-                                writeFigureTitle(xw, entry.getLabelNumber(), atitle, langCode, genTextProps);
-                            }
-                            xw.add(createEndTag("div"));
-                            if (is_float) {
-                                xw.add(createEndTag("div"));
+                                writeImageAsDiv(se, xr, xw, currentTocEntry, langCode, genTextProps, outConfig, figureCounters, aid, atitle, astyle);
                             }
                         } else {
                             xw.add(e);  // write opening img tag unchanged
                         }
-                        
+                    } else if (ename.equals("figure")) {
+                        if (outConfig.isHtmlFigureTagOutput()) {  // Output figure element unchanged.
+                            String figtitle = (atitle == null) ? "" : atitle;  // Is overwritten by figcaption element.
+                            currentFigure = createFigureTocEntry(currentTocEntry, aid, figtitle, figureCounters);
+                            xw.add(e);  // Write opening figure tag (unchanged).
+                        } else {   // Transform figure element to div.
+                            figureInfo = new FigureInfo();
+                            figureInfo.setAlias(aid);
+                            // Write opening div elements.  
+                            writeFigureDivStart(xw, se, aclass);
+                            // The image, caption and closing div are written, when end tag is reached.
+                        }
+                    } else if (ename.equals("figcaption")) {
+                        if (currentFigure != null) {  // figure is exported unchanged; label is added to figure caption  
+                            String title = readElementToString(se, xr, false, currentTocEntry, outConfig);
+                            // Note that title may include inline tags, for example: strong, em,...
+                            // String txtTitle = extractTextFromXML(title); // remove inline tags
+                            currentFigure.setTitle(title);
+                            writeFigureCaption(se, xw, currentFigure.getLabelNumber(), title, langCode, genTextProps);
+                        } else if (figureInfo != null) {  // figure is transformed to div (see closing figure tag) 
+                            String title = readElementToString(se, xr, false, currentTocEntry, outConfig);
+                            // Note that title may include inline tags, for example: strong, em,...
+                            figureInfo.setCaption(title);
+                        } else {   // figcaption outside of a figure element; should not occur
+                            xw.add(e);  // write opening figcaption tag (unchanged)
+                        }
                     } else if (ename.equals("table")) {
                         ParserTocEntry tableEntry = new ParserTocEntry(ParserTocEntry.TYPE_TABLE);
                         tableEntry.setAlias(aid);
@@ -1707,7 +1740,7 @@ public class WebFormatter
                             ParserTocEntry currTable = currentTables.lastElement();
                             xw.add(e);  // write opening caption tag (unchanged)
                             // Add label number to table caption
-                            String title = readText(se, xr);
+                            String title = readElementToString(se, xr, false, currentTocEntry, outConfig); // readText(se, xr);
                             String labelNum = createTableLabel(currentTocEntry, tableCounters);
                             currTable.setTitle(title);
                             currTable.setLabelNumber(labelNum);
@@ -1757,6 +1790,14 @@ public class WebFormatter
                         // Note: <p>...</p> are replaced by <div class="normal-para...">...</div> 
                         xw.add(createEndTag("div"));
                         break;  // do not write p end-tag (already replaced by div end-tag)
+                    } else if ("figure".equals(tagname)) {
+                        currentFigure = null;
+                        if (figureInfo != null) {  // transform figure to div
+                            writeLabeledImage(xw, currentTocEntry, figureCounters, langCode, genTextProps, isTitleAfter, figureInfo);
+                            writeFigureDivEnd(xw);
+                            figureInfo = null;
+                            break;  // do not write figure end-tag (already replaced by div end-tag)
+                        }
                     } else if ("table".equals(tagname)) {
                         if (! currentTables.isEmpty()) {
                             currentTables.pop();
@@ -1810,6 +1851,203 @@ public class WebFormatter
         closeAllXMLWriter(tocRoot);
     }
 
+    /**
+     * Convert an img element with title to a labeled figure using 
+     * div elements.
+     * For example, this can be used to create XHTML output, where the 
+     * HTML 5 figure element is not allowed.
+     */
+    private void writeImageAsDiv(StartElement se,   // the img element from input
+                                 XMLEventReader xr, 
+                                 XMLEventWriter xw, 
+                                 ParserTocEntry currentTocEntry, 
+                                 String langCode, 
+                                 Properties genTextProps,
+                                 DocmaOutputConfig outConfig,
+                                 Map<String, Integer> figureCounters,
+                                 String imgId, 
+                                 String imgTitle, 
+                                 String imgStyle) throws Exception
+    {
+        boolean isTitleAfter = "after".equalsIgnoreCase(outConfig.getTitlePlacement());
+
+        String imgStyleNew = null;
+        String float_val = null;
+        if (imgStyle != null) {
+            SortedMap<String, String> cssprops = CSSParser.parseCSSProperties(imgStyle);
+            float_val = cssprops.get("float");
+            if (float_val != null) {
+                imgStyleNew = CSSParser.propertiesToString(cssprops);
+                boolean is_left = float_val.contains("left");
+                boolean is_right = is_left ? false : float_val.contains("right");
+                String float_cls = (is_left ? "float_left " : (is_right ? "float_right " : "")) + 
+                                   "figure-float";
+                xw.add(createStartTag("div", "class", float_cls, "style", "float:" + float_val));
+            }
+        }
+        xw.add(createStartTag("div", "class", FIG_DIV_CLASS));
+        
+        FigureInfo fi = new FigureInfo();
+        fi.setAlias(imgId);       // Set alias to be used in toc entry.
+        fi.setCaption(imgTitle);  // Create caption line.
+        fi.setImageAttribs(se.getAttributes());  // Attributes to be set for the img element.
+        if (imgStyleNew != null) {  // In case of floating image, remove float attribute from img style.
+            fi.setImageAttrib(createAttribute("style", imgStyleNew));
+        }
+        
+        writeLabeledImage(xw, currentTocEntry, figureCounters, langCode, genTextProps, isTitleAfter, fi);
+        
+        xw.add(createEndTag("div"));
+        if (float_val != null) {
+            xw.add(createEndTag("div"));
+        }
+        
+        skipElement(se, xr);  // read until closing img tag
+    }
+
+    /**
+     * Transform img with title to figure element.
+     * This method converts an img element with title attribute to a labeled figure
+     * using the HTML 5 figure and figcaption elements.
+     */
+    private void writeImageAsFigure(StartElement se,   // the img element from input
+                                    XMLEventReader xr, 
+                                    XMLEventWriter xw, 
+                                    ParserTocEntry currentTocEntry, 
+                                    String langCode, 
+                                    Properties genTextProps,
+                                    DocmaOutputConfig outConfig,
+                                    Map<String, Integer> figureCounters,
+                                    String imgId, 
+                                    String imgTitle, 
+                                    String imgStyle) throws Exception
+    {
+        ParserTocEntry figEntry = createFigureTocEntry(currentTocEntry, imgId, imgTitle, figureCounters);
+        String floatVal = null;
+        String imgStyleNew = null;
+        if (imgStyle != null) {
+            // Remove CSS property "float" from img style 
+            SortedMap<String, String> cssprops = CSSParser.parseCSSProperties(imgStyle);
+            floatVal = cssprops.remove("float");
+            if (floatVal != null) {
+                imgStyleNew = CSSParser.propertiesToString(cssprops);
+            }
+        }
+        
+        boolean isTitleAfter = "after".equalsIgnoreCase(outConfig.getTitlePlacement());
+        String labelNum = figEntry.getLabelNumber();
+        
+        // Write opening figure tag
+        if (floatVal != null) {
+            boolean is_left = floatVal.contains("left");
+            boolean is_right = is_left ? false : floatVal.contains("right");
+            String float_cls = is_left ? "float_left " 
+                                       : (is_right ? "float_right " : "");
+            float_cls += "figure-float";  // add general float class
+            // Move CSS property "float" from img to figure element
+            xw.add(createStartTag("figure", "class", float_cls, "style", "float:" + floatVal + ";"));
+        } else {
+            xw.add(createStartTag("figure"));
+        }
+        
+        if (! isTitleAfter) {
+            writeFigureCaption(xw, labelNum, imgTitle, langCode, genTextProps);
+        }
+        
+        // Write img element
+        if (floatVal != null) {
+            // Set imgStyleNew as new img style.
+            // imgStyleNew is never null, but could be empty string.
+            List<Attribute> imgAtts = copyAttributesExclude(se.getAttributes(), "style");
+            if ((imgStyleNew != null) && !imgStyleNew.equals("")) {
+                imgAtts.add(createAttribute("style", imgStyleNew));
+            }
+            xw.add(createStartTag("img", imgAtts));
+            readElement(se, xr, xw, false, currentTocEntry, outConfig);  // read closing img tag
+        } else {
+            // If floatVal is null, then img style is unchanged
+            readElement(se, xr, xw, true, currentTocEntry, outConfig);  // write img element unchanged
+        }
+        
+        if (isTitleAfter) {
+            writeFigureCaption(xw, labelNum, imgTitle, langCode, genTextProps);
+        }
+        xw.add(createEndTag("figure"));
+    }
+    
+    /**
+     * Outputs the opening div tags for a labeled image (formal figure). 
+     * This method is used, if an HTML5 figure element is exported as div block. 
+     * 
+     * @param xw          Output stream
+     * @param figureElem  The figure element  
+     * @param figCls      The class attribute value of the figure element
+     */
+    private void writeFigureDivStart(XMLEventWriter xw, StartElement figureElem, String figCls)
+    throws Exception
+    {
+        if (figCls == null) {
+            // The figure element has no class attribute. Add default div class.
+            xw.add(createStartTag("div", figureElem.getAttributes(), "class", FIG_DIV_CLASS));
+        } else {
+            figCls = figCls.trim();   // Remove whitespace, just to be sure.
+            // Figure element already has a class attribute.
+            if ((" " + figCls + " ").contains(" " + FIG_DIV_CLASS + " ")) {
+                // The default figure class is already included in the attribute 
+                // value. Output div with same attributes as the figure element.
+                xw.add(createStartTag("div", figureElem.getAttributes()));
+            } else {
+                // Add default figure class to the class attribute.
+                String clsNew = FIG_DIV_CLASS + " " + figCls;
+                List<Attribute> figAtts = copyAttributesExclude(figureElem.getAttributes(), "class");
+                figAtts.add(createAttribute("class", clsNew));
+                xw.add(createStartTag("div", figAtts));
+            }
+        }
+    }
+    
+    /**
+     * Outputs the closing div tags for a labeled image (figure). 
+     * This method is used if an HTML5 figure element is exported as div block. 
+     */
+    private void  writeFigureDivEnd(XMLEventWriter xw) throws Exception
+    {
+        xw.add(createEndTag("div"));
+    }
+    
+    /**
+     * Outputs the image and label for a figure. This method is used if a figure is
+     * exported as div block instead of an HTML 5 figure element. 
+     */
+    private void writeLabeledImage(XMLEventWriter xw, 
+                                   ParserTocEntry currentTocEntry, 
+                                   Map<String, Integer> figureCounters, 
+                                   String langCode, 
+                                   Properties genTextProps,
+                                   boolean isTitleAfter,
+                                   FigureInfo figInfo) throws Exception
+    {
+        String refId = figInfo.getAlias();
+        String caption = figInfo.getCaption();
+
+        ParserTocEntry entry = createFigureTocEntry(currentTocEntry, refId, caption, figureCounters);
+        
+        // String anch_id = (refId != null) ? refId : formatAnchorId(++fallbackCounter);
+        // xw.add(createStartTag("a", "id", anch_id));
+        // xw.add(createEndTag("a"));
+        if (! isTitleAfter) {
+            writeFigureTitle(xw, entry.getLabelNumber(), caption, langCode, genTextProps);
+        }
+        xw.add(createStartTag("div", "class", "mediaobject"));
+        // Write img element
+        xw.add(createStartTag("img", figInfo.getImageAttribs()));
+        xw.add(createEndTag("img"));  // write closing img tag
+        xw.add(createEndTag("div"));
+        if (isTitleAfter) {
+            writeFigureTitle(xw, entry.getLabelNumber(), caption, langCode, genTextProps);
+        }
+    }
+    
     private boolean processSpan(StartElement se,
                                 XMLEventReader xr,
                                 XMLEventWriter xw, 
@@ -2216,7 +2454,33 @@ public class WebFormatter
             }
             return atts.iterator();
     }
+
+    private void writeFigureCaption(XMLEventWriter xw, 
+                                    String labelNum, 
+                                    String title, 
+                                    String langCode, 
+                                    Properties genTextProps) throws Exception
+    {
+        String caption = getFormalTitle(labelNum, title, "figure", langCode, genTextProps);
+        if ((caption != null) && !caption.equals("")) {
+            writeXMLElement(xw, "<figcaption>" + caption + "</figcaption>");
+            // xw.add(createStartTag("figcaption"));
+            // xw.add(eventFactory.createCharacters(caption));
+            // xw.add(createEndTag("figcaption"));
+        }
+    }
     
+    private void writeFigureCaption(StartElement figcaption_elem,
+                                    XMLEventWriter xw, 
+                                    String labelNum, 
+                                    String title, 
+                                    String langCode, 
+                                    Properties genTextProps) throws Exception
+    {
+        String title_line = getFormalTitle(labelNum, title, "figure", langCode, genTextProps);
+        writeXMLElement(xw, createXMLString(figcaption_elem, title_line));
+    }
+
     private void writeFigureTitle(XMLEventWriter xw, 
                                   String labelNum, 
                                   String title, 
@@ -2235,11 +2499,9 @@ public class WebFormatter
         writeFormalTitle(xw, labelNum, title, "table", null, langCode, genTextProps);
     }
     
-    private void writeFormalTitle(XMLEventWriter xw, 
-                                  String labelNum, 
+    private String getFormalTitle(String labelNum, 
                                   String title, 
                                   String formalId,
-                                  String tagName,
                                   String langCode, 
                                   Properties genTextProps) throws Exception
     {
@@ -2253,13 +2515,25 @@ public class WebFormatter
         String pattern = getGenText(gen_key, genTextProps, langCode);
         String title_line;
         if ((pattern != null) && (pattern.length() > 0)) {
-            title_line = pattern.replace("%n", labelNum).replace("%t", title);
+            title_line = xmlEncode(pattern).replace("%n", labelNum).replace("%t", title);
         } else {
             title_line = labelNum.equals("") ? title : (labelNum + ". " + title);
         }
+        return title_line;
+    }
+    
+    private void writeFormalTitle(XMLEventWriter xw, 
+                                  String labelNum, 
+                                  String title, 
+                                  String formalId,
+                                  String tagName,
+                                  String langCode, 
+                                  Properties genTextProps) throws Exception
+    {
+        String title_line = getFormalTitle(labelNum, title, formalId, langCode, genTextProps);
         if (title_line.length() > 0) {
             if (tagName != null) {
-                writeXMLElement(xw, "<" + tagName + " class=\"title\">" + xmlEncode(title_line) + 
+                writeXMLElement(xw, "<" + tagName + " class=\"title\">" + title_line + 
                                     "</" + tagName + ">");
             } else {
                 writeText(xw, title_line);
@@ -2413,100 +2687,6 @@ public class WebFormatter
         writeXMLElement(xw, sb.toString());
     }
     
-    private String xmlEncode(String txt) 
-    {
-        // Encode ampersand
-        int pos = txt.indexOf('&');
-        int len = txt.length();
-        if (pos >= 0) {
-            StringBuilder sb = new StringBuilder(len + 16);
-            int copypos = 0;
-            do {
-                pos++;   // position after &
-                sb.append(txt.substring(copypos, pos));
-                copypos = pos;
-                boolean is_entity = false;
-                while (pos < len) {
-                    char ch = txt.charAt(pos);
-                    if (ch == ';') {
-                        is_entity = (pos > copypos);
-                        break;
-                    }
-                    if (Character.isWhitespace(ch)) {
-                        break;
-                    }
-                    pos++;
-                }
-                
-                // If & is not start of an entity then replace "&" by "&amp;".
-                if (! is_entity) {  
-                    sb.append("amp;");
-                }
-                
-                // Search next occurence of &
-                pos = txt.indexOf('&', copypos);
-            } while (pos >= 0);  // skip if no more & exist
-            
-            // copy remaining characters after the last &
-            if (copypos < len) {
-                sb.append(txt.substring(copypos));
-            }
-            txt = sb.toString();
-        }
-        
-        return txt.replace("<", "&lt;").replace(">", "&gt;");
-    }
-    
-    private String xmlEncodeQuotedAtt(String value)
-    {
-        return xmlEncode(value).replace("\"", "&quot;");
-    }
-    
-    private void writeXMLElement(XMLEventWriter xw, String xml) throws Exception
-    {
-        writeXML(xw, xml, true);
-    }
-    
-    private void writeText(XMLEventWriter xw, String txt) throws Exception
-    {
-        // The writeXML() method requires a valid XML document. 
-        // Therefore enclose txt with <span> element to get a valid XML document.
-        // By passing argument false, the <span> will not be written to the output.
-        writeXML(xw, "<span>" + xmlEncode(txt) + "</span>", false);
-    }
-    
-    private void writeXML(XMLEventWriter xw, String xml, boolean write_tags) throws Exception
-    {
-        if ((xml != null) && (xml.length() > 0)) {
-            XMLEventReader xr = xinFactory.createXMLEventReader(new StringReader(xml));
-            int level = 0;
-            while(xr.hasNext()) {
-                XMLEvent e = xr.nextEvent();
-                int etype = e.getEventType();
-                switch (etype) {
-                    case XMLEvent.START_ELEMENT:
-                        level++;
-                        if (write_tags) {
-                            xw.add(e);
-                        }
-                        break;
-                    case XMLEvent.END_ELEMENT:
-                        level--;
-                        if (write_tags) {
-                            xw.add(e);
-                        }
-                        break;
-                    default:
-                        if (level > 0) {  // skip DOCUMENT_START, DOCUMENT_END and prolog events
-                            xw.add(e);
-                        }
-                        break;
-                }
-            }
-            xr.close();
-        }
-    }
-
     private String getFormalPrefix(ParserTocEntry entry)
     {
         // The sequential numbering of formal blocks shall restart in each chapter/appendix/... 
@@ -2541,6 +2721,8 @@ public class WebFormatter
         return depth;
     }
     
+    /* ------  Methods to read XML element from input and copy to output stream  ------ */
+
     private String readElementToString(StartElement start_elem, 
                                        XMLEventReader xr, 
                                        boolean enclosed, 
@@ -2636,7 +2818,48 @@ public class WebFormatter
         }
         xw.flush();
     }
+
+    /**
+     * Read start_elem from input stream, but do not write to output.
+     * This element reads from input, until the end tag that corresponds to 
+     * start_elem is reached.
+     */
+    private void skipElement(StartElement start_elem, XMLEventReader xr) throws Exception
+    {
+        final String elem_name = start_elem.getName().getLocalPart();
+        int level = 0;
+        boolean finished = false;
+        while ((! finished) && xr.hasNext()) {
+            XMLEvent e = xr.nextEvent();
+            int etype = e.getEventType();
+            switch (etype) {
+                case XMLEvent.START_ELEMENT: 
+                    StartElement se = e.asStartElement();
+                    if (elem_name.equalsIgnoreCase(se.getName().getLocalPart())) {
+                        level++;
+                    }
+                    break;
+                    
+                case XMLEvent.END_ELEMENT: 
+                    EndElement ee = e.asEndElement();
+                    if (elem_name.equalsIgnoreCase(ee.getName().getLocalPart())) {
+                        if (level == 0) {
+                            finished = true;
+                        } else {
+                            level--;
+                        }
+                    }
+                    break;
+            }
+        }
+    }
     
+    /**
+     * Read start_elem from input stream and return the text that is contained
+     * within the element.
+     * This element reads from input, until the end tag that corresponds to 
+     * start_elem is reached.
+     */
     private String readText(StartElement start_elem, XMLEventReader xr) throws Exception
     {
         final String elem_name = start_elem.getName().getLocalPart();
@@ -2682,50 +2905,123 @@ public class WebFormatter
         return out.toString();  // return buf.toString();
     }
     
+    /* -----------  Utility methods to write XML string to output  -------------- */
 
-    /* -------------  Utility methods  ------------------- */
-
-    private String labelSeparator()
+    private String createXMLString(StartElement start_elem, String innerXML)
     {
-        return ".";
-    }
-    
-    private boolean containsCSSClass(String att_class, String class_name) 
-    {
-        if (att_class == null) {
-            return false;
+        String tagName = start_elem.getName().getLocalPart();
+        StringBuilder sb = new StringBuilder("<" + tagName);
+        Iterator it = start_elem.getAttributes();
+        while (it.hasNext()) {
+            Attribute att = (Attribute) it.next();
+            String attname = att.getName().getLocalPart();
+            String attval = xmlEncodeQuotedAtt(att.getValue());
+            sb.append(" ").append(attname).append("=\"").append(attval).append("\"");
         }
-        int pos = att_class.indexOf(class_name);
-        if (pos < 0) {
-            return false;
+        if (innerXML == null) {
+            sb.append("/>");
+        } else {
+            sb.append(">").append(innerXML).append("</").append(tagName).append(">");
         }
-        if (att_class.equals(class_name)) {
-            return true;
-        }
-        return att_class.startsWith(class_name + " ") || 
-               att_class.endsWith(" " + class_name) ||
-               att_class.contains(" " + class_name + " ");
-        // return ((pos == 0) || Character.isWhitespace(att_class.charAt(pos-1))) &&
-        //        ((att_class.length() == pos + class_name.length()) || 
-        //         Character.isWhitespace(att_class.charAt(pos + class_name.length())));
-    }
-    
-    private String numFormat(String format) 
-    {
-        if ((format == null) || format.equals("")) return "1";
-        return format;
+        return sb.toString();
     }
 
-    private String formatComponentId(int seqnum) 
+    private void writeXMLElement(XMLEventWriter xw, String xml) throws Exception
     {
-        final String PATT = "00000000";
-        String s = Integer.toString(seqnum);
-        if (s.length() < PATT.length()) {
-            s = PATT.substring(s.length()) + s;
-        }
-        return "comp" + s;
+        writeXML(xw, xml, true);
     }
     
+    private void writeText(XMLEventWriter xw, String txt) throws Exception
+    {
+        // The writeXML() method requires a valid XML document. 
+        // Therefore enclose txt with <span> element to get a valid XML document.
+        // By passing argument false, the <span> will not be written to the output.
+        writeXML(xw, "<span>" + xmlEncode(txt) + "</span>", false);
+    }
+    
+    private void writeXML(XMLEventWriter xw, String xml, boolean write_tags) throws Exception
+    {
+        if ((xml != null) && (xml.length() > 0)) {
+            XMLEventReader xr = xinFactory.createXMLEventReader(new StringReader(xml));
+            int level = 0;
+            while(xr.hasNext()) {
+                XMLEvent e = xr.nextEvent();
+                int etype = e.getEventType();
+                switch (etype) {
+                    case XMLEvent.START_ELEMENT:
+                        level++;
+                        if (write_tags) {
+                            xw.add(e);
+                        }
+                        break;
+                    case XMLEvent.END_ELEMENT:
+                        level--;
+                        if (write_tags) {
+                            xw.add(e);
+                        }
+                        break;
+                    default:
+                        if (level > 0) {  // skip DOCUMENT_START, DOCUMENT_END and prolog events
+                            xw.add(e);
+                        }
+                        break;
+                }
+            }
+            xr.close();
+        }
+    }
+
+    /* -------------  Other XML utility methods  ------------------- */
+    
+    private String xmlEncode(String txt) 
+    {
+        // Encode ampersand
+        int pos = txt.indexOf('&');
+        int len = txt.length();
+        if (pos >= 0) {
+            StringBuilder sb = new StringBuilder(len + 16);
+            int copypos = 0;
+            do {
+                pos++;   // position after &
+                sb.append(txt.substring(copypos, pos));
+                copypos = pos;
+                boolean is_entity = false;
+                while (pos < len) {
+                    char ch = txt.charAt(pos);
+                    if (ch == ';') {
+                        is_entity = (pos > copypos);
+                        break;
+                    }
+                    if (Character.isWhitespace(ch)) {
+                        break;
+                    }
+                    pos++;
+                }
+                
+                // If & is not start of an entity then replace "&" by "&amp;".
+                if (! is_entity) {  
+                    sb.append("amp;");
+                }
+                
+                // Search next occurence of &
+                pos = txt.indexOf('&', copypos);
+            } while (pos >= 0);  // skip if no more & exist
+            
+            // copy remaining characters after the last &
+            if (copypos < len) {
+                sb.append(txt.substring(copypos));
+            }
+            txt = sb.toString();
+        }
+        
+        return txt.replace("<", "&lt;").replace(">", "&gt;");
+    }
+    
+    private String xmlEncodeQuotedAtt(String value)
+    {
+        return xmlEncode(value).replace("\"", "&quot;");
+    }
+
     private StartElement createStartTag(String tagName, Iterator atts) 
     {
         return eventFactory.createStartElement(new QName(tagName), atts, null);
@@ -2757,6 +3053,23 @@ public class WebFormatter
         return eventFactory.createStartElement(new QName(tagName), attList.iterator(), null);
     }
     
+    private StartElement createStartTag(String tagName, List<Attribute> attList) 
+    {
+        return eventFactory.createStartElement(new QName(tagName), attList.iterator(), null);
+    }
+    
+    static Map<String, Attribute> copyAttributesAsMap(Iterator<Attribute> atts)
+    {
+        Map<String, Attribute> copied_atts = new HashMap<String, Attribute>();
+        if (atts != null) {
+            while (atts.hasNext()) {
+                Attribute a = atts.next();
+                copied_atts.put(a.getName().getLocalPart().toLowerCase(), a);
+            }
+        }
+        return copied_atts;
+    }
+
     private List<Attribute> copyAttributesExclude(Iterator<Attribute> atts, String excludeAtt)
     {
         List<Attribute> copied_atts = new ArrayList<Attribute>();
@@ -2767,6 +3080,11 @@ public class WebFormatter
            }
         }
         return copied_atts;
+    }
+    
+    private Attribute createAttribute(String name, String value)
+    {
+        return eventFactory.createAttribute(name, value);
     }
 
     private EndElement createEndTag(String tagName) 
@@ -2779,6 +3097,8 @@ public class WebFormatter
         return eventFactory.createComment(content);
     }
     
+    /* -------------  Gentext/localization methods  ------------------- */
+
     private String getGenText(String key, DocmaOutputConfig outConfig, String default_value) throws Exception
     {
         String val = getGenText(key, outConfig);
@@ -2829,7 +3149,50 @@ public class WebFormatter
         }
         return props;
     }
+    
+    /* -------------  Other utility methods  ------------------- */
 
+    private String labelSeparator()
+    {
+        return ".";
+    }
+    
+    private boolean containsCSSClass(String att_class, String class_name) 
+    {
+        if (att_class == null) {
+            return false;
+        }
+        int pos = att_class.indexOf(class_name);
+        if (pos < 0) {
+            return false;
+        }
+        if (att_class.equals(class_name)) {
+            return true;
+        }
+        return att_class.startsWith(class_name + " ") || 
+               att_class.endsWith(" " + class_name) ||
+               att_class.contains(" " + class_name + " ");
+        // return ((pos == 0) || Character.isWhitespace(att_class.charAt(pos-1))) &&
+        //        ((att_class.length() == pos + class_name.length()) || 
+        //         Character.isWhitespace(att_class.charAt(pos + class_name.length())));
+    }
+    
+    private String numFormat(String format) 
+    {
+        if ((format == null) || format.equals("")) return "1";
+        return format;
+    }
+
+    private String formatComponentId(int seqnum) 
+    {
+        final String PATT = "00000000";
+        String s = Integer.toString(seqnum);
+        if (s.length() < PATT.length()) {
+            s = PATT.substring(s.length()) + s;
+        }
+        return "comp" + s;
+    }
+    
     private void printToc(ParserTocEntry entry, String indent)
     {
         System.out.print(indent);

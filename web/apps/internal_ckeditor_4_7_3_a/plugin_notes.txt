@@ -1,0 +1,14 @@
+Full preset. Added:
+- Enhanced Image
+- Table Resize
+- Upload Image
+
+Removed folder ckeditor/samples/old because of reference to remote file (http://code.jquery.com/jquery-1.11.0.min.js)
+
+<!--
+  Needed Plugins: Enhanced Image, Upload Image
+  To be considered: 
+               Upload File, Table Resize, Image Resize?,
+               Table Cells Selection??? (in Full enthalten: Table Selection)
+               Stylesheet Parser  (This plugin fills the Styles drop-down list with a list of element styles built from the contents.css)
+-->

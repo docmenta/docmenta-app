@@ -96,7 +96,11 @@ public class MediaConfigDialog extends Window
     private Checkbox omitSingleSectionBox;
     private Checkbox exclude1stLevelNumberBox;
     private Checkbox restartPartBox;
+    private Checkbox imgToFigureBox;
 
+    // Extended fields
+    private Textbox customFilesBox;
+    
     // HTML specific fields
     private Radiogroup htmlFileTypeRadiogroup;
     private Radio htmlSingleFileRadio;
@@ -123,7 +127,6 @@ public class MediaConfigDialog extends Window
     private Listbox htmlCustomCSSBox;
     private Listbox htmlCustomJSBox;
     private Listbox htmlCustomMetaBox;
-    private Textbox htmlCustomFilesBox;
     private Listbox htmlOutputEncodingBox;
     private Component htmlDocTypeArea;
     private Checkbox htmlDocTypeCheckBox;
@@ -131,6 +134,7 @@ public class MediaConfigDialog extends Window
     private Listbox htmlWebhelpConfigBox;
     private Listbox htmlWebhelpHeader1Box;
     private Listbox htmlWebhelpHeader2Box;
+    private Checkbox htmlFigureTagBox;
 
     // PDF specific fields
     private Listbox pdfPaperSizeBox;
@@ -862,7 +866,11 @@ public class MediaConfigDialog extends Window
         omitSingleSectionBox = (Checkbox) getFellow("MediaConfigOmitSingleSectionTitleCheckbox");
         exclude1stLevelNumberBox = (Checkbox) getFellow("MediaConfigExclude1stLevelNumberCheckbox");
         restartPartBox = (Checkbox) getFellow("MediaConfigRestartInPartCheckbox");
+        imgToFigureBox = (Checkbox) getFellow("MediaConfigImgToFigureCheckbox");
 
+        // Extended options
+        customFilesBox = (Textbox) getFellow("MediaCustomFilesTextbox");
+        
         // HTML options
         htmlFileTypeRadiogroup = (Radiogroup) getFellow("MediaHTMLFileTypeRadiogroup");
         htmlSingleFileRadio = (Radio) getFellow("MediaHTMLSingleFileRadio");
@@ -889,7 +897,6 @@ public class MediaConfigDialog extends Window
         htmlCustomCSSBox = (Listbox) getFellow("MediaHTMLCustomCSSListbox");
         htmlCustomJSBox = (Listbox) getFellow("MediaHTMLCustomJSListbox");
         htmlCustomMetaBox = (Listbox) getFellow("MediaHTMLCustomMetaListbox");
-        htmlCustomFilesBox = (Textbox) getFellow("MediaHTMLCustomFilesTextbox");
         htmlOutputEncodingBox = (Listbox) getFellow("MediaHTMLOutputEncodingListbox");
         htmlDocTypeArea = getFellow("MediaHTMLDocTypeArea");
         htmlDocTypeCheckBox = (Checkbox) getFellow("MediaHTMLDocTypeCheckbox");
@@ -897,6 +904,7 @@ public class MediaConfigDialog extends Window
         htmlWebhelpConfigBox = (Listbox) getFellow("MediaHTMLWebhelpConfigListbox");
         htmlWebhelpHeader1Box = (Listbox) getFellow("MediaHTMLWebhelpHead1Listbox");
         htmlWebhelpHeader2Box = (Listbox) getFellow("MediaHTMLWebhelpHead2Listbox");
+        htmlFigureTagBox = (Checkbox) getFellow("MediaHTMLFigureTagCheckbox");
 
         // PDF options
         pdfPaperSizeBox = (Listbox) getFellow("MediaPDFPaperSizeListbox");
@@ -1270,7 +1278,13 @@ public class MediaConfigDialog extends Window
         omitSingleSectionBox.setChecked(outConf.isOmitSingleTitle());
         exclude1stLevelNumberBox.setChecked(outConf.isExclude1stLevelNumber());
         restartPartBox.setChecked(outConf.isRestartPart());
+        imgToFigureBox.setChecked(outConf.isImgWithTitleToFigure());
         
+        // Extended options
+        String custFiles = outConf.getCustomFiles();
+        customFilesBox.setValue((custFiles == null) ? "" : custFiles);
+
+        // Format specific options        
         if (format.equals("html")) {
             activateHTMLTab();
         } else
@@ -1393,10 +1407,9 @@ public class MediaConfigDialog extends Window
         htmlDocTypeTextBox.setDisabled(! is_webhelp_new);
         htmlDocTypeTextBox.setReadonly(! hasCustomDocType);
         htmlDocTypeArea.setVisible(is_webhelp_new);
-        
-        String custFiles = outConf.getHtmlCustomFiles();
-        htmlCustomFilesBox.setValue((custFiles == null) ? "" : custFiles);
+        htmlFigureTagBox.setChecked(outConf.isHtmlFigureTagOutput());
         selectItemByValue(htmlOutputEncodingBox, outConf.getHtmlOutputEncoding(), 0);
+        
         String webhelpfolder = outConf.getHtmlWebhelpConfigFolder();
         if ((webhelpfolder == null) || webhelpfolder.equals("")) {
             webhelpfolder = "webhelp";  // default folder
@@ -1822,7 +1835,12 @@ public class MediaConfigDialog extends Window
     private void updateModel(DocmaOutputConfig outConf) throws Exception
     {
         String new_id = idBox.getValue().trim();
+        String format_gui = getCurrentSelectedGUIFormat();
+        String mainformat = getMainFormat(format_gui);
+        String subformat = getSubFormat(format_gui);
         outConf.setId(new_id);
+        outConf.setFormat(mainformat);
+        outConf.setSubformat(subformat);
         outConf.setFilterSetting(filterBox.getValue());
         outConf.setToc(tocBox.isChecked());
         outConf.setIndex(indexBox.isChecked());
@@ -1890,11 +1908,8 @@ public class MediaConfigDialog extends Window
         outConf.setOmitSingleTitle(omitSingleSectionBox.isChecked());
         outConf.setExclude1stLevelNumber(exclude1stLevelNumberBox.isChecked());
         outConf.setRestartPart(restartPartBox.isChecked());
-        String format_gui = getCurrentSelectedGUIFormat();
-        String mainformat = getMainFormat(format_gui);
-        String subformat = getSubFormat(format_gui);
-        outConf.setFormat(mainformat);
-        outConf.setSubformat(subformat);
+        outConf.setImgWithTitleToFigure(imgToFigureBox.isChecked());
+        outConf.setCustomFiles(customFilesBox.getValue());
         if (outConf.getFormat().equals("html")) {
             outConf.setHtmlSingleFile(htmlSingleFileRadio.isSelected());
             // outConf.setHtmlFilePrefix(htmlFilePrefixBox.getValue());
@@ -1943,9 +1958,9 @@ public class MediaConfigDialog extends Window
             outConf.setHtmlCustomCSSFilename(cssfn);
             outConf.setHtmlCustomJSFilename(jsfn);
             outConf.setHtmlCustomMetaFilename(metafn);
-            outConf.setHtmlCustomFiles(htmlCustomFilesBox.getValue());
             outConf.setHtmlOutputEncoding(outenc);
             outConf.setHtmlCustomDocType(docType);
+            outConf.setHtmlFigureTagOutput(htmlFigureTagBox.isChecked());
             outConf.setHtmlWebhelpConfigFolder(webconfigfolder);
             outConf.setHtmlWebhelpHeader1((webhead1item != null) ? webhead1item.getValue().toString() : "");
             outConf.setHtmlWebhelpHeader2((webhead2item != null) ? webhead2item.getValue().toString() : "");

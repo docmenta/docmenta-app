@@ -188,6 +188,10 @@ div.docma_msg { margin: 1em; }
         elem.appendChild(document.createTextNode(msg));
     }
 
+    function clearSaveFrame() {
+        window.frames['filesave_frm'].location.href = "empty_preview.html";
+    }
+
     function saveFinished() {
         var errmsg = window.frames['filesave_frm'].getErrorMsg();
         if (isWin || (errmsg != '')) {
@@ -202,12 +206,14 @@ div.docma_msg { margin: 1em; }
         }
 
         // Save was successful
+        // if (isWin) {
+        setLabelMsg(window.frames['filesave_frm'].getSaveMsg());
+        window.setTimeout("setLabelMsg('')", 10000);  // clear after 10 sec
+        document.forms["btnform"].saveBtn.disabled = false;
         if (isWin) {
-            setLabelMsg(window.frames['filesave_frm'].getSaveMsg());
-            window.setTimeout("setLabelMsg('')", 10000);  // clear after 10 sec
-        } else {
-            switchToViewMode();
+          document.forms["btnform"].saveCloseBtn.disabled = false;
         }
+        // } else { switchToViewMode(); }
         getEditTxtFrame().docmaAfterSave();
 
         var main_win;
@@ -228,6 +234,9 @@ div.docma_msg { margin: 1em; }
                   main_win.previewContentRefresh();
               }
             }
+        } else {  // preview frame
+            // If user reloads preview frame (refresh button in toolbar), avoid re-post of form.
+            if (! reselectAfterSave) window.setTimeout("clearSaveFrame()", 500);
         }
         
         if (reselectAfterSave) {
@@ -271,9 +280,37 @@ div.docma_msg { margin: 1em; }
     function getEditTxtFrame() {
         return window.frames['edit_txt_frame'];
     }
+    
+    function shortcutSave(evt) {
+      evt = evt || window.event;
+      var kcode = evt.which || evt.keyCode;
+
+      if (! (evt.ctrlKey && (kcode == 83))) {   // Ctrl+S
+        return true;  // other key event; do nothing
+      }
+
+      // Prevent event propagation
+      if (evt.stopPropagation) {  // W3C-DOM-Standard
+        evt.stopPropagation();
+      } else {  // Microsoft-Alternative für Internet Explorer < 9
+        evt.cancelBubble = true;
+      }
+
+      // Prevent default browser action
+      if (evt.preventDefault) {
+        evt.preventDefault();
+      } else {
+        evt.returnValue = false;
+      }
+      if (currentStatus == 'edit') {
+          doSave();
+      }
+      return false;  // prevent default action
+    }
+
 </script>
 </head>
-<body style="background:#E0E0E0; font-family:Arial,sans-serif; margin:0 3px 0 0; padding:0; width:100%; max-width:100%; height:100%; overflow:hidden;">
+<body onkeydown="return shortcutSave(event)" style="background:#E0E0E0; font-family:Arial,sans-serif; margin:0 3px 0 0; padding:0; width:100%; max-width:100%; height:100%; overflow:hidden;">
 <%
     if (! (isTextFile || node instanceof PubContent)) {
         if (isFile) {
