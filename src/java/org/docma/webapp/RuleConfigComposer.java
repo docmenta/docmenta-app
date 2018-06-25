@@ -19,12 +19,15 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import org.docma.app.DocmaConstants;
 
 import org.docma.app.DocmaSession;
 import org.docma.app.RuleConfig;
 import org.docma.app.RulesManager;
 import org.docma.plugin.LogLevel;
+import org.docma.plugin.examples.XSLTRule;
 import org.docma.util.Log;
 import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.Desktop;
@@ -294,9 +297,15 @@ public class RuleConfigComposer extends SelectorComposer<Component> implements E
         DocmaWebSession webSess = GUIUtil.getDocmaWebSession(ruleDialog);
         guiLanguage = webSess.getCurrentLocale().getLanguage();
         
+        // Get registered rule class names.
         DocmaWebApplication docmaApp = GUIUtil.getDocmaWebApplication(ruleDialog);
-        clsBox.getItems().clear();
-        for (String cn : docmaApp.getRuleClassNames()) {
+        SortedSet<String> clsNames = new TreeSet<String>(Arrays.asList(docmaApp.getRuleClassNames()));
+        
+        // Add example XSLT rule to selection list.
+        clsNames.add(XSLTRule.class.getName());
+        
+        clsBox.getItems().clear();  // clear selection list
+        for (String cn : clsNames) {
             clsBox.appendItem(cn);
         }
         

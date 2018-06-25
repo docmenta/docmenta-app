@@ -3,7 +3,11 @@
 <properties>
   <entry key="shortInfo">Generic XSL transformation</entry>
   <entry key="apply_xsl.title">Applies the configured XSL script</entry>
-  <entry key="msgContentUpdated">Content updated.</entry>
+  <entry key="msgElementUpdated">Transforming ''{0}'' element:</entry>
+  <entry key="msgReplacedBy">Replaced by</entry>
+  <entry key="msgFoundElementUpdate">Found ''{0}'' element to be corrected:</entry>
+  <entry key="msgHeaderOldElement">Before</entry>
+  <entry key="msgHeaderNewElement">After</entry>
   <entry key="longInfo"><![CDATA[
     <p>
       <b>Arguments:</b>

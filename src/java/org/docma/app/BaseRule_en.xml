@@ -11,6 +11,7 @@
   <entry key="invalid_image_src.title">Logs image elements with invalid src attribute</entry>
   <entry key="invalid_style.title">Logs usage of non-existing style identifiers</entry>
   <entry key="invalid_target_type.title">Logs links with invalid target type</entry>
+  <entry key="normalize_textalign.title">Transforms the CSS property text-align to a CSS class (align-left, align-center, align-right, align-full)</entry>
   <entry key="trim_empty_paras.title">Logs or removes empty paragraphs at the end of content nodes</entry>
   <entry key="trim_figure_spaces.title">Logs or removes whitespace around figures</entry>
   <!-- Check messages -->
@@ -48,8 +49,11 @@
   <entry key="msgEmbeddedImage">Src attribute of image contains embedded image data: {0}. This is not supported by all output formats.</entry>
   <entry key="msgEmbeddedImageCorrected">Embedded image ''{0}'' has been replaced by reference to image-alias ''{1}''</entry>
   <entry key="msgEmbeddedImageExists">Cannot store embedded image, because alias ''{0}'' already exists.</entry>
+  <entry key="msgFoundTextAlignStyle">Found element ''{0}'' with CSS style ''text-align:{1}''. Should be replaced by CSS class ''{2}''</entry>
+  <entry key="msgInvalidTextAlignStyle">Found element ''{0}'' with invalid CSS style ''text-align:{1}''</entry>
+  <entry key="msgTextAlignNormalized">Replaced style property ''text-align:{1}'' in element ''{0}'' by CSS class ''{2}''</entry>
   <!-- Other labels -->
-  <entry key="headStyleStatistics">Style counts</entry>
+  <entry key="headStyleStatistics">Style counters</entry>
   <entry key="headValidStyles">Valid styles:</entry>
   <entry key="headInvalidStyles">Invalid styles:</entry>
   <entry key="stylesCount">Count</entry>
@@ -69,6 +73,7 @@
     <li><a href="#invalid_image_src">invalid_image_src</a></li>
     <li><a href="#invalid_style">invalid_style</a></li>
     <li><a href="#invalid_target_type">invalid_target_type</a></li>
+    <li><a href="#normalize_textalign">normalize_textalign</a></li>
     <li><a href="#trim_empty_paras">trim_empty_paras</a></li>
     <li><a href="#trim_figure_spaces">trim_figure_spaces</a></li>
   </ul>
@@ -315,6 +320,61 @@
     </p>
   </div>
 
+  <a name="normalize_textalign" />
+  <big><strong>normalize_textalign</strong></big>
+  <div style="margin-left:16pt;">
+    <p>
+      <b>Arguments:</b>
+      <dl>
+        <dt>
+          <b><tt>normalize_textalign=<i>tag1,tag2,...</i></tt></b>
+          <br/>
+          <b><tt>normalize_textalign=*</tt></b>
+        </dt>
+        <dd>Sets the element names to which the check shall be applied. 
+            Multiple element names have to be separated by comma (without 
+            space in between). Instead of providing a list of element names, 
+            the wildcard <tt>*</tt> can be used, to apply the check to all 
+            elements. If the argument <tt>normalize_textalign</tt> is missing,
+            then the check is applied to all elements (same as using wildcard 
+            <tt>*</tt>).
+        </dd>
+      </dl>
+    </p>
+    <p>
+      <b>Description:</b><br/>
+      This check logs elements that have a <tt>style</tt> attribute containing  
+      the CSS property <tt>text-align</tt>. 
+      If auto-correction is enabled, then the CSS property <tt>text-align</tt>
+      is removed and replaced by one of the CSS classes 
+      <tt>align-left</tt>, <tt>align-center</tt>, <tt>align-right</tt> or 
+      <tt>align-full</tt>.
+    </p>
+    <p>
+      The CSS classes <tt>align-left</tt>, <tt>align-center</tt>, 
+      <tt>align-right</tt> and  <tt>align-full</tt> are predefined in Docmenta 
+      and should be used in preference to assigning the CSS property 
+      <tt>text-align</tt>.
+    </p>
+    <p>
+      <b>Example:</b>
+    </p>
+    <p>
+        &nbsp;&nbsp;<tt>normalize_textalign=div,p</tt>
+    </p>
+    <p>
+      Given the argument above, the check is applied to <tt>div</tt> and 
+      <tt>p</tt> elements. If auto-correction is enabled, then, for example, the element
+    </p>
+    <pre>
+    &lt;p style="text-align:right"&gt;  ...  &lt;/p&gt;</pre>
+    <p>
+    is transformed to:
+    </p>
+    <pre>
+    &lt;p class="align-right"&gt;  ...  &lt;/p&gt;</pre>
+  </div>
+
   <a name="trim_empty_paras" />
   <big><strong>trim_empty_paras</strong></big>
   <div style="margin-left:16pt;">
@@ -323,7 +383,7 @@
     </p>
     <p>
       <b>Description:</b><br/>
-      This logs empty paragraphs at the end of content nodes. 
+      This check logs empty paragraphs at the end of content nodes. 
       If auto-correction is enabled, then an empty paragraph at the end of 
       content nodes is removed. 
     </p>

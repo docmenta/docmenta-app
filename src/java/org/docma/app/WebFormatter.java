@@ -21,6 +21,7 @@ import javax.xml.namespace.QName;
 
 import org.docma.coreapi.ExportLog;
 import org.docma.util.CSSParser;
+import org.docma.util.CSSUtil;
 import org.docma.util.DocmaUtil;
 import org.docma.util.XMLParser;
 import org.docma.util.Log;
@@ -1711,7 +1712,7 @@ public class WebFormatter
                             figureInfo = new FigureInfo();
                             figureInfo.setAlias(aid);
                             // Write opening div elements.  
-                            writeFigureDivStart(xw, se, aclass);
+                            writeFigureDivStart(xw, se, aclass, astyle);
                             // The image, caption and closing div are written, when end tag is reached.
                         }
                     } else if (ename.equals("figcaption")) {
@@ -1983,26 +1984,31 @@ public class WebFormatter
      * @param figureElem  The figure element  
      * @param figCls      The class attribute value of the figure element
      */
-    private void writeFigureDivStart(XMLEventWriter xw, StartElement figureElem, String figCls)
+    private void writeFigureDivStart(XMLEventWriter xw, StartElement figureElem, String figCls, String figStyle)
     throws Exception
     {
+        String floatCls = null;
+        if (figStyle != null) {
+            SortedMap<String, String> cssprops = CSSParser.parseCSSProperties(figStyle);
+            String floatVal = cssprops.get("float");
+            if (floatVal != null) {
+                boolean is_left = floatVal.contains("left");
+                boolean is_right = is_left ? false : floatVal.contains("right");
+                floatCls = is_left ? "float_left " 
+                                   : (is_right ? "float_right " : "");
+                floatCls += "figure-float";  // add general float class
+            }
+        }
         if (figCls == null) {
             // The figure element has no class attribute. Add default div class.
-            xw.add(createStartTag("div", figureElem.getAttributes(), "class", FIG_DIV_CLASS));
+            figCls = (floatCls == null) ? FIG_DIV_CLASS : (FIG_DIV_CLASS + " " + floatCls);
+            xw.add(createStartTag("div", figureElem.getAttributes(), "class", figCls));
         } else {
-            figCls = figCls.trim();   // Remove whitespace, just to be sure.
-            // Figure element already has a class attribute.
-            if ((" " + figCls + " ").contains(" " + FIG_DIV_CLASS + " ")) {
-                // The default figure class is already included in the attribute 
-                // value. Output div with same attributes as the figure element.
-                xw.add(createStartTag("div", figureElem.getAttributes()));
-            } else {
-                // Add default figure class to the class attribute.
-                String clsNew = FIG_DIV_CLASS + " " + figCls;
-                List<Attribute> figAtts = copyAttributesExclude(figureElem.getAttributes(), "class");
-                figAtts.add(createAttribute("class", clsNew));
-                xw.add(createStartTag("div", figAtts));
-            }
+            // Add default figure and float classes to the user-defined classes.
+            String clsNew = CSSUtil.mergeCSSClasses(FIG_DIV_CLASS, figCls, floatCls);
+            List<Attribute> figAtts = copyAttributesExclude(figureElem.getAttributes(), "class");
+            figAtts.add(createAttribute("class", clsNew));
+            xw.add(createStartTag("div", figAtts));
         }
     }
     

@@ -27,6 +27,8 @@ import org.docma.util.DocmaUtil;
  */
 public class CKEditHandler extends ContentEditHandler
 {
+    public static final String FALLBACK_FIGURE_CSS_CLS = "figure";
+
     private static final Map<String, CKEditPlugin> PLUGIN_REGISTRY = new HashMap<String, CKEditPlugin>();
 
     // Character entities as required by CKEditor entities_additional configuration    
@@ -71,6 +73,12 @@ public class CKEditHandler extends ContentEditHandler
     public String prepareContentForEdit(String content, WebUserSession webSess)
     {
         return CKEditUtils.prepareContentForEdit(content, getApplicationId(), webSess);
+    }
+
+    @Override
+    public String prepareContentForSave(String content, WebUserSession webSess)
+    {
+        return CKEditUtils.prepareContentForSave(content, getApplicationId(), webSess);
     }
 
     public String getCKEditorInitTemplate()

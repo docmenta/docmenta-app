@@ -73,7 +73,7 @@
     boolean forcePastePlain = false;
     boolean ignoreEmptyPara = true;
     boolean imgAltRequired = false;
-    String imgCaptionedCls = "image";
+    String imgCaptionedCls = null;
     boolean imgDisableResize = false;
     String removeBtns = "";
     String skin = "";
@@ -110,6 +110,9 @@
         // toolbar = ;
         toolbarLoc = ckPlugin.getToolbarLocation();
         uiColor = ckPlugin.getUIColor();
+    }
+    if ((imgCaptionedCls == null) || imgCaptionedCls.trim().equals("")) {
+        imgCaptionedCls = CKEditHandler.FALLBACK_FIGURE_CSS_CLS;
     }
     
     String ckInitTempl = appHandler.getCKEditorInitTemplate();
@@ -162,6 +165,7 @@
     docmaStyles = <% CKEditUtils.writeStyleList_JSON(out, storeConn); %>;
     
     var isDocmaFigureEnabled = <%= figureEnabled ? "true" : "false" %>;
+    var docmaFigCls = '<%= imgCaptionedCls %>';
     
     initCKStyles();  // see edit.js
 
@@ -342,13 +346,13 @@
                                 this.docmaOldClass = cls_val;
                                 var cls_tmp = ' ' + cls_val + ' ';
                                 this.docmaWidgetClsRemoved = cls_tmp.indexOf(' cke_widget_element ') >= 0;
-                                // this.docmaFigureClsRemoved = cls_tmp.indexOf(' image ') >= 0;
+                                this.docmaFigureClsRemoved = cls_tmp.indexOf(' ' + docmaFigCls + ' ') >= 0;
                                 if (this.docmaWidgetClsRemoved) {
                                     cls_val = removeStyleClass(cls_val, 'cke_widget_element');
                                 }
-                                // if (this.docmaFigureClsRemoved) {
-                                //     cls_val = removeStyleClass(cls_val, 'image');
-                                // }
+                                if (this.docmaFigureClsRemoved) {
+                                    cls_val = removeStyleClass(cls_val, docmaFigCls);
+                                }
                                 this.setValue( cls_val );
                             },
                             commit: function( widget ) {
@@ -356,9 +360,9 @@
                                 if (this.docmaWidgetClsRemoved) {
                                     val = 'cke_widget_element ' + val;
                                 }
-                                // if (this.docmaFigureClsRemoved) {
-                                //     val = 'image ' + val;
-                                // }
+                                if (this.docmaFigureClsRemoved) {
+                                    val = docmaFigCls + ' ' + val;
+                                }
                                 val = trimSpaces(val);
                                 if (val != "") {
                                     widget.element.setAttribute( "class", val );

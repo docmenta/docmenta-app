@@ -423,6 +423,10 @@
   <xsl:template match="dd">
   </xsl:template>
 
+  <xsl:template match="figcaption">
+    <!-- Skip processing figcaption, because the content of figcaption is read by the img template -->
+  </xsl:template>
+
   <xsl:template match="img">
     <xsl:variable name="is_fig_elem" select="boolean(ancestor::figure)" />
     <xsl:choose>
@@ -449,9 +453,8 @@
           <xsl:if test="boolean($id_val)"><xsl:attribute name="id"><xsl:value-of select="$id_val" /></xsl:attribute></xsl:if>
           <xsl:if test="contains($style_val, 'float:') and ($docma_output_type != 'print')">
             <!-- Note: As Apache FOP does not support float, suppress float for print output. Otherwise figure is not rendered. -->
-            <xsl:attribute name="float"><xsl:value-of
-              select="normalize-space(substring-before(substring-after(concat($style_val, ';'), 'float:'), ';'))" />
-            </xsl:attribute>
+            <xsl:variable name="float_val" select="normalize-space(substring-before(substring-after(concat($style_val, ';'), 'float:'), ';'))" />
+            <xsl:attribute name="float"><xsl:value-of select="$float_val" /></xsl:attribute>
           </xsl:if>
           <xsl:if test="$is_fig_elem and boolean(ancestor::figure[@class])"><xsl:attribute name="role"><xsl:value-of select="ancestor::figure[@class]/@class" /></xsl:attribute></xsl:if>
           <mediaobject>

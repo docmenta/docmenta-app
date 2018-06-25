@@ -71,7 +71,9 @@ public class HTMLRuleContextImpl implements HTMLRuleContext
     
     public boolean isAutoCorrect(String checkId)
     {
-        return allowAutoCorrect && ruleConfig.isCorrectOnSave(checkId);
+        return allowAutoCorrect && 
+               ((isModeCheck() && ruleConfig.isCorrectOnCheck(checkId)) || 
+                (isModeSave()  && ruleConfig.isCorrectOnSave(checkId)));
     }
     
     public void log(String checkId, String msg, Object... args)
@@ -202,7 +204,7 @@ public class HTMLRuleContextImpl implements HTMLRuleContext
     private void logPos(LogLevel level, String checkId, int contentPosition, String msg, Object... args)
     {
         String generator = getCheckName(checkId);
-        String content_extract = extract(content, contentPosition);
+        String content_extract = "...." + extract(content, contentPosition) + "....";
         log.add(level, generator, content_extract, msg, args);
     }
 

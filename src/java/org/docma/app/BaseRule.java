@@ -48,6 +48,7 @@ import org.docma.plugin.implementation.StoreHelper;
 import org.docma.plugin.rules.HTMLRule;
 import org.docma.plugin.rules.HTMLRuleConfig;
 import org.docma.plugin.rules.HTMLRuleContext;
+import org.docma.util.CSSParser;
 import org.docma.util.Log;
 import org.docma.util.XMLElementContext;
 import org.docma.util.XMLElementHandler;
@@ -65,6 +66,7 @@ public class BaseRule implements HTMLRule, XMLElementHandler
     public static final String CHECK_ID_ATTRIBUTE_REQUIRED = "attribute_required";
     public static final String CHECK_ID_CONTENT_REQUIRED = "content_required";
     public static final String CHECK_ID_INVALID_STYLE = "invalid_style";
+    public static final String CHECK_ID_NORMALIZE_TEXTALIGN = "normalize_textalign";
     public static final String CHECK_ID_TRIM_EMPTY_PARAS = "trim_empty_paras";
     public static final String CHECK_ID_TRIM_FIGURE_SPACES = "trim_figure_spaces";
     // Link checks
@@ -90,6 +92,7 @@ public class BaseRule implements HTMLRule, XMLElementHandler
     private final SortedSet<String> elemsContentRequired = new TreeSet<String>();
     private final Map<String, List<List<AttribConf>>> elemsAttribRequired = 
             new HashMap<String, List<List<AttribConf>>>();
+    private final SortedSet<String> elemsNormalizeTextalign = new TreeSet<String>();
             
     // Cached style info
     private final SortedMap<String, StyleInfo> styleInfos = new TreeMap<String, StyleInfo>();
@@ -128,6 +131,7 @@ public class BaseRule implements HTMLRule, XMLElementHandler
           CHECK_ID_INVALID_IMAGE_SRC,
           CHECK_ID_INVALID_STYLE,
           CHECK_ID_INVALID_TARGET_TYPE,
+          CHECK_ID_NORMALIZE_TEXTALIGN,
           CHECK_ID_TRIM_EMPTY_PARAS, 
           CHECK_ID_TRIM_FIGURE_SPACES
         };
@@ -145,6 +149,7 @@ public class BaseRule implements HTMLRule, XMLElementHandler
         return checkId.equals(CHECK_ID_ATTRIBUTE_REQUIRED) ||
                checkId.equals(CHECK_ID_CONTENT_REQUIRED) ||
                checkId.equals(CHECK_ID_EMBEDDED_IMAGE) ||
+               checkId.equals(CHECK_ID_NORMALIZE_TEXTALIGN) ||
                checkId.equals(CHECK_ID_TRIM_EMPTY_PARAS) || 
                checkId.equals(CHECK_ID_TRIM_FIGURE_SPACES);
     }
@@ -157,7 +162,8 @@ public class BaseRule implements HTMLRule, XMLElementHandler
             checkId.equals(CHECK_ID_EMBEDDED_IMAGE) || 
             checkId.equals(CHECK_ID_INVALID_IMAGE_SRC) || 
             checkId.equals(CHECK_ID_INVALID_STYLE) ||
-            checkId.equals(CHECK_ID_INVALID_TARGET_TYPE)) {
+            checkId.equals(CHECK_ID_INVALID_TARGET_TYPE) ||
+            checkId.equals(CHECK_ID_NORMALIZE_TEXTALIGN)) {
             return LogLevel.WARNING;
         } else {
             return LogLevel.INFO;
@@ -170,6 +176,7 @@ public class BaseRule implements HTMLRule, XMLElementHandler
         configElems.clear();
         elemsContentRequired.clear();
         elemsAttribRequired.clear();
+        elemsNormalizeTextalign.clear();
         // elemsNotAllowed.clear();
         for (String arg : conf.getArguments()) {
             arg = arg.toLowerCase();
@@ -221,6 +228,19 @@ public class BaseRule implements HTMLRule, XMLElementHandler
                     configElems.add(elem);
                     elemsAttribRequired.put(elem, orList);
                 }
+            } else if (arg.startsWith(CHECK_ID_NORMALIZE_TEXTALIGN + "=")) { 
+                String val = arg.substring(CHECK_ID_CONTENT_REQUIRED.length() + 1).toLowerCase();
+                if (val.equals(""))  {
+                    val = "*";
+                }
+                StringTokenizer st = new StringTokenizer(val, ",");
+                while (st.hasMoreTokens()) {
+                    String nm = st.nextToken();
+                    if (! nm.equals("*")) {
+                        configElems.add(nm);
+                    }
+                    elemsNormalizeTextalign.add(nm);
+                }
             }
             // } else if (arg.startsWith(SUFFIX_NOT_ALLOWED + "=")) {
             //     StringTokenizer st = new StringTokenizer(arg.substring(SUFFIX_NOT_ALLOWED.length() + 1), ",");
@@ -230,6 +250,10 @@ public class BaseRule implements HTMLRule, XMLElementHandler
             //         checksNotAllowed.add(checkIdNotAllowed(nm));
             //     }
             // } 
+        }  // for-loop
+        
+        if (elemsNormalizeTextalign.isEmpty()) {  // argument normalize_textalign does not exist
+            elemsNormalizeTextalign.add("*");  // wildcard (apply check to all elements)
         }
     }
     
@@ -319,20 +343,23 @@ public class BaseRule implements HTMLRule, XMLElementHandler
         boolean chk_embedded_image = ctx.isEnabled(CHECK_ID_EMBEDDED_IMAGE);
         boolean chk_image_src = ctx.isEnabled(CHECK_ID_INVALID_IMAGE_SRC);
         boolean chk_invalid_style = ctx.isEnabled(CHECK_ID_INVALID_STYLE);
+        boolean chk_normalize_align = ctx.isEnabled(CHECK_ID_NORMALIZE_TEXTALIGN);
         boolean chk_target_type = ctx.isEnabled(CHECK_ID_INVALID_TARGET_TYPE);
         
         boolean has_enabled = chk_cont_required || chk_att_required || 
                               chk_broken_link || chk_embedded_image || 
-                              chk_image_src || chk_invalid_style ||chk_target_type;  
+                              chk_image_src || chk_invalid_style || 
+                              chk_normalize_align || chk_target_type;  
         
         if (has_enabled) {   // if one or more checks are enabled
             boolean has_correct = ctx.isAutoCorrect(CHECK_ID_CONTENT_REQUIRED) || 
                                   ctx.isAutoCorrect(CHECK_ID_ATTRIBUTE_REQUIRED) || 
-                                  ctx.isAutoCorrect(CHECK_ID_EMBEDDED_IMAGE);
+                                  ctx.isAutoCorrect(CHECK_ID_EMBEDDED_IMAGE) || 
+                                  ctx.isAutoCorrect(CHECK_ID_NORMALIZE_TEXTALIGN);
             XMLProcessor xmlproc = XMLProcessorFactory.newInstance();
             xmlproc.setCheckWellformed(true);
             xmlproc.setIgnoreElementCase(true);
-            if (chk_invalid_style) {
+            if (chk_invalid_style || elemsNormalizeTextalign.contains("*")) {
                 xmlproc.setElementHandler(this);  // process all elements
             } else {
                 if (chk_broken_link || chk_target_type) {
@@ -342,7 +369,8 @@ public class BaseRule implements HTMLRule, XMLElementHandler
                     xmlproc.setElementHandler("img", this);
                 }
                 // Register all elements configured for 
-                // CHECK_ID_CONTENT_REQUIRED and CHECK_ID_ATTRIBUTE_REQUIRED
+                // CHECK_ID_CONTENT_REQUIRED, CHECK_ID_ATTRIBUTE_REQUIRED and
+                // CHECK_ID_NORMALIZE_TEXTALIGN
                 for (String elem : configElems) {
                     xmlproc.setElementHandler(elem, this);
                 }
@@ -528,7 +556,7 @@ public class BaseRule implements HTMLRule, XMLElementHandler
                     String msg = (missingName == null) ? label("msgTagWithoutAttribRemoved", ename) 
                                                        : label("msgTagWithMissingAttribRemoved", ename, missingName);
                     ruleCtx.logInfo(CHECK_ID_ATTRIBUTE_REQUIRED, pos, msg);
-                    // return;
+                    return;  // Skip the other checks, because element has been removed
                 } else {
                     String msg;
                     if (missingName == null) { 
@@ -544,7 +572,19 @@ public class BaseRule implements HTMLRule, XMLElementHandler
                 }
             }
         }
-        
+
+        //
+        // Check for CSS property text-align: CHECK_ID_NORMALIZE_TEXTALIGN
+        // If auto-correction is enabled, this replaces the CSS property 
+        // text-align by one of the CSS classes align-left, align-center, 
+        // align-right, align-full.
+        //
+        if (ruleCtx.isEnabled(CHECK_ID_NORMALIZE_TEXTALIGN)) {
+            if (elemsNormalizeTextalign.contains("*") || elemsNormalizeTextalign.contains(ename)) {
+                checkNormalizeTextalign(elemCtx, pos);
+            }
+        }
+
         // if (elemsNotAllowed.contains(ename) && ruleCtx.isEnabled(CHECK_ID_NOT_ALLOWED)) {
         //     if (ruleCtx.isAutoCorrect(CHECK_ID_NOT_ALLOWED)) {
         //         // remove the tag, but keep the content
@@ -559,6 +599,50 @@ public class BaseRule implements HTMLRule, XMLElementHandler
     }
 
     /* --------------  Private methods  ---------------------- */
+
+    private void checkNormalizeTextalign(XMLElementContext elemCtx, int pos)
+    {
+        String style = elemCtx.getAttributeValue("style");
+        if ((style != null) && style.contains("text-align")) {
+            SortedMap<String, String> props = CSSParser.parseCSSProperties(style);
+            String alignVal = props.remove("text-align");
+            if (alignVal != null) {
+                String elemName = elemCtx.getElementName();
+                String alignCls = null;
+                if (alignVal.equalsIgnoreCase("left")) {
+                    alignCls = "align-left";
+                } else if (alignVal.equalsIgnoreCase("center")) {
+                    alignCls = "align-center";
+                } else if (alignVal.equalsIgnoreCase("right")) {
+                    alignCls = "align-right";
+                } else if (alignVal.equalsIgnoreCase("justify")) {
+                    alignCls = "align-full";
+                }
+                if (alignCls == null) {
+                    String msg = label("msgInvalidTextAlignStyle", elemName, alignVal);
+                    ruleCtx.log(CHECK_ID_NORMALIZE_TEXTALIGN, pos, msg);
+                } else {
+                    if (ruleCtx.isAutoCorrect(CHECK_ID_NORMALIZE_TEXTALIGN)) {
+                        // Convert to CSS class
+                        String cssNew = CSSParser.propertiesToString(props);
+                        if ("".equals(cssNew)) {
+                            cssNew = null;  // remove style attribute
+                        }
+                        String clsNew = addCSSClass(elemCtx.getAttributeValue("class"), alignCls);
+                        elemCtx.setAttribute("style", cssNew);
+                        elemCtx.setAttribute("class", clsNew);
+                        corrected = true;
+                        String msg = label("msgTextAlignNormalized", elemName, alignVal, alignCls);
+                        ruleCtx.logInfo(CHECK_ID_NORMALIZE_TEXTALIGN, pos, msg);
+                    } else {
+                        // Just add log message
+                        String msg = label("msgFoundTextAlignStyle", elemName, alignVal, alignCls);
+                        ruleCtx.log(CHECK_ID_NORMALIZE_TEXTALIGN, pos, msg);
+                    }
+                }
+            }
+        }
+    }
 
     private void checkElementClassNames(XMLElementContext elemCtx, int pos)
     {
@@ -790,7 +874,22 @@ public class BaseRule implements HTMLRule, XMLElementHandler
             return DatatypeConverter.parseBase64Binary(data);
         }
     }
-    
+
+    private String addCSSClass(String classVal, String clsAdd) 
+    {
+        if ((clsAdd == null) || clsAdd.equals("")) {  // nothing to add
+            return classVal;
+        }
+        if ((classVal == null) || classVal.equals("")) {
+            return clsAdd;
+        }
+        classVal = classVal.trim();
+        if ((" " + classVal + " ").contains(" " + clsAdd + " ")) {
+            return classVal;
+        }
+        return classVal + " " + clsAdd;
+    }
+
     private void debug(String msg)
     {
         if (DocmaConstants.DEBUG) {
@@ -1028,7 +1127,9 @@ public class BaseRule implements HTMLRule, XMLElementHandler
         {
             this.cssName = cssName;
             this.style = style;
-            this.predefined = DocmaStyleUtil.isPredefinedStyle(cssName);
+            this.predefined = DocmaStyleUtil.isPredefinedStyle(cssName) || 
+                              cssName.startsWith("print_width_") || 
+                              cssName.startsWith("print_height_");
         }
         
         String getCSSName()

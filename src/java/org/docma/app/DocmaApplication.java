@@ -265,7 +265,10 @@ public class DocmaApplication
                 sb.append(cn);
             }
         }
-        setApplicationProperty(DocmaConstants.PROP_AUTOFORMAT_CLASSES, sb.toString());
+        String pval_new = sb.toString();
+        if (! pval_new.equals(pval)) {
+            setApplicationProperty(DocmaConstants.PROP_AUTOFORMAT_CLASSES, pval_new);
+        }
     }
     
     public void unregisterAutoFormatClasses(String... clsNames) throws Exception
@@ -308,7 +311,10 @@ public class DocmaApplication
                 sb.append(cn);
             }
         }
-        setApplicationProperty(DocmaConstants.PROP_RULE_CLASSES, sb.toString());
+        String pval_new = sb.toString();
+        if (! pval_new.equals(pval)) {
+            setApplicationProperty(DocmaConstants.PROP_RULE_CLASSES, pval_new);
+        }
     }
     
     public void unregisterRuleClasses(String... clsNames) throws Exception

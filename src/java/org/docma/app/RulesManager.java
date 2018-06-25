@@ -253,6 +253,13 @@ public class RulesManager
                 rc.setExecuteOnCheck(chk, true);
                 rc.setExecuteOnSave(chk,  false);
                 
+                // Normalize alignment setting
+                chk = BaseRule.CHECK_ID_NORMALIZE_TEXTALIGN;
+                rc.setExecuteOnCheck(chk, true);
+                rc.setCorrectOnCheck(chk, true);
+                rc.setExecuteOnSave(chk,  true);
+                rc.setCorrectOnSave(chk,  true);
+
                 // Trim empty paras setting
                 chk = BaseRule.CHECK_ID_TRIM_EMPTY_PARAS;
                 rc.setExecuteOnCheck(chk, false);

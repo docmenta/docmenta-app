@@ -18,6 +18,7 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.StringTokenizer;
 import javax.xml.transform.ErrorListener;
@@ -33,18 +34,23 @@ import org.docma.plugin.LogLevel;
 import org.docma.plugin.Node;
 import org.docma.plugin.PluginUtil;
 import org.docma.plugin.StoreConnection;
+import org.docma.plugin.UserSession;
 import org.docma.plugin.rules.HTMLRule;
 import org.docma.plugin.rules.HTMLRuleConfig;
 import org.docma.plugin.rules.HTMLRuleContext;
 import org.docma.util.Log;
+import org.docma.util.XMLElementContext;
+import org.docma.util.XMLElementHandler;
 import org.docma.util.XMLParseException;
 import org.docma.util.XMLParser;
+import org.docma.util.XMLProcessor;
+import org.docma.util.XMLProcessorFactory;
 
 /**
  *
  * @author MP
  */
-public class XSLTRule implements HTMLRule, ErrorListener
+public class XSLTRule implements HTMLRule, ErrorListener, XMLElementHandler
 {
     public static final String CHECK_ID_TRANSFORM = "apply_xsl";
     
@@ -56,10 +62,12 @@ public class XSLTRule implements HTMLRule, ErrorListener
     private String factoryClsName = null;
     private static final Map<String, TransformerFactory> factoryMap = new HashMap<String, TransformerFactory>();
     private Transformer transformer = null;
+    private String lang = "en";
     
     private final Map<String, List<List<AttribConf>>> elemMap = new HashMap<String, List<List<AttribConf>>>();
     
     private HTMLRuleContext ruleCtx = null;
+    private boolean transformed = false;
     
 
     /* --------------  Interface HTMLRule  ---------------------- */
@@ -119,6 +127,7 @@ public class XSLTRule implements HTMLRule, ErrorListener
                             int p2 = elem.lastIndexOf(']');
                             if (p2 > p1) {
                                 String expr = elem.substring(p1 + 1, p2);
+                                // Note: whitespace is not allowed. Therefore no trim required.
                                 elem =  elem.substring(0, p1);
                                 StringTokenizer st2 = new StringTokenizer(expr, "|");
                                 while (st2.hasMoreTokens()) {
@@ -164,6 +173,11 @@ public class XSLTRule implements HTMLRule, ErrorListener
 
     public void startBatch(HTMLRuleContext ctx) 
     {
+        StoreConnection conn = ctx.getStoreConnection();
+        UserSession     sess = (conn == null) ? null : conn.getUserSession();
+        Locale          loc  = (sess == null) ? null : sess.getCurrentLocale();
+        lang = (loc == null)  ? "en" : loc.getLanguage();
+        transformer = null;  // The XSLT script may have changed. Create new transformer instance.
     }
 
     public void finishBatch(HTMLRuleContext ctx) 
@@ -172,61 +186,40 @@ public class XSLTRule implements HTMLRule, ErrorListener
 
     public String apply(String content, HTMLRuleContext ctx) 
     {
+        if (! ctx.isEnabled(CHECK_ID_TRANSFORM)) {
+            return null;   // Check is disabled. Nothing to do.
+        }
+        
         ruleCtx = ctx;
         try {
             initTransformer(ctx);
             
             content = content.trim();
             StringBuilder output = new StringBuilder();
+
+            XMLProcessor xmlproc = XMLProcessorFactory.newInstance();
+            xmlproc.setCheckWellformed(false);
+            xmlproc.setIgnoreElementCase(true);
+            xmlproc.setIgnoreAttributeCase(true);
             
-            // Split content into root elements and apply XSL script  
-            // to each root element. 
-            XMLParser parser = new XMLParser(content);
-            List<String> attNames = new ArrayList<String>();
-            List<String> attValues = new ArrayList<String>();
-            boolean transformed = false;
-            int eventType;
-            do {
-                eventType = parser.next();
-                if (eventType == XMLParser.START_ELEMENT) {
-                    String elemName = parser.getElementName().toLowerCase();
-                    
-                    parser.getAttributes(attNames, attValues);
-                    int outerStart = parser.getStartOffset();
-                    int outerEnd;
-                    if (parser.isEmptyElement()) {
-                        outerEnd = parser.getEndOffset();
-                    } else {
-                        // Read up to the closing tag of the root element
-                        parser.readUntilCorrespondingClosingTag();
-                        outerEnd = parser.getEndOffset();
-                    }
-
-                    String elem = content.substring(outerStart, outerEnd);
-                    if (elemMap.isEmpty() || evaluateAttribs(elemName, attNames, attValues)) {
-                        StringWriter buf = new StringWriter();
-                        transformer.transform(new StreamSource(new StringReader(elem)),
-                                              new StreamResult(buf));
-                        elem = buf.toString().trim();
-                        // Remove <?xml version="1.0" encoding="UTF-8"?>
-                        while (elem.startsWith("<?")) {
-                            elem = elem.substring(elem.indexOf("?>") + 2).trim();
-                        }
-                        transformed = true;
-                    }
-                    output.append(elem);
-                }
-            } while (eventType != XMLParser.FINISHED);
-
-            String res = output.toString();
-            if ((! transformed) || res.equals(content)) {
-                return null;
+            transformed = false;
+            if (elemMap.isEmpty()) {
+                // Transform all root elements
+                // res = transformRootElements(content);
+                xmlproc.setElementHandler(this);
             } else {
-                ctx.log(CHECK_ID_TRANSFORM, "msgContentUpdated");
-                return res;
+                for (String ename : elemMap.keySet()) {
+                    xmlproc.setElementHandler(ename, this);
+                }
             }
-        } catch (TransformerException te) {
-            throw new RuntimeException(te);
+            xmlproc.process(content, output);
+            if (transformed) {  // If at least one element in content has been transformed...
+                return output.toString();  // ...get the updated content.
+            } else {
+                return null;
+            }
+        // } catch (TransformerException te) {
+        //     throw new RuntimeException(te);
         } catch (XMLParseException pe) {
             throw new RuntimeException(pe);
         } catch (Exception ex) {
@@ -235,13 +228,51 @@ public class XSLTRule implements HTMLRule, ErrorListener
             ruleCtx = null;
         }
     }
+
+    /* --------------  Interface XMLElementHandler  ---------------------- */
     
+    public void processElement(XMLElementContext elemCtx) 
+    {
+        String elemName = elemCtx.getElementName().toLowerCase();
+        if (evaluate(elemName, elemCtx)) {
+            try {
+                StringWriter buf = new StringWriter();
+                String elem = elemCtx.getElement();
+                transformer.transform(new StreamSource(new StringReader(elem)),
+                                      new StreamResult(buf));
+                String replace = buf.toString().trim();
+                // Remove <?xml version="1.0" encoding="UTF-8"?>
+                while (replace.startsWith("<?")) {
+                    replace = replace.substring(replace.indexOf("?>") + 2).trim();
+                }
+                if (! elem.equals(replace)) {
+                    if (ruleCtx.isAutoCorrect(CHECK_ID_TRANSFORM)) {
+                        elemCtx.replaceElement(replace);
+                        transformed = true;
+                        ruleCtx.logText(label("msgElementUpdated", elemName), elem);
+                        ruleCtx.logText(label("msgReplacedBy"), replace);
+                    } else {
+                        ruleCtx.log(CHECK_ID_TRANSFORM, label("msgFoundElementUpdate", elemName));
+                        ruleCtx.logText(label("msgHeaderOldElement"), elem);
+                        ruleCtx.logText(label("msgHeaderNewElement"), replace);
+                    }
+                }
+            } catch (TransformerException te) {
+                if (ruleCtx != null) {
+                    ruleCtx.log(LogLevel.ERROR, te.getMessageAndLocation());
+                } else {
+                    Log.error(te.getMessageAndLocation());
+                }
+            }
+        }
+    }
+
     /* --------------  Interface ErrorListener  ---------------------- */
     
     public void warning(TransformerException exception) throws TransformerException 
     {
         if (ruleCtx != null) {
-            ruleCtx.logInfo(CHECK_ID_TRANSFORM, exception.getMessageAndLocation());
+            ruleCtx.log(CHECK_ID_TRANSFORM, exception.getMessageAndLocation());
         } else {
             Log.warning(exception.getMessageAndLocation());
         }
@@ -250,11 +281,6 @@ public class XSLTRule implements HTMLRule, ErrorListener
     public void error(TransformerException exception) throws TransformerException 
     {
         throw exception;
-        // if (ruleCtx != null) {
-        //     ruleCtx.log(CHECK_ID_TRANSFORM, exception.getMessageAndLocation());
-        // } else {
-        //     Log.error(exception.getMessageAndLocation());
-        // }
     }
 
     public void fatalError(TransformerException exception) throws TransformerException 
@@ -264,29 +290,49 @@ public class XSLTRule implements HTMLRule, ErrorListener
     
     /* --------------  Private methods  ---------------------- */
 
-    private boolean evaluateAttribs(String elemName, List<String> attNames, List<String> attValues)
+    private boolean evaluate(String elemName, XMLElementContext elemCtx) 
+                          // List<String> attNames, List<String> attValues
     {
-        List<List<AttribConf>> orList = elemMap.get(elemName);
-        if (orList == null) {
-            return false;
+        if (elemMap.isEmpty()) {  // No element names configured...
+            return true;          // ...transform all (root) elements
         }
+        
+        // Element names have been configured. Check if elemName is included.
+        List<List<AttribConf>> orList = elemMap.get(elemName);
+        if (orList == null) {  // elemName is not in elemMap...
+            return false;      // ...do not transform this element
+        }
+
+        // Check if attribute expression exists.
+        if (orList.isEmpty()) {
+            // elemName is configured, but without attribute expression 
+            // (no or empty square brackets []) ...
+            return true;  // ...transform this element
+        }
+
+        // Element name has been configured with attribute expression.
+        // Evaluate attribute expression.
         boolean orResult = false;
         for (List<AttribConf> andList : orList) {
             boolean andResult = true;
+            // Note: andList is never empty
             for (AttribConf ac : andList) {
                 String aName = ac.getName();
-                String val = ac.getValue();
+                String compVal = ac.getValue();  // Configured comparison value.
+                // int idx = attNames.indexOf(aName);
+                // String attVal = (idx < 0) ? null : attValues.get(idx);
+                String attVal = elemCtx.getAttributeValue(aName);
                 boolean b;  // The result of the attribute expression.
-                if (val == null) { // No value -> check if attribute exists.
-                    b = attNames.contains(aName);
+                if (compVal == null) { // No comparison value -> check if attribute exists.
+                    b = (attVal != null);
                     if (ac.isNot()) b = !b;
-                } else { // Value exists -> check if attribute equals value
-                    int idx = attNames.indexOf(aName);
-                    if (idx < 0) {  // If attribute does not exist, then the
-                                    // attribute is not equal to the value.
+                } else { // Comparison value exists -> check if attribute equals value
+                    if (attVal == null) {  
+                        // If attribute does not exist, then this is the same  
+                        // as if attribute were not equal to the comparison value.
                         b = ac.isNot();
                     } else {
-                        b = val.equals(attValues.get(idx));
+                        b = compVal.equals(attVal);
                         if (ac.isNot()) b = !b;
                     }
                 }
@@ -304,6 +350,59 @@ public class XSLTRule implements HTMLRule, ErrorListener
             }
         }
         return orResult;
+    }
+
+//    private String transformRootElements(String content) throws Exception
+//    {
+//        StringBuilder output = new StringBuilder();
+//        XMLParser parser = new XMLParser(content);
+//        List<String> attNames = new ArrayList<String>();
+//        List<String> attValues = new ArrayList<String>();
+//        boolean transformed = false;
+//        int eventType;
+//        do {
+//            eventType = parser.next();
+//            if (eventType == XMLParser.START_ELEMENT) {
+//                String elemName = parser.getElementName().toLowerCase();
+//
+//                parser.getAttributes(attNames, attValues);
+//                int outerStart = parser.getStartOffset();
+//                int outerEnd;
+//                if (parser.isEmptyElement()) {
+//                    outerEnd = parser.getEndOffset();
+//                } else {
+//                    // Read up to the closing tag of the root element
+//                    parser.readUntilCorrespondingClosingTag();
+//                    outerEnd = parser.getEndOffset();
+//                }
+//
+//                String elem = content.substring(outerStart, outerEnd);
+//                if (evaluate(elemName, attNames, attValues)) {
+//                    StringWriter buf = new StringWriter();
+//                    transformer.transform(new StreamSource(new StringReader(elem)),
+//                                          new StreamResult(buf));
+//                    elem = buf.toString().trim();
+//                    // Remove <?xml version="1.0" encoding="UTF-8"?>
+//                    while (elem.startsWith("<?")) {
+//                        elem = elem.substring(elem.indexOf("?>") + 2).trim();
+//                    }
+//                    transformed = true;
+//                }
+//                output.append(elem);
+//            }
+//        } while (eventType != XMLParser.FINISHED);
+//        
+//        if (transformed) {
+//            String res = output.toString();
+//            return res.equals(content) ? null : res;
+//        } else {
+//            return null;
+//        }
+//    }
+
+    private String label(String msgKey, Object... args) 
+    {
+        return PluginUtil.getResourceString(this.getClass(), lang, msgKey, args);
     }
     
     private void initTransformer(HTMLRuleContext ctx) 

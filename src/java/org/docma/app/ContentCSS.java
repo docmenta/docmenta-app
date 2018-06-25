@@ -113,6 +113,7 @@ public class ContentCSS
         out.write("ul + p, ul + div.normal-para { " + para_margin + " }\n");
         out.write("table + p, table + div.normal-para { " + para_margin + " }\n");
         out.write("blockquote + p, blockquote + div.normal-para { " + para_margin + " }\n");
+        out.write("figure + p, figure + div.normal-para { " + para_margin + " }\n");
         out.write("div.doc-content + div.doc-content { " + para_margin + " }\n");
         
         out.write(".toc { margin-bottom:" + para_space + "; }\n");
