@@ -42,7 +42,6 @@ import org.docma.util.Log;
 import org.docma.util.XMLElementContext;
 import org.docma.util.XMLElementHandler;
 import org.docma.util.XMLParseException;
-import org.docma.util.XMLParser;
 import org.docma.util.XMLProcessor;
 import org.docma.util.XMLProcessorFactory;
 
@@ -52,11 +51,13 @@ import org.docma.util.XMLProcessorFactory;
  */
 public class XSLTRule implements HTMLRule, ErrorListener, XMLElementHandler
 {
-    public static final String CHECK_ID_TRANSFORM = "apply_xsl";
+    public static final String CHECK_ID_APPLY_XSL = "apply_xsl";
     
     private static final String ARG_XSLT_SCRIPT = "script";
     private static final String ARG_FACTORY_CLASS = "factory";
-    private static final String ARG_TAGS = "tags";
+    private static final String ARG_TAGS = "tags"; // Deprecated; should be replaced by the "apply" argument.
+    private static final String ARG_APPLY = "apply";
+    private static final String ARG_KEEP = "keep";
     
     private String scriptAlias = null;
     private String factoryClsName = null;
@@ -64,7 +65,11 @@ public class XSLTRule implements HTMLRule, ErrorListener, XMLElementHandler
     private Transformer transformer = null;
     private String lang = "en";
     
+    // Configuration of elements to be transformed
     private final Map<String, List<List<AttribConf>>> elemMap = new HashMap<String, List<List<AttribConf>>>();
+    
+    // Configuration of elements to be kept
+    private final Map<String, List<List<AttribConf>>> keepMap = new HashMap<String, List<List<AttribConf>>>();
     
     private HTMLRuleContext ruleCtx = null;
     private boolean transformed = false;
@@ -84,7 +89,7 @@ public class XSLTRule implements HTMLRule, ErrorListener, XMLElementHandler
 
     public String[] getCheckIds() 
     {
-        return new String[] { CHECK_ID_TRANSFORM };
+        return new String[] { CHECK_ID_APPLY_XSL };
     }
 
     public String getCheckTitle(String checkId, String languageCode) 
@@ -117,53 +122,10 @@ public class XSLTRule implements HTMLRule, ErrorListener, XMLElementHandler
                     factoryClsName = avalue;
                 } else if (ARG_XSLT_SCRIPT.equalsIgnoreCase(aname)) {
                     scriptAlias = avalue;
-                } else if (ARG_TAGS.equalsIgnoreCase(aname)) {
-                    StringTokenizer st = new StringTokenizer(avalue, ",");
-                    while (st.hasMoreTokens()) {
-                        String elem = st.nextToken();
-                        List<List<AttribConf>> orList = new ArrayList<List<AttribConf>>();
-                        int p1 = elem.indexOf('[');
-                        if (p1 > 0) {
-                            int p2 = elem.lastIndexOf(']');
-                            if (p2 > p1) {
-                                String expr = elem.substring(p1 + 1, p2);
-                                // Note: whitespace is not allowed. Therefore no trim required.
-                                elem =  elem.substring(0, p1);
-                                StringTokenizer st2 = new StringTokenizer(expr, "|");
-                                while (st2.hasMoreTokens()) {
-                                    String atts = st2.nextToken();
-                                    List<AttribConf> andList = new ArrayList<AttribConf>();
-                                    StringTokenizer st3 = new StringTokenizer(atts, "+");
-                                    while (st3.hasMoreTokens()) {
-                                        String att = st3.nextToken();
-                                        String val = null;
-                                        boolean isNot = att.startsWith("!");
-                                        if (isNot) {
-                                            att = att.substring(1);
-                                        }
-                                        int p3 = att.indexOf('=');
-                                        if (p3 > 0) {  // value exists
-                                            val = att.substring(p3 + 1);
-                                            if (att.charAt(p3 - 1) == '!') {  // operator != (equals not)
-                                                att = att.substring(0, p3 - 1);
-                                                isNot = !isNot;
-                                            } else {
-                                                att = att.substring(0, p3);
-                                            }
-                                            if ((val.startsWith("\"") && val.endsWith("\"")) || 
-                                                (val.startsWith("'") && val.endsWith("'"))) { 
-                                                val = val.substring(1, val.length() - 1);
-                                            }
-                                            val = resolveConfigEscapes(val);
-                                        }
-                                        andList.add(new AttribConf(att, val, isNot));
-                                    }
-                                    orList.add(andList);
-                                }
-                            }
-                        }
-                        elemMap.put(elem.toLowerCase(), orList);
-                    }
+                } else if (ARG_APPLY.equalsIgnoreCase(aname) || ARG_TAGS.equalsIgnoreCase(aname)) {
+                    readElementsConfigString(avalue, elemMap);
+                } else if (ARG_KEEP.equalsIgnoreCase(aname)) {
+                    readElementsConfigString(avalue, keepMap);
                 }
             } else {
                 scriptAlias = arg;
@@ -186,7 +148,7 @@ public class XSLTRule implements HTMLRule, ErrorListener, XMLElementHandler
 
     public String apply(String content, HTMLRuleContext ctx) 
     {
-        if (! ctx.isEnabled(CHECK_ID_TRANSFORM)) {
+        if (! ctx.isEnabled(CHECK_ID_APPLY_XSL)) {
             return null;   // Check is disabled. Nothing to do.
         }
         
@@ -234,7 +196,22 @@ public class XSLTRule implements HTMLRule, ErrorListener, XMLElementHandler
     public void processElement(XMLElementContext elemCtx) 
     {
         String elemName = elemCtx.getElementName().toLowerCase();
-        if (evaluate(elemName, elemCtx)) {
+        if (! keepMap.isEmpty()) {  // Argument "keep" has been configured
+            // Check if element shall be kept
+            if (evaluate(elemName, elemCtx, keepMap)) {
+                // The element and all sub-elements shall be kept (unchanged).
+                // This can be achieved by replacing the element (including 
+                // sub-elements) by itself. This way the sub-elements are 
+                // not processed anymore.
+                elemCtx.replaceElement(elemCtx.getElement());
+                return;
+            }
+        }
+        
+        // If no element configuration exists, then transform all (root) elements.
+        // If element configuration exists, then transform the element given by 
+        // elemCtx only if the configured expression evaluates to true.        
+        if (elemMap.isEmpty() || evaluate(elemName, elemCtx, elemMap)) {
             try {
                 StringWriter buf = new StringWriter();
                 String elem = elemCtx.getElement();
@@ -246,13 +223,13 @@ public class XSLTRule implements HTMLRule, ErrorListener, XMLElementHandler
                     replace = replace.substring(replace.indexOf("?>") + 2).trim();
                 }
                 if (! elem.equals(replace)) {
-                    if (ruleCtx.isAutoCorrect(CHECK_ID_TRANSFORM)) {
+                    if (ruleCtx.isAutoCorrect(CHECK_ID_APPLY_XSL)) {
                         elemCtx.replaceElement(replace);
                         transformed = true;
                         ruleCtx.logText(label("msgElementUpdated", elemName), elem);
                         ruleCtx.logText(label("msgReplacedBy"), replace);
                     } else {
-                        ruleCtx.log(CHECK_ID_TRANSFORM, label("msgFoundElementUpdate", elemName));
+                        ruleCtx.log(CHECK_ID_APPLY_XSL, label("msgFoundElementUpdate", elemName));
                         ruleCtx.logText(label("msgHeaderOldElement"), elem);
                         ruleCtx.logText(label("msgHeaderNewElement"), replace);
                     }
@@ -272,7 +249,7 @@ public class XSLTRule implements HTMLRule, ErrorListener, XMLElementHandler
     public void warning(TransformerException exception) throws TransformerException 
     {
         if (ruleCtx != null) {
-            ruleCtx.log(CHECK_ID_TRANSFORM, exception.getMessageAndLocation());
+            ruleCtx.log(CHECK_ID_APPLY_XSL, exception.getMessageAndLocation());
         } else {
             Log.warning(exception.getMessageAndLocation());
         }
@@ -290,16 +267,64 @@ public class XSLTRule implements HTMLRule, ErrorListener, XMLElementHandler
     
     /* --------------  Private methods  ---------------------- */
 
-    private boolean evaluate(String elemName, XMLElementContext elemCtx) 
+    private void readElementsConfigString(String configValue, Map<String, List<List<AttribConf>>> result)
+    {
+        StringTokenizer st = new StringTokenizer(configValue, ",");
+        while (st.hasMoreTokens()) {
+            String elem = st.nextToken();
+            List<List<AttribConf>> orList = new ArrayList<List<AttribConf>>();
+            int p1 = elem.indexOf('[');
+            if (p1 > 0) {
+                int p2 = elem.lastIndexOf(']');
+                if (p2 > p1) {
+                    String expr = elem.substring(p1 + 1, p2);
+                    // Note: whitespace is not allowed. Therefore no trim required.
+                    elem =  elem.substring(0, p1);
+                    StringTokenizer st2 = new StringTokenizer(expr, "|");
+                    while (st2.hasMoreTokens()) {
+                        String atts = st2.nextToken();
+                        List<AttribConf> andList = new ArrayList<AttribConf>();
+                        StringTokenizer st3 = new StringTokenizer(atts, "+");
+                        while (st3.hasMoreTokens()) {
+                            String att = st3.nextToken();
+                            String val = null;
+                            boolean isNot = att.startsWith("!");
+                            if (isNot) {
+                                att = att.substring(1);
+                            }
+                            int p3 = att.indexOf('=');
+                            if (p3 > 0) {  // value exists
+                                val = att.substring(p3 + 1);
+                                if (att.charAt(p3 - 1) == '!') {  // operator != (equals not)
+                                    att = att.substring(0, p3 - 1);
+                                    isNot = !isNot;
+                                } else {
+                                    att = att.substring(0, p3);
+                                }
+                                if ((val.startsWith("\"") && val.endsWith("\"")) || 
+                                    (val.startsWith("'") && val.endsWith("'"))) { 
+                                    val = val.substring(1, val.length() - 1);
+                                }
+                                val = resolveConfigEscapes(val);
+                            }
+                            andList.add(new AttribConf(att, val, isNot));
+                        }
+                        orList.add(andList);
+                    }
+                }
+            }
+            result.put(elem.toLowerCase(), orList);
+        }
+    }
+    
+    private boolean evaluate(String elemName, 
+                             XMLElementContext elemCtx, 
+                             Map<String, List<List<AttribConf>>> configMap) 
                           // List<String> attNames, List<String> attValues
     {
-        if (elemMap.isEmpty()) {  // No element names configured...
-            return true;          // ...transform all (root) elements
-        }
-        
         // Element names have been configured. Check if elemName is included.
-        List<List<AttribConf>> orList = elemMap.get(elemName);
-        if (orList == null) {  // elemName is not in elemMap...
+        List<List<AttribConf>> orList = configMap.get(elemName);
+        if (orList == null) {  // elemName is not in configMap...
             return false;      // ...do not transform this element
         }
 
