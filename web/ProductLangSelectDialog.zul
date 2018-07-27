@@ -10,74 +10,7 @@
         <space spacing="3px" />
         <vbox spacing="3px" width="100%" align="stretch">
             <separator spacing="0px"/>
-            <listbox id="ProductLangSelectListbox" width="100%" rows="10" multiple="true" checkmark="true">
-<!-- When updating following language items, also update file WEB-INF/contentlangs.properties -->
-<listitem value="af" label="Afrikaans" />
-<listitem value="sq" label="Albanian" />
-<listitem value="am" label="Amharic" />
-<listitem value="ar" label="Arabic" />
-<listitem value="az" label="Azerbaijani" />
-<listitem value="bn" label="Bangla" />
-<listitem value="eu" label="Basque" />
-<listitem value="bs" label="Bosnian" />
-<listitem value="bg" label="Bulgarian" />
-<listitem value="ca" label="Catalan" />
-<listitem value="zh" label="Chinese" />
-<listitem value="zh_cn" label="Chinese Simplified" />
-<listitem value="zh_tw" label="Chinese (Taiwan)" />
-<listitem value="hr" label="Croatian" />
-<listitem value="cs" label="Czech" />
-<listitem value="da" label="Danish" />
-<listitem value="nl" label="Dutch" />
-<listitem value="en" label="English" />
-<listitem value="eo" label="Esperanto" />
-<listitem value="et" label="Estonian" />
-<listitem value="fa" label="Farsi" />
-<listitem value="fi" label="Finnish" />
-<listitem value="fr" label="French" />
-<listitem value="de" label="German" />
-<listitem value="el" label="Greek" />
-<listitem value="gl" label="Galician" />
-<listitem value="gu" label="Gujarati" />
-<listitem value="he" label="Hebrew" />
-<listitem value="hi" label="Hindi" />
-<listitem value="hu" label="Hungarian" />
-<listitem value="is" label="Icelandic" />
-<listitem value="id" label="Indonesian" />
-<listitem value="ga" label="Irish" />
-<listitem value="it" label="Italian" />
-<listitem value="ja" label="Japanese" />
-<listitem value="kn" label="Kannada" />
-<listitem value="ko" label="Korean" />
-<listitem value="ky" label="Kirghiz" />
-<listitem value="la" label="Latin" />
-<listitem value="lv" label="Latvian" />
-<listitem value="lt" label="Lithuanian" />
-<listitem value="mn" label="Mongolian" />
-<listitem value="nb" label="Norwegian Bokmal" />
-<listitem value="nn" label="Nynorsk" />
-<listitem value="or" label="Oriya" />
-<listitem value="pa" label="Punjabi" />
-<listitem value="pl" label="Polish" />
-<listitem value="pt" label="Portuguese" />
-<listitem value="pt_br" label="Portuguese (Brazil)" />
-<listitem value="ro" label="Romanian" />
-<listitem value="ru" label="Russian" />
-<listitem value="sr" label="Serbian in Cyrillic script" />
-<listitem value="sr_latn" label="Serbian in Latin script" />
-<listitem value="sk" label="Slovak" />
-<listitem value="sl" label="Slovenian" />
-<listitem value="es" label="Spanish" />
-<listitem value="sv" label="Swedish" />
-<listitem value="ta" label="Tamil" />
-<listitem value="th" label="Thai" />
-<listitem value="tl" label="Tagalog" />
-<listitem value="tr" label="Turkish" />
-<listitem value="uk" label="Ukrainian" />
-<listitem value="vi" label="Vietnamese" />
-<listitem value="cy" label="Welsh" />
-<listitem value="xh" label="Xhosa" />
-            </listbox>
+            <listbox id="ProductLangSelectListbox" width="100%" rows="10" multiple="true" checkmark="true" />
             <separator spacing="2px"/>
             <hbox width="100%" spacing="3px">
               <cell width="50%">

@@ -58,9 +58,11 @@ public class XSLTRule implements HTMLRule, ErrorListener, XMLElementHandler
     private static final String ARG_TAGS = "tags"; // Deprecated; should be replaced by the "apply" argument.
     private static final String ARG_APPLY = "apply";
     private static final String ARG_KEEP = "keep";
+    private static final String ARG_UPDATE_SPACE = "update_space";
     
     private String scriptAlias = null;
     private String factoryClsName = null;
+    private boolean updateSpace = true;
     private static final Map<String, TransformerFactory> factoryMap = new HashMap<String, TransformerFactory>();
     private Transformer transformer = null;
     private String lang = "en";
@@ -110,8 +112,10 @@ public class XSLTRule implements HTMLRule, ErrorListener, XMLElementHandler
     public void configure(HTMLRuleConfig conf) 
     {
         elemMap.clear();
+        keepMap.clear();
         scriptAlias = null;
         factoryClsName = null;
+        updateSpace = true;
         transformer = null;
         for (String arg : conf.getArguments()) {
             int p = arg.indexOf('=');
@@ -126,6 +130,8 @@ public class XSLTRule implements HTMLRule, ErrorListener, XMLElementHandler
                     readElementsConfigString(avalue, elemMap);
                 } else if (ARG_KEEP.equalsIgnoreCase(aname)) {
                     readElementsConfigString(avalue, keepMap);
+                } else if (ARG_UPDATE_SPACE.equalsIgnoreCase(aname)) {
+                    updateSpace = "true".equalsIgnoreCase(avalue);
                 }
             } else {
                 scriptAlias = arg;
@@ -222,13 +228,25 @@ public class XSLTRule implements HTMLRule, ErrorListener, XMLElementHandler
                 while (replace.startsWith("<?")) {
                     replace = replace.substring(replace.indexOf("?>") + 2).trim();
                 }
-                if (! elem.equals(replace)) {
+                if (elementsAreEqual(elem, replace)) {
+                    // The XSL transformation did not change the element.
+                    // Skip the complete element (including sub-elements).
+                    // To avoid processing of sub-elements, replace the
+                    // element by itself. 
+                    elemCtx.replaceElement(elem);
+                } else {
                     if (ruleCtx.isAutoCorrect(CHECK_ID_APPLY_XSL)) {
+                        // Auto-correction is enabled.
                         elemCtx.replaceElement(replace);
                         transformed = true;
                         ruleCtx.logText(label("msgElementUpdated", elemName), elem);
                         ruleCtx.logText(label("msgReplacedBy"), replace);
                     } else {
+                        // Auto-correction is disabled. Therefore, only log the 
+                        // element (but do not replace the element). 
+                        // To avoid processing of sub-elements, replace the
+                        // element by itself. 
+                        elemCtx.replaceElement(elem);
                         ruleCtx.log(CHECK_ID_APPLY_XSL, label("msgFoundElementUpdate", elemName));
                         ruleCtx.logText(label("msgHeaderOldElement"), elem);
                         ruleCtx.logText(label("msgHeaderNewElement"), replace);
@@ -267,6 +285,63 @@ public class XSLTRule implements HTMLRule, ErrorListener, XMLElementHandler
     
     /* --------------  Private methods  ---------------------- */
 
+    private boolean elementsAreEqual(String elem, String replace) 
+    {
+        if (updateSpace) {
+            return elem.equals(replace);
+        } else {
+            return equalsIgnoreSpace(elem, replace);
+        }
+    }
+    
+    private boolean equalsIgnoreSpace(String str1, String str2)
+    {
+        int len1 = str1.length();
+        int len2 = str2.length();
+        int p1 = 0;
+        int p2 = 0;
+        while ((p1 < len1) && (p2 < len2)) {
+            char  ch1 = str1.charAt(p1);
+            char  ch2 = str2.charAt(p2);
+            if (Character.isWhitespace(ch1)) {
+                if (Character.isWhitespace(ch2)) {
+                    // Skip whitespace in both strings.
+                    p1 = skipWhitespace(str1, p1 + 1); // p1 is next non-whitespace or end of string
+                    p2 = skipWhitespace(str2, p2 + 1); // p2 is next non-whitespace or end of string
+                } else {
+                    return false;
+                }
+            } else {
+                if (ch1 != ch2) {
+                    return false;
+                }
+                p1++;
+                p2++;
+            }
+        }
+        
+        // End of str1 and/or str2 has been reached.
+        // If end of one of both strings has not been reached, then
+        // the strings are considered equal, only if all remaining characters
+        // are whitespace.
+        if ((p1 < len1) && (skipWhitespace(str1, p1) < len1)) {
+            return false;
+        }
+        if ((p2 < len2) && (skipWhitespace(str2, p2) < len2)) {
+            return false;
+        }
+        return true;
+    }
+    
+    private int skipWhitespace(String str, int startPos) 
+    {
+        int len = str.length();
+        while ((startPos < len) && Character.isWhitespace(str.charAt(startPos))) {
+            startPos++;
+        }
+        return startPos;
+    }
+    
     private void readElementsConfigString(String configValue, Map<String, List<List<AttribConf>>> result)
     {
         StringTokenizer st = new StringTokenizer(configValue, ",");
@@ -288,32 +363,50 @@ public class XSLTRule implements HTMLRule, ErrorListener, XMLElementHandler
                         while (st3.hasMoreTokens()) {
                             String att = st3.nextToken();
                             String val = null;
-                            boolean isNot = att.startsWith("!");
-                            if (isNot) {
+                            boolean isNot = false;
+                            while (att.startsWith("!")) {
+                                isNot = !isNot;
                                 att = att.substring(1);
                             }
+                            String attName = att;
+                            String comparator = null;
                             int p3 = att.indexOf('=');
                             if (p3 > 0) {  // value exists
                                 val = att.substring(p3 + 1);
-                                if (att.charAt(p3 - 1) == '!') {  // operator != (equals not)
-                                    att = att.substring(0, p3 - 1);
+                                char ch = att.charAt(p3 - 1);
+                                if (ch == '!') {  // operator != (equals not)
                                     isNot = !isNot;
+                                    comparator = "=";
+                                    attName = att.substring(0, p3 - 1);
+                                } else if (ch == '~') {
+                                    comparator = "~=";
+                                    attName = att.substring(0, p3 - 1);
                                 } else {
-                                    att = att.substring(0, p3);
+                                    comparator = "=";
+                                    attName = att.substring(0, p3);
                                 }
-                                if ((val.startsWith("\"") && val.endsWith("\"")) || 
-                                    (val.startsWith("'") && val.endsWith("'"))) { 
-                                    val = val.substring(1, val.length() - 1);
-                                }
-                                val = resolveConfigEscapes(val);
                             }
-                            andList.add(new AttribConf(att, val, isNot));
+                            andList.add(new AttribConf(attName, val, comparator, isNot));
                         }
                         orList.add(andList);
                     }
                 }
             }
-            result.put(elem.toLowerCase(), orList);
+            
+            // elem contains one element name or several element names 
+            // separated by slash character (/).
+            elem = elem.toLowerCase();
+            if (elem.contains("/")) {
+                // Element names separated by slash character (/) share the 
+                // same attribute conditions.   
+                StringTokenizer elemNames = new StringTokenizer(elem, "/");
+                while (elemNames.hasMoreTokens()) {
+                    result.put(elemNames.nextToken().trim(), orList);
+                }
+            } else {
+                // Only one element name.
+                result.put(elem.trim(), orList);
+            }
         }
     }
     
@@ -325,6 +418,9 @@ public class XSLTRule implements HTMLRule, ErrorListener, XMLElementHandler
         // Element names have been configured. Check if elemName is included.
         List<List<AttribConf>> orList = configMap.get(elemName);
         if (orList == null) {  // elemName is not in configMap...
+            orList = configMap.get("*");   // Get wildcard configuration
+        }
+        if (orList == null) {  // elemName and wildcard is not in configMap...
             return false;      // ...do not transform this element
         }
 
@@ -348,27 +444,27 @@ public class XSLTRule implements HTMLRule, ErrorListener, XMLElementHandler
                 // String attVal = (idx < 0) ? null : attValues.get(idx);
                 String attVal = elemCtx.getAttributeValue(aName);
                 boolean b;  // The result of the attribute expression.
-                if (compVal == null) { // No comparison value -> check if attribute exists.
-                    b = (attVal != null);
-                    if (ac.isNot()) b = !b;
-                } else { // Comparison value exists -> check if attribute equals value
-                    if (attVal == null) {  
-                        // If attribute does not exist, then this is the same  
-                        // as if attribute were not equal to the comparison value.
-                        b = ac.isNot();
-                    } else {
-                        b = compVal.equals(attVal);
-                        if (ac.isNot()) b = !b;
+                if (compVal == null) { 
+                    // If no comparison value give, then this is an attribute 
+                    // existance check: attribute name, optionally preceded
+                    // by exclamation mark (logical not), but no comparator.
+                    b = (attVal != null);  // true if attribute exists
+                    if (ac.isNot()) {  
+                        // Attribute name is preceded by exclamation mark.
+                        b = !b;  // true if attribute does not exist
                     }
+                } else { 
+                    // Comparison value exists. Evaluate comparator expression.
+                    b = ac.evaluate(attVal);
                 }
-                if (! b) { // If first attribute-expression is false, then 
+                if (! b) { // If attribute-expression is false, then 
                            // the complete and-expression is false.
                     andResult = false;
                     break;
                 }
             }
             
-            if (andResult) { // If first and-expression is true, then the 
+            if (andResult) { // If and-expression is true, then the 
                              // complete or-expression is true.
                 orResult = true;
                 break;
@@ -475,7 +571,7 @@ public class XSLTRule implements HTMLRule, ErrorListener, XMLElementHandler
         }
     }
 
-    private String resolveConfigEscapes(String str)
+    private static String resolveConfigEscapes(String str)
     {
         int pos = 0;
         while (pos < str.length()) {
@@ -487,7 +583,7 @@ public class XSLTRule implements HTMLRule, ErrorListener, XMLElementHandler
                 int uni_end = uni_start + 6;
                 if (str.length() >= uni_end) {
                     try {
-                        char unicode = (char) Integer.parseInt(str.substring(uni_start + 2, uni_end));
+                        char unicode = (char) Integer.parseInt(str.substring(uni_start + 2, uni_end), 16);
                         str = str.substring(0, uni_start) + unicode + str.substring(uni_end);
                     } catch (Exception ex) {}  // no valid escape; continue search at pos
                 }
@@ -495,17 +591,75 @@ public class XSLTRule implements HTMLRule, ErrorListener, XMLElementHandler
         }
         return str;
     }
+    
+    private static String removeQuotes(String val)
+    {
+        if ((val == null) || (val.length() <= 1)) {
+            return val;
+        }
+        if ((val.startsWith("\"") && val.endsWith("\"")) || 
+            (val.startsWith("'") && val.endsWith("'"))) { 
+            return val.substring(1, val.length() - 1);
+        } else {
+            return val;
+        }
+    }
+
+//    private String normalizeSpace(String str)
+//    {
+//        int len = str.length();
+//        StringBuilder sb = new StringBuilder(len);
+//        int i = 0;
+//        while (i < len) {
+//            char  ch = str.charAt(i);
+//            if (Character.isWhitespace(ch)) {
+//                 // Normalize sequence of whitespace to normal space.
+//                sb.append(' ');
+//                // Skip whitespace up to the next non-whitespace character.
+//                while (++i < len) {
+//                    ch = str.charAt(i);
+//                    if (! Character.isWhitespace(ch)) {  // found non-whitespace
+//                        sb.append(ch);   // output non-whitespace
+//                        i++; // Continue in outer while loop with next character
+//                        break;
+//                    }
+//                }
+//            } else {
+//                sb.append(ch);   // output non-whitespace
+//                i++;
+//            }
+//        }
+//        return sb.toString();
+//    }
+    
 
     private static class AttribConf
     {
         private final String name;
-        private final String value;
+        private final String compareValue;
+        private final String comparator;
         private final boolean not;
         
-        AttribConf(String attName, String val, boolean not) 
+        private List<String> subValues;
+        
+        AttribConf(String attName, String val, String comparator, boolean not) 
         {
+            this.subValues = null;
+            if (val != null) {
+                val = removeQuotes(val);
+                if (val.contains("*")) {
+                    this.subValues = new ArrayList<String>();
+                    StringTokenizer st = new StringTokenizer(val, "*");
+                    while (st.hasMoreTokens()) {
+                        this.subValues.add(resolveConfigEscapes(st.nextToken()));
+                    }
+                } else {
+                    val = resolveConfigEscapes(val);
+                }
+            }
             this.name = attName;
-            this.value = val;
+            this.compareValue = val;
+            this.comparator = comparator;
             this.not = not;
         }
         
@@ -516,12 +670,107 @@ public class XSLTRule implements HTMLRule, ErrorListener, XMLElementHandler
         
         String getValue()
         {
-            return value;
+            return compareValue;
         }
         
         boolean isNot()
         {
             return not;
+        }
+        
+        boolean evaluate(String realValue)
+        {
+            boolean res = false;
+            if ("=".equals(comparator)) {
+                res = evalEquals(realValue);
+            } else if ("~=".equals(comparator)) {
+                res = evalContainsToken(realValue);
+            }
+            return isNot() ? !res : res;
+        }
+        
+        private boolean evalEquals(String realValue)
+        {
+            boolean res;
+            if (realValue == null) {  
+                // If attribute does not exist, then this is the same  
+                // as if attribute were not equal to the comparison value.
+                res = false;
+            } else {
+                if (subValues == null) {
+                    // Comparison value does not contain wildcard (*)
+                    // Compare if values are equal.
+                    res = realValue.equals(getValue());
+                } else {
+                    // Comparison value contains one or more wildcards (*)
+                    if (subValues.isEmpty()) {
+                        // Value consists of wildcard (*) only
+                        res = true;  // This matches any attribute value
+                    } else {
+                        int startPos = 0;
+                        String sub = subValues.get(0);
+                        
+                        // Check if first substring matches
+                        int p = realValue.indexOf(sub);
+                        if (p >= 0) {  
+                            // If the comparison value does not start with a
+                            // wildcard (*), then the attribute value has to 
+                            // start with the first substring. 
+                            res = compareValue.startsWith("*") ? true : (p == 0);
+                            startPos = p + sub.length();
+                        } else {
+                            res = false;
+                        }
+                        
+                        if (res) {  // If first substring has matched...
+                            // ...check the remaining substrings
+                            for (int i = 1; i < subValues.size(); i++) {
+                                sub = subValues.get(i);
+                                p = realValue.indexOf(sub, startPos);
+                                if (p >= 0) {
+                                    startPos = p + sub.length();
+                                } else {
+                                    res = false;
+                                    break;
+                                }
+                            }
+                            
+                            if (res && !compareValue.endsWith("*")) {
+                                // If the last substring is contained, and the 
+                                // comparison value does not end with a
+                                // wildcard (*), then the attribute value has 
+                                // to end with the last substring.
+                                if (startPos < realValue.length()) {
+                                    res = false;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            
+            return res;
+        }
+        
+        private boolean evalContainsToken(String realValue)
+        {
+            boolean res;
+            if (realValue == null) {  
+                // If attribute does not exist, then this is the same  
+                // as if attribute does not contain the comparison value.
+                res = false;
+            } else {
+                res = false;
+                StringTokenizer st = new StringTokenizer(realValue);
+                while (st.hasMoreTokens()) {
+                    if (evalEquals(st.nextToken())) {
+                        res = true;
+                        break;
+                    }
+                }
+            }
+            
+            return res;
         }
     }
 

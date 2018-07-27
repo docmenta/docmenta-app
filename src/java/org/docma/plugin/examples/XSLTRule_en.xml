@@ -2,164 +2,689 @@
 <!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
 <properties>
   <entry key="shortInfo">Generic XSL transformation</entry>
-  <entry key="apply_xsl.title">Applies the configured XSL script</entry>
+  <entry key="apply_xsl.title">Applies the configured XSLT script</entry>
   <entry key="msgElementUpdated">Transforming ''{0}'' element:</entry>
   <entry key="msgReplacedBy">Replaced by</entry>
   <entry key="msgFoundElementUpdate">Found ''{0}'' element to be corrected:</entry>
   <entry key="msgHeaderOldElement">Before</entry>
   <entry key="msgHeaderNewElement">After</entry>
   <entry key="longInfo"><![CDATA[
-    <p>
-      <b>Arguments:</b>
-      <dl>
-        <dt><b><tt>script=<i>alias</i></tt></b></dt>
-        <dd>The alias of the file-node that contains the XSL script.
-            The <tt>script</tt> argument is mandatory.</dd>
-        <dt><b><tt>apply=<i>tag1,tag2</i>[<i>att1</i>|<i>att2</i>+<i>att3</i>=<i>value1</i>+<i>att4</i>!=<i>value2</i>+!<i>att5</i>...|...],...</tt></b></dt>
-        <dd>
-          <p>
-            The optional <tt>apply</tt> argument allows to restrict the XHTML  
-            elements to which the XSL script is applied. If no <tt>apply</tt>
-            argument is given, then the XSL script is applied to all elements.
-          </p>
-          <p>
-            The value of the <tt>apply</tt> argument has to be a comma separated
-            list of element expressions. Note that space is used as 
-            argument separator. Therefore, no space is allowed within the
-            list of element expressions. 
-            An element expression is an element name, optionally  
-            followed by an attributes expression in square brackets.
-            An attributes expression is one or more attribute conditions 
-            concatenated by the <tt>+</tt> or <tt>|</tt> operators. 
-            The <tt>+</tt> operator has the meaning of logical "and", whereas 
-            the  <tt>|</tt> operator has the meaning of logical "or". 
-            Note that explicit grouping of attribute conditions by round 
-            brackets is <em>not</em> supported, though grouping of conditions 
-            is done implicitly as the <tt>+</tt> operator has higher precedence 
-            than the <tt>|</tt> operator.
-          </p>
-          <p><em>Check attribute existance</em><br/>
-            If an attribute condition consists solely of the attribute name, 
-            then the condition results to <tt>true</tt>, if the element has an 
-            attribute with the given name. Otherwise the result is 
-            <tt>false</tt>. In case the attribute name is preceded 
-            by an exclamation mark (<tt>!</tt>), then the attribute condition 
-            results to <tt>true</tt>, only if the element has <em>no</em>  
-            attribute with the given name. In other words, the exclamation mark 
-            has the meaning of logical "not".
-          </p>
-          <p><em>Value comparison</em><br/> 
-            The attribute name can be followed by the <tt>=</tt> or 
-            <tt>!=</tt> operator, followed by a string constant. 
-            The <tt>=</tt> operator has the meaning of "equals" and the
-            <tt>!=</tt> operator has the meaning of "equals not".
-            See the example below.
-          </p>
-          <p><em>Character escapes</em><br/>
-            Whitespace is <em>not</em> allowed within the <tt>apply</tt> 
-            argument. Furthermore, the characters <tt>+</tt> and <tt>|</tt>, as
-            well as comma (<tt>,</tt>) cannot be used within the value 
-            definition of an attribute comparison, because these characters are
-            interpreted as operators and expression separators.
-            To insert these characters in a value definition, the 
-            Unicode escape sequence <tt>\u<i>nnnn</i></tt> can be used, where 
-            <tt><i>nnnn</i></tt> is a decimal Unicode number.
-          </p>
-        </dd>
-        <dt><b><tt>keep=<i>tag1,tag2</i>[<i>att1</i>|<i>att2</i>+<i>att3</i>=<i>value1</i>+<i>att4</i>!=<i>value2</i>+!<i>att5</i>...|...],...</tt></b></dt>
-        <dd>
-          <p>
-            The optional <tt>keep</tt> argument allows to define a list of XHTML  
-            elements, which shall be excluded from XSL transformation.
-          </p>
-          <p>
-            The value of the <tt>keep</tt> argument has to be a comma separated
-            list of element expressions. The element expressions have to be 
-            given in the same format as for the <tt>apply</tt> argument (see 
-            the description of the <tt>apply</tt> argument above).
-          </p>
-          <p>
-            If the <tt>apply</tt> and the <tt>keep</tt> argument are given
-            and an element matches both arguments, then the <tt>keep</tt>
-            argument has higher priority (in other words, the XSL script 
-            is <em>not</em> applied).
-          </p>
-        </dd>
-        <dt><b><tt>factory=<i>classname</i></tt></b></dt>
-        <dd>The fully qualified factory class name that provides implementation 
-            of <tt>javax.xml.transform.TransformerFactory</tt>.
-            This argument is optional. If no class name is provided, then
-            the static method 
-            <tt>javax.xml.transform.TransformerFactory.newInstance()</tt> is
-            used to create the factory object.
-        </dd>
-      </dl>
-    </p>
-    <p>
-      <b>Description:</b><br/>
-      Applies the XSL script that is specified by the <tt>script</tt> argument
-      to the elements specified by the <tt>apply</tt> argument.
-      If no <tt>apply</tt> argument is given, then the XSL script is applied to 
-      all XHTML elements (except those, specified by the <tt>keep</tt> 
-      argument).
-    </p>
-    <p>
-      Note that the <tt>apply</tt> argument only needs to define the outer
-      elements to which the XSL script shall be applied. The XSL script can then  
-      further control, which XSL template shall be applied to which  
-      (sub-)elements, through the template matching mechanism. This includes 
-      template selection through XPATH expressions.
-    </p>
-    <p>
-      In the following examples, we assume the existance of an XSL script
-      (text file) with alias <tt>my_xsl_script</tt>, withs following
-      file content:
-    </p>
-    <pre>
-    </pre>
-    <p>
-      <b>Example 1:</b>
-    </p>
-    <p>
-      Given following XHTML content:
-    </p>
-    <pre>
-    </pre>
-    <p>
-      If an XSLTRule is configured with the <tt>script</tt> argument
-    </p>
-    <p>
-        &nbsp;&nbsp;<tt>script=my_xsl_script</tt>
-    </p>
-    <p>
-      and no other arguments are given, then the XSL script identified by alias 
-      <tt>my_xsl_script</tt> is applied to all elements.
-    </p>
-    <p>
-      <b>Example 2:</b>
-    </p>
-    <p>
-        &nbsp;&nbsp;<tt>script=my_xsl_script apply=span,div[id+title|class=note]</tt>
-    </p>
-    <p>
-      Given the argument definition above, the XSL script with alias 
-      <tt>my_xsl_script</tt> is applied to <em>all</em> <tt>span</tt> elements
-      and to <tt>div</tt> elements that have an <tt>id</tt> attribute in 
-      combination with a <tt>title</tt> attribute or a <tt>class</tt> 
-      attribute with value <tt>"note"</tt>.
-    </p>
-    <p>
-      <b>Example 3:</b>
-    </p>
-    <p>
-        &nbsp;&nbsp;<tt>script=my_xsl_script apply=table[!border|border!=0]</tt>
-    </p>
-    <p>
-      Given the argument definition above, the XSL script with alias 
-      <tt>my_xsl_script</tt> is applied to <tt>table</tt> elements
-      that have <em>no</em> <tt>border</tt> attribute or which have a 
-      <tt>border</tt> attribute with a value other than <tt>"0"</tt>.
-    </p>
+  <p>
+    This rule allows to transform elements within XHTML content
+    nodes by applying a user-defined XSLT script.
+  </p>
+  <p>
+    <big><b>Arguments:</b></big>
+  </p>
+  <dl>
+    <dt>
+      <b><tt>script=<i>ALIAS</i></tt></b>
+    </dt>
+    <dd>
+      <p>
+        The alias of the file-node that contains the XSLT script.
+        The <tt>script</tt> argument is mandatory.
+      </p>
+    </dd>
+    <dt>
+      <b><tt>apply=<i>expression1,expression2,...,expressionN</i></tt></b>
+    </dt>
+    <dd>
+      <p>
+        The optional <tt>apply</tt> argument allows to specify the XHTML  
+        elements to which the XSLT script (supplied through the <tt>script</tt> 
+        argument) is applied. If no <tt>apply</tt> argument is given, then 
+        the XSLT script is applied to all root elements of the processed 
+        content nodes. The value of the <tt>apply</tt> argument has to be a 
+        comma separated list of element expressions, with following syntax:
+      </p>
+      <p>
+        <b>Element expression:</b><br />
+        <b><tt><i>expression</i></tt> := <tt>*</tt></b><br />
+        <b><tt><i>expression</i></tt> := <tt><i>tagName</i></tt></b><br />
+        <b><tt><i>expression</i></tt> := <tt><i>tagName</i>[<i>attributes</i>]</tt></b><br />
+        <b><tt><i>expression</i></tt> := <tt><i>tagName1</i>/.../<i>tagNameX</i>[<i>attributes</i>]</tt></b>
+      </p>
+      <p>
+        <b>Attribute expression:</b><br />
+        <b><tt><i>attributes</i></tt> := <tt><i>condition1</i>|<i>condition2</i>+...+<i>conditionY</i>|...</tt></b>
+      </p>
+      <p>
+        <b>Attribute condition:</b><br />
+        <b><tt><i>condition</i></tt> := <tt><i>attributeName</i></tt></b><br />
+        <b><tt><i>condition</i></tt> := <tt><i>attributeName</i>=<i>stringPattern</i></tt></b><br />
+        <b><tt><i>condition</i></tt> := <tt><i>attributeName</i>~=<i>stringPattern</i></tt></b><br />
+        <b><tt><i>condition</i></tt> := <tt>!<i>condition</i></tt></b>
+      </p>
+      <p><em>Character escapes</em><br/>
+        Be aware that no space is allowed within the list of element 
+        expressions, because the space character is used as argument separator.
+        To insert whitespace or other special characters in a string pattern, 
+        the Unicode escape sequence <tt>\u<i>XXXX</i></tt> has to be used, where 
+        <tt><i>XXXX</i></tt> is a 4-digit hexadecimal Unicode number.
+        Be aware that within an element expression, the plus, pipeline, square 
+        brackets and comma 
+        (<tt>+</tt> <tt>|</tt> <tt>[</tt> <tt>]</tt> <tt>,</tt>) are 
+        interpreted as separators. To insert one of these characters in a string 
+        pattern, the characters have to be escaped as <tt>\u002B</tt>, 
+        <tt>\u007C</tt>, <tt>\u005B</tt>, <tt>\u005D</tt> and <tt>\u002C</tt>. 
+      </p>
+    </dd>
+    <dt>
+      <b><tt>keep=<i>expression1,expression2,...,expressionN</i></tt></b>
+    </dt>
+    <dd>
+      <p>
+        <b>Expression syntax:</b>
+        See the <tt>apply</tt> argument above.
+      </p>
+      <p>
+        The optional <tt>keep</tt> argument allows to define a list of XHTML  
+        elements that have to be excluded from XSLT transformation.
+        If both, the <tt>apply</tt> and the <tt>keep</tt> argument, are 
+        specified, and an element matches both arguments, then the 
+        <tt>keep</tt> argument overrules the <tt>apply</tt> argument 
+        (in other words, the XSLT script is <em>not</em> applied).
+      </p>
+    </dd>
+    <dt>
+      <b><tt>update_space=<i>boolean</i></tt></b>
+    </dt>
+    <dd>
+      <p>
+        This argument defines, whether an input element is replaced, in 
+        case the transformation result only differs in the amount and/or type of 
+        subsequent whitespace characters.
+      </p>
+      <p>
+        If the argument is set to <tt>false</tt>, then the input element is 
+        <em>not</em> replaced by the transformation result, in case the 
+        transformation result only differs in the amount and type of whitespace 
+        characters. In other words, if set to <tt>false</tt>, then a single 
+        space character is considered equal to one or more subsequent 
+        whitespace characters.
+        For example, if the transformation result is equal to the input element, 
+        except that the input is indented, whereas the transformation result is 
+        <em>not</em> indented, then the input element remains unchanged.
+      </p>
+      <p>
+        If set to <tt>true</tt>, then the input element is replaced by the 
+        transformation result, even if the result only differs in the amount 
+        and type of whitespace. This is the default setting, 
+        in case the argument is not specified.
+      </p>
+    </dd>
+    <dt>
+      <b><tt>factory=<i>JAVA_CLASS_NAME</i></tt></b>
+    </dt>
+    <dd>
+      <p>
+        The fully qualified Java classname of the <tt>TransformerFactory</tt> 
+        to be used. 
+        The class has to implement the 
+        <tt>javax.xml.transform.TransformerFactory</tt> interface. The argument 
+        is optional. If no classname is specified, then the default 
+        <tt>TransformerFactory</tt> implementation of the Java environment 
+        is used.
+      </p>
+    </dd>
+  </dl>
+  <p>
+    <big><b>Description:</b></big>
+  </p>
+  <p>
+    An instance of <tt>XSLTRule</tt> applies the XSLT script that is specified by 
+    the <tt>script</tt> argument to the elements specified by the 
+    <tt>apply</tt> argument.
+    If no <tt>apply</tt> argument is specified, then the XSLT script is applied  
+    to all root elements of the processed content nodes.
+    In addition, the <tt>keep</tt> argument allows to explicitly exclude 
+    elements from transformation.
+    The elements to be transformed or to be excluded from transformation 
+    have to be specified through the <tt>apply</tt> and <tt>keep</tt> arguments 
+    in the format of element expressions. Multiple expressions need to be 
+    separated by comma.
+  </p>
+  <p><em>Element expressions</em><br/>
+    An element expression is one or more element names, optionally  
+    followed by attribute conditions in square brackets.
+    If more than one element name is listed, the names have to be separated 
+    by the slash character (<tt>/</tt>). All listed elements  share
+    the same attribute conditions that have to be given in square brackets 
+    after the list. For example, the expression "<tt>div/p[style]</tt>" is
+    a shortcut for "<tt>div[style],p[style]</tt>".
+    If the wildcard <tt>*</tt> is supplied instead of an element
+    name, then the attribute conditions in square brackets are matched  
+    against any element. For example, the expression <tt>*[style]</tt> 
+    evaluates to <tt>true</tt> for any element that has a 
+    <tt>style</tt> attribute. See also the examples below.
+  </p>
+  <p><em>Attribute conditions</em><br/>
+    Within the square brackets one or more attribute conditions can be
+    concatenated by the <tt>|</tt> and <tt>+</tt> operators. 
+    The <tt>|</tt> operator has the meaning of logical "or", whereas 
+    the  <tt>+</tt> operator has the meaning of logical "and". 
+    Note that explicit grouping of attribute conditions by round 
+    brackets is <em>not</em> supported. Though, grouping of conditions 
+    is done implicitly as the <tt>+</tt> operator has higher precedence 
+    than the <tt>|</tt> operator.
+  </p>
+  <p><em>Check attribute existance</em><br/>
+    If an attribute condition consists solely of the attribute name, 
+    then the condition results to <tt>true</tt>, only if the element has an 
+    attribute with the given name. Otherwise the result is 
+    <tt>false</tt>. In case the attribute name is preceded 
+    by an exclamation mark (<tt>!</tt>), then the attribute condition 
+    results to <tt>true</tt>, only if the element has <em>no</em>  
+    attribute with the given name. In other words, the exclamation mark 
+    has the meaning of logical "not".
+    For example, the expression <tt>span[style]</tt> matches  
+    <tt>span</tt> elements that have a 
+    <tt>style</tt> attribute, whereas the expression <tt>span[!style]</tt>
+    matches <tt>span</tt> elements without <tt>style</tt>
+    attribute.
+  </p>
+  <p><em>Value comparison</em><br/> 
+    The attribute name can be followed by a comparison operator, which 
+    has to be followed by a string pattern.
+    Following two comparison operators are available: 
+    <tt>=</tt> and <tt>~=</tt>.
+  </p>
+  <p>
+    The <tt>=</tt> operator has the meaning of "equals". The condition
+    results to <tt>true</tt>, only if the attribute value matches the 
+    string pattern.
+    The <tt>~=</tt> operator checks the existence of a word 
+    within one or more words that are separated by spaces.
+    See the examples below for more information on using comparison 
+    operators in combination with string patterns.
+  </p>
+  <p><em>String patterns</em><br/>
+    A comparison operator has to be followed by a string pattern.
+    The string pattern can optionally contain one or more wildcards 
+    (<tt>*</tt>). The <tt>*</tt> is a placeholder for an 
+    arbitrary string sequence (including empty string). 
+    For example, the pattern <tt>x*y*z</tt> matches any string that starts 
+    with a <tt>x</tt>, ends with a <tt>z</tt> and includes at least one 
+    <tt>y</tt> somewhere in between.
+    If a string pattern does not contain any <tt>*</tt> character, then
+    the string pattern is a constant string. 
+    If a string pattern starts and ends with a single/double quote 
+    character, then the quotes are ignored.
+  </p>
+  <p>
+    Note that some characters within a string pattern have to be escaped.
+    See the section <em>"Character escapes"</em> in the argument reference 
+    above.
+  </p>
+  <p><em>Logical "not"</em><br/>
+    If a comparison condition is preceded by an exclamation mark 
+    (<tt>!</tt>), then the result is negated. See the examples below.
+  </p>
+  <p>
+    <big><b>Examples:</b></big>
+  </p>
+  <p>
+    In the following examples we assume the existance of a text file with 
+    alias <tt>my_xsl_script</tt>, which has the content shown in Listing 1.
+  </p>
+  <pre style="background-color:#F0F0F0; margin-bottom:4pt;">
+    &lt;?xml version="1.0" encoding="UTF-8"?&gt;
+    &lt;xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0"&gt;
+
+      &lt;xsl:output method="xml" encoding="UTF-8" omit-xml-declaration="yes" /&gt;
+  
+      &lt;xsl:template match="/ol[not(@class)] | /ul[not(@class)]"&gt;
+        &lt;xsl:copy&gt;
+          &lt;xsl:attribute name="class"&gt;listbox&lt;/xsl:attribute&gt;
+          &lt;xsl:apply-templates select="@*|node()"/&gt;
+        &lt;/xsl:copy&gt;
+      &lt;/xsl:template&gt;
+      
+      &lt;xsl:template match="i"&gt;
+        &lt;em&gt;&lt;xsl:apply-templates select="@*|node()"/&gt;&lt;/em&gt;
+      &lt;/xsl:template&gt;
+
+      &lt;xsl:template match="@*|node()"&gt;
+        &lt;xsl:copy&gt;
+          &lt;xsl:apply-templates select="@*|node()"/&gt;
+        &lt;/xsl:copy&gt;
+      &lt;/xsl:template&gt;
+
+    &lt;/xsl:stylesheet&gt;</pre>
+  <div><strong><i>Listing1: XSLT script example</i></strong></div>
+  <p>
+    Listing 1 is a XSLT 1.0 script that consists of three templates. 
+    Following a short explanation of the functionality that is realized by the 
+    script.
+  </p>
+  <p>
+    The first template in Listing 1 is applied to elements that match the XPATH 
+    expression "<tt>/ol[not(@class)]</tt>" or "<tt>/ul[not(@class)]</tt>". 
+    In other words, this template matches ordered (<tt>ol</tt>) and unordered 
+    (<tt>ul</tt>) lists on the root level, which have no <tt>class</tt> 
+    attribute assigned. The template just outputs the list element as it is and 
+    adds the <tt>class</tt> attribute with value <tt>"listbox"</tt>.
+    Note that root level means, that the template only matches the outermost 
+    element to which the XSLT script is applied, but no sub-element of the input 
+    element. However, the attributes and sub-elements are processed by one of the 
+    other XSLT templates. This is achieved through the XSLT instruction 
+    <tt>&lt;xsl:apply-templates select="@*|node()"/&gt;</tt> inside of the 
+    <tt>&lt;xsl:copy&gt;</tt> instruction.
+  </p>
+  <p>
+    The second template matches the <tt>i</tt> element and transforms it to an 
+    <tt>em</tt> element. The attributes and 
+    sub-elements are processed by the XSLT templates recursively.
+    As for the first template, this is achieved through the XSLT instruction 
+    <tt>&lt;xsl:apply-templates select="@*|node()"/&gt;</tt>.
+  </p>
+  <p>
+    The third template matches all elements and attributes
+    (<tt>match="@*|node()"</tt>) and just copies the element, respectively 
+    attribute, from the input to the output stream. 
+    This is a fallback template that is applied, if no other template matches.
+    In other words, it assures that an element in the input, that is 
+    <em>not</em> matched by any other template, is just copied to the output 
+    unchanged. After the element itself has been copied, the XSLT templates are 
+    applied to the attributes and sub-elements recursively (as for the other 
+    templates, the recursion is achieved through the XSLT instruction 
+    <tt>&lt;xsl:apply-templates select="@*|node()"/&gt;</tt>).
+  </p>
+  <p>
+    Note that the platform's default XSLT implementation may only support 
+    XSLT version 1.0. However, by adding an alternative XSLT implementation to 
+    the platform's classpath and supplying the <tt>factory</tt> argument 
+    (see above), a more enhanced XSLT implementation can be configured.
+  </p>
+  <p>
+    In all following examples, the XSLT script given in Listing 1 is applied to 
+    the XHTML content shown in Listing 2.
+  </p>
+  <pre style="background-color:#F0F0F0; margin-bottom:4pt;">
+    &lt;ol&gt;
+      &lt;li&gt;&lt;i&gt;Hot drinks&lt;/i&gt;&lt;/li&gt;
+      &lt;li&gt;Cold drinks&lt;/li&gt;
+    &lt;/ol&gt;
+    &lt;ul&gt;
+      &lt;li&gt;&lt;i&gt;Tea&lt;/i&gt;
+        &lt;ol&gt;
+          &lt;li&gt;&lt;i&gt;Black&lt;/i&gt; tea&lt;/li&gt;
+          &lt;li&gt;&lt;i&gt;Green&lt;/i&gt; tea&lt;/li&gt;
+        &lt;/ol&gt;
+      &lt;/li&gt;
+    &lt;/ul&gt;</pre>
+  <div><strong><i>Listing 2: Example XHTML content</i></strong></div>
+  <p>
+    The rule configuration determines, to which elements of the content 
+    the XSLT script is applied.
+    The following examples assume a basic knowledge of XSLT 1.0.
+    More in depth information on XSLT can be found in the many
+    commercially or freely available books and tutorials.
+  </p>
+  <p>
+    <b>Example 1:</b>
+  </p>
+  <p>
+    If an XSLTRule is configured with the argument
+  </p>
+  <p>
+    &nbsp;&nbsp;<tt>script=my_xsl_script</tt>
+  </p>
+  <p>
+    and no other arguments are given, then the XSLT script, identified by alias 
+    <tt>my_xsl_script</tt>, is applied to all root elements of the processed 
+    content node. Given the XSLT script in Listing 1 and the content 
+    in Listing 2, the resulting content is:
+  </p>
+  <pre style="background-color:#F0F0F0; margin-bottom:4pt;">
+    &lt;ol <span style="background-color:yellow;">class="listbox"</span>&gt;
+      &lt;li&gt;<span style="background-color:yellow;">&lt;em&gt;</span>Hot drinks<span style="background-color:yellow;">&lt;/em&gt;</span>&lt;/li&gt;
+      &lt;li&gt;Cold drinks&lt;/li&gt;
+    &lt;/ol&gt;
+    &lt;ul <span style="background-color:yellow;">class="listbox"</span>&gt;
+      &lt;li&gt;<span style="background-color:yellow;">&lt;em&gt;</span>Tea<span style="background-color:yellow;">&lt;/em&gt;</span>
+        &lt;ol&gt;
+          &lt;li&gt;<span style="background-color:yellow;">&lt;em&gt;</span>Black<span style="background-color:yellow;">&lt;/em&gt;</span> tea&lt;/li&gt;
+          &lt;li&gt;<span style="background-color:yellow;">&lt;em&gt;</span>Green<span style="background-color:yellow;">&lt;/em&gt;</span> tea&lt;/li&gt;
+        &lt;/ol&gt;
+      &lt;/li&gt;
+    &lt;/ul&gt;</pre>
+  <div><strong><i>Listing 3: Transformation result - example 1</i></strong></div>
+  <p>
+    The transformation steps that lead to this result are as follows: 
+  </p>
+  <p>
+    First the XSLTRule reads the first element from the input.
+    Because no <tt>apply</tt> argument is specified,
+    the rule applies the XSLT script to the first root element in the input.
+    In the example in Listing 2, this is the <tt>ol</tt> element.
+    Note that the XSLT script is applied to the complete element including its 
+    sub-elements.
+    The <tt>ol</tt> element has no <tt>class</tt> attribute and 
+    is therefore matched by the first XSLT template given in Listing 1. 
+    This template just copies the <tt>ol</tt> element to the output and adds 
+    the <tt>class</tt> attribute with value <tt>"listbox"</tt>. Afterwards, 
+    the XSLT templates are applied to the sub-elements recursively. 
+    Because there is no special template in the XSLT script that matches the 
+    <tt>li</tt> element, the third XSLT template from Listing 1 takes effect, 
+    which just copies the element to the output and applies the XSLT 
+    templates to the sub-elements (<tt>li</tt>) recusively.
+    The first <tt>li</tt> element has the sub-element 
+    <tt>&lt;i&gt;Hot drinks&lt;/i&gt;</tt>, which is matched by the second XSLT 
+    template. This template just replaces the <tt>i</tt> element by the 
+    <tt>em</tt> element. Therefore, the result of transforming the first 
+    element from the input stream is:
+  </p>
+  <pre style="background-color:#F0F0F0; margin-bottom:4pt;">
+    &lt;ol <span style="background-color:yellow;">class="listbox"</span>&gt;
+      &lt;li&gt;<span style="background-color:yellow;">&lt;em&gt;</span>Hot drinks<span style="background-color:yellow;">&lt;/em&gt;</span>&lt;/li&gt;
+      &lt;li&gt;Cold drinks&lt;/li&gt;
+    &lt;/ol&gt;</pre>
+  <p>
+    After having transformed the first element, the rule applies the XSLT script 
+    to the next root element in the input stream. Given the example in 
+    Listing 2, this is the <tt>ul</tt> element (including its sub-elements). 
+    Because the <tt>ul</tt> element has no <tt>class</tt> attribute, 
+    the first XSLT template in Listing 1 matches again, which adds 
+    the <tt>class</tt> attribute with value <tt>"listbox"</tt>. 
+    Then the XSLT templates are applied to all sub-elements recursively. 
+    Therefore, the <tt>i</tt> elements inside of the list are transformed 
+    to <tt>em</tt> elements. Following the result of transforming the 
+    second element from the input stream:
+  </p>
+  <pre style="background-color:#F0F0F0; margin-bottom:4pt;">
+    &lt;ul <span style="background-color:yellow;">class="listbox"</span>&gt;
+      &lt;li&gt;<span style="background-color:yellow;">&lt;em&gt;</span>Tea<span style="background-color:yellow;">&lt;/em&gt;</span>
+        &lt;ol&gt;
+          &lt;li&gt;<span style="background-color:yellow;">&lt;em&gt;</span>Black<span style="background-color:yellow;">&lt;/em&gt;</span> tea&lt;/li&gt;
+          &lt;li&gt;<span style="background-color:yellow;">&lt;em&gt;</span>Green<span style="background-color:yellow;">&lt;/em&gt;</span> tea&lt;/li&gt;
+        &lt;/ol&gt;
+      &lt;/li&gt;
+    &lt;/ul&gt;</pre>
+  <p>
+    Be aware that <em>no</em> <tt>class</tt> attribute is added to the nested 
+    <tt>ol</tt> element, because the expression "<tt>/ol[not(@class)]</tt>" 
+    (that is used in the <tt>match</tt> attribute of the first XSLT template) 
+    starts with a slash (<tt>/</tt>) and therefore only matches the root 
+    element (here: the <tt>ul</tt> element). Note that the root element is the 
+    element to which the complete XSLT script is applied.
+    As a consequence, the nested <tt>ol</tt> list is transformed by the third 
+    XSLT template (<tt>match="@*|node()"</tt>).
+  </p>
+  <p>
+    However, if the slashes (<tt>/</tt>) would be removed from the match expression of 
+    the first XSLT template, namely if the match argument would be changed to 
+  </p>
+  <pre>
+    ol[not(@class)] | ul[not(@class)]</pre> 
+  <p>
+    instead of
+  </p>
+  <pre>
+    /ol[not(@class)] | /ul[not(@class)]</pre> 
+  <p>
+    then the <tt>class</tt> attribute would also be added to the nested 
+    <tt>ol</tt> list. In other words, the result of transforming the second 
+    element would be:
+  </p>
+  <pre style="background-color:#F0F0F0; margin-bottom:4pt;">
+    &lt;ul <span style="background-color:yellow;">class="listbox"</span>&gt;
+      &lt;li&gt;<span style="background-color:yellow;">&lt;em&gt;</span>Tea<span style="background-color:yellow;">&lt;/em&gt;</span>
+        &lt;ol <span style="background-color:yellow;">class="listbox"</span>&gt;
+          &lt;li&gt;<span style="background-color:yellow;">&lt;em&gt;</span>Black<span style="background-color:yellow;">&lt;/em&gt;</span> tea&lt;/li&gt;
+          &lt;li&gt;<span style="background-color:yellow;">&lt;em&gt;</span>Green<span style="background-color:yellow;">&lt;/em&gt;</span> tea&lt;/li&gt;
+        &lt;/ol&gt;
+      &lt;/li&gt;
+    &lt;/ul&gt;</pre>
+  <p>
+    <b>Example 2:</b>
+  </p>
+  <p>
+    In example 1, all root elements (<tt>ol</tt> and <tt>ul</tt>) of the content 
+    in Listing 2 have been transformed by the XSLT script in Listing 1, because no 
+    <tt>apply</tt> argument has been specified.
+    In this example, the XSLT script shall only by applied to ordered lists 
+    (<tt>ol</tt>). This can easily be achieved by adding following 
+    <tt>apply</tt> argument to the rule configuration:
+  </p>
+  <p>
+    &nbsp;&nbsp;<tt>script=my_xsl_script apply=ol</tt>
+  </p>
+  <p>
+    With the rule configuration given above, the result of transforming the 
+    content in Listing 2 is as follows:
+  </p>
+  <pre style="background-color:#F0F0F0; margin-bottom:4pt;">
+    &lt;ol <span style="background-color:yellow;">class="listbox"</span>&gt;
+      &lt;li&gt;<span style="background-color:yellow;">&lt;em&gt;</span>Hot drinks<span style="background-color:yellow;">&lt;/em&gt;</span>&lt;/li&gt;
+      &lt;li&gt;Cold drinks&lt;/li&gt;
+    &lt;/ol&gt;
+    &lt;ul&gt;
+      &lt;li&gt;&lt;i&gt;Tea&lt;/i&gt;
+        &lt;ol <span style="background-color:yellow;">class="listbox"</span>&gt;
+          &lt;li&gt;<span style="background-color:yellow;">&lt;em&gt;</span>Black<span style="background-color:yellow;">&lt;/em&gt;</span> tea&lt;/li&gt;
+          &lt;li&gt;<span style="background-color:yellow;">&lt;em&gt;</span>Green<span style="background-color:yellow;">&lt;/em&gt;</span> tea&lt;/li&gt;
+        &lt;/ol&gt;
+      &lt;/li&gt;
+    &lt;/ul&gt;</pre>
+  <div><strong><i>Listing 4: Transformation result - example 2</i></strong></div>
+  <p>
+    The transformation of the first input element is identical to example 1.
+    However, the second element that is transformed is no longer the <tt>ul</tt> 
+    element, because this time the argument <tt>apply=ol</tt> restricts the 
+    transformation to ordered lists (<tt>ol</tt>). That means, the 
+    second input element is the <tt>ol</tt> element, which 
+    is nested inside of the <tt>ul</tt> element. Therefore, the <tt>class</tt> 
+    attribute is added to the nested <tt>ol</tt> element, instead of the 
+    <tt>ul</tt> element. Again, the <tt>i</tt> elements inside of the 
+    <tt>ol</tt> element are transformed to <tt>em</tt> elements. Though,  
+    the element <tt>&lt;i&gt;Tea&lt;/i&gt;</tt> in front of the nested 
+    <tt>ol</tt> element is unchanged, because the XSLT script is applied to the 
+    nested <tt>ol</tt> element, instead of the enclosing <tt>ul</tt> element.
+  </p>
+  <p>
+    <b>Example 3:</b>
+  </p>
+  <p>
+    Following rule configuration applies the XSLT script in Listing 1 only to 
+    ordered (<tt>ol</tt>) and unordered (<tt>ul</tt>) lists:  
+  </p>
+  <p>
+    &nbsp;&nbsp;<tt>script=my_xsl_script apply=ol,ul</tt>
+  </p>
+  <p>
+    The result of applying this rule to the content in Listing 2 is the same 
+    as in example 1 (Listing 3). 
+    However, given the configuration above, only <tt>i</tt> elements inside of 
+    <tt>ol</tt> and <tt>ul</tt> are transformed (to <tt>em</tt>), whereas in 
+    example 1 also <tt>i</tt> elements outside of lists are transformed.
+  </p>
+  <p>
+    Note that the <tt>apply</tt> argument only has to specify the outermost 
+    elements to which the XSLT script shall be applied. The sub-elements of
+    the specified elements are processed automatically, because the XSLT script 
+    is always applied to the complete element (including sub-elements).
+    For instance, in the example above, the <tt>i</tt> elements inside of lists
+    are transformed, although the argument 
+    <tt>apply=ol,ul</tt> does not specify the <tt>i</tt> element.
+    If the <tt>i</tt> element would be specified 
+    (namely: <tt>apply=ol,ul,i</tt>), then also <tt>i</tt> elements outside of 
+    lists would be transformed.
+  </p>
+  <p>
+    <b>Example 4:</b>
+  </p>
+  <p>
+    Be aware that in example 3 above, all list elements are transformed, 
+    even if no changes are applied to the elements. 
+    For example, if the rule is applied again on a previously transformed 
+    content, then the first XSLT template no longer matches, because the 
+    transformed list element has a <tt>class</tt> attribute, now.
+    Furthermore, no more <tt>i</tt> elements exist inside of lists, 
+    because these have already been transformed to <tt>em</tt> elements.
+    Therefore, all elements are processed by the third template of the XSLT 
+    script, which just copies the elements from input to output.
+    As a result, the output of the transformation is identical to the input.
+  </p>
+  <p>
+    To avoid unnecessary transformations, the rule configuration can be improved
+    by restricting the transformations to <tt>ol</tt> and <tt>ul</tt> elements 
+    that have <em>no</em> <tt>class</tt> attribute. This can be achieved by 
+    supplying the <tt>keep</tt> argument:
+  </p>
+  <p>
+    &nbsp;&nbsp;<tt>script=my_xsl_script apply=ol,ul keep=ol[class],ul[class]</tt>
+  </p>
+  <p>
+    The <tt>keep</tt> argument allows to define elements, that shall 
+    <em>not</em> be processed. The <tt>keep</tt> argument has higher priority 
+    than the <tt>apply</tt> argument. In more detail: before the rule applies 
+    the XSLT script to an element, it checks whether the element matches one of 
+    the element expressions defined by the <tt>keep</tt> argument. If this is 
+    the case, then the complete element (including its sub-elements) is skipped.
+    In other words, the complete element remains unchanged.
+  </p>
+  <p>
+    In the example above, the expression <tt>ol[class]</tt> is only 
+    <tt>true</tt>, in case the element <tt>ol</tt> has an attribute with name 
+    "<tt>class</tt>". So, the <tt>keep</tt> argument in the example above 
+    specifies, that <tt>ol</tt> and <tt>ul</tt> elements, which have a 
+    <tt>class</tt> attribute, shall <em>not</em> be processed.
+  </p>
+  <p>
+    If two elements have the same attribute condition, the element names can 
+    be listed in front of the attribute condition, using the slash (<tt>/</tt>)
+    character as element name separator. For example, the rule configuration 
+    above can also be written as    
+  </p>
+  <p>
+    &nbsp;&nbsp;<tt>script=my_xsl_script apply=ol,ul keep=ol/ul[class]</tt>
+  </p>
+  <p>
+    <b>Example 5:</b>
+  </p>
+  <p>
+    Following rule configuration applies the XSLT script only to <tt>ol</tt> 
+    and <tt>ul</tt> elements without <tt>class</tt> attribute:
+  </p>
+  <p>
+    &nbsp;&nbsp;<tt>script=my_xsl_script apply=ol/ul[!class]</tt>
+  </p>
+  <p>
+    The exclamation mark (<tt>!</tt>) has the meaning of logical <em>not</em>. 
+    That means, the attribute condition <tt>[!class]</tt> is only <tt>true</tt>, 
+    in case the element has <em>no</em> attribute with name "<tt>class</tt>".
+  </p>
+  <p>
+    Be aware that the syntax of the <tt>apply</tt> and <tt>keep</tt> arguments 
+    differs from XPATH expressions. The <tt>apply</tt> and <tt>keep</tt> 
+    arguments only allow restricted element selection. The element selection 
+    through XPATH is only available within the XSLT script that is 
+    supplied by the <tt>script</tt> argument.
+  </p>
+  <p>
+    <b>Example 6:</b>
+  </p>
+  <p>
+    Following rule configuration applies the XSLT script only to <tt>ol</tt> 
+    and <tt>ul</tt> elements without <tt>class</tt> attribute, or where the 
+    value of the <tt>class</tt> attribute is not equal to <tt>"listbox"</tt>:
+  </p>
+  <p>
+    &nbsp;&nbsp;<tt>script=my_xsl_script apply=ol/ul[!class=listbox]</tt>
+  </p>
+  <p>
+    The same result can be achieved with following configuration:
+  </p>
+  <p>
+    &nbsp;&nbsp;<tt>script=my_xsl_script apply=ol,ul keep=*[class=listbox]</tt>
+  </p>
+  <p>
+    In the configuration above, the wildcard <tt>*</tt> is used to match any 
+    element name.
+  </p>
+  <p>
+    <b>Example 7:</b>
+  </p>
+  <p>
+    Following rule configuration applies the XSLT script only to <tt>ol</tt> 
+    and <tt>ul</tt> elements, where the <tt>class</tt> attribute does not 
+    contain the substring <tt>"listbox"</tt> (this includes list elements that 
+    have no <tt>class</tt> attribute at all):
+  </p>
+  <p>
+    &nbsp;&nbsp;<tt>script=my_xsl_script apply=ol/ul[!class=*listbox*]</tt>
+  </p>
+  <p>
+    The same result can be achieved without the <em>not</em>-operator, but by 
+    supplying the <tt>keep</tt> argument:
+  </p>
+  <p>
+    &nbsp;&nbsp;<tt>script=my_xsl_script apply=ol,ul keep=*[class=*listbox*]</tt>
+  </p>
+  <p>
+    Note that the <tt>keep</tt> argument above does not exactly match lists 
+    which have the CSS class <tt>"listbox"</tt> assigned, because the 
+    expression matches all CSS class names that contain <tt>"listbox"</tt> as a 
+    substring. For example, the <tt>keep</tt> argument above also keeps 
+    elements with the CSS class <tt>"listbox_indented"</tt> assigned.
+    To match only whole words, the <tt>~=</tt> operator can be used. This is 
+    shown in the following example.
+  </p>
+  <p>
+    <b>Example 8:</b>
+  </p>
+  <p>
+    If an attribute value consists of one or more tokens that are separated by 
+    spaces, then the <tt>~=</tt> operator can be used to check the existence of 
+    a token.
+  </p>
+  <p>
+    For example, following configuration applies the XSLT script  
+    to all <tt>ol</tt> and <tt>ul</tt> elements, except those which have the 
+    CSS class <tt>"listbox"</tt> assigned:
+  </p>
+  <p>
+    &nbsp;&nbsp;<tt>script=my_xsl_script apply=ol,ul keep=*[class~=listbox]</tt>
+  </p>
+  <p>
+    Given these arguments, a list with class value 
+    <tt>"compact listbox_indented"</tt> would not be kept, because none of the 
+    tokens (<tt>"compact"</tt>, <tt>"listbox_indented"</tt>) is equal 
+    to <tt>"listbox"</tt>. Therefore, the keep-condition 
+    <tt>[class~=listbox]</tt> evaluates to <tt>false</tt>.
+  </p>
+  <p>
+    Note that the <tt>~=</tt> operator allows the usage of the wildcard 
+    <tt>*</tt> on the right side of the operator. For example, the argument 
+  </p>
+  <p>
+    &nbsp;&nbsp;<tt>keep=*[class~=list*box*]</tt>
+  </p>
+  <p>
+    keeps elements that have a class name that starts with <tt>"list"</tt> and 
+    contains the substring <tt>"box"</tt>. For instance, an element with 
+    <tt>class</tt> value <tt>"compact list_box1"</tt> would be kept, because it 
+    contains the token <tt>"list_box1"</tt>, which matches the pattern 
+    <tt>"list*box*"</tt>.
+    But an element with <tt>class</tt> value <tt>"compactlist box1"</tt> would 
+    <em>not</em> be kept, because non of the tokens (<tt>"compactlist"</tt>, 
+    <tt>"box1"</tt>) matches the pattern.
+  </p>
+  <p>
+    <b>Example 9:</b>
+  </p>
+  <p>
+    &nbsp;&nbsp;<tt>script=my_xsl_script apply=p,ol/ul[id+title|!class~=listbox]</tt>
+  </p>
+  <p>
+    Given the arguments above, the XSLT script with alias 
+    <tt>my_xsl_script</tt> is applied to all <tt>p</tt> elements,
+    and to lists (<tt>ol</tt> and <tt>ul</tt>) that have an <tt>id</tt> attribute in 
+    combination with a <tt>title</tt> attribute, or where the <tt>class</tt> attribute 
+    does not contain the CSS class <tt>"listbox"</tt>.
+  </p>
   ]]>
   </entry>    
 </properties>

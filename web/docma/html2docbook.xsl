@@ -450,7 +450,7 @@
                 <xsl:when test="boolean(@style)"><xsl:value-of select="@style" /></xsl:when>
             </xsl:choose>
           </xsl:variable>
-          <xsl:if test="boolean($id_val)"><xsl:attribute name="id"><xsl:value-of select="$id_val" /></xsl:attribute></xsl:if>
+          <xsl:if test="string-length(normalize-space($id_val)) &gt; 0"><xsl:attribute name="id"><xsl:value-of select="$id_val" /></xsl:attribute></xsl:if>
           <xsl:if test="contains($style_val, 'float:') and ($docma_output_type != 'print')">
             <!-- Note: As Apache FOP does not support float, suppress float for print output. Otherwise figure is not rendered. -->
             <xsl:variable name="float_val" select="normalize-space(substring-before(substring-after(concat($style_val, ';'), 'float:'), ';'))" />

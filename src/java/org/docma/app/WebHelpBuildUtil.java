@@ -15,7 +15,9 @@
 package org.docma.app;
 
 import java.io.*;
+import java.util.Properties;
 import org.docma.coreapi.ExportLog;
+import org.docma.plugin.CharEntity;
 import org.docma.util.DocmaUtil;
 import org.docma.util.ZipUtil;
 
@@ -32,6 +34,8 @@ public class WebHelpBuildUtil
                                      DocmaOutputConfig out_config,
                                      ExportLog export_log)
     {
+        writeEncodingProps(outDir, out_config.getHtmlOutputEncoding(), 
+                           out_config.getCharEntities(), export_log);
         build(null, inputDir, outDir, docbookXSLDir, out_config, export_log);
     }
     
@@ -51,6 +55,7 @@ public class WebHelpBuildUtil
         File javabin = new File(javahome, "bin");
         String javacommand = new File(javabin, "java").getPath();
 
+        File webRootDir = docbookXSLDir.getParentFile();
         File webhelpDir = new File(docbookXSLDir, "webhelp");
         File antHomeDir = new File(webhelpDir, "ant_home");
         File antLauncher = new File(antHomeDir, "lib" + File.separator + "ant-launcher.jar");
@@ -74,7 +79,7 @@ public class WebHelpBuildUtil
         }
 
         try {
-            writeCustomBuildFile(webhelpBuildFile, docbookfile, inputDir, outDir, saxonLib, out_config.getLanguageCode());
+            writeCustomBuildFile(webRootDir, webhelpBuildFile, docbookfile, inputDir, outDir, saxonLib, out_config.getLanguageCode());
         } catch(Exception ex) {
             ex.printStackTrace();
             export_log.errorMsg("Could not write custom build file: " + ex.getMessage());
@@ -318,7 +323,8 @@ public class WebHelpBuildUtil
         }
     }
 
-    private static void writeCustomBuildFile(File webhelpBuildFile,
+    private static void writeCustomBuildFile(File webRootDir,
+                                             File webhelpBuildFile,
                                              File docbookfile,
                                              File inputDir,
                                              File outDir,
@@ -333,6 +339,7 @@ public class WebHelpBuildUtil
             writeProperty(sb, "stylesheet-path", "custom_layer_webhelp.xsl");
             writeProperty(sb, "xslt-processor-classpath", saxonLib.getAbsolutePath());
         }
+        writeProperty(sb, "web-root-dir", webRootDir.getAbsolutePath());
         writeProperty(sb, "output-dir", outDir.getAbsolutePath());
         writeProperty(sb, "validate-against-dtd", "false");
         writeProperty(sb, "webhelp.indexer.language", languageCode.toLowerCase());
@@ -376,4 +383,42 @@ public class WebHelpBuildUtil
         }
     }
 
+    private static void writeEncodingProps(File outDir, 
+                                           String encoding, 
+                                           CharEntity[] entities, 
+                                           ExportLog export_log)
+    {
+        File propFile = new File(outDir, "docma_encoding.props");
+        Properties props = new Properties();
+        if ((encoding == null) || encoding.equals("")) {
+            encoding = "UTF-8";
+        }
+        props.setProperty("file_encoding", encoding);
+        if (entities != null) {
+            for (CharEntity ent : entities) {
+                String sym = ent.getSymbolic();
+                int num = ent.getNumericValue();
+                if ((sym != null) && (num > 0)) {
+                    int startpos = sym.startsWith("&") ? 1 : 0;
+                    int endpos = sym.endsWith(";") ? sym.length() - 1 : sym.length();
+                    sym = sym.substring(startpos, endpos);
+                    props.setProperty("symbol." + sym, Integer.toString(num));
+                }
+            }
+        }
+        FileOutputStream fout = null;
+        try {
+            fout = new FileOutputStream(propFile);
+            props.store(fout, "Encoding Properties");
+        } catch (Exception ex) {
+            String msg = "Failed to write encoding file:" + propFile;
+            if (export_log != null) {
+                export_log.errorMsg(msg);
+            } else {
+                System.out.println(msg);
+            }
+        } finally {
+            if (fout != null) try {  fout.close(); } catch (Exception ex2) {};
+        }
+    }
 }

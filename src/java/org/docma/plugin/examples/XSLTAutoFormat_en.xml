@@ -10,10 +10,11 @@
     is optional.</dd>
 
     <dt><b><tt>factory=<i>JAVA_CLASS_NAME</i></tt></b></dt>
-    <dd>The Java classname of TransformerFactory to be used.
-    The class has to implement the javax.xml.transform.TransformerFactory
-    interface. The argument is optional. If no classname is specified, then 
-    the default TransformerFactory implementation is used.</dd>
+    <dd>The fully qualified Java classname of the <tt>TransformerFactory</tt> 
+    to be used. The class has to implement the 
+    <tt>javax.xml.transform.TransformerFactory</tt> interface. 
+    The argument is optional. If no classname is specified, then 
+    the default <tt>TransformerFactory</tt> implementation is used.</dd>
   </dl>
   <p><big><b>Description:</b></big></p>
   <p>

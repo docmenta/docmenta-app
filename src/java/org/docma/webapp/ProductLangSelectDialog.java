@@ -64,10 +64,11 @@ public class ProductLangSelectDialog extends Window
         Listbox langlistbox = (Listbox) getFellow("ProductLangSelectListbox");
         if (langlistbox.getItemCount() == 0) {
             DocmaLanguage[] arr = getDocmaSession().getSupportedContentLanguages();
-            for (int i=0; i < arr.length; i++) {
+            sortLangs(arr);
+            for (DocmaLanguage lang : arr) {
                 Listitem item = new Listitem();
-                item.setLabel(arr[i].getDescription());
-                item.setValue(arr[i].getCode());
+                item.setLabel(lang.getDisplayName());
+                item.setValue(lang.getCode());
                 langlistbox.appendChild(item);
             }
         }
@@ -95,5 +96,23 @@ public class ProductLangSelectDialog extends Window
     private DocmaSession getDocmaSession()
     {
         return GUIUtil.getDocmaWebSession(this).getDocmaSession();
+    }
+    
+    private void sortLangs(DocmaLanguage[] arr)
+    {
+        Arrays.sort(arr, new Comparator() {
+            public int compare(Object obj1, Object obj2) 
+            {
+                String lang1 = ((DocmaLanguage) obj1).getDisplayName();
+                String lang2 = ((DocmaLanguage) obj2).getDisplayName();
+                if (lang1 == null) {
+                    return 1;
+                }
+                if (lang2 == null) {
+                    return -1;
+                }
+                return lang1.compareToIgnoreCase(lang2);
+            }
+        } );
     }
 }

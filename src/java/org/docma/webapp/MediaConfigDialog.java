@@ -466,11 +466,14 @@ public class MediaConfigDialog extends Window
         if (customHeaderFooterBox == null) initFields();
         boolean is_custom = customHeaderFooterBox.isChecked();
         setHeaderFooterFieldsDisabled(! is_custom);
-        boolean no_pagetypes = (headerFooterPageTypes == null) || headerFooterPageTypes.isEmpty();
-        if (is_custom && no_pagetypes) {
-            setDefaultCustomHeaderFooter();  // Set default header/footer configuration
-        }
         if (is_custom) {
+            boolean no_pagetypes = (headerFooterPageTypes == null) || headerFooterPageTypes.isEmpty();
+            if (no_pagetypes) {
+                setDefaultCustomHeaderFooter();  // Set default header/footer configuration
+            } else {
+                fixBrokenHeaderFooter();
+            }
+            
             resetGUI_HeaderFooterContent();
         }
     }
@@ -532,12 +535,19 @@ public class MediaConfigDialog extends Window
     
     public void onCheckHeaderFooterSameAsBody()
     {
+        //
+        // This checkbox is only available for page classes other than "body".
+        // The checkbox defines whether to use the same settings as for content 
+        // (body) pages or to use separate settings.
+        //
         Listitem item = headerFooterPageClassBox.getSelectedItem();
         if (item == null) return;
         String pageClass = item.getValue().toString();
+        boolean is_body = pageClass.equals("body");  // Should always be false, because for 
+                                                     // page type "body" the checkbox is hidden.
 
-        boolean is_same_as_body = headerFooterSameAsBodyBox.isChecked();
-        if (is_same_as_body) {
+        boolean use_same_as_body = (! is_body) && headerFooterSameAsBodyBox.isChecked();
+        if (use_same_as_body) {
             // Remove all page types for this page class.
             // Note: If no page type exists for a specific page class, then
             //       this has the meaning that this page class uses the same 
@@ -548,6 +558,8 @@ public class MediaConfigDialog extends Window
                 if (((String) it.next()).startsWith(prefix)) it.remove();
             }
         } else {
+            // The page class uses other settings than the settings for "body".
+            // In this case, at least the page type for odd pages has to exist.
             headerFooterPageTypes.add(pageClass + "_odd");
         }
         onSelectHeaderFooterPageClass();  // update GUI fields
@@ -555,14 +567,21 @@ public class MediaConfigDialog extends Window
 
     public void onCheckHeaderFooterSameAsOdd()
     {
+        //
+        // This checkbox is only available for page sequences other than "odd".
+        // The checkbox defines whether to use the same settings as for odd 
+        // pages or to use separate settings.
+        //
         String pageType = getHeaderFooterPageType();
-        boolean is_same = headerFooterSameAsOddBox.isChecked();
-        if (is_same) {
+        boolean is_odd = pageType.endsWith("_odd");  // Should always be false, because for
+                                                     // page sequence "odd" the checkbox is hidden.
+        boolean is_same = (! is_odd) && headerFooterSameAsOddBox.isChecked();
+        if (is_same) {  // User wants to have same settings as for odd pages.
             headerFooterPageTypes.remove(pageType);
             // clear and disable header/footer content fields:
             setHeaderFooterContentFields(null);  // or: pageClass + "_odd"
             setHeaderFooterContentFieldsDisabled(true);
-        } else {
+        } else {   // User wants to have settings that differ from odd pages.
             headerFooterPageTypes.add(pageType);
             setHeaderFooterContentFields(pageType);
         }
@@ -1521,8 +1540,12 @@ public class MediaConfigDialog extends Window
                 }
             }
         }
-        if (isCustom && headerFooterPageTypes.isEmpty()) {
-            setDefaultCustomHeaderFooter();
+        if (isCustom) {
+            if (headerFooterPageTypes.isEmpty()) {
+                setDefaultCustomHeaderFooter();
+            } else {
+                fixBrokenHeaderFooter();
+            }
         }
         
         resetGUI_HeaderFooterContent();
@@ -1539,6 +1562,15 @@ public class MediaConfigDialog extends Window
     private void updateGUI_DocBook()
     {
 
+    }
+
+    private void fixBrokenHeaderFooter()
+    {
+        if ((headerFooterPageTypes != null) && !headerFooterPageTypes.contains("body_odd")) {
+            // If a custom header footer configuration is given, then at least the page type 
+            // body_odd has to exist.
+            headerFooterPageTypes.add("body_odd");
+        }
     }
 
     private String[] parseColumnWidths(String widths) 
@@ -2010,7 +2042,8 @@ public class MediaConfigDialog extends Window
             outConf.setPdfIndexColumnCount(getListboxInt(pdfIndexColumnCountBox, 2));
             outConf.setPdfIndexColumnGap(getDim(pdfIndexColumnGapBox, pdfIndexColumnGapUnitBox));
             outConf.setPdfMarkerSectionLevel(getListboxInt(markerSectionLevelBox, 2));
-            outConf.setPdfCustomHeaderFooter(customHeaderFooterBox.isChecked());
+            boolean isCustomHeadFoot = customHeaderFooterBox.isChecked();
+            outConf.setPdfCustomHeaderFooter(isCustomHeadFoot);
             String hw1 = getHeaderFooterWidth(headerWidth1Box);
             String hw2 = getHeaderFooterWidth(headerWidth2Box);
             String hw3 = getHeaderFooterWidth(headerWidth3Box);
@@ -2026,6 +2059,13 @@ public class MediaConfigDialog extends Window
                 outConf.setPdfFooterWidths(null);  // use default widths
             } else {
                 outConf.setPdfFooterWidths(fw1 + " " + fw2 + " " + fw3);
+            }
+            if (isCustomHeadFoot) {
+                if (headerFooterPageTypes == null) {  // Should never occur
+                    setDefaultCustomHeaderFooter();
+                } else {
+                    fixBrokenHeaderFooter();
+                }
             }
             String[] ptypes =  (headerFooterPageTypes == null) ?  
                 new String[0] : (String[]) headerFooterPageTypes.toArray(new String[headerFooterPageTypes.size()]);

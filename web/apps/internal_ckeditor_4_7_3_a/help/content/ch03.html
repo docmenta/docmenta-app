@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<!-- Put your custom HTML head tags here and select this file in the HTML output configuration. -->
+<!-- Note: The content of this file has to be XML (XHTML). -->
+<meta http-equiv="X-UA-Compatible" content="IE=8" />
+<meta http-equiv="expires" content="43200" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="generator" content="Docmenta 1.9.3"/>
+<title>User Interface Settings</title>
+<link rel="shortcut icon" href="favicon.ico" type="image/x-icon"/>
+<link rel="home" href="index.html" title="CKEditor Plug-in"/>
+
+<link rel="prev" href="ch02.html" title="Character Entity Settings"/>
+<link rel="next" href="ch04.html" title="HTML5 Figure Tag Support"/>
+<link rel="stylesheet" type="text/css" href="styles.css"/>
+<link rel="stylesheet" type="text/css" href="common/jquery/theme-redmond/jquery-ui-1.8.2.custom.css"/>
+<link rel="stylesheet" type="text/css" href="common/jquery/treeview/jquery.treeview.css"/>
+<link rel="stylesheet" type="text/css" href="common/css/positioning.css"/>
+<script type="text/javascript">
+  var treeCookieId = "treeview-1532185945370";
+  var language = "en";
+  var w = new Object();
+  txt_filesfound = "Results";
+  txt_enter_at_least_1_char = "You must enter at least one character.";
+  txt_browser_not_supported = "Your browser is not supported. Use of Mozilla Firefox is recommended.";
+  txt_please_wait = "Please wait. Search in progress...";
+  txt_results_for = "Results for: ";
+</script>
+<script type="text/javascript" charset="utf-8" src="common/jquery/jquery-1.4.2.min.js"></script>
+<script type="text/javascript" charset="utf-8" src="common/jquery/jquery-ui-1.8.2.custom.min.js"></script>
+<script type="text/javascript" charset="utf-8" src="common/jquery/jquery.cookie.js"></script>
+<script type="text/javascript" charset="utf-8" src="common/jquery/treeview/jquery.treeview.min.js"></script>
+<script type="text/javascript" charset="utf-8" src="search/htmlFileList.js"></script>
+<script type="text/javascript" charset="utf-8" src="search/htmlFileInfoList.js"></script>
+<script type="text/javascript" charset="utf-8" src="search/nwSearchFnt.js"></script>
+<script type="text/javascript" src="search/stemmers/en_stemmer.js"></script>
+<script type="text/javascript" charset="utf-8" src="search/index-1.js"></script>
+<script type="text/javascript" charset="utf-8" src="search/index-2.js"></script>
+<script type="text/javascript" charset="utf-8" src="search/index-3.js"></script>
+<script type="text/javascript" src="custom.js"></script>
+<script type="text/javascript" charset="utf-8" src="common/main.js"></script>
+</head>
+<body>
+<div id="header">
+<img id="webhelplogo1" align="left" src='common/images/logo1.png' alt="Logo"/>
+<img id="webhelplogo2" align="right" src='common/images/logo2.png' alt="Logo"/>
+<div class="webhelptitle">
+<div class="webhelptitle1">CKEditor Plug-in</div>
+
+</div>
+<div id="navheader" align="right">
+<table>
+<tr>
+<td><img src="common/images/highlight-blue.gif" alt="H" onclick="toggleHighlight()" id="showHideHighlight" title="Toggle search result highlighting" /></td>
+<td><a id="navhead-prev" accesskey="p" href="ch02.html"><span class="navlink-text">Prev</span></a><span class="navhead-separator">&nbsp;|&nbsp;</span><a id="navhead-next" accesskey="n" href="ch04.html"><span class="navlink-text">Next</span></a></td>
+</tr>
+</table>
+</div>
+</div>
+<div id="leftnavigation">
+<div id="tabs">
+<ul id="tocsearchnavigation" style="display:none">
+<li id="tocnavigationtab"><a href="#treeDiv"><em>Contents</em></a></li>
+<li id="searchnavigationtab"><a href="#searchDiv"><em>Search</em></a></li>
+</ul>
+<div id="treeDiv"><img src="common/images/loading.gif" alt="loading table of contents..." id="tocLoading" style="display:block;"/>
+<div id="ulTreeDiv" style="display:none;">
+<div id="treenavigationtitle" style="display:none;">Contents</div>
+<ul id="tree" class="filetree"><li><span class="file"><a href="pr01.html">CKEditor configuration</a></span></li><li><span class="file"><a href="ch01.html">Editor Options</a></span></li><li><span class="file"><a href="ch02.html">Character Entity Settings</a></span></li><li id="webhelp-currentid"><span class="file"><a href="ch03.html">User Interface Settings</a></span></li><li><span class="file"><a href="ch04.html">HTML5 Figure Tag Support</a></span></li></ul>
+</div>
+</div>
+<div id="searchDiv">
+<div id="search">
+<form onsubmit="startWebHelpSearch(ditaSearch_Form);return false" name="ditaSearch_Form" class="searchForm">
+<fieldset class="searchFieldSet">
+<legend>Search</legend>
+<div align="center">
+<input id="textToSearch" name="textToSearch" type="text" class="searchText"/>&nbsp;<input onclick="startWebHelpSearch(ditaSearch_Form)" type="button" class="searchButton" value="Go" id="doSearch"/>
+</div>
+</fieldset>
+</form>
+</div>
+<div id="closeSearchResults" style="display:none"><a href="javascript:closeSearchShowToc();">Contents</a></div>
+<div id="searchResults"><div align="center"></div></div>
+</div>
+</div>
+</div>
+
+<div id="breadcrumbsnavigation" class="breadcrumbs"><span class="breadcrumb-link"><a class="breadcrumb_node" href="index.html">CKEditor Plug-in</a></span> <span class="breadcrumb_separator">&rarr;</span> <span class="breadcrumb_node breadcrumb_lastnode">User Interface Settings</span></div>
+<div id="content">
+
+<div id="comp00000004" class="chapter"><h2>User Interface Settings</h2><div title="User Interface Settings" class="doc-content"><div class="header_para">
+<div class="normal-para">User Interface Skin</div>
+</div>
+<div class="normal-para">The selected skin defines the overall UI design, as for example UI colors, borders, button design and so on. By default only one skin is installed, which is selected by default. However, additional skins may by installed through CKEditor plufg-ins. This option reflects the setting <span class="code">CKEDITOR.config.skin</span> in the CKEditor API.</div>
+<div class="header_para">
+<div class="normal-para">User Interface Color</div>
+</div>
+<div class="normal-para">The base user interface color to be used by the editor. Not all skins are compatible with this setting. This option reflects the setting <span class="code">CKEDITOR.config.uiColor</span> in the CKEditor API.</div>
+<div class="header_para">
+<div class="normal-para">Dialog Background Opacity</div>
+</div>
+<div class="normal-para">As long as a modal dialog is opened, the parent window is disabled, which is indicated by greying out the parent window. The entered value defines the opacity used for background cover. This option reflects the setting <span class="code">CKEDITOR.config.dialog_backgroundCoverOpacity</span> in the CKEditor API.</div>
+<div class="header_para">
+<div class="normal-para">Toolbar Location</div>
+</div>
+<div class="normal-para">The position in the editor window where the toolbar will be displayed. This option reflects the setting <span class="code">CKEDITOR.config.toolbarLocation</span> in the CKEditor API.</div>
+<div class="header_para">
+<div class="normal-para">Remove Buttons</div>
+</div>
+<div class="normal-para">A list of toolbar button names that shall be hidden. This will also work for non-button toolbar items, like the Font drop-down list. This option reflects the setting <span class="code">CKEDITOR.config.removeButtons</span> in the CKEditor API. <br    />Example: <span class="code">Underline,JustifyCenter</span></div></div></div>
+<div class="navfooter"><hr/><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="ch02.html"><span class="navlink-text">Prev</span></a>&#160;</td><td width="20%" align="center">&#160;</td><td width="40%" align="right">&#160;<a accesskey="n" href="ch04.html"><span class="navlink-text">Next</span></a></td></tr><tr><td width="40%" align="left" valign="top">Character Entity Settings&#160;</td><td width="20%" align="center"><a accesskey="h" href="index.html"><span class="navlink-text">Home</span></a></td><td width="40%" align="right" valign="top">&#160;HTML5 Figure Tag Support</td></tr></table></div>
+<div class="web_footer">
+<p class="align-center">&#169; 2017 - www.docmenta.org</p>
+</div>
+
+</div>
+<a id="showHideButton" onclick="showHideToc();" class="pointLeft" title="Hide TOC tree">&nbsp;</a>
+</body>
+</html>

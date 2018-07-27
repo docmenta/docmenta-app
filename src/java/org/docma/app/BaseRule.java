@@ -181,66 +181,14 @@ public class BaseRule implements HTMLRule, XMLElementHandler
         for (String arg : conf.getArguments()) {
             arg = arg.toLowerCase();
             if (arg.startsWith(CHECK_ID_CONTENT_REQUIRED + "=")) {
-                StringTokenizer st = new StringTokenizer(arg.substring(CHECK_ID_CONTENT_REQUIRED.length() + 1), ",");
-                while (st.hasMoreTokens()) {
-                    String nm = st.nextToken();
-                    configElems.add(nm);
-                    elemsContentRequired.add(nm);
-                }
+                String val = arg.substring(CHECK_ID_CONTENT_REQUIRED.length() + 1);
+                readContentRequiredConfig(val);
             } else if (arg.startsWith(CHECK_ID_ATTRIBUTE_REQUIRED + "=")) {
-                StringTokenizer st = new StringTokenizer(arg.substring(CHECK_ID_ATTRIBUTE_REQUIRED.length() + 1), ",");
-                while (st.hasMoreTokens()) {
-                    String elem = st.nextToken();
-                    List<List<AttribConf>> orList = new ArrayList<List<AttribConf>>();
-                    int p1 = elem.indexOf('[');
-                    if (p1 > 0) {
-                        int p2 = elem.lastIndexOf(']');
-                        if (p2 > p1) {
-                            String expr = elem.substring(p1 + 1, p2);
-                            elem =  elem.substring(0, p1);
-                            StringTokenizer st2 = new StringTokenizer(expr, "|");
-                            while (st2.hasMoreTokens()) {
-                                String atts = st2.nextToken();
-                                List<AttribConf> andList = new ArrayList<AttribConf>();
-                                StringTokenizer st3 = new StringTokenizer(atts, "+");
-                                while (st3.hasMoreTokens()) {
-                                    String att = st3.nextToken();
-                                    String defValue = null;
-                                    int p3 = att.indexOf('=');
-                                    if (p3 > 0) {
-                                        defValue = att.substring(p3 + 1);
-                                        att = att.substring(0, p3);
-                                        if (defValue.startsWith("\"") && defValue.endsWith("\"")) { 
-                                            defValue = defValue.substring(1, defValue.length() - 1);
-                                        }
-                                        defValue = resolveConfigEscapes(defValue);
-                                    }
-                                    boolean isForbidden = att.startsWith("!");
-                                    if (isForbidden) {
-                                        att = att.substring(1);
-                                    }
-                                    andList.add(new AttribConf(att, defValue, isForbidden));
-                                }
-                                orList.add(andList);
-                            }
-                        }
-                    }
-                    configElems.add(elem);
-                    elemsAttribRequired.put(elem, orList);
-                }
+                String val = arg.substring(CHECK_ID_ATTRIBUTE_REQUIRED.length() + 1);
+                readAttribRequiredConfig(val);
             } else if (arg.startsWith(CHECK_ID_NORMALIZE_TEXTALIGN + "=")) { 
-                String val = arg.substring(CHECK_ID_CONTENT_REQUIRED.length() + 1).toLowerCase();
-                if (val.equals(""))  {
-                    val = "*";
-                }
-                StringTokenizer st = new StringTokenizer(val, ",");
-                while (st.hasMoreTokens()) {
-                    String nm = st.nextToken();
-                    if (! nm.equals("*")) {
-                        configElems.add(nm);
-                    }
-                    elemsNormalizeTextalign.add(nm);
-                }
+                String val = arg.substring(CHECK_ID_NORMALIZE_TEXTALIGN.length() + 1).toLowerCase();
+                readNormalizeTextAlignConfig(val);
             }
             // } else if (arg.startsWith(SUFFIX_NOT_ALLOWED + "=")) {
             //     StringTokenizer st = new StringTokenizer(arg.substring(SUFFIX_NOT_ALLOWED.length() + 1), ",");
@@ -932,7 +880,7 @@ public class BaseRule implements HTMLRule, XMLElementHandler
                 int uni_end = uni_start + 6;
                 if (str.length() >= uni_end) {
                     try {
-                        char unicode = (char) Integer.parseInt(str.substring(uni_start + 2, uni_end));
+                        char unicode = (char) Integer.parseInt(str.substring(uni_start + 2, uni_end), 16);
                         str = str.substring(0, uni_start) + unicode + str.substring(uni_end);
                     } catch (Exception ex) {}  // no valid escape; continue search at pos
                 }
@@ -1087,6 +1035,90 @@ public class BaseRule implements HTMLRule, XMLElementHandler
         }
     }
 
+    private void readContentRequiredConfig(String config)
+    {
+        StringTokenizer st = new StringTokenizer(config, ",");
+        while (st.hasMoreTokens()) {
+            String nm = st.nextToken();
+            configElems.add(nm);
+            elemsContentRequired.add(nm);
+        }
+    }
+
+    private void readAttribRequiredConfig(String config)
+    {
+        StringTokenizer st = new StringTokenizer(config, ",");
+        while (st.hasMoreTokens()) {
+            String elem = st.nextToken();
+            List<List<AttribConf>> orList = new ArrayList<List<AttribConf>>();
+            int p1 = elem.indexOf('[');
+            if (p1 > 0) {
+                int p2 = elem.lastIndexOf(']');
+                if (p2 > p1) {
+                    String expr = elem.substring(p1 + 1, p2);
+                    elem =  elem.substring(0, p1);
+                    StringTokenizer st2 = new StringTokenizer(expr, "|");
+                    while (st2.hasMoreTokens()) {
+                        String atts = st2.nextToken();
+                        List<AttribConf> andList = new ArrayList<AttribConf>();
+                        StringTokenizer st3 = new StringTokenizer(atts, "+");
+                        while (st3.hasMoreTokens()) {
+                            String att = st3.nextToken();
+                            String defValue = null;
+                            int p3 = att.indexOf('=');
+                            if (p3 > 0) {
+                                defValue = att.substring(p3 + 1);
+                                att = att.substring(0, p3);
+                                if (defValue.startsWith("\"") && defValue.endsWith("\"")) { 
+                                    defValue = defValue.substring(1, defValue.length() - 1);
+                                }
+                                defValue = resolveConfigEscapes(defValue);
+                            }
+                            boolean isForbidden = att.startsWith("!");
+                            if (isForbidden) {
+                                att = att.substring(1);
+                            }
+                            andList.add(new AttribConf(att, defValue, isForbidden));
+                        }
+                        orList.add(andList);
+                    }
+                }
+            }
+            // elem contains one element name or several element names 
+            // separated by slash character (/).
+            elem = elem.toLowerCase();
+            if (elem.contains("/")) {
+                // Element names separated by slash character (/) share the 
+                // same attribute conditions.   
+                StringTokenizer elemNames = new StringTokenizer(elem, "/");
+                while (elemNames.hasMoreTokens()) {
+                    String ename = elemNames.nextToken().trim();
+                    configElems.add(ename);
+                    elemsAttribRequired.put(ename, orList);
+                }
+            } else {
+                // Only one element name.
+                configElems.add(elem);
+                elemsAttribRequired.put(elem, orList);
+            }
+        }
+    }
+    
+    private void readNormalizeTextAlignConfig(String config)
+    {
+        if (config.equals(""))  {
+            config = "*";
+        }
+        StringTokenizer st = new StringTokenizer(config, ",");
+        while (st.hasMoreTokens()) {
+            String nm = st.nextToken();
+            if (! nm.equals("*")) {
+                configElems.add(nm);
+            }
+            elemsNormalizeTextalign.add(nm);
+        }
+    }
+    
     private static class AttribConf
     {
         private final String name;

@@ -1442,6 +1442,7 @@ public class WebFormatter
                                 boolean is_part = aclass.equals("doc-part");
                                 boolean is_partintro = aclass.equals("doc-partintro");
                                 boolean is_index = aclass.equals("doc-index");
+                                boolean is_content_node = aclass.equals("doc-content");
                                 boolean start_info = aclass.equals("doc-info") && (divLevel == 1);
                                 boolean first_section = false;
 
@@ -1572,6 +1573,12 @@ public class WebFormatter
                                     // Remove "doc-" from class name (e.g. change "doc-chapter" to "chapter")
                                     aclass = aclass.substring(DOC_PREFIX.length());
                                     e = createStartTag(ename, "id", aid, "class", aclass, "title", atitle);
+                                    // e is written to output. See xw.add(e) below.
+                                } else if (is_content_node) {
+                                    // Remove title attribute from div element,
+                                    // because some browsers show the title 
+                                    // attribute as pop-up text.
+                                    e = createStartTag(ename, copyAttributesExclude(se.getAttributes(), "title"));
                                     // e is written to output. See xw.add(e) below.
                                 }
                             } else {  // div with custom class attribute

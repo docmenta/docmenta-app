@@ -7,7 +7,8 @@
   <property name="extensions.dir" value="${ant.file.dir}/../extensions"/>
 
   <path id="classpath">
-    <pathelement location="${extensions.dir}/webhelpindexer.jar"/>
+    <pathelement location="${web-root-dir}/WEB-INF/lib/DocmentaCore.jar"/>
+    <pathelement location="${web-root-dir}/WEB-INF/lib/DocmentaWebIndexer.jar"/>
     <pathelement location="${extensions.dir}/lucene-analyzers-3.0.0.jar"/>
     <pathelement location="${extensions.dir}/lucene-core-3.0.0.jar"/>
   </path>
@@ -52,7 +53,7 @@
 	</copy>
  
 	<taskdef name="indexertask"
-	  classname="com.nexwave.nquindexer.IndexerTask">
+	  classname="org.docma.webindexer.DocmaWebIndexer">
 	  <classpath refid="classpath"/>
 	</taskdef>
 
@@ -61,7 +62,10 @@
 	<indexertask htmldir="${output-dir}" indexerLanguage="${webhelp.indexer.language}"/>
 
 	<delete>
-	  <fileset dir="${output-dir}/search" includes="*.props"/>
+	  <fileset dir="${output-dir}">
+		<include name="search/*.props"/>
+		<include name="docma_encoding.props"/>
+	  </fileset>
 	</delete>
 
   </target>

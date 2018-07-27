@@ -1,0 +1,170 @@
+body, td, th {font-family: Arial,Helvetica,sans-serif; font-size: 1em; color: rgb(0, 0, 0);}
+table { border-color:#000000; border-collapse:collapse; }
+.float_left { margin-right:8pt; margin-bottom:2pt; }
+.float_right { margin-left:8pt; margin-bottom:2pt; }
+table[align=left] { margin-right:8pt; margin-bottom:2pt; }
+table[align=right] { margin-left:8pt; margin-bottom:2pt; }
+table[align=center] { margin-left:auto; margin-right:auto; }
+table[align=center] caption { text-align:center; }
+p, table, div.normal-para { margin-top:8pt; margin-bottom:0; margin-right:0; margin-left:0; }
+div p, div div.normal-para { margin:0; }
+td p, td div.normal-para { margin:0; }
+th p, th div.normal-para { margin:0; }
+p + p, div.normal-para + div.normal-para { margin-top:8pt; margin-bottom:0; margin-right:0; margin-left:0; }
+div + p, div + div.normal-para { margin-top:8pt; margin-bottom:0; margin-right:0; margin-left:0; }
+ol + p, ol + div.normal-para { margin-top:8pt; margin-bottom:0; margin-right:0; margin-left:0; }
+ul + p, ul + div.normal-para { margin-top:8pt; margin-bottom:0; margin-right:0; margin-left:0; }
+table + p, table + div.normal-para { margin-top:8pt; margin-bottom:0; margin-right:0; margin-left:0; }
+blockquote + p, blockquote + div.normal-para { margin-top:8pt; margin-bottom:0; margin-right:0; margin-left:0; }
+figure + p, figure + div.normal-para { margin-top:8pt; margin-bottom:0; margin-right:0; margin-left:0; }
+div.doc-content + div.doc-content { margin-top:8pt; margin-bottom:0; margin-right:0; margin-left:0; }
+.toc { margin-bottom:8pt; }
+.align-left { text-align:left; }
+.align-right { text-align:right; }
+.align-center { text-align:center; }
+.align-full { text-align:justify; }
+img.align-right { display:block; margin-left:auto; margin-right:0; text-align:right; }
+img.align-center { display:block; margin-left:auto; margin-right:auto; text-align:center; }
+a[href] {color: rgb(30, 102, 176);}
+a:link {color: rgb(30, 102, 176);}
+a.breadcrumb_node {font-weight: bold; white-space: nowrap;}
+b, strong {font-weight:bold;}
+i, em {font-style:italic;}
+td {padding: 2pt; border-color: rgb(0, 0, 0);}
+th {font-weight: bold; background-color: rgb(225, 225, 225); border-color: rgb(0, 0, 0);}
+big {font-size: larger; font-weight: bold;}
+tt {font-family: Courier New,Courier,mono;}
+pre {font-family: Courier New,Courier,mono; white-space: pre; margin-top: 8pt;}
+caption { caption-side:bottom; text-align:left; font-size: 1em; font-style: italic; font-weight: normal; margin: 1pt 0pt;}
+p.title {font-size: 1em; font-style: italic; font-weight: normal; margin: 1pt 0pt;}
+figcaption {font-size: 1em; font-style: italic; font-weight: normal; margin: 1pt 0pt;}
+h1 {font-size: 32pt; font-weight: bold; margin-top: 34pt;}
+h2 {font-size: 26pt; font-weight: bold; margin-top: 22pt; margin-bottom: 16pt; border-bottom: 8pt solid rgb(224, 224, 224); border-color: rgb(224, 224, 224);}
+h3 {font-size: 20pt; font-style: italic; font-weight: bold; margin-top: 18pt; margin-bottom: 8pt;}
+h4 {font-size: 16pt; font-weight: bold; margin-top: 15pt; margin-bottom: 6pt;}
+h5 {font-size: 14pt; font-style: italic; font-weight: bold; margin-top: 1em; margin-bottom: 0.5em;}
+h6 {font-size: 12pt; font-weight: bold; margin-top: 12pt; margin-bottom: 5pt;}
+h6.hlevel7 {}
+h6.hlevel8 {}
+h6.hlevel9 {}
+ul, ol { padding-left:13pt; margin-bottom:0; margin-top:8pt; margin-left:11pt }
+ul li { margin-bottom:0; margin-top:4pt }
+ol li { margin-bottom:0; margin-top:4pt }
+ul ul { margin-top:4pt }
+ol ol { margin-top:4pt }
+ul ol { margin-top:4pt }
+ol ul { margin-top:4pt }
+table.ol-table { margin-top:8pt; margin-left:11pt; margin-bottom:0; border-width:0; border-spacing:0; border-collapse:collapse; }
+td.ol-td-number { width:13pt; vertical-align:top; padding:4pt 0 0 0; }
+td.ol-td-content { vertical-align:top; padding:4pt 0 0 0; }
+table.ol-table table.ol-table { margin-top:0pt; }
+ul table.ol-table { margin-top:0pt; }
+table.ol-table ul { margin-top:0pt; }
+blockquote { padding:0; margin-bottom:0; margin-top:0; margin-left:11pt }
+.indent-level1 { padding-left:24pt }
+table.indent-level1 { padding-left:0; margin-left:24pt }
+.indent-level2 { padding-left:48pt }
+table.indent-level2 { padding-left:0; margin-left:48pt }
+.indent-level3 { padding-left:72pt }
+table.indent-level3 { padding-left:0; margin-left:72pt }
+.indent-level4 { padding-left:96pt }
+table.indent-level4 { padding-left:0; margin-left:96pt }
+.indent-level5 { padding-left:120pt }
+table.indent-level5 { padding-left:0; margin-left:120pt }
+.indent-level6 { padding-left:144pt }
+table.indent-level6 { padding-left:0; margin-left:144pt }
+.indent-level7 { padding-left:168pt }
+table.indent-level7 { padding-left:0; margin-left:168pt }
+.indent-level8 { padding-left:192pt }
+table.indent-level8 { padding-left:0; margin-left:192pt }
+.indent-level9 { padding-left:216pt }
+table.indent-level9 { padding-left:0; margin-left:216pt }
+.footnote {}
+cite { font-style:inherit; }
+span.indexterm { display:none; }
+.author { font-size:12pt; font-weight:bold; text-align:center; margin:1pt }
+.othercredit { font-size:10pt; margin-top:16pt }
+.toc dl, .toc dt, .toc dd { margin-top:2pt; margin-bottom:0; padding-top:0; padding-bottom:0; }
+.toc > p { margin-bottom: 4pt; }
+.figure-float br.figure-break { display:none; }
+.Indented_block { margin-left: 24pt; }
+.big { font-size: larger; font-weight: bold; }
+.breadcrumb_node { font-weight: bold; white-space: nowrap; }
+.breadcrumbs { font-size: 10pt; background-color: rgb(255, 255, 255); padding-top: 8px; padding-bottom: 4px; padding-left: 10px; }
+.caption { font-size: 1em; font-style: italic; font-weight: normal; margin: 1pt 0pt; }
+.code { font-family: Courier New,Courier,mono; }
+.code_attrib { color: rgb(132, 108, 72); }
+.code_attval { color: rgb(153, 51, 153); }
+.code_char { color: rgb(153, 51, 153); }
+.code_comment { color: rgb(128, 128, 128); }
+.code_keyword { font-weight: bold; color: rgb(0, 117, 195); }
+.code_listing { font-family: Courier New,Courier,mono; font-size: 1em; background-color: rgb(240, 240, 240); text-align: left; padding: 3pt; margin: 0.6em 0px 0.6em 0.8em; border-style: solid; border-width: 1px; border-color: rgb(141, 141, 141); }
+.code_literal { color: rgb(0, 0, 224); }
+.code_method { font-style: italic; color: rgb(14, 0, 142); }
+.code_tag { font-weight: bold; color: rgb(54, 160, 65); }
+.code_xmlintro { color: rgb(112, 159, 3); }
+.coverpage { padding: 10cm 2cm 4cm; }
+.default { font-family: Arial,Helvetica,sans-serif; font-size: 1em; color: rgb(0, 0, 0); }
+.emphasis { font-style:italic; }
+.header1 { font-size: 32pt; font-weight: bold; margin-top: 34pt; }
+.header2 { font-size: 26pt; font-weight: bold; margin-top: 22pt; margin-bottom: 16pt; border-bottom: 8pt solid rgb(224, 224, 224); border-color: rgb(224, 224, 224); }
+.header3 { font-size: 20pt; font-style: italic; font-weight: bold; margin-top: 18pt; margin-bottom: 8pt; }
+.header4 { font-size: 16pt; font-weight: bold; margin-top: 15pt; margin-bottom: 6pt; }
+.header5 { font-size: 14pt; font-style: italic; font-weight: bold; margin-top: 1em; margin-bottom: 0.5em; }
+.header6 { font-size: 12pt; font-weight: bold; margin-top: 12pt; margin-bottom: 5pt; }
+.header_important { text-transform: capitalize; font-weight: bold; color: rgb(255, 255, 255); background-color: rgb(250, 86, 86); padding: 0pt 2pt; margin: 8pt 0pt 0pt; border: 1.5pt solid rgb(250, 86, 86); }
+.header_note { text-transform: capitalize; font-weight: bold; color: rgb(255, 255, 255); background-color: rgb(143, 143, 143); padding: 0pt 2pt; margin: 8pt 0pt 0pt; border: 1.5pt solid rgb(143, 143, 143); }
+.header_para { font-weight: bold; margin-top: 1.4em; }
+.important_box { padding: 2pt; margin: 0pt; border-style: none solid solid; border-right: 1.5pt solid rgb(250, 86, 86); border-bottom: 1.5pt solid rgb(250, 86, 86); border-left: 1.5pt solid rgb(250, 86, 86); border-color: rgb(250, 86, 86); }
+.informal_header { MARGIN-TOP: 1.4em; FONT-WEIGHT: bold }
+.java_no_line_nums { background-color:rgb(240, 240, 240); font-family:Courier New,Courier,mono; font-size:10pt; margin-top:8pt; white-space:pre; }
+.link { color: rgb(30, 102, 176); }
+.listing_java { background-color:rgb(240, 240, 240); font-family:Courier New,Courier,mono; font-size:10pt; white-space:pre; }
+.listing_jsp { font-family: Courier New,Courier,mono; font-size: 10pt; background-color: rgb(240, 240, 240); white-space: pre; }
+.listing_line { font-family: Courier New,Courier,mono; font-size: 10pt; white-space: pre; height: 15pt; padding: 0px; margin: 0px; }
+.listing_line_marked { font-family:Courier New,Courier,mono; font-size:10pt; line-height:15pt; margin:0pt; padding:0pt; white-space:pre; }
+.listing_properties { font-family: Courier New,Courier,mono; font-size: 10pt; background-color: rgb(240, 240, 240); white-space: pre; margin-top: 0.6em; margin-bottom: 0.6em; }
+.listing_xml { background-color:rgb(240, 240, 240); font-family:Courier New,Courier,mono; font-size:10pt; white-space:pre; }
+.marked_line_num { background-color:rgb(9, 0, 213); color:rgb(255, 255, 255); font-family:Courier New,Courier,mono; font-size:10pt; line-height:15pt; margin:0pt; padding:0pt 0pt 0pt 2pt; white-space:pre; }
+.new_style { BACKGROUND-COLOR: #1fe31b }
+.note_box { padding: 2pt; border-style: none solid solid; border-right: 1.5pt solid rgb(143, 143, 143); border-bottom: 1.5pt solid rgb(143, 143, 143); border-left: 1.5pt solid rgb(143, 143, 143); border-color: rgb(143, 143, 143); }
+.page_footer { background-color: rgb(0, 101, 176); padding: 0cm 3.5cm; margin-right: -3.5cm; margin-left: -3.5cm; }
+.page_footer_box { font-family: Arial,Helvetica,sans-serif; font-size: 11pt; color: rgb(255, 255, 255); background-color: rgb(0, 101, 176); width: 22cm; padding: 0pt; margin: 0pt; }
+.page_footer_cell { padding-top: 13pt; padding-bottom: 13pt; margin: 0pt; }
+.page_header { background-color: rgb(0, 101, 176); padding: 0cm 1.5cm; margin-right: -3.3cm; margin-left: -3.3cm; }
+.page_header_box { font-family: Arial,Helvetica,sans-serif; color: rgb(255, 255, 255); background-color: rgb(0, 101, 176); padding: 0pt; margin: 0pt; }
+.page_header_cell { font-family: Arial,Helvetica,sans-serif; font-size: 12pt; font-weight: lighter; letter-spacing: 1.2pt; text-align: right; padding: 24pt 5pt 10pt; margin: 0pt; }
+.page_header_logo { padding: 22pt 0pt 9pt; margin: 0pt; }
+.pre { font-family: Courier New,Courier,mono; white-space: pre; margin-top: 8pt; }
+.strike { text-decoration:line-through; }
+.strong { font-weight:bold; }
+.subtitle { font-size: 18pt; text-align: center; margin: 18pt 10pt 10pt; }
+.table_cell { padding: 2pt; border-color: rgb(0, 0, 0); }
+.table_header { font-weight: bold; background-color: rgb(225, 225, 225); border-color: rgb(0, 0, 0); }
+.to_do { COLOR: #ff0000; FONT-WEIGHT: bold; TEXT-DECORATION: underline }
+.toc_line_appendix { font-weight: bold; }
+.toc_line_chapter { font-weight: bold; margin-top: 4pt; }
+.toc_line_part { font-weight: bold; margin-top: 8pt; }
+.tt { font-family: Courier New,Courier,mono; }
+.underline { text-decoration:underline; }
+.web_footer { font-size: 9pt; text-align: center; width: 100%; margin-top: 12pt; }
+.web_header { color: rgb(255, 255, 255); background-color: rgb(64, 64, 64); }
+.xml_highlighted { background-color:rgb(240, 240, 240); font-family:Courier New,Courier,mono; font-size:10pt; }
+.xml_no_line_nums { background-color:rgb(240, 240, 240); font-family:Courier New,Courier,mono; font-size:10pt; margin-top:8pt; white-space:pre; }
+img[style*='float: left'], img[style*='float:left'] { margin-right:8pt; margin-bottom:2pt; }
+img[style*='float: right'], img[style*='float:right'] { margin-left:8pt; margin-bottom:2pt; }
+
+/*
+  Put your custom CSS code here and select this file in the HTML output configuration.
+*/
+div.titlepage h1.title { font-size:24pt; text-decoration:none; text-align:center; margin:10pt 0 10pt 0; }
+div.titlepage h2.subtitle { display:none; font-size:16pt; font-style:italic; text-align:center; margin:10pt 0 10pt 0; border:none; }
+div.titlepage .corpauthor { display:none; text-align:center; font-weight:bold; }
+div.titlepage .othercredit { display:none; text-align:center; font-size:11pt; font-weight:normal; }
+div.titlepage div.releaseinfo { text-align:center; margin:18pt 0 18pt 0; font-weight:bold; font-size:12pt; }
+div.titlepage div.pubdate { display:none; }
+div.titlepage .copyright { display:none; }
+div.titlepage hr { display:none; visibility:hidden; }
+div.navheader th { background-color:transparent; }
+
+div.mediaobject img { cursor:pointer; }

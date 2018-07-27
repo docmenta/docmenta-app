@@ -61,7 +61,7 @@
   <!-- Check online help -->
   <entry key="longInfo"><![CDATA[
   <p>
-  This class provides basic Docmenta HTML checks. 
+  This rule provides basic Docmenta HTML checks. 
   The details for each check are given below:
   </p>
   <ul>
@@ -77,7 +77,8 @@
     <li><a href="#trim_empty_paras">trim_empty_paras</a></li>
     <li><a href="#trim_figure_spaces">trim_figure_spaces</a></li>
   </ul>
-      
+
+  <hr />
   <a name="attribute_required" />
   <big><strong>attribute_required</strong></big>
   <div style="margin-left:16pt;">
@@ -85,60 +86,82 @@
       <b>Arguments:</b>
     </p>
     <dl>
-        <dt><b><tt>attribute_required=<i>tag1,tag2</i>[<i>att1</i>|<i>att2</i>+<i>att3</i>=<i>default</i>+!<i>att4</i>...|...],...</tt></b></dt>
+        <dt>
+          <b><tt>attribute_required=<i>expression1,expression2,...,expressionN</i></tt></b>
+        </dt>
         <dd>
           <p>
-            A comma separated list of element expressions. Note that space is 
-            used as argument separator. Therefore, no space is allowed 
-            within the list of element expressions. 
-            An element expression is an element name, optionally  
-            followed by an attributes expression in square brackets.
-            The attributes expression is a list of attribute conditions separated 
-            by the <tt>+</tt> or <tt>|</tt> operators. The <tt>+</tt> operator
-            has the meaning of logical "and", whereas the  <tt>|</tt> operator
-            has the meaning of logical "or".
-            Note that explicit grouping of attribute conditions by round 
-            brackets is <em>not</em> supported, though grouping of conditions 
-            is done implicitly as the <tt>+</tt> operator has higher precedence 
-            than the <tt>|</tt> operator.
+            <b>Element expression:</b><br />
+            <b><tt><i>expression</i></tt> := <tt><i>tagName</i></tt></b><br />
+            <b><tt><i>expression</i></tt> := <tt><i>tagName</i>[<i>attributes</i>]</tt></b><br />
+            <b><tt><i>expression</i></tt> := <tt><i>tagName1</i>/.../<i>tagNameX</i>[<i>attributes</i>]</tt></b>
           </p>
-          <p><em>Required Attributes</em><br/>
-            If an attribute condition consists solely of the attribute name, 
-            then the attribute is a required attribute.
+          <p>
+            <b>Attribute expression:</b><br />
+            <b><tt><i>attributes</i></tt> := <tt><i>condition1</i>|<i>condition2</i>+...+<i>conditionY</i>|...</tt></b>
           </p>
-          <p><em>Forbidden Attributes</em><br/> 
-            If the attribute name is preceded
-            by an exclamation mark (<tt>!</tt>), then the attribute is a 
-            forbidden attribute (instead of a required attribute). In other  
-            words, the exclamation mark has the meaning of logical "not". 
-            If required and forbidden attributes are concatenated
-            by the <tt>+</tt> operator, then the forbidden attributes are not
-            allowed in combination with the required attributes.
+          <p>
+            <b>Attribute condition:</b><br />
+            <b><tt><i>condition</i></tt> := <tt><i>attributeName</i></tt></b><br />
+            <b><tt><i>condition</i></tt> := <tt><i>attributeName</i>=<i>defaultValue</i></tt></b><br />
+            <b><tt><i>condition</i></tt> := <tt>!<i>attributeName</i></tt></b>
           </p>
-          <p><em>Default Values</em><br/> 
-            The attribute name of a required attribute can optionally
-            be followed by a <tt>=</tt> character, followed by a default value.
-            If a required attribute does not exist, but has a default value 
-            assigned, and if auto-correction is enabled, then the attribute is 
-            added and set to the default value. See the example below.
-          </p>
+    <p>
+        The <tt>attribute_required</tt> argument defines 
+        one or more element expressions separated by comma. 
+        An element expression is an element name, optionally  
+        followed by one or more attribute conditions in square brackets.
+        Attributes conditions have to be separated 
+        by the <tt>+</tt> or <tt>|</tt> operators. The <tt>+</tt> operator
+        has the meaning of logical "and", whereas the  <tt>|</tt> operator
+        has the meaning of logical "or".
+        Note that explicit grouping of attribute conditions by round 
+        brackets is <em>not</em> supported, though grouping of conditions 
+        is done implicitly as the <tt>+</tt> operator has higher precedence 
+        than the <tt>|</tt> operator.
+    </p>
           <p><em>Character escapes</em><br/>
-            Whitespace is <em>not</em> allowed in the argument value. 
-            Furthermore, the characters <tt>+</tt> and <tt>|</tt>, as well as 
-            comma (<tt>,</tt>) cannot be used within the definition of a 
-            default value, because these characters are interpreted as 
-            attribute operators and expression separators.
-            To insert these characters in a value definition, the 
-            Unicode escape sequence <tt>\u<i>nnnn</i></tt> can be used, where 
-            <tt><i>nnnn</i></tt> is a decimal Unicode number.
+            Whitespace is used as argument separator and can therefore <em>not</em> 
+            be used within the argument value.
+            Furthermore, the plus, pipeline, square brackets and comma 
+            (<tt>+</tt> <tt>|</tt> <tt>[</tt> <tt>]</tt> <tt>,</tt>) are
+            interpreted as operators and separators.
+            To insert one of these characters or other special characters within 
+            the definition of <i>defaultValue</i>, the Unicode escape sequence 
+            <tt>\u<i>XXXX</i></tt> has to be used, where <tt><i>XXXX</i></tt> is 
+            a 4-digit hexadecimal Unicode number. 
           </p>
         </dd>
     </dl>
     <p>
-      <b>Description:</b><br/>
-      Each element expression in the argument checks the existance 
-      of required and forbidden attributes. If a required attribute is missing
-      or a forbidden attribute exists, then the element is logged as invalid. 
+        <b>Description:</b><br />
+        The <tt>attribute_required</tt> check allows to define required 
+        and/or forbidden attributes. 
+        If an attribute is required, a default value can be specified.
+    </p>
+    <p><em>Required Attributes</em><br/>
+        If an attribute condition consists solely of the attribute name, 
+        then the attribute is a <em>required</em> attribute.
+    </p>
+    <p><em>Forbidden Attributes</em><br/> 
+        If the attribute name is preceded
+        by an exclamation mark (<tt>!</tt>), then the attribute is a 
+        <em>forbidden</em> attribute (instead of <em>required</em>). In other  
+        words, the exclamation mark has the meaning of logical "not". 
+        If required and forbidden attributes are concatenated
+        by the <tt>+</tt> operator, then the forbidden attributes are not
+        allowed in combination with the required attributes.
+    </p>
+    <p><em>Default Values</em><br/> 
+        The attribute name of a required attribute can optionally
+        be followed by a <tt>=</tt> character, followed by a default value.
+        If a required attribute does not exist, but has a default value 
+        specified, and if auto-correction is enabled, then the attribute is 
+        added and set to the default value. See the example below.
+    </p>
+    <p><em>Logging/Auto-Correction</em><br/>
+      If a required attribute is missing or a forbidden attribute exists, 
+      then the element is logged as invalid. 
       If auto-correction is enabled and a default value is given for a required 
       but missing attribute, then the attribute is added and set to the default 
       value. If a required but missing attribute has <em>no</em> default value, 
@@ -147,7 +170,7 @@
       If forbidden attributes exists and auto-correction is enabled, then the 
       forbidden attributes are automatically removed. 
     </p>
-    <p>
+    <p><em>Log/Remove elements without attributes</em><br/>
       If only the element name without attributes expression (in square 
       brackets) is given, then the expression results to true, 
       if an element with the given name has at least one arbitrary attribute. 
@@ -159,7 +182,7 @@
       <b>Example:</b>
     </p>
     <p>
-        &nbsp;&nbsp;<tt>attribute_required=div,span[class|id+title],table[border=0+!style]</tt>
+        &nbsp;&nbsp;&nbsp;<tt>attribute_required=div,span[class|id+title],table[border=0+!style]</tt>
     </p>
     <p>
       Given the argument value above, <tt>div</tt> elements must have at least  
@@ -184,6 +207,7 @@
     </p>
   </div>
 
+  <hr />
   <a name="broken_inline_inclusion" />
   <big><strong>broken_inline_inclusion</strong></big>
   <div style="margin-left:16pt;">
@@ -199,6 +223,7 @@
     </p>
   </div>
 
+  <hr />
   <a name="broken_link" />
   <big><strong>broken_link</strong></big>
   <div style="margin-left:16pt;">
@@ -216,15 +241,21 @@
     </p>
   </div>
 
+  <hr />
   <a name="content_required" />
   <big><strong>content_required</strong></big>
   <div style="margin-left:16pt;">
     <p>
       <b>Arguments:</b>
       <dl>
-        <dt><b><tt>content_required=<i>tag1,tag2,...</i></tt></b></dt>
-        <dd>The tag names for which empty elements shall be logged or removed. 
-            Multiple names have to be separated by comma (without space in between)
+        <dt>
+          <b><tt>content_required=<i>tag1,tag2,...</i></tt></b>
+        </dt>
+        <dd>
+          <p>
+            The tag names for which empty elements shall be logged or removed. 
+            Multiple names have to be separated by comma (without space in between).
+          </p>
         </dd>
       </dl>
     </p>
@@ -249,6 +280,7 @@
     </p>
   </div>
 
+  <hr />
   <a name="embedded_image" />
   <big><strong>embedded_image</strong></big>
   <div style="margin-left:16pt;">
@@ -268,6 +300,7 @@
     </p>
   </div>
       
+  <hr />
   <a name="invalid_image_src" />
   <big><strong>invalid_image_src</strong></big>
   <div style="margin-left:16pt;">
@@ -283,6 +316,7 @@
     </p>
   </div>
 
+  <hr />
   <a name="invalid_style" />
   <big><strong>invalid_style</strong></big>
   <div style="margin-left:16pt;">
@@ -298,6 +332,7 @@
     </p>
   </div>
 
+  <hr />
   <a name="invalid_target_type" />
   <big><strong>invalid_target_type</strong></big>
   <div style="margin-left:16pt;">
@@ -320,6 +355,7 @@
     </p>
   </div>
 
+  <hr />
   <a name="normalize_textalign" />
   <big><strong>normalize_textalign</strong></big>
   <div style="margin-left:16pt;">
@@ -331,13 +367,16 @@
           <br/>
           <b><tt>normalize_textalign=*</tt></b>
         </dt>
-        <dd>Sets the element names to which the check shall be applied. 
+        <dd>
+          <p>
+            Sets the element names to which the check shall be applied. 
             Multiple element names have to be separated by comma (without 
             space in between). Instead of providing a list of element names, 
             the wildcard <tt>*</tt> can be used, to apply the check to all 
             elements. If the argument <tt>normalize_textalign</tt> is missing,
             then the check is applied to all elements (same as using wildcard 
             <tt>*</tt>).
+          </p>
         </dd>
       </dl>
     </p>
@@ -375,6 +414,7 @@
     &lt;p class="align-right"&gt;  ...  &lt;/p&gt;</pre>
   </div>
 
+  <hr />
   <a name="trim_empty_paras" />
   <big><strong>trim_empty_paras</strong></big>
   <div style="margin-left:16pt;">
@@ -385,13 +425,7 @@
       <b>Description:</b><br/>
       This check logs empty paragraphs at the end of content nodes. 
       If auto-correction is enabled, then an empty paragraph at the end of 
-      content nodes is removed. 
-    </p>
-    <p>
-      When the user places the cursor after the last paragraph within the 
-      content editor, then most editors insert an empty paragraph at the end of  
-      the content. The auto-correction functionality of this rule can be used to 
-      remove such empty paragraphs (for example, when content is saved).
+      a content node is removed. 
     </p>
     <p>
       Following HTML fragments are recognized as empty paragraphs:
@@ -401,12 +435,15 @@
     &lt;p&gt;&amp;nbsp;&lt;/p&gt;
     &lt;p&gt;&amp;#160;&lt;/p&gt;</pre>
     <p>
-      Some WYSIWYG editors append an empty paragraph, if the cursor is placed 
-      at the end of the content. Therefore, this check can be useful to remove
-      such empty paragraphs.
+      Many XHTML editors insert an empty paragraph at the end of the content,
+      as soon as the user moves the cursor after the last paragraph.
+      The auto-correction functionality of this check can be used to 
+      remove such empty paragraphs (for example, by enabling auto-correction  
+      for the "Save" operation).
     </p>
   </div>
 
+  <hr />
   <a name="trim_figure_spaces" />
   <big><strong>trim_figure_spaces</strong></big>
   <div style="margin-left:16pt;">
@@ -439,7 +476,6 @@
       <tt>&amp;#160;</tt> as whitespace.
     </p>
   </div>
-
   ]]>
   </entry>    
 </properties>

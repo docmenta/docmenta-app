@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<!-- Put your custom HTML head tags here and select this file in the HTML output configuration. -->
+<!-- Note: The content of this file has to be XML (XHTML). -->
+<meta http-equiv="X-UA-Compatible" content="IE=8" />
+<meta http-equiv="expires" content="43200" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="generator" content="Docmenta 1.9.3"/>
+<title>Editor Options</title>
+<link rel="shortcut icon" href="favicon.ico" type="image/x-icon"/>
+<link rel="home" href="index.html" title="CKEditor Plug-in"/>
+
+<link rel="prev" href="pr01.html" title="CKEditor configuration"/>
+<link rel="next" href="ch02.html" title="Character Entity Settings"/>
+<link rel="stylesheet" type="text/css" href="styles.css"/>
+<link rel="stylesheet" type="text/css" href="common/jquery/theme-redmond/jquery-ui-1.8.2.custom.css"/>
+<link rel="stylesheet" type="text/css" href="common/jquery/treeview/jquery.treeview.css"/>
+<link rel="stylesheet" type="text/css" href="common/css/positioning.css"/>
+<script type="text/javascript">
+  var treeCookieId = "treeview-1532185945363";
+  var language = "en";
+  var w = new Object();
+  txt_filesfound = "Results";
+  txt_enter_at_least_1_char = "You must enter at least one character.";
+  txt_browser_not_supported = "Your browser is not supported. Use of Mozilla Firefox is recommended.";
+  txt_please_wait = "Please wait. Search in progress...";
+  txt_results_for = "Results for: ";
+</script>
+<script type="text/javascript" charset="utf-8" src="common/jquery/jquery-1.4.2.min.js"></script>
+<script type="text/javascript" charset="utf-8" src="common/jquery/jquery-ui-1.8.2.custom.min.js"></script>
+<script type="text/javascript" charset="utf-8" src="common/jquery/jquery.cookie.js"></script>
+<script type="text/javascript" charset="utf-8" src="common/jquery/treeview/jquery.treeview.min.js"></script>
+<script type="text/javascript" charset="utf-8" src="search/htmlFileList.js"></script>
+<script type="text/javascript" charset="utf-8" src="search/htmlFileInfoList.js"></script>
+<script type="text/javascript" charset="utf-8" src="search/nwSearchFnt.js"></script>
+<script type="text/javascript" src="search/stemmers/en_stemmer.js"></script>
+<script type="text/javascript" charset="utf-8" src="search/index-1.js"></script>
+<script type="text/javascript" charset="utf-8" src="search/index-2.js"></script>
+<script type="text/javascript" charset="utf-8" src="search/index-3.js"></script>
+<script type="text/javascript" src="custom.js"></script>
+<script type="text/javascript" charset="utf-8" src="common/main.js"></script>
+</head>
+<body>
+<div id="header">
+<img id="webhelplogo1" align="left" src='common/images/logo1.png' alt="Logo"/>
+<img id="webhelplogo2" align="right" src='common/images/logo2.png' alt="Logo"/>
+<div class="webhelptitle">
+<div class="webhelptitle1">CKEditor Plug-in</div>
+
+</div>
+<div id="navheader" align="right">
+<table>
+<tr>
+<td><img src="common/images/highlight-blue.gif" alt="H" onclick="toggleHighlight()" id="showHideHighlight" title="Toggle search result highlighting" /></td>
+<td><a id="navhead-prev" accesskey="p" href="pr01.html"><span class="navlink-text">Prev</span></a><span class="navhead-separator">&nbsp;|&nbsp;</span><a id="navhead-next" accesskey="n" href="ch02.html"><span class="navlink-text">Next</span></a></td>
+</tr>
+</table>
+</div>
+</div>
+<div id="leftnavigation">
+<div id="tabs">
+<ul id="tocsearchnavigation" style="display:none">
+<li id="tocnavigationtab"><a href="#treeDiv"><em>Contents</em></a></li>
+<li id="searchnavigationtab"><a href="#searchDiv"><em>Search</em></a></li>
+</ul>
+<div id="treeDiv"><img src="common/images/loading.gif" alt="loading table of contents..." id="tocLoading" style="display:block;"/>
+<div id="ulTreeDiv" style="display:none;">
+<div id="treenavigationtitle" style="display:none;">Contents</div>
+<ul id="tree" class="filetree"><li><span class="file"><a href="pr01.html">CKEditor configuration</a></span></li><li id="webhelp-currentid"><span class="file"><a href="ch01.html">Editor Options</a></span></li><li><span class="file"><a href="ch02.html">Character Entity Settings</a></span></li><li><span class="file"><a href="ch03.html">User Interface Settings</a></span></li><li><span class="file"><a href="ch04.html">HTML5 Figure Tag Support</a></span></li></ul>
+</div>
+</div>
+<div id="searchDiv">
+<div id="search">
+<form onsubmit="startWebHelpSearch(ditaSearch_Form);return false" name="ditaSearch_Form" class="searchForm">
+<fieldset class="searchFieldSet">
+<legend>Search</legend>
+<div align="center">
+<input id="textToSearch" name="textToSearch" type="text" class="searchText"/>&nbsp;<input onclick="startWebHelpSearch(ditaSearch_Form)" type="button" class="searchButton" value="Go" id="doSearch"/>
+</div>
+</fieldset>
+</form>
+</div>
+<div id="closeSearchResults" style="display:none"><a href="javascript:closeSearchShowToc();">Contents</a></div>
+<div id="searchResults"><div align="center"></div></div>
+</div>
+</div>
+</div>
+
+<div id="breadcrumbsnavigation" class="breadcrumbs"><span class="breadcrumb-link"><a class="breadcrumb_node" href="index.html">CKEditor Plug-in</a></span> <span class="breadcrumb_separator">&rarr;</span> <span class="breadcrumb_node breadcrumb_lastnode">Editor Options</span></div>
+<div id="content">
+
+<div id="comp00000002" class="chapter"><h2>Editor Options</h2><div title="Editor Options" class="doc-content"><div class="header_para">
+<div class="normal-para">Paste as plain text</div>
+</div>
+<div class="normal-para">If this option is checked, then all pasting operations are forced to insert plain text into the editor, losing any formatting information possibly available in the source text. This option reflects the setting <span class="code">CKEDITOR.config.forcePasteAsPlainText</span> in the CKEditor API.</div>
+<div class="header_para">
+<div class="normal-para">Ignore empty paragraph</div>
+</div>
+<div class="normal-para">Whether the editor must output an empty value (<span class="code">''</span>), if its content only consists of an empty paragraph. This option reflects the setting <span class="code">CKEDITOR.config.ignoreEmptyParagraph</span> in the CKEditor API.</div>
+<div class="header_para">
+<div class="normal-para">Alternative text required for captioned image</div>
+</div>
+<div class="normal-para">Determines whether alternative text is required for captioned images. This option reflects the setting <span class="code">CKEDITOR.config.image2_altRequired</span> in the CKEditor API.</div>
+<div class="header_para">
+<div class="normal-para">Disable image resizer</div>
+</div>
+<div class="normal-para">If this option is checked, disables the image resize functionality. This option reflects the setting <span class="code">CKEDITOR.config.image2_disableResizer</span> in the CKEditor API.</div>
+<div class="header_para">
+<div class="normal-para">Disable built-in browser spell check</div>
+</div>
+<div class="normal-para">If this option is checked, disables the built-in spell checker (in case the browser provides one). This option reflects the setting <span class="code">CKEDITOR.config.disableNativeSpellChecker</span> in the CKEditor API.</div>
+<div class="header_para">
+<div class="normal-para">Disable native table editing (Firefox)</div>
+</div>
+<div class="normal-para">If this option is checked, disables the table tools offered natively by the browser (currently Firefox only) to perform quick table editing operations, like adding or deleting rows and columns. This option reflects the setting <span class="code">CKEDITOR.config.disableNativeTableHandles</span> in the CKEditor API.</div>
+<div class="header_para">
+<div class="normal-para">Confirm cancel in dialog window</div>
+</div>
+<div class="normal-para">If this option is checked, the user is asked to confirm close (cancel), if any dialog field was modified. This option reflects the setting <span class="code">CKEDITOR.config.dialog_noConfirmCancel</span> in the CKEditor API.</div>
+</div></div>
+<div class="navfooter"><hr/><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="pr01.html"><span class="navlink-text">Prev</span></a>&#160;</td><td width="20%" align="center">&#160;</td><td width="40%" align="right">&#160;<a accesskey="n" href="ch02.html"><span class="navlink-text">Next</span></a></td></tr><tr><td width="40%" align="left" valign="top">CKEditor configuration&#160;</td><td width="20%" align="center"><a accesskey="h" href="index.html"><span class="navlink-text">Home</span></a></td><td width="40%" align="right" valign="top">&#160;Character Entity Settings</td></tr></table></div>
+<div class="web_footer">
+<p class="align-center">&#169; 2017 - www.docmenta.org</p>
+</div>
+
+</div>
+<a id="showHideButton" onclick="showHideToc();" class="pointLeft" title="Hide TOC tree">&nbsp;</a>
+</body>
+</html>

@@ -321,7 +321,11 @@ public class DocmaCharEntity implements CharEntity
         int end_pos = num_str.endsWith(";") ? numeric.length() - 1 : numeric.length();
         try {
             num_str = num_str.substring(start_pos, end_pos);
-            return Integer.parseInt(num_str);
+            if (num_str.startsWith("x")) {  // hexadecimal
+                return Integer.parseInt(num_str.substring(1), 16);
+            } else {  // decimal
+                return Integer.parseInt(num_str);
+            }
         } catch (Exception ex) {
             return -1;
         }

@@ -453,6 +453,9 @@ public class FormattingEngine
         }
         
         if (is_webhelp_new) {
+            // Insert declarations for symbolic entities:
+            html_in = 
+                FormatterUtil.insertDocTypeEntities(html_in, out_config.getCharEntities(), export_log);
             // Create the WebHelp2 output:
             webFormatter.format(html_in, outputDir, pub_config, out_config, export_log);
             // Create the index files for fulltext search:
