@@ -928,14 +928,14 @@ div.z-listheader-cnt { height:16px; max-height:16px; color:#000000; font-weight:
         }
 
         function previewRefresh() {
-            window.frames['viewcontentfrm'].location.reload();
+            window.frames['viewcontentfrm'].location.reload(true);
         }
 
         function previewContentRefresh() {
             var p_url = window.frames['viewcontentfrm'].location.href;
             if ((p_url.indexOf('viewContent.jsp') >= 0) || (p_url.indexOf('viewPDF.jsp') >= 0) ||
                 (p_url.indexOf('viewFile.jsp') >= 0)) {
-                window.frames['viewcontentfrm'].location.reload();
+                window.frames['viewcontentfrm'].location.reload(true);
             }
         }
 

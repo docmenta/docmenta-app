@@ -5,6 +5,7 @@
  Copyright (c) 2007-2008 NexWave Solutions All Rights Reserved.
  www.nexwave.biz Nadege Quaine
  http://kasunbg.blogspot.com/ Kasun Gajasinghe
+ Adapted by Manfred Paula for use in Docmenta (www.docmenta.org) 
  */
 
 //string initialization
@@ -104,7 +105,7 @@ function Effectuer_recherche(expressionInput) {
         // only differ by last 3 letters (fallback in case of incorrect stemmer results).
         var deleteChars = 3;
         var bWord = aWord;
-        while ((entries.length == 0) && (bWord.length >= 4) && (--deleteChars >= 0)) {
+        while ((entries.length == 0) && (bWord.length >= 5) && (--deleteChars >= 0)) {
             bWord = bWord.substr(0, bWord.length - 1);
             entries = getIndexEntries(bWord);
         }
@@ -126,7 +127,7 @@ function Effectuer_recherche(expressionInput) {
         fileAndWordList = SortResults(finalWordsList, finalEntries);
 
         var cpt = fileAndWordList.length;
-        for (var i = cpt - 1; i >= 0; i--) {
+        for (var i = 0; i < fileAndWordList.length; i++) { // for (var i = cpt - 1; i >= 0; i--) {
             if (fileAndWordList[i] != undefined) {
                 linkTab.push("<p>" + txt_results_for + " " + "<span class=\"searchExpression\">" + fileAndWordList[i][0].motslisteDisplay + "</span>" + "</p>");
 
@@ -183,10 +184,29 @@ function getIndexEntries(aWord) {
     for (var x in w) {  // iterate over all index entries
         // Find index entries where aWord is a substring
         if ((x.indexOf(aWord) >= 0) && (x != aWord)) {
-            res.push({ 'idxWord': x, 'fileList': w[x]});
+            var flist = w[x];
+            // if (found != undefined) {
+            //     flist = removeFromFileList(flist, found);
+            // }
+            if (flist.length > 0) {
+                res.push({ 'idxWord': x, 'fileList': flist});
+            }
         }
     }
+    if ((! found) && (res.length == 1)) { // found one index entry where aWord is substring 
+        res[0].idxWord = aWord; // show entered search term to not confuse user
+    }
     return res;
+}
+
+function removeFromFileList(flist, delIdx) {
+    var arr = flist.split(',');
+    var del = delIdx.split(',');
+    var res = new Array();
+    for (var i = 0; i < arr.length; i++) {
+        if (indexof(del, arr[i], 0) < 0) res.push(arr[i]); 
+    }
+    return  (res.length == 0) ? "" : res.join(',');
 }
 
 function tokenize(wordsList){
@@ -434,6 +454,7 @@ function unique(tab) {
     }
     return a;
 }
+
 function indexof(tab, element, begin) {
     for (var i = begin; i < tab.length; i++) {
         if (tab[i] == element) {
@@ -441,7 +462,6 @@ function indexof(tab, element, begin) {
         }
     }
     return -1;
-
 }
 /* end of Array functions */
 
@@ -451,6 +471,7 @@ function indexof(tab, element, begin) {
  This function creates an hashtable:
  - The key is the index of a html file which contains a word to look for.
  - The value is the list of all words contained in the html file.
+ Example (key -> value): 5 -> searchword1,searchword2
 
  Return value: the hashtable fileAndWordList
  */
@@ -468,51 +489,51 @@ function SortResults(mots, idx_entries) {
         var tab = listNumerosDesFicStr.split(",");
 
         //for each file (file's index):
-        for (var t2 in tab) {
-            var temp = tab[t2].toString();
+        for (var t2 = 0; t2 < tab.length; t2++) {
+            var temp = tab[t2].toString();  // file index
             if (fileAndWordList[temp] == undefined) {
-
                 fileAndWordList[temp] = "" + mots[t];
             } else {
-
                 fileAndWordList[temp] += "," + mots[t];
             }
         }
     }
 
-    var fileAndWordListValuesOnly = new Array();
+    var wordsOnly = new Array();
 
     // sort results according to values
     var temptab = new Array();
-    for (t in fileAndWordList) {
+    for (t in fileAndWordList) {  // t is file index
         tab = fileAndWordList[t].split(',');
 
         var tempDisplay = new Array();
-        for (var x in tab) {
-            if(stemQueryMap[tab[x]] != undefined){
-                tempDisplay.push(stemQueryMap[tab[x]]); //get the original word from the stem word.
-            } else {
-                tempDisplay.push(tab[x]); //no stem is available. (probably a CJK language)
+        for (var x = 0; x < tab.length; x++) { 
+            var aword = tab[x];
+            if (stemQueryMap[aword] != undefined){  // stem is available
+                aword = stemQueryMap[aword]; //get the original word from the stem word.
+            }
+            if (indexof(tempDisplay, aword, 0) < 0) {
+                tempDisplay.push(aword);
             }
         }
-        var tempDispString = tempDisplay.join(", ");
+        var dispString = tempDisplay.join(", ");
 
-        temptab.push(new resultPerFile(t, fileAndWordList[t], tab.length, tempDispString));
-        fileAndWordListValuesOnly.push(fileAndWordList[t]);
+        temptab.push(new resultPerFile(t, fileAndWordList[t], tab.length, dispString));
+        wordsOnly.push(fileAndWordList[t]);
     }
 
 
-    //alert("t"+fileAndWordListValuesOnly.toString());
+    //alert("t"+wordsOnly.toString());
 
-    fileAndWordListValuesOnly = unique(fileAndWordListValuesOnly);
-    fileAndWordListValuesOnly = fileAndWordListValuesOnly.sort(compare_nbMots);
-    //alert("t: "+fileAndWordListValuesOnly.join(';'));
+    wordsOnly = unique(wordsOnly);
+    wordsOnly = wordsOnly.sort(compare_nbMots);
+    //alert("t: " + wordsOnly.join(';'));
 
     var listToOutput = new Array();
 
-    for (var j in fileAndWordListValuesOnly) {
+    for (var j in wordsOnly) {
         for (t in temptab) {
-            if (temptab[t].motsliste == fileAndWordListValuesOnly[j]) {
+            if (temptab[t].motsliste == wordsOnly[j]) {
                 if (listToOutput[j] == undefined) {
                     listToOutput[j] = new Array(temptab[t]);
                 } else {
@@ -525,10 +546,10 @@ function SortResults(mots, idx_entries) {
 }
 
 function resultPerFile(filenb, motsliste, motsnb, motslisteDisplay) {
-    this.filenb = filenb;
-    this.motsliste = motsliste;
-    this.motsnb = motsnb;
-    this.motslisteDisplay= motslisteDisplay;
+    this.filenb = filenb;  // file index
+    this.motsliste = motsliste;  // word list (stems, comma separated)
+    this.motsnb = motsnb;  // number of stems in word list
+    this.motslisteDisplay= motslisteDisplay;  // words, duplicates removed, transformed from stem to original 
 }
 
 function compare_nbMots(s1, s2) {
@@ -536,7 +557,8 @@ function compare_nbMots(s1, s2) {
     var t2 = s2.split(',');
     //alert ("s1:"+t1.length + " " +t2.length)
     if (t1.length == t2.length) {
-        return 0;
+        var diff = s1.length - s2.length;
+        return (diff > 0) ? 1 : (diff < 0) ? -1 : 0;
     } else if (t1.length > t2.length) {
         return 1;
     } else {

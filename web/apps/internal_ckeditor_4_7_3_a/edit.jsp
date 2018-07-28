@@ -65,7 +65,7 @@
     boolean disableNativeSpell = true;
     boolean disableNativeTable = true;
     boolean entitiesHtml = true;
-    String entitiesAdditional = "";  //  "#39";  comma-separated list
+    // String entitiesAdditional = "";  //  "#39";  comma-separated list
     boolean entitiesGreek = true;
     boolean entitiesLatin = true;
     String entitiesNum = "false";   // or "true" or "'force'"
@@ -76,7 +76,7 @@
     String imgCaptionedCls = null;
     boolean imgDisableResize = false;
     String removeBtns = "";
-    String skin = "";
+    String skin = "moono-lisa";
     String toolbar = appHandler.getCKEditorToolbarTemplate();
     String toolbarLoc = "top";
     String uiColor = "#9AB8F3";
@@ -89,16 +89,21 @@
         disableNativeSpell = ckPlugin.isDisableNativeSpellChecker();
         disableNativeTable = ckPlugin.isDisableNativeTableHandles();
         entitiesHtml = ckPlugin.isEntitiesHTML();
-        if (ckPlugin.isEntitiesUser()) {
-            if (ckPlugin.isEntitiesUserNumerical()) {
-                entitiesAdditional = appHandler.getEntitiesAdditionalNumeric();
-            } else {
-                entitiesAdditional = appHandler.getEntitiesAdditionalSymbolic();
-            }
-        }
+        // if (ckPlugin.isEntitiesUser()) {
+        //     if (ckPlugin.isEntitiesUserNumerical()) {
+        //         entitiesAdditional = appHandler.getEntitiesAdditionalNumeric();
+        //     } else {
+        //         entitiesAdditional = appHandler.getEntitiesAdditionalSymbolic();
+        //     }
+        // }
         entitiesGreek = ckPlugin.isEntitiesGreek();
         entitiesLatin = ckPlugin.isEntitiesLatin();
         entitiesNum = ckPlugin.getEntitiesProcessNumerical();
+        if ((entitiesNum == null) || entitiesNum.equals("")) {
+            entitiesNum = "false";
+        } else if (entitiesNum.equals("force")) {
+            entitiesNum = "'force'";
+        }
         figureEnabled = ckPlugin.isFigureTagEnabled(storeid);
         forcePastePlain = ckPlugin.isPastePlainText();
         ignoreEmptyPara = ckPlugin.isIgnoreEmptyPara();
@@ -107,6 +112,9 @@
         imgDisableResize = ckPlugin.isImgDisableResizer();
         removeBtns = ckPlugin.getRemoveButtons();
         skin = ckPlugin.getSkin();
+        if ((skin == null) || skin.equals("")) {
+            skin = ckPlugin.getFirstAvailableCKSkin();
+        }
         // toolbar = ;
         toolbarLoc = ckPlugin.getToolbarLocation();
         uiColor = ckPlugin.getUIColor();
@@ -126,7 +134,7 @@
     inimap.put("###disableNativeSpellChecker###", disableNativeSpell ? "true" : "false");
     inimap.put("###disableNativeTableHandles###", disableNativeTable ? "true" : "false");
     inimap.put("###entities###", entitiesHtml ? "true" : "false");
-    inimap.put("###entities_additional###", entitiesAdditional);
+    // inimap.put("###entities_additional###", entitiesAdditional);
     inimap.put("###entities_greek###", entitiesGreek ? "true" : "false");
     inimap.put("###entities_latin###", entitiesLatin ? "true" : "false");
     inimap.put("###entities_processNumerical###", entitiesNum);

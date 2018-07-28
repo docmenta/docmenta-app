@@ -73,6 +73,7 @@
           <checkbox id="CKEditConfHTMLEntitiesBox" label="${labels.internal_ckeditor.entities_html}" />
           <checkbox id="CKEditConfGreekEntitiesBox" label="${labels.internal_ckeditor.entities_greek}" />
           <checkbox id="CKEditConfLatinEntitiesBox" label="${labels.internal_ckeditor.entities_latin}" />
+          <!--
           <hbox align="center">
             <checkbox id="CKEditConfUserEntitiesBox" label="${labels.internal_ckeditor.entities_user}" />
             <listbox id="CKEditConfUserEntitiesListbox" mold="select" rows="1">
@@ -80,6 +81,7 @@
               <listitem label="${labels.internal_ckeditor.entities_user_numeric}" value="numeric" />
             </listbox>
           </hbox>
+          -->
           <checkbox id="CKEditConfNumericEntitiesBox" label="${labels.internal_ckeditor.entities_numeric}" />
           <hbox pack="stretch" align="center">
             <space spacing="16px" /> 

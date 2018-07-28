@@ -54,8 +54,8 @@ public class CKEditConfComposer extends SelectorComposer<Component>
     @Wire Checkbox CKEditConfHTMLEntitiesBox;
     @Wire Checkbox CKEditConfGreekEntitiesBox;
     @Wire Checkbox CKEditConfLatinEntitiesBox;
-    @Wire Checkbox CKEditConfUserEntitiesBox;
-    @Wire Listbox  CKEditConfUserEntitiesListbox;
+    // @Wire Checkbox CKEditConfUserEntitiesBox;
+    // @Wire Listbox  CKEditConfUserEntitiesListbox;
     @Wire Checkbox CKEditConfNumericEntitiesBox;
     @Wire Listbox  CKEditConfNumericEntitiesListbox;
     @Wire Listbox  CKEditConfFigTagListbox;
@@ -104,11 +104,11 @@ public class CKEditConfComposer extends SelectorComposer<Component>
         openHelp(help_url);
     }
 
-    @Listen("onCheck = #CKEditConfUserEntitiesBox")
-    public void onCheckUserEntities()
-    {
-        CKEditConfUserEntitiesListbox.setDisabled(! CKEditConfUserEntitiesBox.isChecked());
-    }
+//    @Listen("onCheck = #CKEditConfUserEntitiesBox")
+//    public void onCheckUserEntities()
+//    {
+//        CKEditConfUserEntitiesListbox.setDisabled(! CKEditConfUserEntitiesBox.isChecked());
+//    }
     
     @Listen("onCheck = #CKEditConfNumericEntitiesBox")
     public void onCheckNumericEntities()
@@ -151,10 +151,10 @@ public class CKEditConfComposer extends SelectorComposer<Component>
         CKEditConfHTMLEntitiesBox.setChecked(plugin.isEntitiesHTML());
         CKEditConfGreekEntitiesBox.setChecked(plugin.isEntitiesGreek());
         CKEditConfLatinEntitiesBox.setChecked(plugin.isEntitiesLatin());
-        boolean isUserEntities = plugin.isEntitiesUser();
-        CKEditConfUserEntitiesBox.setChecked(isUserEntities);
-        selectListItem(CKEditConfUserEntitiesListbox, plugin.isEntitiesUserNumerical() ? "numeric" : "symbolic");
-        CKEditConfUserEntitiesListbox.setDisabled(! isUserEntities);
+        // boolean isUserEntities = plugin.isEntitiesUser();
+        // CKEditConfUserEntitiesBox.setChecked(isUserEntities);
+        // selectListItem(CKEditConfUserEntitiesListbox, plugin.isEntitiesUserNumerical() ? "numeric" : "symbolic");
+        // CKEditConfUserEntitiesListbox.setDisabled(! isUserEntities);
         String numStr = plugin.getEntitiesProcessNumerical();
         boolean isForceNum = numStr.equals("force");
         boolean isNum = isForceNum || numStr.equals("true");
@@ -188,8 +188,8 @@ public class CKEditConfComposer extends SelectorComposer<Component>
         plugin.setEntitiesHTML(CKEditConfHTMLEntitiesBox.isChecked());
         plugin.setEntitiesGreek(CKEditConfGreekEntitiesBox.isChecked());
         plugin.setEntitiesLatin(CKEditConfLatinEntitiesBox.isChecked());
-        plugin.setEntitiesUser(CKEditConfUserEntitiesBox.isChecked());
-        plugin.setEntitiesUserNumerical("numeric".equals(getSelectedValue(CKEditConfUserEntitiesListbox)));
+        // plugin.setEntitiesUser(CKEditConfUserEntitiesBox.isChecked());
+        // plugin.setEntitiesUserNumerical("numeric".equals(getSelectedValue(CKEditConfUserEntitiesListbox)));
         boolean isNum = CKEditConfNumericEntitiesBox.isChecked();
         boolean isForce = isNum && "all".equals(getSelectedValue(CKEditConfNumericEntitiesListbox));
         plugin.setEntitiesProcessNumerical(isForce ? "force" : (isNum ? "true" : "false"));

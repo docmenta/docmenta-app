@@ -41,8 +41,8 @@ public class CKEditPlugin extends DefaultWebPlugin
     static final String PROP_DISABLE_NATIVE_SPELLCHECKER = "disableNativeSpellChecker";
     static final String PROP_DISABLE_NATIVE_TABLEHANDLES = "disableNativeTableHandles";
     static final String PROP_ENTITIES_HTML = "entities";
-    static final String PROP_ENTITIES_USER = "entities_user";
-    static final String PROP_ENTITIES_USER_NUMERICAL = "entities_userNumerical";
+    // static final String PROP_ENTITIES_USER = "entities_user";
+    // static final String PROP_ENTITIES_USER_NUMERICAL = "entities_userNumerical";
     static final String PROP_ENTITIES_GREEK = "entities_greek";
     static final String PROP_ENTITIES_LATIN = "entities_latin";
     static final String PROP_ENTITIES_NUMERICAL = "entities_processNumerical";
@@ -151,25 +151,25 @@ public class CKEditPlugin extends DefaultWebPlugin
         setCKProperty(PROP_ENTITIES_HTML, enabled ? "true" : "false");
     }
     
-    public boolean isEntitiesUser()
-    {
-        return isCKProperty(PROP_ENTITIES_USER, true);
-    }
-    
-    public void setEntitiesUser(boolean enabled)
-    {
-        setCKProperty(PROP_ENTITIES_USER, enabled ? "true" : "false");
-    }
-    
-    public boolean isEntitiesUserNumerical()
-    {
-        return isCKProperty(PROP_ENTITIES_USER_NUMERICAL, false);
-    }
-    
-    public void setEntitiesUserNumerical(boolean enabled)
-    {
-        setCKProperty(PROP_ENTITIES_USER_NUMERICAL, enabled ? "true" : "false");
-    }
+//    public boolean isEntitiesUser()
+//    {
+//        return isCKProperty(PROP_ENTITIES_USER, true);
+//    }
+//    
+//    public void setEntitiesUser(boolean enabled)
+//    {
+//        setCKProperty(PROP_ENTITIES_USER, enabled ? "true" : "false");
+//    }
+//    
+//    public boolean isEntitiesUserNumerical()
+//    {
+//        return isCKProperty(PROP_ENTITIES_USER_NUMERICAL, false);
+//    }
+//    
+//    public void setEntitiesUserNumerical(boolean enabled)
+//    {
+//        setCKProperty(PROP_ENTITIES_USER_NUMERICAL, enabled ? "true" : "false");
+//    }
     
     public boolean isEntitiesGreek()
     {
